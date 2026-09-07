@@ -97,16 +97,44 @@ class WorkOrderMenuHandler:
 
     def _send_reply(self, gateway, chat_id, reply, send):
         try:
+            chunks = []
             chunk = ''
             for line in reply.splitlines(keepends=True):
                 if chunk and len(chunk) + len(line) > 3000:
-                    send(gateway, chat_id, chunk)
+                    chunks.append(chunk)
                     chunk = ''
                 chunk += line
             if chunk:
-                send(gateway, chat_id, chunk)
+                chunks.append(chunk)
+            if len(chunks) <= 1:
+                if chunks:
+                    send(gateway, chat_id, chunks[0])
+                return None
+
+            # The plugin's synchronous callback schedules every send as a
+            # separate task. Network completion can then reorder long replies.
+            # Await each Bale send here so proposal sections arrive in order.
+            adapter = next((adapter for platform, adapter in gateway.adapters.items()
+                            if str(getattr(platform, 'value', platform)).lower() == 'bale'), None) if gateway else None
+            if adapter is None:
+                for part in chunks:
+                    send(gateway, chat_id, part)
+                return None
+
+            async def send_in_order():
+                try:
+                    for part in chunks:
+                        await adapter.send(str(chat_id), part)
+                except Exception:
+                    logger.exception('Could not send ordered work-order reply')
+
+            task = asyncio.get_running_loop().create_task(send_in_order())
+            self.tasks.add(task)
+            task.add_done_callback(self.tasks.discard)
+            return task
         except Exception:
             logger.exception("Could not schedule work-order reply")
+            return None
 
     async def _run_request(self, key, session, request, gateway, send):
         chat_id = key[2]
@@ -117,7 +145,9 @@ class WorkOrderMenuHandler:
                 session.stage = 'STAFF'
                 session.result = reply
                 session.expires = self.clock() + 600
-                self._send_reply(gateway, chat_id, reply, send)
+                delivery = self._send_reply(gateway, chat_id, reply, send)
+                if delivery:
+                    await delivery
                 return
             result = await self.worker(request)
             if not result.get("ok"):
@@ -139,8 +169,14 @@ class WorkOrderMenuHandler:
                 reply = render(session.proposal)
             elif request['action'] == 'validate_add':
                 session.additions = result['items']
-                session.stage = 'ADD_ACTION'
-                reply = 'نوع تعویض دستگاه‌های اضافه‌شده را انتخاب کنید:\n1) بیرونی\n2) داخلی و بیرونی\nخاور: گزینهٔ ۲؛ مزدا و ریچ: گزینهٔ ۱\nبرای بازگشت بنویسید: برگشت'
+                if session.work_order_type == 'GREASING':
+                    from tools.fleet.work_orders.channels.bale.proposal_form import add_items, render
+                    add_items(session.proposal, session.additions, 'GREASING_FULL')
+                    session.stage = 'PROPOSAL'
+                    reply = render(session.proposal)
+                else:
+                    session.stage = 'ADD_ACTION'
+                    reply = 'نوع تعویض دستگاه‌های اضافه‌شده را انتخاب کنید:\n1) بیرونی\n2) داخلی و بیرونی\nخاور: گزینهٔ ۲؛ مزدا و ریچ: گزینهٔ ۱\nبرای بازگشت بنویسید: برگشت'
             elif request["action"] == "validate_machines":
                 session.machine_codes = result["machine_codes"]
                 session.stage = "DATE"
@@ -153,18 +189,6 @@ class WorkOrderMenuHandler:
                 reply = f"✅ تایید بررسی فایل حکم {session.order_no} ثبت شد.\n{menu}"
                 session.result = reply
             elif request["action"] == "edit":
-                if result['work_order_type'] == 'GREASING':
-                    session.stage = 'MACHINES'
-                    session.work_order_type = 'GREASING'
-                    session.proposal = None
-                    session.order_no = ''
-                    session.machine_codes = []
-                    session.jalali_date = ''
-                    session.result = ''
-                    reply = 'کد دستگاه‌ها را دوباره وارد کنید؛ سپس تاریخ و شیفت را می‌پرسم.\nدستگاه‌های قبلی: ' + ' '.join(result['machine_codes']) + '\nنسخهٔ اصلاحی شمارهٔ جدید می‌گیرد؛ حکم قبلی محفوظ می‌ماند.'
-                    session.expires = self.clock() + 600
-                    self._send_reply(gateway, chat_id, reply, send)
-                    return
                 from tools.fleet.work_orders.channels.bale.proposal_form import render
                 session.stage = "PROPOSAL"
                 session.work_order_type = result["work_order_type"]
@@ -190,7 +214,10 @@ class WorkOrderMenuHandler:
                     await self.document_sender(gateway, chat_id, order)
                     session.stage = "REVIEW"
                     reply += "\n\nفایل را بررسی کنید؛ آیا تایید می‌کنید؟\nبرای تایید بنویسید:\nتایید"
-                    reply += "\n\nبرای اصلاح دستگاه‌ها، تاریخ یا شیفت بنویسید:\nویرایش"
+                    if session.work_order_type == 'GREASING':
+                        reply += "\n\nبرای اصلاح دستگاه‌ها بنویسید:\nویرایش"
+                    else:
+                        reply += "\n\nبرای اصلاح دستگاه‌ها، تاریخ یا شیفت بنویسید:\nویرایش"
                 except Exception:
                     logger.exception("Manager Excel delivery failed")
                     reply += f"\n\nارسال فایل ناموفق بود؛ حکم محفوظ است. برای تلاش دوباره بنویسید:\nارسال مجدد {session.order_no}"
@@ -201,7 +228,9 @@ class WorkOrderMenuHandler:
             session.stage = "RESULT"
             reply = "عملیات با خطا روبه‌رو شد. پیش از ساخت دوباره، وضعیت حکم باید بررسی شود."
             session.result = reply
-        self._send_reply(gateway, chat_id, reply, send)
+        delivery = self._send_reply(gateway, chat_id, reply, send)
+        if delivery:
+            await delivery
 
     def _start_request(self, key, session, request, gateway, send):
         loop = asyncio.get_running_loop()
@@ -264,12 +293,8 @@ class WorkOrderMenuHandler:
             elif session.stage == "MENU" and text.isdecimal():
                 item = resolve_work_order_selection(text, bale_id=user_id, db_path=self.db_path)
                 session.work_order_type = item["key"]
-                if item['key'] == 'GREASING':
-                    session.stage = 'MACHINES'
-                    reply = 'گریس‌کاری انتخاب شد.\nکد دستگاه‌ها را با فاصله وارد کنید؛ مانند 714 465.\nشرح کار همهٔ دستگاه‌ها: گریسکاری کامل\nبرای خروج: انصراف'
-                else:
-                    self._start_request(key, session, {'action':'propose','bale_id':user_id}, gateway, send)
-                    reply = 'در حال بررسی کارکردها و تهیهٔ پیشنهاد هواکش…'
+                self._start_request(key, session, {'action':'propose','bale_id':user_id,'work_order_type':item['key']}, gateway, send)
+                reply = 'در حال بررسی کارکردها و تهیهٔ پیشنهاد گریس‌کاری…' if item['key'] == 'GREASING' else 'در حال بررسی کارکردها و تهیهٔ پیشنهاد هواکش…'
                 reason = "work-order-type-selected"
             elif session.proposal is not None and session.stage in {'PROPOSAL','REMOVE','ADD_CODES','ADD_ACTION'}:
                 from tools.fleet.work_orders.channels.bale.proposal_form import render, add_items
@@ -286,8 +311,19 @@ class WorkOrderMenuHandler:
                     elif text in {'تایید','تأیید'}:
                         if not session.proposal['items']:
                             raise ValueError('فهرست خالی است؛ دستگاه اضافه کنید یا انصراف بدهید.')
-                        session.stage = 'SHIFT'
-                        reply = 'شیفت را وارد کنید: صبح، ظهر یا شب؛ مانند صبح ظهر.'
+                        if session.work_order_type == 'GREASING':
+                            request = {"action": "create", "bale_id": user_id,
+                                       "work_order_type": session.work_order_type,
+                                       "machine_codes": [i['machine_code'] for i in session.proposal['items']],
+                                       "jalali_date": session.jalali_date, "shift": "روزانه",
+                                       "item_actions": {i['machine_code']:i['action_code'] for i in session.proposal['items']},
+                                       "proposal": {k:session.proposal[k] for k in ('cutoff','plan_date','source_sha256')}}
+                            self._start_request(key, session, request, gateway, send)
+                            reply = 'در حال ساخت حکم کار و فایل اکسل…'
+                            reason = 'work-order-creating'
+                        else:
+                            session.stage = 'SHIFT'
+                            reply = 'شیفت را وارد کنید: صبح، ظهر یا شب؛ مانند صبح ظهر.'
                     else:
                         reply = 'یکی از این موارد را بنویسید: حذف، اضافه، تایید، انصراف'
                 elif session.stage == 'REMOVE':
@@ -299,11 +335,13 @@ class WorkOrderMenuHandler:
                     session.stage = 'PROPOSAL'
                     reply = render(session.proposal)
                 elif session.stage == 'ADD_CODES':
-                    codes = [c for c in re.split(r'[\s,،]+',normalize_digits(text).upper()) if c]
-                    codes = [c[2:] if re.fullmatch(r'HD\d+',c) else c for c in codes]
+                    codes = [c for c in re.split(r'[\s,،]+',normalize_digits(text)) if c]
+                    if session.work_order_type != 'GREASING':
+                        codes = [c.upper() for c in codes]
+                        codes = [c[2:] if re.fullmatch(r'HD\d+',c) else c for c in codes]
                     if not codes or len(codes) > 100:
                         raise ValueError('کد دستگاه‌های معتبر را وارد کنید.')
-                    self._start_request(key,session,{'action':'validate_add','bale_id':user_id,'machine_codes':codes},gateway,send)
+                    self._start_request(key,session,{'action':'validate_add','bale_id':user_id,'work_order_type':session.work_order_type,'machine_codes':codes},gateway,send)
                     reply = 'در حال بررسی دستگاه‌های اضافه‌شده…'
                 else:
                     choice = normalize_digits(text)

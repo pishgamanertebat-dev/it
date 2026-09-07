@@ -30,9 +30,15 @@ def execute_request(request: dict, *, db_path=None) -> dict:
     try:
         actor = require_work_order_permission(request.get("bale_id"), db_path=db_path)
         if request['action'] == 'propose':
-            from tools.fleet.air_filter.proposal import build_proposal
+            if request.get('work_order_type') == 'GREASING':
+                from tools.fleet.greasing.proposal import build_proposal
+            else:
+                from tools.fleet.air_filter.proposal import build_proposal
             return {'ok': True, 'proposal': build_proposal()}
         if request['action'] == 'validate_add':
+            if request.get('work_order_type') == 'GREASING':
+                from tools.fleet.greasing.proposal import resolve_items
+                return {'ok':True, 'items':resolve_items(request['machine_codes'])}
             from tools.fleet.air_filter.proposal import read_source, rule_for
             from tools.fleet.work_orders.types.air_filter.builder import get_items
             machines, *_ = read_source()
@@ -51,9 +57,8 @@ def execute_request(request: dict, *, db_path=None) -> dict:
             if request["action"] == "edit":
                 if order["status"] != "FILE_READY":
                     raise ValueError("اصلاح فقط پیش از انتخاب سرویسکار امکان‌پذیر است.")
-                if order['work_order_type'] == 'GREASING':
-                    return {'ok':True,'work_order_type':'GREASING','machine_codes':[i['machine_code'] for i in order['items']]}
                 return {"ok": True, "work_order_type": order["work_order_type"], 'proposal': {
+                    'work_order_type':order['work_order_type'],
                     'plan_date':order['jalali_date'], 'cutoff':'نسخهٔ اصلاحی حکم قبلی',
                     'source_sha256':None, 'items':order['items'], 'warnings':[], 'review':[]}}
             return {"ok": True, "order": preview_order(order)}
@@ -66,17 +71,21 @@ def execute_request(request: dict, *, db_path=None) -> dict:
         proposal = request.get('proposal')
         if proposal and proposal.get('source_sha256'):
             import hashlib
-            from tools.fleet.air_filter.proposal import SOURCE
+            if work_order_type == 'GREASING':
+                from tools.fleet.greasing.source import SOURCE
+            else:
+                from tools.fleet.air_filter.proposal import SOURCE
             if hashlib.sha256(SOURCE.read_bytes()).hexdigest() != proposal['source_sha256']:
-                raise ValueError('فایل اطلاعات هواکش تغییر کرده است؛ با «حکم کار» پیشنهاد جدید بگیرید.')
+                raise ValueError('فایل اطلاعات سرویس تغییر کرده است؛ با «حکم کار» پیشنهاد جدید بگیرید.')
         order = service.create_work_order(
             work_order_type=work_order_type,
             jalali_date=request["jalali_date"],
-            shift=normalize_shift(request["shift"]),
+            shift=("روزانه" if work_order_type == "GREASING" and request.get("shift") == "روزانه"
+                   else normalize_shift(request["shift"])),
             machine_codes=request["machine_codes"],
             created_by=f"bale:{actor.bale_id}",
             item_actions=request.get('item_actions'),
-            notes=('AIR_FILTER_PROPOSAL: ' + json.dumps(proposal, ensure_ascii=False)) if proposal else None,
+            notes=(work_order_type + '_PROPOSAL: ' + json.dumps(proposal, ensure_ascii=False)) if proposal else None,
         )
         return {"ok": True, "order": preview_order(order)}
     except WorkOrderPermissionDenied:

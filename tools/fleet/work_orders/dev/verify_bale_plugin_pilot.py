@@ -197,30 +197,43 @@ async def verify(root: Path) -> None:
     assert row[0] == 'SENT' and all(row[1:])
     await event('حکم کار')
     assert (await event('۳'))['reason'] == 'work-order-type-selected'
-    assert 'گریسکاری کامل' in replies[-1][1]
+    await asyncio.gather(*list(handler_module._handler.tasks))
+    session = next(iter(handler_module._handler.pending.values()))
+    assert session.stage == 'PROPOSAL'
+    assert session.proposal['cutoff'] == '1405/06/15 - روز'
+    assert session.proposal['plan_date'] == '1405/06/16'
+    assert 's1' in [i['machine_code'] for i in session.proposal['items']]
+    assert 'S1' not in [i['machine_code'] for i in session.proposal['items']]
+    await event('حذف')
+    await event('۱ ۲')
+    await event('اضافه')
     await event('714 231')
     await asyncio.gather(*list(handler_module._handler.tasks))
-    assert next(iter(handler_module._handler.pending.values())).stage == 'DATE'
-    await event('1405/06/15')
-    await event('صبح ظهر')
+    assert session.stage == 'PROPOSAL'  # Greasing needs no inner/outer choice.
+    assert all(i['action_code']=='GREASING_FULL' for i in session.proposal['items'])
+    assert (await event('تایید'))['reason'] == 'work-order-creating'
     await asyncio.gather(*list(handler_module._handler.tasks))
     await asyncio.sleep(0)
-    assert 'GR-1405-06-15-001' in replies[-1][1]
+    assert 'GR-1405-06-16-001' in replies[-1][1], replies[-1]
+    con = sqlite3.connect(root / 'permissions.db')
+    assert con.execute("SELECT shift FROM service_work_orders WHERE work_order_no='GR-1405-06-16-001'").fetchone()[0] == 'روزانه'
+    con.close()
     grease_path = next((root / 'orders').rglob('GR-*.xlsx'))
     wb = load_workbook(grease_path, read_only=True)
     assert wb.active['A1'].value == 'لیست روزانه گریسکاری'
     assert wb.active['D3'].value == wb.active['D4'].value == 'گریسکاری کامل'
-    assert wb.active['F1'].value == '1405/06/15'
+    assert wb.active['F1'].value == '1405/06/16'
+    assert any(row[2]=='s1' for row in wb.active.iter_rows(min_row=3,values_only=True))
     wb.close()
     handler_module._handler.pending.clear()
-    await event('ویرایش GR-1405-06-15-001')
+    await event('ویرایش GR-1405-06-16-001')
     await asyncio.gather(*list(handler_module._handler.tasks))
     await asyncio.sleep(0)
-    assert 'دستگاه‌های قبلی' in replies[-1][1]
+    assert 'پیشنهاد حکم گریس‌کاری' in '\n'.join(t for _,t in replies[-4:])
+    await event('اضافه')
     await event('465')
     await asyncio.gather(*list(handler_module._handler.tasks))
-    await event('1405/06/16')
-    await event('ظهر')
+    assert (await event('تایید'))['reason'] == 'work-order-creating'
     await asyncio.gather(*list(handler_module._handler.tasks))
     await event('تایید')
     await asyncio.gather(*list(handler_module._handler.tasks))
@@ -233,9 +246,9 @@ async def verify(root: Path) -> None:
     assert (await event('تایید', '85539397'))['reason'] == 'staff-receipt'
     await asyncio.gather(*list(staff_flow.tasks))
     assert any(c == '455740857' and 'گریس‌کاری' in t and 'دریافت حکم' in t for c,t in replies)
-    assert (await event('تایید GR-1405-06-16-001', '85539397'))['reason'] == 'staff-receipt'
+    assert (await event('تایید GR-1405-06-16-002', '85539397'))['reason'] == 'staff-receipt'
     await asyncio.gather(*list(staff_flow.tasks))
-    assert (await event('تایید GR-1405-06-15-001', '85539397'))['reason'] == 'staff-receipt-denied'
+    assert (await event('تایید GR-1405-06-16-001', '85539397'))['reason'] == 'staff-receipt-denied'
     # Re-open two isolated receipts to exercise the real plugin's numeric bridge.
     con = sqlite3.connect(root / 'permissions.db')
     con.execute("UPDATE service_work_orders SET acknowledged_at=NULL WHERE status='SENT'")
@@ -267,7 +280,7 @@ async def verify(root: Path) -> None:
     print("PASS: full Bale form -> real project worker -> FILE_READY order and Excel")
     print("PASS: manager document upload, persisted confirmation, edit after session loss, combined shifts, owner check")
     print('PASS: staff selection, disabled placeholders, identical Excel dispatch, acknowledgement, manager notification, no repeated dispatch or notification')
-    print('PASS: greasing manual form, fixed Excel title/actions, edit after session loss, same pilot recipient, plain/numbered receipt and ownership guard')
+    print('PASS: greasing real-source proposal, remove/add without action choice, case-sensitive s1, fixed Excel, edit after session loss, dispatch and receipt')
     print("PASS: permission denial, rejected registration, new-user onboarding")
     print("PASS: Telegram, group messages and ordinary chat are unchanged")
     print("All replies used the fake adapter; all database writes used temporary files.")

@@ -1,0 +1,770 @@
+{
+  "work_order_type": "GREASING",
+  "plan_date": "1405/06/16",
+  "cutoff": "1405/06/15 - روز",
+  "source_cutoff": "1405/06/15 - روز",
+  "source_sha256": "e851d80a9220e2edf521733b1d00eb3154a697b2267cd18d61fd9e09b7842929",
+  "items": [
+    {
+      "machine_code": "EX231",
+      "machine_name": "بیل مکانیکی دوسان 230",
+      "action_code": "GREASING_FULL",
+      "action_text": "گریسکاری کامل",
+      "source_row": 13,
+      "components": {
+        "greasing": {
+          "state": "DUE",
+          "value": 48,
+          "threshold": 10,
+          "warning_threshold": 7,
+          "unit": "ساعت",
+          "last_service": "1405/05/18 - روز",
+          "remaining": 0
+        }
+      }
+    },
+    {
+      "machine_code": "HD703",
+      "machine_name": "دامپتراک کوماتسو 5-785",
+      "action_code": "GREASING_FULL",
+      "action_text": "گریسکاری کامل",
+      "source_row": 33,
+      "components": {
+        "greasing": {
+          "state": "DUE",
+          "value": 66,
+          "threshold": 60,
+          "warning_threshold": 54,
+          "unit": "ساعت",
+          "last_service": "1405/06/02 - روز",
+          "remaining": 0
+        }
+      }
+    },
+    {
+      "machine_code": "HD705",
+      "machine_name": "دامپتراک کوماتسو 5-785",
+      "action_code": "GREASING_FULL",
+      "action_text": "گریسکاری کامل",
+      "source_row": 39,
+      "components": {
+        "greasing": {
+          "state": "DUE",
+          "value": 77,
+          "threshold": 60,
+          "warning_threshold": 54,
+          "unit": "ساعت",
+          "last_service": "1405/05/30 - روز",
+          "remaining": 0
+        }
+      }
+    },
+    {
+      "machine_code": "HD465",
+      "machine_name": "دامپتراک کوماتسو_ 7_465",
+      "action_code": "GREASING_FULL",
+      "action_text": "گریسکاری کامل",
+      "source_row": 45,
+      "components": {
+        "greasing": {
+          "state": "DUE",
+          "value": 81,
+          "threshold": 60,
+          "warning_threshold": 54,
+          "unit": "ساعت",
+          "last_service": "1405/05/30 - روز",
+          "remaining": 0
+        }
+      }
+    },
+    {
+      "machine_code": "HD466",
+      "machine_name": "دامپتراک کوماتسو_ 7_465",
+      "action_code": "GREASING_FULL",
+      "action_text": "گریسکاری کامل",
+      "source_row": 48,
+      "components": {
+        "greasing": {
+          "state": "DUE",
+          "value": 65,
+          "threshold": 60,
+          "warning_threshold": 54,
+          "unit": "ساعت",
+          "last_service": "1405/06/09 - روز",
+          "remaining": 0
+        }
+      }
+    },
+    {
+      "machine_code": "HD716",
+      "machine_name": "دامپتراک کوماتسو 7-785",
+      "action_code": "GREASING_FULL",
+      "action_text": "گریسکاری کامل",
+      "source_row": 60,
+      "components": {
+        "greasing": {
+          "state": "DUE",
+          "value": 62,
+          "threshold": 60,
+          "warning_threshold": 54,
+          "unit": "ساعت",
+          "last_service": "1405/05/27 - روز",
+          "remaining": 0
+        }
+      }
+    },
+    {
+      "machine_code": "s1",
+      "machine_name": "کامیون آب پاش",
+      "action_code": "GREASING_FULL",
+      "action_text": "گریسکاری کامل",
+      "source_row": 62,
+      "components": {
+        "greasing": {
+          "state": "DUE",
+          "value": 13,
+          "threshold": 8,
+          "warning_threshold": 6,
+          "unit": "روز",
+          "last_service": "1405/06/03 - روز",
+          "remaining": 0
+        }
+      }
+    },
+    {
+      "machine_code": "TR1",
+      "machine_name": "خاور",
+      "action_code": "GREASING_FULL",
+      "action_text": "گریسکاری کامل",
+      "source_row": 64,
+      "components": {
+        "greasing": {
+          "state": "DUE",
+          "value": 26,
+          "threshold": 8,
+          "warning_threshold": 6,
+          "unit": "روز",
+          "last_service": "1405/05/21 - روز",
+          "remaining": 0
+        }
+      }
+    },
+    {
+      "machine_code": "TA1",
+      "machine_name": "کامیون آب پاش",
+      "action_code": "GREASING_FULL",
+      "action_text": "گریسکاری کامل",
+      "source_row": 65,
+      "components": {
+        "greasing": {
+          "state": "DUE",
+          "value": 10,
+          "threshold": 8,
+          "warning_threshold": 6,
+          "unit": "روز",
+          "last_service": "1405/06/06 - روز",
+          "remaining": 0
+        }
+      }
+    }
+  ],
+  "warnings": [
+    "HD468: 54 از 60 ساعت؛ 6 ساعت تا موعد"
+  ],
+  "review": [
+    {
+      "code": "EX801",
+      "reason": "آخرین گریس‌کاری معتبر مشخص نیست؛ مسئول نت باید مبنا را تعیین کند."
+    },
+    {
+      "code": "EX802",
+      "reason": "آخرین گریس‌کاری معتبر مشخص نیست؛ مسئول نت باید مبنا را تعیین کند."
+    },
+    {
+      "code": "EX601",
+      "reason": "آخرین گریس‌کاری معتبر مشخص نیست؛ مسئول نت باید مبنا را تعیین کند."
+    },
+    {
+      "code": "EX521",
+      "reason": "آخرین گریس‌کاری معتبر مشخص نیست؛ مسئول نت باید مبنا را تعیین کند."
+    },
+    {
+      "code": "EX332",
+      "reason": "آخرین گریس‌کاری معتبر مشخص نیست؛ مسئول نت باید مبنا را تعیین کند."
+    },
+    {
+      "code": "EX321",
+      "reason": "آخرین گریس‌کاری معتبر مشخص نیست؛ مسئول نت باید مبنا را تعیین کند."
+    },
+    {
+      "code": "EX852",
+      "reason": "آخرین گریس‌کاری معتبر مشخص نیست؛ مسئول نت باید مبنا را تعیین کند."
+    },
+    {
+      "code": "EX853",
+      "reason": "آخرین گریس‌کاری معتبر مشخص نیست؛ مسئول نت باید مبنا را تعیین کند."
+    },
+    {
+      "code": "EX1251",
+      "reason": "آخرین گریس‌کاری معتبر مشخص نیست؛ مسئول نت باید مبنا را تعیین کند."
+    },
+    {
+      "code": "EX1252",
+      "reason": "آخرین گریس‌کاری معتبر مشخص نیست؛ مسئول نت باید مبنا را تعیین کند."
+    },
+    {
+      "code": "EX1253",
+      "reason": "آخرین گریس‌کاری معتبر مشخص نیست؛ مسئول نت باید مبنا را تعیین کند."
+    },
+    {
+      "code": "EX1254",
+      "reason": "آخرین گریس‌کاری معتبر مشخص نیست؛ مسئول نت باید مبنا را تعیین کند."
+    },
+    {
+      "code": "EX1255",
+      "reason": "آخرین گریس‌کاری معتبر مشخص نیست؛ مسئول نت باید مبنا را تعیین کند."
+    },
+    {
+      "code": "W472",
+      "reason": "آخرین گریس‌کاری معتبر مشخص نیست؛ مسئول نت باید مبنا را تعیین کند."
+    },
+    {
+      "code": "W473",
+      "reason": "آخرین گریس‌کاری معتبر مشخص نیست؛ مسئول نت باید مبنا را تعیین کند."
+    },
+    {
+      "code": "W601",
+      "reason": "آخرین گریس‌کاری معتبر مشخص نیست؛ مسئول نت باید مبنا را تعیین کند."
+    },
+    {
+      "code": "151",
+      "reason": "آخرین گریس‌کاری معتبر مشخص نیست؛ مسئول نت باید مبنا را تعیین کند."
+    },
+    {
+      "code": "152",
+      "reason": "آخرین گریس‌کاری معتبر مشخص نیست؛ مسئول نت باید مبنا را تعیین کند."
+    },
+    {
+      "code": "HD712",
+      "reason": "رنگ مشکوک؛ انجام سرویس محسوب نشد: BAK56"
+    },
+    {
+      "code": "HD714",
+      "reason": "رنگ مشکوک؛ انجام سرویس محسوب نشد: BAK58"
+    },
+    {
+      "code": "ردیف 68 (ژنراتور)",
+      "reason": "دورهٔ گریس‌کاری مشخص نیست."
+    }
+  ],
+  "source_warnings": [
+    "آخرین ثبت مربوط به شیفت روز است؛ دادهٔ شیفت شب پس از آن ثبت نشده است.",
+    "ستون‌های بعد از 1405/06/15 - روز تا 1405/06/15 - شب دادهٔ ثبت‌شده ندارند."
+  ],
+  "evaluations": [
+    {
+      "machine_code": "EX231",
+      "machine_name": "بیل مکانیکی دوسان 230",
+      "action_code": "GREASING_FULL",
+      "action_text": "گریسکاری کامل",
+      "source_row": 13,
+      "components": {
+        "greasing": {
+          "state": "DUE",
+          "value": 48,
+          "threshold": 10,
+          "warning_threshold": 7,
+          "unit": "ساعت",
+          "last_service": "1405/05/18 - روز",
+          "remaining": 0
+        }
+      }
+    },
+    {
+      "machine_code": "HD701",
+      "machine_name": "دامپتراک کوماتسو 5-785",
+      "action_code": "GREASING_FULL",
+      "action_text": "گریسکاری کامل",
+      "source_row": 31,
+      "components": {
+        "greasing": {
+          "state": "OK",
+          "value": 14,
+          "threshold": 60,
+          "warning_threshold": 54,
+          "unit": "ساعت",
+          "last_service": "1405/06/10 - روز",
+          "remaining": 46
+        }
+      }
+    },
+    {
+      "machine_code": "HD702",
+      "machine_name": "دامپتراک کوماتسو 5-785",
+      "action_code": "GREASING_FULL",
+      "action_text": "گریسکاری کامل",
+      "source_row": 32,
+      "components": {
+        "greasing": {
+          "state": "OK",
+          "value": 2,
+          "threshold": 60,
+          "warning_threshold": 54,
+          "unit": "ساعت",
+          "last_service": "1405/06/10 - روز",
+          "remaining": 58
+        }
+      }
+    },
+    {
+      "machine_code": "HD703",
+      "machine_name": "دامپتراک کوماتسو 5-785",
+      "action_code": "GREASING_FULL",
+      "action_text": "گریسکاری کامل",
+      "source_row": 33,
+      "components": {
+        "greasing": {
+          "state": "DUE",
+          "value": 66,
+          "threshold": 60,
+          "warning_threshold": 54,
+          "unit": "ساعت",
+          "last_service": "1405/06/02 - روز",
+          "remaining": 0
+        }
+      }
+    },
+    {
+      "machine_code": "HD704",
+      "machine_name": "دامپتراک کوماتسو 5-785",
+      "action_code": "GREASING_FULL",
+      "action_text": "گریسکاری کامل",
+      "source_row": 34,
+      "components": {
+        "greasing": {
+          "state": "OK",
+          "value": 38,
+          "threshold": 60,
+          "warning_threshold": 54,
+          "unit": "ساعت",
+          "last_service": "1405/06/09 - روز",
+          "remaining": 22
+        }
+      }
+    },
+    {
+      "machine_code": "HD461",
+      "machine_name": "دامپتراک کوماتسو 7-465",
+      "action_code": "GREASING_FULL",
+      "action_text": "گریسکاری کامل",
+      "source_row": 38,
+      "components": {
+        "greasing": {
+          "state": "OK",
+          "value": 7,
+          "threshold": 60,
+          "warning_threshold": 54,
+          "unit": "ساعت",
+          "last_service": "1405/06/13 - روز",
+          "remaining": 53
+        }
+      }
+    },
+    {
+      "machine_code": "HD705",
+      "machine_name": "دامپتراک کوماتسو 5-785",
+      "action_code": "GREASING_FULL",
+      "action_text": "گریسکاری کامل",
+      "source_row": 39,
+      "components": {
+        "greasing": {
+          "state": "DUE",
+          "value": 77,
+          "threshold": 60,
+          "warning_threshold": 54,
+          "unit": "ساعت",
+          "last_service": "1405/05/30 - روز",
+          "remaining": 0
+        }
+      }
+    },
+    {
+      "machine_code": "HD706",
+      "machine_name": "دامپتراک کوماتسو 5-785",
+      "action_code": "GREASING_FULL",
+      "action_text": "گریسکاری کامل",
+      "source_row": 40,
+      "components": {
+        "greasing": {
+          "state": "OK",
+          "value": 13,
+          "threshold": 60,
+          "warning_threshold": 54,
+          "unit": "ساعت",
+          "last_service": "1405/06/07 - روز",
+          "remaining": 47
+        }
+      }
+    },
+    {
+      "machine_code": "HD707",
+      "machine_name": "دامپتراک کوماتسو _5_785",
+      "action_code": "GREASING_FULL",
+      "action_text": "گریسکاری کامل",
+      "source_row": 42,
+      "components": {
+        "greasing": {
+          "state": "OK",
+          "value": 9,
+          "threshold": 60,
+          "warning_threshold": 54,
+          "unit": "ساعت",
+          "last_service": "1405/06/07 - روز",
+          "remaining": 51
+        }
+      }
+    },
+    {
+      "machine_code": "HD463",
+      "machine_name": "دامپتراک کوماتسو_ 7_465",
+      "action_code": "GREASING_FULL",
+      "action_text": "گریسکاری کامل",
+      "source_row": 43,
+      "components": {
+        "greasing": {
+          "state": "OK",
+          "value": 33,
+          "threshold": 60,
+          "warning_threshold": 54,
+          "unit": "ساعت",
+          "last_service": "1405/06/09 - روز",
+          "remaining": 27
+        }
+      }
+    },
+    {
+      "machine_code": "HD464",
+      "machine_name": "دامپتراک کوماتسو_ 7_465",
+      "action_code": "GREASING_FULL",
+      "action_text": "گریسکاری کامل",
+      "source_row": 44,
+      "components": {
+        "greasing": {
+          "state": "OK",
+          "value": 32,
+          "threshold": 60,
+          "warning_threshold": 54,
+          "unit": "ساعت",
+          "last_service": "1405/06/12 - روز",
+          "remaining": 28
+        }
+      }
+    },
+    {
+      "machine_code": "HD465",
+      "machine_name": "دامپتراک کوماتسو_ 7_465",
+      "action_code": "GREASING_FULL",
+      "action_text": "گریسکاری کامل",
+      "source_row": 45,
+      "components": {
+        "greasing": {
+          "state": "DUE",
+          "value": 81,
+          "threshold": 60,
+          "warning_threshold": 54,
+          "unit": "ساعت",
+          "last_service": "1405/05/30 - روز",
+          "remaining": 0
+        }
+      }
+    },
+    {
+      "machine_code": "HD466",
+      "machine_name": "دامپتراک کوماتسو_ 7_465",
+      "action_code": "GREASING_FULL",
+      "action_text": "گریسکاری کامل",
+      "source_row": 48,
+      "components": {
+        "greasing": {
+          "state": "DUE",
+          "value": 65,
+          "threshold": 60,
+          "warning_threshold": 54,
+          "unit": "ساعت",
+          "last_service": "1405/06/09 - روز",
+          "remaining": 0
+        }
+      }
+    },
+    {
+      "machine_code": "HD467",
+      "machine_name": "دامپتراک کوماتسو_ 7_465",
+      "action_code": "GREASING_FULL",
+      "action_text": "گریسکاری کامل",
+      "source_row": 49,
+      "components": {
+        "greasing": {
+          "state": "OK",
+          "value": 14,
+          "threshold": 60,
+          "warning_threshold": 54,
+          "unit": "ساعت",
+          "last_service": "1405/06/03 - روز",
+          "remaining": 46
+        }
+      }
+    },
+    {
+      "machine_code": "HD468",
+      "machine_name": "دامپتراک کوماتسو_ 7_465",
+      "action_code": "GREASING_FULL",
+      "action_text": "گریسکاری کامل",
+      "source_row": 50,
+      "components": {
+        "greasing": {
+          "state": "NEAR_DUE",
+          "value": 54,
+          "threshold": 60,
+          "warning_threshold": 54,
+          "unit": "ساعت",
+          "last_service": "1405/06/10 - روز",
+          "remaining": 6
+        }
+      }
+    },
+    {
+      "machine_code": "HD469",
+      "machine_name": "دامپتراک کوماتسو_ 7_465",
+      "action_code": "GREASING_FULL",
+      "action_text": "گریسکاری کامل",
+      "source_row": 51,
+      "components": {
+        "greasing": {
+          "state": "OK",
+          "value": 30,
+          "threshold": 60,
+          "warning_threshold": 54,
+          "unit": "ساعت",
+          "last_service": "1405/06/11 - روز",
+          "remaining": 30
+        }
+      }
+    },
+    {
+      "machine_code": "HD708",
+      "machine_name": "دامپتراک کوماتسو 7-785",
+      "action_code": "GREASING_FULL",
+      "action_text": "گریسکاری کامل",
+      "source_row": 52,
+      "components": {
+        "greasing": {
+          "state": "OK",
+          "value": 22,
+          "threshold": 60,
+          "warning_threshold": 54,
+          "unit": "ساعت",
+          "last_service": "1405/06/12 - روز",
+          "remaining": 38
+        }
+      }
+    },
+    {
+      "machine_code": "HD709",
+      "machine_name": "دامپتراک کوماتسو 7-785",
+      "action_code": "GREASING_FULL",
+      "action_text": "گریسکاری کامل",
+      "source_row": 53,
+      "components": {
+        "greasing": {
+          "state": "OK",
+          "value": 40,
+          "threshold": 60,
+          "warning_threshold": 54,
+          "unit": "ساعت",
+          "last_service": "1405/06/07 - روز",
+          "remaining": 20
+        }
+      }
+    },
+    {
+      "machine_code": "HD710",
+      "machine_name": "دامپتراک کوماتسو 7-785",
+      "action_code": "GREASING_FULL",
+      "action_text": "گریسکاری کامل",
+      "source_row": 54,
+      "components": {
+        "greasing": {
+          "state": "OK",
+          "value": 21,
+          "threshold": 60,
+          "warning_threshold": 54,
+          "unit": "ساعت",
+          "last_service": "1405/06/13 - روز",
+          "remaining": 39
+        }
+      }
+    },
+    {
+      "machine_code": "HD711",
+      "machine_name": "دامپتراک کوماتسو 7-785",
+      "action_code": "GREASING_FULL",
+      "action_text": "گریسکاری کامل",
+      "source_row": 55,
+      "components": {
+        "greasing": {
+          "state": "OK",
+          "value": 21,
+          "threshold": 60,
+          "warning_threshold": 54,
+          "unit": "ساعت",
+          "last_service": "1405/06/13 - روز",
+          "remaining": 39
+        }
+      }
+    },
+    {
+      "machine_code": "HD712",
+      "machine_name": "دامپتراک کوماتسو 7-785",
+      "action_code": "GREASING_FULL",
+      "action_text": "گریسکاری کامل",
+      "source_row": 56,
+      "components": {
+        "greasing": {
+          "state": "OK",
+          "value": 10,
+          "threshold": 60,
+          "warning_threshold": 54,
+          "unit": "ساعت",
+          "last_service": "1405/06/12 - روز",
+          "remaining": 50
+        }
+      }
+    },
+    {
+      "machine_code": "HD713",
+      "machine_name": "دامپتراک کوماتسو 7-785",
+      "action_code": "GREASING_FULL",
+      "action_text": "گریسکاری کامل",
+      "source_row": 57,
+      "components": {
+        "greasing": {
+          "state": "OK",
+          "value": 38,
+          "threshold": 60,
+          "warning_threshold": 54,
+          "unit": "ساعت",
+          "last_service": "1405/06/11 - روز",
+          "remaining": 22
+        }
+      }
+    },
+    {
+      "machine_code": "HD714",
+      "machine_name": "دامپتراک کوماتسو 7-785",
+      "action_code": "GREASING_FULL",
+      "action_text": "گریسکاری کامل",
+      "source_row": 58,
+      "components": {
+        "greasing": {
+          "state": "OK",
+          "value": 40,
+          "threshold": 60,
+          "warning_threshold": 54,
+          "unit": "ساعت",
+          "last_service": "1405/06/11 - شب",
+          "remaining": 20
+        }
+      }
+    },
+    {
+      "machine_code": "HD715",
+      "machine_name": "دامپتراک کوماتسو 7-785",
+      "action_code": "GREASING_FULL",
+      "action_text": "گریسکاری کامل",
+      "source_row": 59,
+      "components": {
+        "greasing": {
+          "state": "OK",
+          "value": 49,
+          "threshold": 60,
+          "warning_threshold": 54,
+          "unit": "ساعت",
+          "last_service": "1405/06/10 - روز",
+          "remaining": 11
+        }
+      }
+    },
+    {
+      "machine_code": "HD716",
+      "machine_name": "دامپتراک کوماتسو 7-785",
+      "action_code": "GREASING_FULL",
+      "action_text": "گریسکاری کامل",
+      "source_row": 60,
+      "components": {
+        "greasing": {
+          "state": "DUE",
+          "value": 62,
+          "threshold": 60,
+          "warning_threshold": 54,
+          "unit": "ساعت",
+          "last_service": "1405/05/27 - روز",
+          "remaining": 0
+        }
+      }
+    },
+    {
+      "machine_code": "s1",
+      "machine_name": "کامیون آب پاش",
+      "action_code": "GREASING_FULL",
+      "action_text": "گریسکاری کامل",
+      "source_row": 62,
+      "components": {
+        "greasing": {
+          "state": "DUE",
+          "value": 13,
+          "threshold": 8,
+          "warning_threshold": 6,
+          "unit": "روز",
+          "last_service": "1405/06/03 - روز",
+          "remaining": 0
+        }
+      }
+    },
+    {
+      "machine_code": "TR1",
+      "machine_name": "خاور",
+      "action_code": "GREASING_FULL",
+      "action_text": "گریسکاری کامل",
+      "source_row": 64,
+      "components": {
+        "greasing": {
+          "state": "DUE",
+          "value": 26,
+          "threshold": 8,
+          "warning_threshold": 6,
+          "unit": "روز",
+          "last_service": "1405/05/21 - روز",
+          "remaining": 0
+        }
+      }
+    },
+    {
+      "machine_code": "TA1",
+      "machine_name": "کامیون آب پاش",
+      "action_code": "GREASING_FULL",
+      "action_text": "گریسکاری کامل",
+      "source_row": 65,
+      "components": {
+        "greasing": {
+          "state": "DUE",
+          "value": 10,
+          "threshold": 8,
+          "warning_threshold": 6,
+          "unit": "روز",
+          "last_service": "1405/06/06 - روز",
+          "remaining": 0
+        }
+      }
+    }
+  ]
+}

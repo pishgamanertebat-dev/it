@@ -9,6 +9,22 @@ ACTION_TEXT = 'گریسکاری کامل'
 
 
 def get_items(codes, actions=None):
+    if actions is not None:
+        from tools.fleet.greasing.proposal import resolve_items
+        if any(v != ACTION_CODE for v in actions.values()):
+            raise ValueError('شرح کار گریس‌کاری همیشه «گریسکاری کامل» است.')
+        items = resolve_items(codes)
+        if set(actions) != {i['machine_code'] for i in items}:
+            raise ValueError('شرح کار دستگاه‌های انتخاب‌شده کامل نیست.')
+        con = connect_db()
+        try:
+            for item in items:
+                # Explicit exact identity: lowercase s1 must never become S1.
+                matches = con.execute('SELECT id FROM machines WHERE canonical_code COLLATE BINARY = ?', (item['machine_code'],)).fetchall()
+                item['machine_id'] = matches[0]['id'] if len(matches) == 1 else None
+        finally:
+            con.close()
+        return items
     con = connect_db()
     try:
         machines = [dict(r) for r in con.execute('SELECT * FROM machines')]

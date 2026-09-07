@@ -414,7 +414,7 @@ def create_work_order(
         ):
 
             machine_id = (
-                _find_machine_id(
+                item['machine_id'] if 'machine_id' in item else _find_machine_id(
                     con,
                     item[
                         "machine_code"

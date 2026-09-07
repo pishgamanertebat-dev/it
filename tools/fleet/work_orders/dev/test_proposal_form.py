@@ -1,8 +1,43 @@
 from unittest.mock import patch
+import asyncio
+from types import SimpleNamespace
 from tools.fleet.work_orders.dev.test_bale_creation_flow import CreationFlowTests
 
 
 class ProposalFormTests(CreationFlowTests):
+    async def test_long_reply_chunks_are_delivered_in_order(self):
+        delivered=[]
+        calls=0
+        class Adapter:
+            async def send(adapter_self, chat, text):
+                nonlocal calls
+                call=calls
+                calls += 1
+                if call == 0:
+                    await asyncio.sleep(.02)
+                delivered.append(text)
+        gateway=SimpleNamespace(adapters={'bale':Adapter()})
+        reply=''.join(f'{i:03d} پیشنهاد دستگاه\n' for i in range(400))
+        self.handler._send_reply(gateway,'455740857',reply,lambda *_:None)
+        await asyncio.gather(*list(self.handler.tasks))
+        self.assertGreater(len(delivered),1)
+        self.assertEqual(''.join(delivered),reply)
+
+    def test_greasing_render_places_proposals_first_and_commands_last(self):
+        from tools.fleet.work_orders.channels.bale.proposal_form import render
+        proposal={'work_order_type':'GREASING','plan_date':'1405/06/16','cutoff':'1405/06/15 - روز',
+            'items':[{'machine_code':'HD715','action_code':'GREASING_FULL','action_text':'گریسکاری کامل',
+                      'components':{'greasing':{'state':'DUE','value':61,'threshold':60,'unit':'ساعت','last_service':'1405/06/10 - روز'}}}],
+            'source_warnings':['دادهٔ شب ثبت نشده'], 'warnings':['HD468 نزدیک موعد'],
+            'review':[{'code':'EX801','reason':'مبنا مشخص نیست'}]}
+        text=render(proposal)
+        self.assertLess(text.index('1) دستگاه HD715'),text.index('⚠️ وضعیت اطلاعات:'))
+        self.assertLess(text.index('⚠️ وضعیت اطلاعات:'),text.index('⚠️ نزدیک موعد'))
+        self.assertLess(text.index('⚠️ نزدیک موعد'),text.index('🔎 نیازمند بررسی'))
+        self.assertLess(text.index('🔎 نیازمند بررسی'),text.index('حذف:'))
+        self.assertIn('تایید: ساخت اکسل',text)
+        self.assertNotIn('تایید: انتخاب شیفت',text)
+
     async def start_proposal(self):
         async def worker(request):
             self.requests.append(request)
