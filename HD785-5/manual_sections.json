@@ -1,0 +1,3369 @@
+{
+  "manual": "E:\\KomatsoAI\\HD785-5\\HD785-5 shop manual.pdf",
+  "models": [
+    "HD785-5"
+  ],
+  "pdf_pages": 1392,
+  "bookmark_count": 1058,
+  "routing_source": "Embedded PDF bookmarks + internal page-number cross-check",
+  "note": "Routing metadata only. All technical facts, values, procedures, pressures, voltages, resistance values, torque values, part numbers and safety instructions must be verified from the actual HD785-5 Shop Manual. One embedded-bookmark boundary in Section 90 (PMC SYSTEM / ASR-II) was corrected using the manual's internal page numbering.",
+  "sections": {
+    "front_matter": {
+      "pdf_start": 1,
+      "pdf_end": 28,
+      "title": "Cover / master contents / front matter"
+    },
+    "general": {
+      "pdf_start": 29,
+      "pdf_end": 36,
+      "contents_start": 29,
+      "contents_end": 29,
+      "title": "01 GENERAL",
+      "subsections": {
+        "general_assembly_drawing": {
+          "pdf_start": 30,
+          "pdf_end": 31,
+          "title": "GENERAL ASSEMBLY DRAWING"
+        },
+        "specifications": {
+          "pdf_start": 32,
+          "pdf_end": 34,
+          "title": "SPECIFICATIONS"
+        },
+        "weight_table": {
+          "pdf_start": 35,
+          "pdf_end": 35,
+          "title": "WEIGHT TABLE"
+        },
+        "list_of_lubricant_and_coolant": {
+          "pdf_start": 36,
+          "pdf_end": 36,
+          "title": "LIST OF LUBRICANT AND COOLANT"
+        }
+      }
+    },
+    "structure_function": {
+      "pdf_start": 37,
+      "pdf_end": 318,
+      "contents_start": 37,
+      "contents_end": 39,
+      "title": "10 STRUCTURE AND FUNCTION",
+      "subsections": {
+        "radiator_torque_converter_cooler": {
+          "pdf_start": 40,
+          "pdf_end": 40,
+          "title": "RADIATOR, TORQUE CONVERTER COOLER"
+        },
+        "brake_oil_cooler": {
+          "pdf_start": 41,
+          "pdf_end": 41,
+          "title": "BRAKE OIL COOLER"
+        },
+        "power_train_skeleton": {
+          "pdf_start": 42,
+          "pdf_end": 42,
+          "title": "POWER TRAIN SKELETON"
+        },
+        "output_shaft": {
+          "pdf_start": 43,
+          "pdf_end": 43,
+          "title": "OUTPUT SHAFT (HD785-5)"
+        },
+        "output_shaft_2": {
+          "pdf_start": 44,
+          "pdf_end": 44,
+          "title": "OUTPUT SHAFT (HD985-5)"
+        },
+        "torque_converter_and_transmission_hydraulic_piping": {
+          "pdf_start": 45,
+          "pdf_end": 45,
+          "title": "TORQUE CONVERTER AND TRANSMISSION HYDRAULIC PIPING"
+        },
+        "torque_converter_and_transmission_hydraulic_circuit_diagram": {
+          "pdf_start": 46,
+          "pdf_end": 46,
+          "title": "TORQUE CONVERTER AND TRANSMISSION HYDRAULIC CIRCUIT DIAGRAM"
+        },
+        "torque_converter_and_transmission_hydraulic_circuit_schematics": {
+          "pdf_start": 47,
+          "pdf_end": 47,
+          "title": "TORQUE CONVERTER AND TRANSMISSION HYDRAULIC CIRCUIT SCHEMATICS"
+        },
+        "torque_converter": {
+          "pdf_start": 48,
+          "pdf_end": 49,
+          "title": "TORQUE CONVERTER"
+        },
+        "torque_converter_vlave": {
+          "pdf_start": 50,
+          "pdf_end": 53,
+          "title": "TORQUE CONVERTER VLAVE"
+        },
+        "lockup_solenoid_valve": {
+          "pdf_start": 54,
+          "pdf_end": 54,
+          "title": "LOCKUP SOLENOID VALVE"
+        },
+        "transmission": {
+          "pdf_start": 55,
+          "pdf_end": 57,
+          "title": "TRANSMISSION"
+        },
+        "transmission_valve": {
+          "pdf_start": 58,
+          "pdf_end": 58,
+          "title": "TRANSMISSION VALVE"
+        },
+        "ecmv": {
+          "pdf_start": 59,
+          "pdf_end": 63,
+          "title": "ECMV"
+        },
+        "lubrication_relief_valve": {
+          "pdf_start": 64,
+          "pdf_end": 64,
+          "title": "LUBRICATION RELIEF VALVE"
+        },
+        "front_axle": {
+          "pdf_start": 65,
+          "pdf_end": 65,
+          "title": "FRONT AXLE (HD785-5)"
+        },
+        "front_axle_2": {
+          "pdf_start": 66,
+          "pdf_end": 67,
+          "title": "FRONT AXLE (HD985-5)"
+        },
+        "rear_axle": {
+          "pdf_start": 68,
+          "pdf_end": 70,
+          "title": "REAR AXLE (HD785-5)"
+        },
+        "rear_axle_2": {
+          "pdf_start": 71,
+          "pdf_end": 71,
+          "title": "REAR AXLE (HD985-5)"
+        },
+        "differential": {
+          "pdf_start": 72,
+          "pdf_end": 73,
+          "title": "DIFFERENTIAL"
+        },
+        "differential_lock_control": {
+          "pdf_start": 74,
+          "pdf_end": 75,
+          "title": "DIFFERENTIAL LOCK CONTROL"
+        },
+        "differential_lock_solenoid_valve": {
+          "pdf_start": 76,
+          "pdf_end": 76,
+          "title": "DIFFERENTIAL LOCK SOLENOID VALVE"
+        },
+        "final_drive": {
+          "pdf_start": 77,
+          "pdf_end": 78,
+          "title": "FINAL DRIVE (HD785-5)"
+        },
+        "final_drive_2": {
+          "pdf_start": 79,
+          "pdf_end": 79,
+          "title": "FINAL DRIVE (HD985-5)"
+        },
+        "front_brake": {
+          "pdf_start": 80,
+          "pdf_end": 80,
+          "title": "FRONT BRAKE"
+        },
+        "rear_brake": {
+          "pdf_start": 81,
+          "pdf_end": 84,
+          "title": "REAR BRAKE"
+        },
+        "parking_brake": {
+          "pdf_start": 85,
+          "pdf_end": 85,
+          "title": "PARKING BRAKE"
+        },
+        "wheels": {
+          "pdf_start": 86,
+          "pdf_end": 86,
+          "title": "WHEELS (HD785-5)"
+        },
+        "wheels_2": {
+          "pdf_start": 87,
+          "pdf_end": 87,
+          "title": "WHEELS (HD985-5)"
+        },
+        "axle_support": {
+          "pdf_start": 88,
+          "pdf_end": 88,
+          "title": "AXLE SUPPORT (HD785-5)"
+        },
+        "axle_support_2": {
+          "pdf_start": 89,
+          "pdf_end": 89,
+          "title": "AXLE SUPPORT (HD985-5)"
+        },
+        "steering_system": {
+          "pdf_start": 90,
+          "pdf_end": 90,
+          "title": "STEERING SYSTEM"
+        },
+        "steering_wheel": {
+          "pdf_start": 91,
+          "pdf_end": 91,
+          "title": "STEERING WHEEL (HD785-5)"
+        },
+        "steering_wheel_2": {
+          "pdf_start": 92,
+          "pdf_end": 92,
+          "title": "STEERING WHEEL (HD985-5)"
+        },
+        "steering_linkage": {
+          "pdf_start": 93,
+          "pdf_end": 94,
+          "title": "STEERING LINKAGE"
+        },
+        "suspension_system": {
+          "pdf_start": 95,
+          "pdf_end": 96,
+          "title": "SUSPENSION SYSTEM"
+        },
+        "suspension_cylinder": {
+          "pdf_start": 97,
+          "pdf_end": 99,
+          "title": "SUSPENSION CYLINDER"
+        },
+        "rear_suspension_cylinder": {
+          "pdf_start": 100,
+          "pdf_end": 101,
+          "title": "REAR SUSPENSION CYLINDER"
+        },
+        "air_piping": {
+          "pdf_start": 102,
+          "pdf_end": 103,
+          "title": "AIR PIPING"
+        },
+        "air_circuit_diagram": {
+          "pdf_start": 104,
+          "pdf_end": 105,
+          "title": "AIR CIRCUIT DIAGRAM"
+        },
+        "desiccant_type_air_drier": {
+          "pdf_start": 106,
+          "pdf_end": 106,
+          "title": "DESICCANT TYPE AIR DRIER (IF EQUIPPED)"
+        },
+        "air_governor": {
+          "pdf_start": 107,
+          "pdf_end": 107,
+          "title": "AIR GOVERNOR"
+        },
+        "safety_valve": {
+          "pdf_start": 107,
+          "pdf_end": 107,
+          "title": "SAFETY VALVE"
+        },
+        "check_valve": {
+          "pdf_start": 108,
+          "pdf_end": 108,
+          "title": "CHECK VALVE"
+        },
+        "double_check_valve": {
+          "pdf_start": 108,
+          "pdf_end": 108,
+          "title": "DOUBLE CHECK VALVE"
+        },
+        "auto_drain_valve": {
+          "pdf_start": 109,
+          "pdf_end": 109,
+          "title": "AUTO DRAIN VALVE"
+        },
+        "hand_brake_valve": {
+          "pdf_start": 110,
+          "pdf_end": 110,
+          "title": "HAND BRAKE VALVE"
+        },
+        "brake_valve": {
+          "pdf_start": 111,
+          "pdf_end": 111,
+          "title": "BRAKE VALVE"
+        },
+        "emergency_brake_control_valve": {
+          "pdf_start": 112,
+          "pdf_end": 114,
+          "title": "EMERGENCY BRAKE CONTROL VALVE"
+        },
+        "parking_brake_control_valve": {
+          "pdf_start": 115,
+          "pdf_end": 115,
+          "title": "PARKING BRAKE CONTROL VALVE"
+        },
+        "parking_brake_pilot_valve": {
+          "pdf_start": 116,
+          "pdf_end": 116,
+          "title": "PARKING BRAKE PILOT VALVE"
+        },
+        "relay_vlave": {
+          "pdf_start": 117,
+          "pdf_end": 119,
+          "title": "RELAY VLAVE"
+        },
+        "parking_brake_relay_valve": {
+          "pdf_start": 120,
+          "pdf_end": 121,
+          "title": "PARKING BRAKE RELAY VALVE"
+        },
+        "quick_release_valve": {
+          "pdf_start": 122,
+          "pdf_end": 122,
+          "title": "QUICK-RELEASE VALVE"
+        },
+        "parking_brake_chamber": {
+          "pdf_start": 122,
+          "pdf_end": 122,
+          "title": "PARKING BRAKE CHAMBER"
+        },
+        "ratio_valve": {
+          "pdf_start": 123,
+          "pdf_end": 123,
+          "title": "RATIO VALVE (FOR FRONT BRAKE)"
+        },
+        "front_brake_chamber": {
+          "pdf_start": 124,
+          "pdf_end": 124,
+          "title": "FRONT BRAKE CHAMBER"
+        },
+        "brake_chamber": {
+          "pdf_start": 125,
+          "pdf_end": 127,
+          "title": "BRAKE CHAMBER"
+        },
+        "slack_adjuster": {
+          "pdf_start": 128,
+          "pdf_end": 128,
+          "title": "SLACK ADJUSTER"
+        },
+        "air_drier": {
+          "pdf_start": 129,
+          "pdf_end": 130,
+          "title": "AIR DRIER (DESICCANT TYPE) (IF EQUIPPED)"
+        },
+        "hydraulic_piping": {
+          "pdf_start": 131,
+          "pdf_end": 132,
+          "title": "HYDRAULIC PIPING"
+        },
+        "hydraluic_circuit_diagram": {
+          "pdf_start": 133,
+          "pdf_end": 133,
+          "title": "HYDRALUIC CIRCUIT DIAGRAM"
+        },
+        "dump_body_control": {
+          "pdf_start": 134,
+          "pdf_end": 134,
+          "title": "DUMP BODY CONTROL"
+        },
+        "hydraulic_tank_and_brake_cooling_oil_tank": {
+          "pdf_start": 135,
+          "pdf_end": 135,
+          "title": "HYDRAULIC TANK AND BRAKE COOLING OIL TANK (HD785-5)"
+        },
+        "hydraulic_tank_and_brake_cooling_oil_tank_2": {
+          "pdf_start": 136,
+          "pdf_end": 136,
+          "title": "HYDRAULIC TANK AND BRAKE COOLING OIL TANK (HD985-5)"
+        },
+        "brake_cooling_oil_control_valve": {
+          "pdf_start": 137,
+          "pdf_end": 137,
+          "title": "BRAKE COOLING OIL CONTROL VALVE (BCV)"
+        },
+        "steering_valve": {
+          "pdf_start": 138,
+          "pdf_end": 141,
+          "title": "STEERING VALVE"
+        },
+        "demand_valve": {
+          "pdf_start": 142,
+          "pdf_end": 145,
+          "title": "DEMAND VALVE"
+        },
+        "hoist_valve": {
+          "pdf_start": 146,
+          "pdf_end": 147,
+          "title": "HOIST VALVE"
+        },
+        "crossover_relief_valve": {
+          "pdf_start": 148,
+          "pdf_end": 148,
+          "title": "CROSSOVER RELIEF VALVE"
+        },
+        "steering_cylinder": {
+          "pdf_start": 149,
+          "pdf_end": 149,
+          "title": "STEERING CYLINDER"
+        },
+        "hoist_cylinder": {
+          "pdf_start": 149,
+          "pdf_end": 149,
+          "title": "HOIST CYLINDER"
+        },
+        "electrical_circuit_diagram": {
+          "pdf_start": 150,
+          "pdf_end": 152,
+          "title": "ELECTRICAL CIRCUIT DIAGRAM"
+        },
+        "stop_lamp_switch": {
+          "pdf_start": 153,
+          "pdf_end": 153,
+          "title": "STOP LAMP SWITCH"
+        },
+        "exhaust_brake_switch": {
+          "pdf_start": 153,
+          "pdf_end": 153,
+          "title": "EXHAUST BRAKE SWITCH"
+        },
+        "tilt_switch": {
+          "pdf_start": 153,
+          "pdf_end": 153,
+          "title": "TILT SWITCH"
+        },
+        "front_brake_cut_off_valve": {
+          "pdf_start": 154,
+          "pdf_end": 154,
+          "title": "FRONT BRAKE CUT-OFF VALVE"
+        },
+        "overrun_prevention_valve": {
+          "pdf_start": 155,
+          "pdf_end": 155,
+          "title": "OVERRUN PREVENTION VALVE"
+        },
+        "exhaust_brake_valve": {
+          "pdf_start": 155,
+          "pdf_end": 155,
+          "title": "EXHAUST BRAKE VALVE"
+        },
+        "horn_valve": {
+          "pdf_start": 156,
+          "pdf_end": 156,
+          "title": "HORN VALVE"
+        },
+        "parking_brake_switch": {
+          "pdf_start": 156,
+          "pdf_end": 156,
+          "title": "PARKING BRAKE SWITCH"
+        },
+        "air_conditioner": {
+          "pdf_start": 157,
+          "pdf_end": 162,
+          "title": "AIR CONDITIONER",
+          "subsections": {
+            "piping_diagram": {
+              "pdf_start": 157,
+              "pdf_end": 157,
+              "title": "PIPING DIAGRAM"
+            },
+            "electrical_circuit_diagram": {
+              "pdf_start": 158,
+              "pdf_end": 159,
+              "title": "ELECTRICAL CIRCUIT DIAGRAM"
+            },
+            "refrigerant_circuit_diagram": {
+              "pdf_start": 160,
+              "pdf_end": 160,
+              "title": "REFRIGERANT CIRCUIT DIAGRAM"
+            },
+            "unit": {
+              "pdf_start": 161,
+              "pdf_end": 161,
+              "title": "UNIT"
+            },
+            "receiver_dryer": {
+              "pdf_start": 161,
+              "pdf_end": 161,
+              "title": "RECEIVER DRYER"
+            },
+            "condenser": {
+              "pdf_start": 162,
+              "pdf_end": 162,
+              "title": "CONDENSER"
+            },
+            "compressor": {
+              "pdf_start": 162,
+              "pdf_end": 162,
+              "title": "COMPRESSOR"
+            }
+          }
+        },
+        "engine_control_system": {
+          "pdf_start": 163,
+          "pdf_end": 168,
+          "title": "ENGINE CONTROL SYSTEM",
+          "subsections": {
+            "system_drawing": {
+              "pdf_start": 163,
+              "pdf_end": 164,
+              "title": "SYSTEM DRAWING"
+            },
+            "electrical_circuit_diagram": {
+              "pdf_start": 165,
+              "pdf_end": 165,
+              "title": "ELECTRICAL CIRCUIT DIAGRAM"
+            },
+            "fuel_injection_pump_electric_governor": {
+              "pdf_start": 166,
+              "pdf_end": 166,
+              "title": "FUEL INJECTION PUMP ELECTRIC GOVERNOR"
+            },
+            "hydraulic_circuit_diagram": {
+              "pdf_start": 167,
+              "pdf_end": 167,
+              "title": "HYDRAULIC CIRCUIT DIAGRAM"
+            },
+            "aiss": {
+              "pdf_start": 167,
+              "pdf_end": 167,
+              "title": "AISS"
+            },
+            "sensor_switches": {
+              "pdf_start": 168,
+              "pdf_end": 168,
+              "title": "SENSOR, SWITCHES"
+            }
+          }
+        },
+        "exhaust_brake": {
+          "pdf_start": 169,
+          "pdf_end": 171,
+          "title": "EXHAUST BRAKE",
+          "subsections": {
+            "system_diagram": {
+              "pdf_start": 169,
+              "pdf_end": 169,
+              "title": "SYSTEM DIAGRAM"
+            },
+            "system_diagram_2": {
+              "pdf_start": 170,
+              "pdf_end": 171,
+              "title": "SYSTEM DIAGRAM"
+            }
+          }
+        },
+        "automatic_shift_control_system": {
+          "pdf_start": 172,
+          "pdf_end": 185,
+          "title": "AUTOMATIC SHIFT CONTROL SYSTEM",
+          "subsections": {
+            "system_diagram": {
+              "pdf_start": 172,
+              "pdf_end": 173,
+              "title": "SYSTEM DIAGRAM"
+            },
+            "electrical_circuit_diagram": {
+              "pdf_start": 174,
+              "pdf_end": 174,
+              "title": "ELECTRICAL CIRCUIT DIAGRAM"
+            },
+            "transmission_controller": {
+              "pdf_start": 175,
+              "pdf_end": 175,
+              "title": "TRANSMISSION CONTROLLER"
+            },
+            "connector_signals": {
+              "pdf_start": 176,
+              "pdf_end": 176,
+              "title": "CONNECTOR SIGNALS"
+            },
+            "shift_lever_positions_and_automatic_gear_shifting_ranges": {
+              "pdf_start": 177,
+              "pdf_end": 177,
+              "title": "SHIFT LEVER POSITIONS AND AUTOMATIC GEAR SHIFTING RANGES"
+            },
+            "automatic_gear_shifting_line_graph": {
+              "pdf_start": 178,
+              "pdf_end": 179,
+              "title": "AUTOMATIC GEAR SHIFTING LINE GRAPH"
+            },
+            "shift_lever_switch": {
+              "pdf_start": 180,
+              "pdf_end": 180,
+              "title": "SHIFT LEVER SWITCH"
+            },
+            "sensors_switches": {
+              "pdf_start": 181,
+              "pdf_end": 181,
+              "title": "SENSORS, SWITCHES"
+            },
+            "transmission_oil_temperature_sensor": {
+              "pdf_start": 181,
+              "pdf_end": 181,
+              "title": "TRANSMISSION OIL TEMPERATURE SENSOR"
+            },
+            "fill_switch": {
+              "pdf_start": 182,
+              "pdf_end": 182,
+              "title": "FILL SWITCH"
+            },
+            "accelerator_sensor": {
+              "pdf_start": 183,
+              "pdf_end": 183,
+              "title": "ACCELERATOR SENSOR"
+            },
+            "shift_limit_switch": {
+              "pdf_start": 184,
+              "pdf_end": 184,
+              "title": "SHIFT LIMIT SWITCH"
+            },
+            "mode_selector_switch": {
+              "pdf_start": 184,
+              "pdf_end": 184,
+              "title": "MODE SELECTOR SWITCH"
+            },
+            "self_diagnostic_function": {
+              "pdf_start": 185,
+              "pdf_end": 185,
+              "title": "SELF-DIAGNOSTIC FUNCTION"
+            }
+          }
+        },
+        "automatic_emergency_steering_system": {
+          "pdf_start": 186,
+          "pdf_end": 190,
+          "title": "AUTOMATIC EMERGENCY STEERING SYSTEM",
+          "subsections": {
+            "system_diagram": {
+              "pdf_start": 186,
+              "pdf_end": 186,
+              "title": "SYSTEM DIAGRAM"
+            },
+            "electric_circuit_diagram": {
+              "pdf_start": 187,
+              "pdf_end": 187,
+              "title": "ELECTRIC CIRCUIT DIAGRAM"
+            },
+            "flow_switch": {
+              "pdf_start": 188,
+              "pdf_end": 189,
+              "title": "FLOW SWITCH"
+            },
+            "relay_timer": {
+              "pdf_start": 190,
+              "pdf_end": 190,
+              "title": "RELAY TIMER"
+            }
+          }
+        },
+        "automatic_suspension_system": {
+          "pdf_start": 191,
+          "pdf_end": 193,
+          "title": "AUTOMATIC SUSPENSION SYSTEM",
+          "subsections": {
+            "system_diagram": {
+              "pdf_start": 191,
+              "pdf_end": 191,
+              "title": "SYSTEM DIAGRAM"
+            },
+            "structure_of_system": {
+              "pdf_start": 192,
+              "pdf_end": 192,
+              "title": "STRUCTURE OF SYSTEM"
+            },
+            "system_circuit_diagram": {
+              "pdf_start": 193,
+              "pdf_end": 193,
+              "title": "SYSTEM CIRCUIT DIAGRAM"
+            }
+          }
+        },
+        "automatic_suspension_mode_selection_control": {
+          "pdf_start": 194,
+          "pdf_end": 197,
+          "title": "AUTOMATIC SUSPENSION MODE SELECTION CONTROL",
+          "subsections": {
+            "suspension_controller": {
+              "pdf_start": 195,
+              "pdf_end": 195,
+              "title": "SUSPENSION CONTROLLER"
+            },
+            "sensor_switches": {
+              "pdf_start": 196,
+              "pdf_end": 196,
+              "title": "SENSOR, SWITCHES",
+              "topics": [
+                "STEERING ANGLE SENSOR",
+                "PRESSURE SENSOR"
+              ]
+            },
+            "self_diagnostic_function": {
+              "pdf_start": 197,
+              "pdf_end": 197,
+              "title": "SELF-DIAGNOSTIC FUNCTION"
+            }
+          }
+        },
+        "payload_meter": {
+          "pdf_start": 198,
+          "pdf_end": 207,
+          "title": "PAYLOAD METER (PRINTER TYPE) (OP)",
+          "subsections": {
+            "structure_of_system": {
+              "pdf_start": 198,
+              "pdf_end": 198,
+              "title": "STRUCTURE OF SYSTEM"
+            },
+            "electrical_circuit_diagram": {
+              "pdf_start": 199,
+              "pdf_end": 199,
+              "title": "ELECTRICAL CIRCUIT DIAGRAM"
+            },
+            "payload_meter_block_diagram": {
+              "pdf_start": 199,
+              "pdf_end": 199,
+              "title": "PAYLOAD METER BLOCK DIAGRAM"
+            },
+            "principle_of_calculation": {
+              "pdf_start": 200,
+              "pdf_end": 201,
+              "title": "PRINCIPLE OF CALCULATION"
+            },
+            "features_of_equipment": {
+              "pdf_start": 202,
+              "pdf_end": 206,
+              "title": "FEATURES OF EQUIPMENT",
+              "topics": [
+                "1. PAYLOAD METER",
+                "2. PRESSURE SENSOR",
+                "3. CLINOMETER",
+                "4. LAMP DRIVE RELAY"
+              ]
+            },
+            "self_diagnostic_function": {
+              "pdf_start": 207,
+              "pdf_end": 207,
+              "title": "SELF-DIAGNOSTIC FUNCTION"
+            }
+          }
+        },
+        "payload_meter_2": {
+          "pdf_start": 208,
+          "pdf_end": 246,
+          "title": "PAYLOAD METER Ⅱ (CARD TYPE) (OP)",
+          "subsections": {
+            "structure_of_system": {
+              "pdf_start": 208,
+              "pdf_end": 208,
+              "title": "STRUCTURE OF SYSTEM"
+            },
+            "electrical_circuit_diagram": {
+              "pdf_start": 209,
+              "pdf_end": 209,
+              "title": "ELECTRICAL CIRCUIT DIAGRAM"
+            },
+            "payload_meter_block_diagram": {
+              "pdf_start": 209,
+              "pdf_end": 209,
+              "title": "PAYLOAD METER BLOCK DIAGRAM"
+            },
+            "principle_of_measurement": {
+              "pdf_start": 210,
+              "pdf_end": 210,
+              "title": "PRINCIPLE OF MEASUREMENT"
+            },
+            "feature_of_each_device": {
+              "pdf_start": 211,
+              "pdf_end": 246,
+              "title": "FEATURE OF EACH DEVICE",
+              "topics": [
+                "1. PAYLOAD METER Ⅱ",
+                "2. PRESSURE SENSOR",
+                "3. CLINOMETER",
+                "4. LAMP DRIVE RELAY",
+                "5. SELF-DIAGNOSTIC FUNCTION"
+              ]
+            }
+          }
+        },
+        "machine_monitor_system": {
+          "pdf_start": 247,
+          "pdf_end": 263,
+          "title": "MACHINE MONITOR SYSTEM",
+          "subsections": {
+            "system_drawing": {
+              "pdf_start": 247,
+              "pdf_end": 248,
+              "title": "SYSTEM DRAWING"
+            },
+            "monitor_panel_diagram": {
+              "pdf_start": 249,
+              "pdf_end": 249,
+              "title": "MONITOR PANEL DIAGRAM"
+            },
+            "machine_monitor_normal_display_functons": {
+              "pdf_start": 250,
+              "pdf_end": 256,
+              "title": "MACHINE MONITOR NORMAL DISPLAY FUNCTONS"
+            },
+            "self_diagnostic_function_when_starting_switch_is_operated": {
+              "pdf_start": 257,
+              "pdf_end": 257,
+              "title": "SELF-DIAGNOSTIC FUNCTION WHEN STARTING SWITCH IS OPERATED"
+            },
+            "travel_speed_compensation_rotary_switch": {
+              "pdf_start": 257,
+              "pdf_end": 257,
+              "title": "TRAVEL SPEED COMPENSATION ROTARY SWITCH"
+            },
+            "sensors_switches": {
+              "pdf_start": 258,
+              "pdf_end": 263,
+              "title": "SENSORS, SWITCHES",
+              "topics": [
+                "ENGINE SPEED SENSOR",
+                "TRANSMISSION SPEED SENSOR",
+                "ENGINE OIL PRESSURE",
+                "ENGINE WATER TEMPERATURE SENSOR",
+                "RETARDER OIL TEMPERATURE SENSOR",
+                "TORQUE CONVERTER OIL TEMPERATURE SENSOR",
+                "AIR PRESSURE SENSOR",
+                "FUEL LEVEL SENSOR",
+                "TRANSMISSION OIL FILTER SENSOR",
+                "RADIATOR WATER LEVEL SENSOR",
+                "STEERING OIL TEMPERATURE SENSOR",
+                "BRAKE STROKE SENSOR"
+              ]
+            }
+          }
+        },
+        "pmc_system": {
+          "pdf_start": 264,
+          "pdf_end": 277,
+          "title": "PMC SYSTEM (MACHINE EQUIPPED WITH ELECTRONIC GOVERNOR) (OP)",
+          "subsections": {
+            "system_diagram": {
+              "pdf_start": 264,
+              "pdf_end": 265,
+              "title": "SYSTEM DIAGRAM"
+            },
+            "electric_circuit_diagram": {
+              "pdf_start": 266,
+              "pdf_end": 266,
+              "title": "ELECTRIC CIRCUIT DIAGRAM"
+            },
+            "power_train_management_controller": {
+              "pdf_start": 267,
+              "pdf_end": 268,
+              "title": "POWER TRAIN MANAGEMENT CONTROLLER (PMC)"
+            },
+            "message_display": {
+              "pdf_start": 269,
+              "pdf_end": 270,
+              "title": "MESSAGE DISPLAY (MOM)"
+            },
+            "sensor_switches": {
+              "pdf_start": 271,
+              "pdf_end": 277,
+              "title": "SENSOR, SWITCHES",
+              "topics": [
+                "ENGINE SPEED SENSOR",
+                "TRANSMISSION SPEED SENSOR",
+                "ACCELERATOR SENSOR",
+                "SUSPENSION PRESSURE SENSOR",
+                "SENSORS, SWITCHES",
+                "ENGINE OIL LEVEL SENSOR",
+                "BRAKE OIL LEVEL SENSOR",
+                "HYDRAULIC OIL LEVEL SENSOR",
+                "RETARDER OIL LEVEL SENSOR",
+                "AIR CLEANER CLOGGING SENSOR",
+                "RETARDER BRAKE WEAR SENSOR",
+                "HYDRAULIC FILTER SENSOR",
+                "RETARDER OIL FILTER SENSOR",
+                "FULL-FLOW FILTER SENSOR",
+                "BATTERY ELECTROLYTE LEVEL SENSOR"
+              ]
+            }
+          }
+        },
+        "maintenance_monitor_system": {
+          "pdf_start": 278,
+          "pdf_end": 287,
+          "title": "MAINTENANCE MONITOR SYSTEM",
+          "subsections": {
+            "system_diagram": {
+              "pdf_start": 278,
+              "pdf_end": 278,
+              "title": "SYSTEM DIAGRAM"
+            },
+            "monitor_panel": {
+              "pdf_start": 279,
+              "pdf_end": 279,
+              "title": "MONITOR PANEL"
+            },
+            "monitor_display_functions": {
+              "pdf_start": 280,
+              "pdf_end": 281,
+              "title": "MONITOR DISPLAY, FUNCTIONS"
+            },
+            "functions_of_switches": {
+              "pdf_start": 282,
+              "pdf_end": 283,
+              "title": "FUNCTIONS OF SWITCHES"
+            },
+            "sensors_switches": {
+              "pdf_start": 284,
+              "pdf_end": 287,
+              "title": "SENSORS, SWITCHES",
+              "topics": [
+                "ENGINE OIL LEVEL SENSOR",
+                "RADIATOR WATER LEVEL SENSOR",
+                "TRANSMISSION OIL LEVEL SENSOR",
+                "HYDRAULIC OIL LEVEL SENSOR",
+                "RETARDER OIL LEVEL SENSOR",
+                "AIR FILTER CLOGGING SENSOR",
+                "RETARDER BRAKE WEAR SENSOR",
+                "HYDRAULIC FILTER SENSOR",
+                "RETARDER OIL FILTER SENSOR",
+                "TRANSMISSION OIL FILTER SENSOR",
+                "BATTERY ELECTROLYTE LEVEL SENSOR",
+                "TORQUE CONVERTER OIL TEMPERATURE SWITCH",
+                "RETARDER OIL TEMPERATURE SWITCH"
+              ]
+            }
+          }
+        },
+        "abs_asr_system": {
+          "pdf_start": 288,
+          "pdf_end": 296,
+          "title": "ABS/ASR SYSTEM",
+          "subsections": {
+            "system_circuit_diagram": {
+              "pdf_start": 288,
+              "pdf_end": 289,
+              "title": "SYSTEM CIRCUIT DIAGRAM"
+            },
+            "principle_of_operation": {
+              "pdf_start": 290,
+              "pdf_end": 290,
+              "title": "PRINCIPLE OF OPERATION"
+            },
+            "when_abs_is_actuated": {
+              "pdf_start": 291,
+              "pdf_end": 291,
+              "title": "WHEN ABS IS ACTUATED"
+            },
+            "when_asr_is_actuated": {
+              "pdf_start": 292,
+              "pdf_end": 292,
+              "title": "WHEN ASR IS ACTUATED"
+            },
+            "system_structure_diagram": {
+              "pdf_start": 293,
+              "pdf_end": 294,
+              "title": "SYSTEM STRUCTURE DIAGRAM"
+            },
+            "abs_asr_electrical_circuit_diagram": {
+              "pdf_start": 295,
+              "pdf_end": 296,
+              "title": "ABS/ASR ELECTRICAL CIRCUIT DIAGRAM"
+            }
+          }
+        },
+        "abs_asr_controller": {
+          "pdf_start": 297,
+          "pdf_end": 297,
+          "title": "ABS/ASR CONTROLLER (ECU)"
+        },
+        "abs_pressure_control_valve": {
+          "pdf_start": 298,
+          "pdf_end": 300,
+          "title": "ABS PRESSURE CONTROL VALVE"
+        },
+        "asr_control_valve": {
+          "pdf_start": 301,
+          "pdf_end": 302,
+          "title": "ASR CONTROL VALVE"
+        },
+        "wheel_speed_sensor": {
+          "pdf_start": 303,
+          "pdf_end": 303,
+          "title": "WHEEL SPEED SENSOR"
+        },
+        "relay": {
+          "pdf_start": 303,
+          "pdf_end": 303,
+          "title": "RELAY"
+        },
+        "asr_system": {
+          "pdf_start": 304,
+          "pdf_end": 308,
+          "title": "ASR-Ⅱ SYSTEM (IF EUQIPPED)",
+          "subsections": {
+            "system_diagram": {
+              "pdf_start": 304,
+              "pdf_end": 304,
+              "title": "SYSTEM DIAGRAM"
+            },
+            "basic_operation": {
+              "pdf_start": 305,
+              "pdf_end": 305,
+              "title": "BASIC OPERATION"
+            },
+            "system_configuration": {
+              "pdf_start": 305,
+              "pdf_end": 307,
+              "title": "SYSTEM CONFIGURATION"
+            },
+            "controller_of_automatic_spin_regulator": {
+              "pdf_start": 308,
+              "pdf_end": 308,
+              "title": "CONTROLLER OF AUTOMATIC SPIN REGULATOR"
+            }
+          }
+        },
+        "hydraulic_tank_pressurizing_system": {
+          "pdf_start": 309,
+          "pdf_end": 311,
+          "title": "HYDRAULIC TANK PRESSURIZING SYSTEM (HIGH ALTITUDE SPECIFICATION)",
+          "subsections": {
+            "electrical_circuit_diagram_of_hydraulic_tank_pressurizing_system": {
+              "pdf_start": 311,
+              "pdf_end": 311,
+              "title": "ELECTRICAL CIRCUIT DIAGRAM OF HYDRAULIC TANK PRESSURIZING SYSTEM"
+            }
+          }
+        },
+        "auto_greasing_system": {
+          "pdf_start": 312,
+          "pdf_end": 318,
+          "title": "AUTO-GREASING SYSTEM",
+          "subsections": {
+            "electrical_circuit_diagram_of_auto_greasing": {
+              "pdf_start": 315,
+              "pdf_end": 315,
+              "title": "ELECTRICAL CIRCUIT DIAGRAM OF AUTO-GREASING"
+            },
+            "air_and_grease_circuit_diagram_of_auto_greasing": {
+              "pdf_start": 316,
+              "pdf_end": 316,
+              "title": "AIR AND GREASE CIRCUIT DIAGRAM OF AUTO-GREASING"
+            },
+            "solenoid_valve": {
+              "pdf_start": 317,
+              "pdf_end": 317,
+              "title": "SOLENOID VALVE"
+            },
+            "regulator": {
+              "pdf_start": 317,
+              "pdf_end": 317,
+              "title": "REGULATOR"
+            },
+            "timer": {
+              "pdf_start": 318,
+              "pdf_end": 318,
+              "title": "TIMER"
+            }
+          }
+        }
+      }
+    },
+    "testing_adjusting": {
+      "pdf_start": 319,
+      "pdf_end": 1075,
+      "contents_start": 319,
+      "contents_end": 319,
+      "title": "20 TESTING AND ADJUSTING",
+      "subsections": {
+        "standard_value_table_for_engine_belated_parts": {
+          "pdf_start": 320,
+          "pdf_end": 320,
+          "title": "STANDARD VALUE TABLE FOR ENGINE BELATED PARTS"
+        },
+        "standard_value_table_for_chassis": {
+          "pdf_start": 321,
+          "pdf_end": 326,
+          "title": "STANDARD VALUE TABLE FOR CHASSIS"
+        },
+        "standard_value_table_for_electrical_parts": {
+          "pdf_start": 327,
+          "pdf_end": 340,
+          "title": "STANDARD VALUE TABLE FOR ELECTRICAL PARTS"
+        },
+        "testing_and_adjusting": {
+          "pdf_start": 341,
+          "pdf_end": 408,
+          "title": "TESTING AND ADJUSTING",
+          "subsections": {
+            "tools_for_testing_adjusting_and_troubleshooting": {
+              "pdf_start": 342,
+              "pdf_end": 343,
+              "title": "TOOLS FOR TESTING, ADJUSTING AND TROUBLESHOOTING"
+            },
+            "adjusting_valve_clearance": {
+              "pdf_start": 344,
+              "pdf_end": 344,
+              "title": "ADJUSTING VALVE CLEARANCE"
+            },
+            "measuring_compression_pressure": {
+              "pdf_start": 345,
+              "pdf_end": 345,
+              "title": "MEASURING COMPRESSION PRESSURE"
+            },
+            "measuring_blowby_pressure": {
+              "pdf_start": 346,
+              "pdf_end": 346,
+              "title": "MEASURING BLOWBY PRESSURE"
+            },
+            "measuring_boost_pressure": {
+              "pdf_start": 347,
+              "pdf_end": 347,
+              "title": "MEASURING BOOST PRESSURE"
+            },
+            "measuring_exhaust_trmperature": {
+              "pdf_start": 348,
+              "pdf_end": 348,
+              "title": "MEASURING EXHAUST TRMPERATURE"
+            },
+            "testing_and_adjusting_fuel_injection_timing": {
+              "pdf_start": 349,
+              "pdf_end": 351,
+              "title": "TESTING AND ADJUSTING FUEL INJECTION TIMING"
+            },
+            "adjusting_alternator_belt_tension": {
+              "pdf_start": 352,
+              "pdf_end": 352,
+              "title": "ADJUSTING ALTERNATOR BELT TENSION"
+            },
+            "adjusting_engine_speed_sensor": {
+              "pdf_start": 353,
+              "pdf_end": 353,
+              "title": "ADJUSTING ENGINE SPEED SENSOR"
+            },
+            "adjsuting_transmission_speed_sensor": {
+              "pdf_start": 353,
+              "pdf_end": 353,
+              "title": "ADJSUTING TRANSMISSION SPEED SENSOR"
+            },
+            "adjusting_accelerator_pedal": {
+              "pdf_start": 354,
+              "pdf_end": 354,
+              "title": "ADJUSTING ACCELERATOR PEDAL"
+            },
+            "testing_hydraulic_pressure_of_torque_converter_valve": {
+              "pdf_start": 355,
+              "pdf_end": 355,
+              "title": "TESTING HYDRAULIC PRESSURE OF TORQUE CONVERTER VALVE"
+            },
+            "testing_ecmv_hydraulic_pressure": {
+              "pdf_start": 356,
+              "pdf_end": 358,
+              "title": "TESTING ECMV HYDRAULIC PRESSURE"
+            },
+            "testing_transmission_lubrication_pressure": {
+              "pdf_start": 359,
+              "pdf_end": 359,
+              "title": "TESTING TRANSMISSION LUBRICATION PRESSURE"
+            },
+            "testing_torque_converter_stall_speed": {
+              "pdf_start": 360,
+              "pdf_end": 361,
+              "title": "TESTING TORQUE CONVERTER STALL SPEED"
+            },
+            "testing_brake_pressure": {
+              "pdf_start": 362,
+              "pdf_end": 362,
+              "title": "TESTING BRAKE PRESSURE"
+            },
+            "bleeding_air_from_brake_circuit": {
+              "pdf_start": 363,
+              "pdf_end": 363,
+              "title": "BLEEDING AIR FROM BRAKE CIRCUIT"
+            },
+            "testing_wear_of_front_brake_pad": {
+              "pdf_start": 363,
+              "pdf_end": 363,
+              "title": "TESTING WEAR OF FRONT BRAKE PAD"
+            },
+            "testing_wear_of_rear_brake_disc": {
+              "pdf_start": 364,
+              "pdf_end": 365,
+              "title": "TESTING WEAR OF REAR BRAKE DISC"
+            },
+            "adjusting_parking_brake": {
+              "pdf_start": 366,
+              "pdf_end": 366,
+              "title": "ADJUSTING PARKING BRAKE"
+            },
+            "testing_brake_performance": {
+              "pdf_start": 367,
+              "pdf_end": 367,
+              "title": "TESTING BRAKE PERFORMANCE"
+            },
+            "testing_and_adjusting_front_suspension_cylinder": {
+              "pdf_start": 368,
+              "pdf_end": 371,
+              "title": "TESTING AND ADJUSTING FRONT SUSPENSION CYLINDER (WITH VARIABLE DAMPING FORCE SELECTOR VALVE)"
+            },
+            "testing_and_adjusting_inverted_type_rear_suspension_cylinder": {
+              "pdf_start": 372,
+              "pdf_end": 375,
+              "title": "TESTING AND ADJUSTING INVERTED TYPE REAR SUSPENSION CYLINDER"
+            },
+            "testing_and_adjusting_suspension_air_cylinder": {
+              "pdf_start": 376,
+              "pdf_end": 376,
+              "title": "TESTING AND ADJUSTING SUSPENSION AIR CYLINDER"
+            },
+            "testing_and_adjusting_air_pressure_in_air_circuit": {
+              "pdf_start": 377,
+              "pdf_end": 377,
+              "title": "TESTING AND ADJUSTING AIR PRESSURE IN AIR CIRCUIT"
+            },
+            "inspection_of_air_drier": {
+              "pdf_start": 378,
+              "pdf_end": 379,
+              "title": "INSPECTION OF AIR DRIER (DESICCANT TYPE)"
+            },
+            "adjusting_hoist_lever_linkage": {
+              "pdf_start": 380,
+              "pdf_end": 380,
+              "title": "ADJUSTING HOIST LEVER LINKAGE"
+            },
+            "adjusting_body_positioner": {
+              "pdf_start": 381,
+              "pdf_end": 381,
+              "title": "ADJUSTING BODY POSITIONER"
+            },
+            "testing_and_adjusting_hydraulic_pressure_in_steering_hoist_circuit": {
+              "pdf_start": 382,
+              "pdf_end": 383,
+              "title": "TESTING AND ADJUSTING HYDRAULIC PRESSURE IN STEERING, HOIST CIRCUIT"
+            },
+            "air_bleeding_from_steering_cylinder": {
+              "pdf_start": 384,
+              "pdf_end": 384,
+              "title": "AIR BLEEDING FROM STEERING CYLINDER"
+            },
+            "adjusting_electronic_monitor": {
+              "pdf_start": 385,
+              "pdf_end": 385,
+              "title": "ADJUSTING ELECTRONIC MONITOR (SPEEDOMETER,TACHOMETER MODULE)"
+            },
+            "adjusting_q_fuel_injection_amount_when_replacing_engine_controller": {
+              "pdf_start": 386,
+              "pdf_end": 386,
+              "title": "ADJUSTING Q [FUEL INJECTION AMOUNT] WHEN REPLACING ENGINE CONTROLLER"
+            },
+            "setting_rotary_switch_when_replacing_transmission_controller": {
+              "pdf_start": 387,
+              "pdf_end": 387,
+              "title": "SETTING ROTARY SWITCH (MODEL DATA, NETWORK DATA) WHEN REPLACING TRANSMISSION CONTROLLER"
+            },
+            "method_of_deleting_data_from_engine_controler_transmission_controller_and_pmc_memory": {
+              "pdf_start": 388,
+              "pdf_end": 390,
+              "title": "METHOD OF DELETING DATA FROM ENGINE CONTROLER,TRANSMISSION CONTROLLER AND PMC MEMORY (CONTROL FROM MONITOR PANEL)"
+            },
+            "method_for_emergency_escape_when_there_is_failure_in_electrical_system": {
+              "pdf_start": 391,
+              "pdf_end": 396,
+              "title": "METHOD FOR EMERGENCY ESCAPE WHEN THERE IS FAILURE IN ELECTRICAL SYSTEM"
+            },
+            "procedure_for_operating_modulation_checker": {
+              "pdf_start": 397,
+              "pdf_end": 401,
+              "title": "PROCEDURE FOR OPERATING MODULATION CHECKER"
+            },
+            "adjusting_hydraulic_tank_pressure": {
+              "pdf_start": 402,
+              "pdf_end": 402,
+              "title": "ADJUSTING HYDRAULIC TANK PRESSURE (HIGH ALTITUDE SPECIFICATION)"
+            },
+            "performing_pm_clinic_using_manual_snapshot": {
+              "pdf_start": 403,
+              "pdf_end": 406,
+              "title": "PERFORMING PM CLINIC USING MANUAL SNAPSHOT (=QUICK PM)"
+            },
+            "pm_clinic_service": {
+              "pdf_start": 407,
+              "pdf_end": 408,
+              "title": "PM-CLINIC SERVICE"
+            }
+          }
+        },
+        "troubleshooting": {
+          "pdf_start": 409,
+          "pdf_end": 1075,
+          "title": "TROUBLESHOOTING",
+          "subsections": {
+            "points_to_remember_when_troubleshooting": {
+              "pdf_start": 410,
+              "pdf_end": 410,
+              "title": "POINTS TO REMEMBER WHEN TROUBLESHOOTING"
+            },
+            "sequence_of_events_in_troubleshooting": {
+              "pdf_start": 411,
+              "pdf_end": 411,
+              "title": "SEQUENCE OF EVENTS IN TROUBLESHOOTING"
+            },
+            "points_to_remember_when_carrying_out_maintenance": {
+              "pdf_start": 412,
+              "pdf_end": 419,
+              "title": "POINTS TO REMEMBER WHEN CARRYING OUT MAINTENANCE"
+            },
+            "checks_before_troubleshooting": {
+              "pdf_start": 420,
+              "pdf_end": 421,
+              "title": "CHECKS BEFORE TROUBLESHOOTING"
+            },
+            "type_of_connector_and_position_of_installation": {
+              "pdf_start": 422,
+              "pdf_end": 427,
+              "title": "TYPE OF CONNECTOR AND POSITION OF INSTALLATION"
+            },
+            "connector_pin_allocation_chart": {
+              "pdf_start": 428,
+              "pdf_end": 432,
+              "title": "CONNECTOR PIN ALLOCATION CHART"
+            },
+            "connection_table_for_connector_pin_numbers": {
+              "pdf_start": 433,
+              "pdf_end": 457,
+              "title": "CONNECTION TABLE FOR CONNECTOR PIN NUMBERS"
+            },
+            "explanations_of_functions_of_electrical_system": {
+              "pdf_start": 458,
+              "pdf_end": 464,
+              "title": "EXPLANATIONS OF FUNCTIONS (CONTROL MECHANISM) OF ELECTRICAL SYSTEM"
+            },
+            "monitor_panel_user_codes_and_service_mode_function": {
+              "pdf_start": 465,
+              "pdf_end": 480,
+              "title": "MONITOR PANEL USER CODES AND SERVICE MODE FUNCTION"
+            },
+            "self_diagnostic_display_method_for_monitor_panel_and_controllers": {
+              "pdf_start": 481,
+              "pdf_end": 487,
+              "title": "SELF-DIAGNOSTIC DISPLAY METHOD FOR MONITOR PANEL AND CONTROLLERS"
+            },
+            "table_of_service_codes_and_user_codes": {
+              "pdf_start": 488,
+              "pdf_end": 497,
+              "title": "TABLE OF SERVICE CODES AND USER CODES"
+            },
+            "method_of_using_judgement_table": {
+              "pdf_start": 498,
+              "pdf_end": 498,
+              "title": "METHOD OF USING JUDGEMENT TABLE"
+            },
+            "method_of_using_troubleshooting_charts": {
+              "pdf_start": 499,
+              "pdf_end": 500,
+              "title": "METHOD OF USING TROUBLESHOOTING CHARTS"
+            },
+            "troubleshooting_of_engine_controller_system": {
+              "pdf_start": 501,
+              "pdf_end": 550,
+              "title": "TROUBLESHOOTING OF ENGINE CONTROLLER SYSTEM (ELECTRONIC GOVERNOR SPECIFICATION G MODE)",
+              "topics": [
+                "ACTION TAKEN BY SELF-DIAGNOSTIC DEVICE AND PROBLEMS ON MACHINE",
+                "JUDGMENT TABLE FOR TRANSMISSION CONTROLLER, TRANSMISSION RELATED PARTS",
+                "ELECTRICAL CIRCUIT DIAGRAM FOR ENGINE CONTROLLER SYSTEM",
+                "G-1 C010 [E.<-->1.0] ABNORMALITY IN POWER SOURCE",
+                "G-2 C011 [E.<-->1.1] ABNORMALITY IN CONTROLLER",
+                "G-3 C012 [E.<-->1.2] ABNORMALITY IN RACK SENSOR SYSTEM",
+                "G-4 C013 [E.<-->1.3] ABNORMALITY IN RACK SENSOR SYSTEM LEFT BANK",
+                "G-5 C014 [E.<-->1.4] ABNORMALITY IN GOVERNOR SOLENOID SYSTEM RIGHT BANK",
+                "G-6 C015 [E.<-->1.5] ABNORMALITY IN GOVERNOR SOLENOID SYSTEM LEFT BANK",
+                "G-7 C016 [E.<-->1.6] ABNORMALITY IN GOVERNOR CUT RELAY SYSTEM RIGHT BANK",
+                "G-8 C017 [E.<-->1.7] ABNORMALITY IN GOVERNOR CUT RELAY SYSTEM LEFT BANK",
+                "G-9 C018 [E.<-->1.8] ABNORMALITY IN RACK SENSOR POWER SOURCE SYSTEM",
+                "G-10 C019 [E.<-->1.9] ABNORMALITY IN GOVERNOR SERVO SYSTEM RIGHT BANK",
+                "G-11 C01A [E.<-->1.A] ABNORMALITY IN GOVERNOR SERVO SYSTEM LEFT BANK",
+                "G-12 C01b [E.<-->1.b] ABNORMALITY IN ENGINE SPEED SENSOR SYSTEM A",
+                "G-13 C01C [E.<-->1.C] ABNORMALITY IN ENGINE SPEED SENSOR SYSTEM B",
+                "G-14 C01d [E.<-->1.d] ABNORMALITY IN PRE-STROKE SOLENOID SYSTEM RIGHT BANK",
+                "G-15 C01E [E.<-->1.E] ABNORMALITY IN PRE-STROKE SOLENOID SYSTEM LEFT BANK",
+                "G-16 C021 [E.<-->2.1] MISTAKEN CONNECTION OF CONNECTOR",
+                "G-17 C022 [E.<-->2.2] ENGINE OVERRUN",
+                "G-18 C023 [E.<-->2.3] ENGINE OVERHEATING",
+                "G-19 C024 [E.<-->2.4] DROP IN ENGING OIL PRESSURE",
+                "G-20 C031 [E.<-->3.1] ABNORMALITY IN ACCELERATION SENSOR SYSTEM",
+                "G-21 C034 [E.<-->3.4] ABNORMALITY IN ENGINE COOLANT TEMPERATURE SYSTEM",
+                "G-22 C036 [E.<-->3.6] ABNORMALITY IN ENGINE OIL PRESSURE SENSOR",
+                "G-23 C055 [E.<-->5.5] ABNORMALITY IN NETWORK",
+                "G-24 C056 [E.<-->5.6] ABNORMALITY IN SOLENOID POWER SOURCE SYSTEM RIGHT",
+                "G-25 C057 [E.<-->5.7] ABNORMALITY IN SOLENOID POWER SOURCE SYSTEM LEFT",
+                "G-26 C058 [E.<-->5.8] ABNORMALITY IN BACKUP POWER SOURCE SYSTEM",
+                "G-27 C059 [E.<-->5.9] ABNORMALITY IN BACKUP POWER SOURCE SYSTEM",
+                "G-28 C0C2 [E.<-->C.2] DEFECTIVE MODEL SELECTION DATA",
+                "G-29 C0C4 [E.<-->C.4] ABNORMALITY IN ACCELERATION SENSOR SYSTEM",
+                "G-30 C0C5 [E.<-->C.5] ABNORMALITY IN IDLE VALIDATION",
+                "G-31 ENGINE DOES NOT START"
+              ]
+            },
+            "troubleshooting_of_engine_system": {
+              "pdf_start": 551,
+              "pdf_end": 575,
+              "title": "TROUBLESHOOTING OF ENGINE SYSTEM (S MODE)",
+              "topics": [
+                "METHOD OF USING TROUBLESHOOTING CHART",
+                "S-1 STARTING PERFORMANCE IS POOR (STARTING ALWAYS TAKES TIME)",
+                "S-2 ENGINE DOES NOT START",
+                "a) ENGINE TURNS BUT NO EXHAUST SMOKE COMES OUT (FUEL IS NOT BEING INJECTED)",
+                "b) EXHAUST SMOKE COMES OUT BUT ENGINE DOES NOT START (FUEL IS BEING INJECTED)",
+                "S-3 ENGINE DOES NOT PICK UP SMOOTHLY (FOLLOW-UP IS POOR)",
+                "S-4 ENGINE STOPS DURING OPERATIONS",
+                "S-5 ENGINE DOES NOT ROTATE SMOOTHLY (HUNTING)",
+                "S-6 ENGINE LACKS OUTPUT (OR LACKS POWER)",
+                "S-7 EXHAUST SMOKE IS BLACK (INCOMPLETE COMBUSTION)",
+                "S-8 OIL CONSUMPTION IS EXCESSIVE (OR EXHAUST SMOKE IS BLUE)",
+                "S-9 OIL BECOMES CONTAMINATED QUICKLY",
+                "S-10 FUEL CONSUMPTION IS EXCESSIVE",
+                "S-11 OIL IS IN COOLING, OR WATER SPURTS BACK, OR COOLANT LEVEL GOES DOWN",
+                "S-12 OIL PRESSURE CAUTION LAMP LIGHTS UP (DROP IN OIL PRESSURE)",
+                "S-13 OIL LEVEL RISES",
+                "S-14 COOLANT TEMPERATURE BECOMES TOO HIGH (OVERHEATING)",
+                "S-15 ABNORMAL NOISE IS MADE",
+                "S-16 VIBRATION IS EXCESSIVE"
+              ]
+            },
+            "troubleshooting_of_transmission_controller_system": {
+              "pdf_start": 576,
+              "pdf_end": 657,
+              "title": "TROUBLESHOOTING OF TRANSMISSION CONTROLLER SYSTEM (A MODE)",
+              "topics": [
+                "POINTS TO REMEMBER WHEN CARRYING OUT TROUBLESHOOTING OF TRANSMISSION CONTROLLER SYSTEM",
+                "ACTION TAKEN BY SELF-DIAGNOSTIC DEVICE AND PROBLEMS ON MACHINE",
+                "JUDGEMENT TABLE FOR TRANSMISSION CONTROLLER, TRANSMISSION RELATED PARTS",
+                "ELECTRICAL CIRCUIT DIAGRAM FOR TRANSMISSION CONTROLLER SYSTEM",
+                "A-1 ABNORMALITY IN POWER SOURCE SYSTEM",
+                "a) [u.u][OFF]CONTROLLER SELF-DIAGNOSTIC DISPLAY LED DOES NOT LIGHT UP",
+                "b) bOO1 [E. <-->0.1, E.C<-->0.1] DROP IN VOLTAGE OF CONTROLLER POWER SOURCE IS DISPLAYED",
+                "c) bOdA [E. <-->d.A, E.C<-->d.A] DROP IN VOLTAGE OF BATTERY DIRECT POWER SOURCE IS DISPLAYED",
+                "d) bOdb [E. <-->d.b, E.C<-->d.b] DROP IN VOLTAGE OF MAIL POWER SOURCE IS DISPLAYED",
+                "e) bOO2 [E. <-->0.2, E.C<-->0.2] ABNORMALITAY IN TRANSMISSION CUT RELAY POWER SOURCE IS DISPLAYED",
+                "A-2 bOO3 [E. <-->0.3, E.C<-->0.3] ABNORMALITY IN NEUTRAL SAFETY SYSTEM IS DISPLAYED",
+                "A-3 bOO5 [E. <-->0.5, E.C<-->0.5] DOUBLE ENGAGEMENT FOR CLUTCH IS DISPLAYED",
+                "A-4 bOO6 [E. <-->0.6, E.C<-->0.6] ABNORMALITY IN TRANSMISSION [CUT RELAY] SYSTEM DISPLAYED",
+                "A-5 bOO8 [E. <-->0.8, E.C<-->0.8] ABNORMALITY IN REAR BRAKE SOLENOID SYSTEM IS DISPLAYED",
+                "A-6 bOO9 [E. <-->0.9, E.C<-->0.9] ABNORMALITY IN EXHAUST BRAKE SOLENOID SYSTEM IS DISPLAYED",
+                "A-7",
+                "a) bOC4 [E. <-->C.4, E.C<-->C.4] SHORT CIRCUIT WITH GROUND IN BCV REAR SOLENOID IS DISPLAYED",
+                "b) bOC6 [E. <-->C.6, E.C<-->C.6] SHORT CIRCUIT IN BCV REAR SOLENOID IS DISPLAYED",
+                "c) bOC8 [E. <-->C.8, E.C<-->C.8] DISCONNECTION IN BCV REAR SOLENOID IS DISPLAYED",
+                "A-8 ABNORMALITY IN SPEED SENSOR SYSTEM",
+                "a) b010 [E. <-->1.0, E.C<-->1.0] OR b060 [E. <-->6.0, E.C<-->6.0] DISCONNECTION IN ENGINE SPEED SENSOR [B] SYSTEM IS DISPLAYED (ELECTRONIC GOVERNOR SPECIFICATION MACHINE) OR FAILURE OF ENGINE SPEED IS DISPLAYED (ELECTRONIC GOVERNOR SPECIFICATION MACHINE)",
+                "b) b011 [E. <-->1.1, E.C<-->1.1] OR b061 [E. <-->6.1, E.C<-->6.1] DISCONNECTION IN INPUT SHAFT SPEED SENSOR SYSTEM IS DISPLAYED OR FAILURE OF INPUT SHAFT SPEED SENSOR IS DISPLAYED",
+                "c) b012 [E. <-->1.2, E.C<-->1.2] OR b062 [E. <-->6.2, E.C<-->6.2] DISCONNECTION IN INTERMEDIATE SHAFT SPEED SENSOR SYSTEM IS DISPLAYED OR FAILURE OF INTERMEDIATE SHAFT SPEED SENSOR IS DISPLAYED",
+                "d) b013 [E. <-->1.3, E.C<-->1.3] OR b063 [E. <-->6.3, E.C<-->6.3] DISCONNECTION IN TRAVEL SPEED SENSOR(TRANSMISSION OUTPUT SHAFT SPEED SENSOR)SYSTEM IS DISPLAYED OR FAILURE OF OUTPUT SHAFT SPEED SENSOR IS DISPLAYED",
+                "A-9 SPEED SENSOR SYSTEM, CLUTCH SLIPPING",
+                "a) b022 [E. <-->2.2, E.C<-->2.2] OR b023 [E. <-->2.3, E.C<-->2.3] INPUT SHAFT SPEED SENSOR OR H, L CLUTCH SYSTEM IS DISPLAYED",
+                "b) b024 [E. <-->2.4, E.C<-->2.4] - b028 [E. <-->2.8, E.C<-->2.8] TRAVEL SPEED SENSOR SYSTEM OR SPEED CLUTCH(1, 2, 3, 4, R)SYSTEM IS DISPLAYED",
+                "A-10 ABNORMALITY IN MODEL SELECTION (WIRING HARNESS) IS DISPLAYED",
+                "a) b014 [E. <-->1.4, E.C<-->1.4] ABNORMALITY IN MODEL SELECTION (WIRING HARNESS) IS DISPLAYED",
+                "b) b0A1 [E. <-->A.1, E.C<-->A.1] ABNORMALITY IN MODEL SELECTION (ROTARY SWITCH) IS DISPLAYED",
+                "A-11 ABNORMALITY IN SHIFT LEVER SYSTEM",
+                "a) b007 [E. <-->0.7, E.C<-->0.7] SHORT CIRCUIT IN SHIFT LEVER ASSEMBLY POWER SOURCE IS DISPLAYED",
+                "b) b015 [E. <-->1.5, E.C<-->1.5] SHIFT LEVER POSITION SIGNAL INPUT FOR 2 OR MORE SYSTEM IS DISPLAYED",
+                "c) b016 [E. <-->1.6, E.C<-->1.6] SHIFT LEVER POSITION SIGNAL IS NOT INPUT",
+                "A-12 b017 [E. <-->1.7, E.C<-->1.7] ABNORMALITY IN ACCELERATOR SIGNAL IS DISPLAYED",
+                "A-13 b019 [E. <-->1.9, E.C<-->1.9] ABNORMALITY IN TRANSMISSION OIL TRMPERATURE SENSOR IS DISPLAYED",
+                "A-14 ABNORMALITY IN PRESSURE CONTROL VALVE SYSTEM",
+                "a) b032 [E. <-->3.2, E.C<-->3.2] - b038 [E. <-->3.8,E.C<-->3.8] FILL SIGNAL (CLUTCH ON) IS DISPLAYED REGARDLESS OF COMMAND",
+                "b) b042 [E. <-->4.2, E.C<-->4.2] - b048 [E. <-->4.8,E.C<-->4.8] FILL SIGNAL IS NOT INPUT AND CLUTCH SLIPPING  IS DISPLAYED",
+                "b-1) INSPECTING FILL SIGNAL SYSTEM",
+                "b-2) b042 [E. <-->4.2, E.C<-->4.2] ・ b043 [E. <-->4.3, E.C<-->4.3] INSPECTING TRANSMISSION INPUT SHAFT SPEED SIGNAL SYSTEM,H,L CLUTCH SYSTEM (CHECK CLUTCH SLIP)",
+                "b-3) b044 [E. <-->4.4, E.C<-->4.4] ・ b048 [E. <-->4.8, E.C<-->4.8] INSPECTING TRANSMISSION OUTPUT SHAFT SPEED SIGNAL SYSTEM, 1-4, R CLUTCH SYSTEM (INSPECTING CLUTCH SLIP)",
+                "A-15 b052 [E. <-->5.2, E.C<-->5.2] - b058 [E. <-->5.8, E.C<-->5.8] WHEN FILL SIGNAL IS NOT INPUT (FLOW DETECTOR VALVE SYSTEM)",
+                "A-16 b071 [E. <-->7.1, E.C<-->7.1] - b078 [E. <-->7.8, E.C<-->7.8] SHORT CIRCUIT IN PRESSURE CONTROL VALVE SOLENOID SYSTEM IS DISPLAYED",
+                "A-17 ABNORMALITY IN SENSOR SYSTEM",
+                "a) b0A2 [E. <-->A.2, E.C<-->A.2] ABNORMALITY IN TORQUE CONVERTER OIL TEMPERATURE SENSOR SYSTEM IS DISPLAYED",
+                "b) b0A3 [E. <-->A.3, E.C<-->A.3] ABNORMALITY IN FUEL LEVEL SENSOR SYSTEM IS DISPLAYED",
+                "c) b0b2 [E. <-->b.2, E.C<-->b.2] ABNORMALITY IN COOLANT TEMPERATURE SENSOR SYSTEM IS DISPLAYED",
+                "d) b0b3 [E. <-->b.3, E.C<-->b.3] ABNORMALITY IN AIR PRESSURE SENSOR SYSTEM IS DISPLAYED",
+                "e) b0b4 [E. <-->b.4, E.C<-->b.4] ABNORMALITY IN RETARDER BRAKE OIL TEMPERATURE SENSOR IS DISPLAYED",
+                "A-18 WARNING DISPLAY",
+                "a) b0d1 [E. <-->d.1, E.C<-->d.1] TRANSMISSION FILTER CLOGGED WARNING IS DISPLAYED",
+                "b) b0d5 [E. <-->d.5, E.C<-->d.5] TILT WARNING IS DISPLAYED",
+                "c) b0d6 [E. <-->d.6, E.C<-->d.6] DROP IN RADIATOR WATER LEVEL WARNING IS DISPLAYED",
+                "d) b0d7 [E. <-->d.7, E.C<-->d.7] BATTERY CHARGE LEVEL WARNING IS DISPLAYED",
+                "e) b0E5 [E. <-->E.5, E.C<-->E.5] STEERING OIL TEMPERATURE OVERHEAT WARNING IS DISPLAYED",
+                "f) b0F5 [E. <-->F.5, E.C<-->F.5] DROP IN ENGINE OIL PRESSURE WARNING IS DISPLAYED (MECHANICAL GOVERNOR SPECIFICATION MACHINE)",
+                "g) b0F6 [E. <-->F.6, E.C<-->F.6] REAR BRAKE OIL PRESSURE WARNING IS DISPLAYED",
+                "A-19 b0b7 [E. <-->b.7, E.C<-->b.7] ABNORMALITY IN ENGINE OIL PRESSURE SYSTEM SENSOR IS DISPLAYED (MECHANICAL GOVERNOR SPECIFITION MACHINE)",
+                "A-20 b0C1 [E. <-->C.1, E.C<-->C.1] ABNORMALITY IN CONNECTOR CONNECTION IS DISPLAYED",
+                "A-21",
+                "a) b0d2 [E. <-->d.2, E.C<-->d.2] TORQUE CONVERTER OIL TEMPERATURE OVERHEAT WARNING IS DISPLAYED",
+                "b) b0d3 [E. <-->d.3, E.C<-->d.3] ENGINE COOLANT TEMPERATURE OVERHEAT WARNING IS DISPLAYED",
+                "c) b0E9 [E. <-->E.9, E.C<-->E.9] AIR PRESSURE DROP WARNING IS DISPLAYED",
+                "d) b0F3 [E. <-->F.3, E.C<-->F.3] RETARDER BRAKE OIL TEMPERATURE OVERHEAT WARNING IS DISPLAYED",
+                "e) b0d8 [E. <-->d.8, E.C<-->d.8] ENGINE OVERRUN ACTUATED IS DISPLAYED",
+                "f) b0d9 [E. <-->d.9, E.C<-->d.9] ENGINE OVERSHOOT ACTUATED IS DISPLAYED"
+              ]
+            },
+            "troubleshooting_of_suspension_controller_system": {
+              "pdf_start": 658,
+              "pdf_end": 677,
+              "title": "TROUBLESHOOTING OF SUSPENSION CONTROLLER SYSTEM (SP MODE)",
+              "topics": [
+                "JUDGMENT TABLE FOR SUSPENSION CONTROLLER, SUSPENSION RELATED PARTS",
+                "ACTION TAKEN BY SELF-DIAGNOSTIC DEVICE AND PROBLEMS ON MACHINE",
+                "ELECTRICAL CIRCUIT DIAGRAM OF SUSPENSION CONTROLLER SYSTEM",
+                "SP-1 d001 [ALL OFF or E.<-->01] ABNORMALITY IN POWER SOURCE IS DISPLAYED",
+                "SP-2 d011 [E.<-->11 IS DISPLAYED] ABNORMALITY IN PRESSURE SENSOR [RIGHT] SYSTEM IS DISPLAYED",
+                "SP-3 d012 [E.<-->12 IS DISPLAYED] ABNORMALITY IN PRESSURE SENSOR [LEFT] SYSTEM IS DISPLAYED",
+                "SP-4 d015 [E.<-->15 IS DISPLAYED] ABNORMALITY IN TRAVEL SPEED SENSOR SYSTEM IS DISPLAYED",
+                "SP-5 d016 [E.<-->16 IS DISPLAYED] ABNORMALITY IN STEERING SENSOR SYSTEM IS DISPLAYED",
+                "SP-6 d0C2 [E.<-->C2 IS DISPLAYED] DEFECTIVE MODEL SELECTION DATA IS DISPLAYED",
+                "SP-7 d021 [E.<-->21 IS DISPLAYED] ABNORMALITY IN SOLENOID [1] SYSTEM IS DISPLAYED",
+                "SP-8 d022 [E.<-->22 IS DISPLAYED] ABNORMALITY IN SOLENOID [2] SYSTEM IS DISPLAYED",
+                "SP-9 d023 [E.<-->23 IS DISPLAYED] ABNORMALITY IN SOLENOID [3] SYSTEM IS DISPLAYED",
+                "SP-10 d0C1 [E.<-->C1 IS DISPLAYED] DISCONNECTION IN NETWROK IS DISPLAYED",
+                "SP-11 d0C3 [E.<-->C3 IS DISPLAYED] DEFECTIVE TRAVEL SPEED COMPENSATION DATA IS DISPLAYED"
+              ]
+            },
+            "troubleshooting_of_payload_meter_system": {
+              "pdf_start": 678,
+              "pdf_end": 708,
+              "title": "TROUBLESHOOTING OF PAYLOAD METER (PRINTER TYPE) SYSTEM (LP MODE)",
+              "topics": [
+                "SERVICE CODES AND SELF-DIAGNOSIS OF PAYLOAD METER (PRINTER TYPE)",
+                "ELECTRIC CIRCUIT DIAGRAM FOR PAYLOAD METER (PRINTER TYPE) SYSTEM",
+                "LP-1 NO DISPLAY APPEARS WHEN STARTING SWITCH IS TURNED ON",
+                "LP-2 CALIBRATION DEMAND (CAL FLASHES) IS SHOWN CONTINUOUSLY AFTER STARTING SWITCH IS TURNED ON",
+                "LP-3 CALIBRATION CANNOT BE CARRIED OUT",
+                "LP-4 AFTER STARTING SWITCH IS TURNED ON,ALL EXTERNAL DISPLAY LAMPS DO NOT LIGHT UP",
+                "LP-5 CONDITION DOES NOT EXIST FOR LAMPS TO LIGHT UP,BUT EXERNAL DISPLAY LAMPS LIGHT UP",
+                "LP-6 LEVEL OF LIGHTING UP OF EXTERNAL DISPLAY LAMPS IS NOT CORRECT",
+                "LP-7 ABNORMALITY IN DISPLAY LOGIC",
+                "LP-8 E01-E04 IS DISPLAYED",
+                "LP-9 E11-E14 IS DISPLAYED",
+                "LP-10 E21-E28 IS DISPLAYED BY SENSOR CHECK",
+                "LP-11 E31 IS DISPLAYED",
+                "LP-12 E32 IS DISPLAYED",
+                "LP-13 E41 IS DISPLAYED",
+                "LP-14 E42 IS DISPLAYED",
+                "LP-15 PRINTER DOES NOT PRINT ANYTHING (BLANK PAPER COMES OUT)",
+                "LP-16 PRINTER PRINTS ONLY \"NO DATA\"",
+                "LP-17 PRINTER DOES NOT PRINT OUT WHEN PRT SWITCH IS PRESSED",
+                "LP-18 \"PAPE\" FLASHES",
+                "LP-19 TIME IS WRONG",
+                "LP-20 E33 IS DISPLAYED"
+              ]
+            },
+            "troubleshooting_of_payload_meter_system_2": {
+              "pdf_start": 709,
+              "pdf_end": 739,
+              "title": "TROUBLESHOOTING OF PAYLOAD METER Ⅱ (CARD TYPE) SYSTEM (LC MODE)",
+              "topics": [
+                "SERVICE CODES AND SELF-DIAGNOSIS OF PAYLOAD METER Ⅱ (CARD TYPE)",
+                "ELECTRICAL CIRCUIT DIAGRAM FOR PAYLOAD METER Ⅱ (CARD TYPE) SYSTEM",
+                "LC-1 NO DISPLAY APPEARS WHEN STARTING SWITCH IS TURNED ON",
+                "LC-2 AFTER STARTING SWITCH IS TURNED ON,ALL EXTERNAL DISPLAY LAMPS DO NOT LIGHT UP",
+                "LC-3 CONDITION DOES NOT EXIST FOR LAMPS TO LIGHT UP,BUT EXTERNAL DISPLAY LAMPS LIGHT UP",
+                "LC-4 LEVEL OF LIGHTING UP OF EXTERNAL DISPLAY LAMPS IS NOT CORRECT",
+                "LC-5 CYCLE DATA IS NOT RECOREDE,ON/OFF DATA IS NOT RECORDED:BATTERY CHARGE SIGNAL SYSTEM:ENGINE IS NOT STARTED IS DETECTED",
+                "LC-6 CALIBRATION CANNOT BE CARRIED OUT,TIME DISPLAY DOES NOT MATCH CONDITIONS:SHIFT LEVER N POSITION SIGNAL SYSTEM",
+                "LC-7 ABNORMALITY IN DISPLAY LOGIC",
+                "LC-8 B-FL REMAINS DISPLAYED AND DOES NOT CHANGE:BODY FLOAT RELAY SYSTEM:WHEN NOT DUMPING AND WHEN DUMP LEVER IS NOT AT FLOAT POSITION",
+                "LC-9 F-09 IS DISPLAYED:DROP IN VOLTAGE OF BACK-UP BATTERY BUILT INTO PAYLOAD METER",
+                "LC-10 FULL DISPLAY APPEARS",
+                "LC-11 F-20 IS DISPLAYED:SENSOR POWER SOURCE VOLTAGE SYSTEM",
+                "LC-12 F-21 - F-24 IS DISPLAYED:DISCONNECTION,SHORT CIRCUIT WITH GROUND SUSPENSION PRESSURE SENSOR SYSTEM",
+                "LC-13 F-25 - F-28 IS DISPLAYED:SHORT CIRCUIT IN SUSPENSION PRESSURE SENSOR SYSTEM POWER SOURCE",
+                "LC-14 F.CAL IS DISPLAYED:CALIBRATION NOT CARRIED OUT,DAMAGED DATA INSIDE PAYLOAD METER",
+                "LC-15 F-41 - F-45 IS DISPLAYED:SHORT CIRCUIT IN EXTERNAL DISPLAY LAMP SYSTEM POWER SOURCE",
+                "LC-16 L-BAD IS DISPLAYED:CYCLE DATA SAVED WHEN MACHINE WAS SWAYING",
+                "LC-17 MACHINE IS NOT LOADING BUT EXTERNAL DISPLAY LAMPS GIVE LOAD ESTIMATE DISPLAY. AFTER LOADING,DISPLAY SWITCHES TO TIME DISPLAY BEFORE TRAVELING 160m",
+                "LC-18 F-31 IS DISPLAYED:DISCONNECTION,SHORT CIRCUIT WITH GROUND IN CLINOMETER SYSTEM",
+                "LC-19 F-32 IS DISPLAYED:SHORT CIRCUIT WITH CLINOMETER SYSTEM POWER SOURCE",
+                "LC-20 F-18 IS DISPLAYED:DISCONNECTION IN BATTERY CHARGE SIGNAL",
+                "LC-21 F-93 - 99 ARE DISPLAYED:ABNORMALITY IN NETWORK (WHEN PMC IS INSTALLED)",
+                "LC-22 F-71,73,80,91,92 ARE DISPLAYED:(WHEN PMC,TALKS ARE INSTALLED)"
+              ]
+            },
+            "troubleshooting_of_arsc_automatic_retarder_speed_controller_system": {
+              "pdf_start": 740,
+              "pdf_end": 795,
+              "title": "TROUBLESHOOTING OF ARSC [AUTOMATIC RETARDER SPEED CONTROLLER] SYSTEM (R MODE)",
+              "topics": [
+                "OUTLINE",
+                "ELECTRICAL CIRCUIT DIAGRAM FOR ARSC (AUTOMATIC RETARDER SPEED CONTROLLER) SYSTEM",
+                "R-1 0.1 (ABNORMALITY IN POWER SOURCE VOLTAGE) IS DISPLAYED",
+                "R-2 1.0 (DISCONNECTION IN ENGINE SPEED SENSOR SYSTEM) IS DISPLAYED",
+                "R-3 1.3 (DISCONNECTION IN TRANSMISSION OUTPUT SHAFT SPEED SENSOR SYSTEM) IS DISPLAYED",
+                "R-4 1.5 (FAILURE IN RETARDER OIL TEMPERATURE SENSOR SYSTEM) IS DISPLAYED",
+                "R-5 1.7 (FAILURE IN ACCELERATOR SIGNAL SYSTEM) IS DISPLAYED",
+                "R-6 1.8 (FAILURE IN SUSPENSION PRESSURE SENSOR \"LEFT\" SYSTEM) IS DISPLAYED",
+                "R-7 1.9 (FAILURE IN SUSPENSION PRESSURE SENSOR \"RIGHT\" SYSTEM) IS DISPLAYED",
+                "R-8 4.2 (DISCONNECTION IN EXHAUST BRAKE SELECTOR SIGNAL SYSTEM) IS DISPLAYED",
+                "R-9 4.3 (DISCONNECTION IN ARSC CAUTION LAMP SYSTEM) IS DISPLAYED",
+                "R-10 4.4 (DISCONNECTION IN READY LAMP SYSTEM) IS DISPLAYED",
+                "R-11 4.5 (DISCONNECTION IN PANEL CAUTION AND BUZZER SYSTEM) IS DISPLAYED",
+                "R-12 5.2 (SHORT CIRCUIT WITH GROUND EXHAUST BRAKE SELECTOR SIGNAL OUTPUT SYSTEM) IS DISPLAYED",
+                "R-13 5.3 (SHORT CIRCUIT WITH GROUND IN ARSC CAUTION LAMP SYSTEM) IS DISPLAYED",
+                "R-14 5.4 (SHORT CIRCUIT WITH GROUND IN READY OUTPUT CIRCUIT SYSTEM) IS DISPLAYED",
+                "R-15 5.5 (SHORT CIRCUIT WITH GROUND IN PANEL CAUTION LAMP AND BUZZER OUTPUT SYSTEM) IS DISPLAYED",
+                "R-16 6.0 (FAILURE IN ENGINE SPEED SYSTEM) IS DISPLAYED",
+                "R-17 7.0 (DISCONNECTION IN TRAVEL SPEED DISPLAY UP OUTPUT SYSTEM) IS DISPLAYED",
+                "R-18 7.1 (DISCONNECTION IN TRAVEL SPEED DISPLAY DOWN OUTPUT SYSTEM) IS DISPLAYED",
+                "R-19 7.2 (DISCONNECTION IN TRAVEL SPEED DISPLAY CLEAR OUTPUT SYSTEM) IS DISPLAYED",
+                "R-20 7.3 (SHORT CIRCUIT WITH GROUND IN TRAVEL SPEED DISPLAY UP OUTPUT SYSTEM) IS DISPLAYED",
+                "R-21 7.4 (SHORT CIRCUIT WITH GROUND IN TRAVEL SPEED DISPLAY DOWN OUTPUT SYSTEM) IS DISPLAYED",
+                "R-22 7.5 (SHORT CIRCUIT WITH GROUND IN TRAVEL SPEED DISPLAY CLEAR OUTPUT SYSTEM) IS DISPLAYED",
+                "R-23 8.1 (SHORT CIRCUIT WITH GROUND IN PRESSURE CONTROL VALVE SYSTEM) IS DISPLAYED",
+                "R-24 8.3 (DISCONNECTION IN PRESSURE CONTROL VALVE SYSTEM) IS DISPLAYED",
+                "R-25 8.5 (FAILURE IN PRESSURE CONTROL VALVE (PRESSURE CONTROL VALVE REMAINS OPEN)) IS DISPLAYED",
+                "R-26 8.7 (FAILURE IN PRESSURE CONTROL VALVE (PRESSURE CONTROL VALVE DOES NOT OPEN)) IS DISPLAYED",
+                "R-27 8.9 (SHORT CIRCUIT WITH GROUND IN PRESSURE SWITCH VALVE SYSTEM) IS DISPLAYED",
+                "R-28 9.0 (DISCONNECTION IN PRESSURE SWITCH VALVE SYSTEM) IS DISPLAYED",
+                "R-29 9.1 (FAILURE IN PRESSURE SWITCH VALVE SYSTEM (REMAINS OPEN)) IS DISPLAYED",
+                "R-30 9.2 (FAILURE IN PRESSURE SWITCH VALVE SYSTEM (DOES NOT OPEN)) IS DISPLAYED",
+                "R-31 9.3 (DISCONNECTION IN SYSTEM SWITCH SYSTEM) IS DISPLAYED",
+                "R-32 9.4 (SHORT CIRCUIT WITH GROUND IN SYSTEM SWITCH SYSTEM) IS DISPLAYED",
+                "R-33 9.5 (DISCONNECTION,SHORT CIRCUIT WITH GROUND IN TRAVEL SPEED SETTING SWITCH SYSTEM) IS DISPLAYED",
+                "R-101 SET SPEED CANNOT BE SET",
+                "R-102 FAILURE CODE IS ALWAYS CLEARED (CONTROLLER DISPLAY WINDOW ALWAYS SHOWS \"--\") OR FAILURE CODE CANNOT BE CLEARED",
+                "R-103 EFFECT OF RETARDER IS TOO STRONG WHEN MACHINE IS EMPTY,OR TOO WEAK WHEN MACHINE IS LOADED (DOES NOT JUDGE LOADED/UNLOADED CONDITION PROPERLY)",
+                "R-104 ABNORMALITY APPEARS IN OTHER CONTROLLER",
+                "R-105 WHEN TRAVELING DOWNHILL,EVEN WHEN SET SPEED IS EXCEEDED,NO CONTROL IS CARRIED OUT",
+                "R-106 MONITOR LAMP (BUZZER) STAYS ON (OR OFF)",
+                "R-107 READY LAMP DOES NOT LIGHT UP (OR STAYS LIGHTED UP)",
+                "R-108 EXHAUST BRAKE DOES NOT WORK PROPERLY",
+                "R-109 THERE IS DIFFERENCE BETWEEN TRAVEL SPEED ROD VALUE AND ACTUAL MACHINE VALUE",
+                "R-110 RETARDER LAMP DOES NOT LIGHT UP,OR STAYS LIGHTED UP",
+                "R-111 TRAVEL SPEED DISPLAY ALWAYS GIVES DISPLAY (OR DOES NOT GIVE ANY DISPLAY)"
+              ]
+            },
+            "troubleshooting_of_hydraulic_and_mechanical_system": {
+              "pdf_start": 796,
+              "pdf_end": 816,
+              "title": "TROUBLESHOOTING OF HYDRAULIC AND MECHANICAL SYSTEM (H MODE)",
+              "topics": [
+                "H-1 MACHINE DOES NOT START",
+                "H-2 MACHINE DOES NOT TRAVEL SMOOTHLY",
+                "H-3 LOCK-UP CLUTCH CANNOT BE DISENGAGED",
+                "H-4 EXCESSIVE SHOCK WHEN STARTING OR SHIFTING",
+                "H-5 TRANSMISSION DOES NOT SHIFT UP",
+                "H-6 MACHINE LACKS POWER OR SPEED WHEN TRAVELING",
+                "H-7 TIME LAG IS EXCESSIVE WHEN STARTING OR SHIFTING GEAR",
+                "H-8 TORQUE CONVERTER OIL TEMPERATURE IS HIGH",
+                "H-9 TORQUE CONVERTER OIL PRESSURE IS LOW",
+                "H-10 FRONT BRAKE IS INEFFECTIVE,OR EFFECTIVE ONLY ON ONE SIDE",
+                "H-11 REAR BRAKE IS INEFFECTIVE,OR EFFECTIVE ONLY ON ONE SIDE",
+                "H-12 STEERING WHEEL IS HEAVY",
+                "H-13 STEERING WHEEL DOES NOT WORK",
+                "H-14 STEERING WHEEL VIBRATES",
+                "H-15 HOIST CYLINDER LACKS LIFTING FORCE (LIFTING SPEED)",
+                "H-16 HOIST CYLINDER DOES NOT WORK",
+                "H-17 EXCESSIVE HYDRAULIC DRIFT OF DUMP BODY",
+                "H-18 AIR PRESSURE DOES NOT RISE"
+              ]
+            },
+            "troubleshooting_of_monitor_panel_system": {
+              "pdf_start": 817,
+              "pdf_end": 887,
+              "title": "TROUBLESHOOTING OF MONITOR PANEL SYSTEM (P MODE)",
+              "topics": [
+                "METHOD OF SELF-DIAGNOSTIC DISPLAY FOR MONITOR PANEL AND CONTROLLERS",
+                "ACTION TAKEN BY SELF-DIAGNOSTIC DEVICE AND PROBLEMS ON MACHINE (MONITOR PANEL SYSTEM)",
+                "ELECTRICAL CIRCUIT DIAGRAM FOR MONITOR PANEL SYSTEM",
+                "P-1 CHECK PATTERN FOR WIRING HARNESSES BETWEEN MODULES",
+                "P-2 NOTHING ON MONITOR PANEL WORKS",
+                "P-3 LH,RH MODULE AND FUEL GAUGE DO NOT WORK",
+                "P-4 LH,RH MODULE AND FUEL GAUGE DO NOT WORK",
+                "P-5 RH MODULE DOES NOT WORK",
+                "P-6 LH MODULE DOES NOT WORK",
+                "P-7 TRAVEL CALCULATOR DOES NOT WORK",
+                "P-8 SERVICE METER DISPLAY DOES NOT WORK CORRECTLY",
+                "P-9 CENTRAL WARNING LAMP DOES NOT WORK, OR MONITOR PANEL DETECTS FAILURE CODE [A002]",
+                "P-10 CENTRAL WARNING LAMP STAYS LIGHTED UP",
+                "P-11 ALARM BUZZER DOES NOT WORK,OR MONITOR PANEL DETECTS FAILURE CODE [A003]",
+                "P-12 ALARM BUZZER CONTINUES TO SOUND",
+                "P-13 ALL DATA FROM SHIFT CONTROLLER (SPEEDOMETER,TACHOMETER,SHIFT INDICATOR,ETC.) ARE ABNORMAL (NOTHING IS DISPLAYED,OR DISPLAY DOES NOT CHANGE),OR MONITOR PANEL DETECTS SERVICE CODE [A013],OR MONITOR PANEL DETECTS SERVICE CODE [A018]",
+                "P-14 SUSPENSION MODE,POWER/ECONOMY MODE DISPLAYS ARE ABNORMAL (NOTHING IS DISPLAYED,OR DISPLAY DOES NOT CHANGE),OR MONITOR PANEL DETECTS SEVICE CODE [A016]",
+                "P-15 GAUGE DISPLAYS ARE ABNORMAL (NOTHING IS DISPLAYED,OR DISPLAY DOES NOT CHANGE)",
+                "P-16 COOLANT LEVEL DROP CAUTION LAMPS DOES NOT WORK, OR MONITOR PANEL DETECTS SERVICE CODE [A001]",
+                "P-17 COOLANT LEVEL DROP CAUTION LAMP STAYS LIGHTED UP",
+                "P-18 EMERGENCY STEERING PILOT LAMP DOES NOT WORK,OR MONITOR PANEL DETECTS SEVICE CODE [A001]",
+                "P-19 EMERGENCY STEERING PILOT LAMP STAYS LIGHTED UP",
+                "P-20 ENGINE OIL PRESSURE DROP CAUTION LAMP DOES NOT WORK,OR MONITOR PANEL DETECTS SERVICE CODE [A001]",
+                "P-21 ENGINE OIL PRESSURE DROP CAUTION LAMP STAYS LIGHTED UP",
+                "P-22 EXHAUST BRAKE PILOT LAMP DOES NOT WORK,OR MONITOR PANEL DETECTS SERVICE CODE [A001]",
+                "P-23 EXHAUST BRAKE PILOT LAMP STAYS LIGHTED UP",
+                "P-24 CHARGING CIRCUIT ABNORMALITY CAUTION LAMP DOES NOT WORK,OR MONITOR PANEL DETECTS SERVICE CODE [A001]",
+                "P-25 CHARGING CIRCUIT ABNORMALITY CAUTION LAMP STAYS LIGHTED UP",
+                "P-26 TRANSMISSION FILTER CLOGGING CAUTION LAMP DOES NOT WORK,OR MONITOR PANEL DETECTS SERVICE CODE [A001]",
+                "P-27 TRANSMISSION FILTER CLOGGING CAUTION LAMP STAYS LIGHTED UP",
+                "P-28 BRAKE STROKE CAUTION LAMP DOES NOT WORK,OR MONITOR PANEL DETECTS SERVICE CODE [A001]",
+                "P-29 BRAKE STROKE CAUTION LAMP STAYS LIGHTED UP",
+                "P-30 PREHEATING SWITCH PILOT LAMP DOES NOT WORK,OR MONITOR PANEL DETECTS SERVICE CODE [A001]",
+                "P-31 PREHEATING SWITCH PILOT LAMP STAYS LIGHTED UP",
+                "P-32 TILT WARNING LAMP DOES NOT WORK,OR MONITOR PANEL DETECTS SERVICE CODE [A001]",
+                "P-33 TILT WARNING LAMP STAYS LIGHTED UP",
+                "P-34 BODY FLOAT (EXCEPT FLOAT) PILOT LAMP DOES NOT WORK,OR MONITOR PANEL DETECTS SERVICE CODE [A001]",
+                "P-35 BODY FLOAT (EXCEPT FLOAT) PILOT LAMP STAYS LIGHTED UP",
+                "P-36 REAR BRAKE PILOT LAMP DOES NOT WORK,OR MONITOR PANEL DETECTS SERVICE CODE [A001]",
+                "P-37 REAR BRAKE PILOT LAMP STAYS LIGHTED UP",
+                "P-38 PARKING BRAKE PILOT LAMP DOES NOT WORK,OR MONITOR PANEL DETECTS SERVICE CODE [A001]",
+                "P-39 PARKING BRAKE PILOT LAMP STAYS LIGHTED UP",
+                "P-40 MAINTENANCE CAUTION LAMP DOES NOT WORK,OR MONITOR PANEL DETECTS SERVICE CODE [A001]",
+                "P-41 MAINTENANCE CAUTION LAMP STAYS LIGHTED UP",
+                "P-42 STEERING OIL TEMPERATURE CAUTION LAMP DOES NOT WORK,OR MONITOR PANEL DETECTS SERVICE CODE [A001]",
+                "P-43 STEERING OIL TEMPERATURE CAUTION LAMP STAYS LIGHTED UP",
+                "P-44 DIFFERENTIAL LOCK PILOT LAMP DOES NOT WORK,OR MONITOR PANEL DETECTS SERVICE CODE [A001]",
+                "P-45 DIFFERENTIAL LOCK PILOT LAMP STAYS LIGHTED UP",
+                "P-46 HIGH BEAM DISPLAY DOES NOT LIGHT UP",
+                "P-47 TURN SIGNAL LAMP (RIGHT) DOES NOT LIGHT UP",
+                "P-48 TURN SIGNAL LAMP (LEFT) DOES NOT LIGHT UP",
+                "P-49 LAMP CHECK SWITCH DOES NOT WORK",
+                "P-50 AISS SWITCH DOES NOT WORK",
+                "P-51 EXHAUST BRAKE SWITCH DOES NOT WORK",
+                "P-52 MODE CHANGE SWITCH (1) DOES NOT WORK",
+                "P-53 MODE CHANGE SWITCH (2) DOES NOT WORK",
+                "P-54 KPH/MPH SPEEDOMETER UNIT SELECTOR DOES NOT WORK",
+                "P-55 DEFECTIVE OPERATION OF ALL SWITCH INPUTS",
+                "P-56 MONITOR PANEL DETECTS SERVICE CODES [A014] OR [A019]",
+                "P-57 MONITOR PANEL DETECTS SERVICE CODE [A015]",
+                "P-58 MONITOR PANEL DETECTS SERVICE CODE [A011]",
+                "P-59 MONITOR PANEL DETECTS SERVICE CODE [A012]",
+                "P-60 MONITOR PANEL DETECTS SERVICE CODE [A000]"
+              ]
+            },
+            "troubleshooting_of_pmc_system": {
+              "pdf_start": 888,
+              "pdf_end": 931,
+              "title": "TROUBLESHOOTING OF PMC SYSTEM (M MODE)",
+              "topics": [
+                "PMC RELATED ELECTRIC CIRCUIT DIAGRAM",
+                "M-1 PMC DOES NOT WORK",
+                "M-2 E002 [0.2:FLASHES] FAILURE IN NV RAM DATA IS DISPLAYED",
+                "M-3 E002 [0.2:FLASHES] DROP IN BATTERY DIRECT POWER SOURCE VOLTAGE IS DISPLAYED",
+                "M-4 E003 [0.3:FLASHES] ABNROMALITY IN CONNECTOR CONNECTION IS DISPLAYED",
+                "M-5 E011 [1.1:FLASHES] DISCONNECTION IN GSP COMMUNICATIONS IS DISPLAYED",
+                "M-5 E012 [1.2:FLASHES] ABNORMALITY IN GSP COMMUNICATIONS IS DISPLAYED",
+                "M-6 E013 [1.3:FLASHES] DISCONNECTION IN MOM COMMUNICATIONS IS DISPLAYED",
+                "M-6 E014 [1.4:FLASHES] ABNORMALITY IN MOM COMMUNICATIONS IS DISPLAYED",
+                "M-7 E015 [1.5:FLASHES] DISCONNECTION IN TMS COMMUNICATIONS IS DISPLAYED",
+                "M-7 E016 [1.6:FLASHES] ABNORMALITY IN TMS COMMUNICATIONS IS DISPLAYED",
+                "M-8 E017 [1.7:FLASHES] DISCONNECTION IN CENSE COMMUNICATIONS IS DISPLAYED",
+                "M-8 E018 [1.8:FLASHES] ABNORMALITY IN CENSE COMMUNICATIONS IS DISPLAYED",
+                "M-9 E026 [2.6:FLASHES] COMMUNICATIONS ABNORMALITY 1 IS DISPLAYED",
+                "M-9 E027 [2.7:FLASHES] COMMUNICATIONS ABNORMALITY 2 IS DISPLAYED",
+                "M-9 E028 [2.8:FLASHES] COMMUNICATIONS ABNORMALITY 3 IS DISPLAYED",
+                "M-9 E029 [2.9:FLASHES] COMMUNICATIONS ABNORMALITY 4 IS DISPLAYED",
+                "M-9 E02A [2.A:FLASHES] COMMUNICATIONS ABNORMALITY 5 IS DISPLAYED",
+                "M-10 E035 [3.5:FLASHES] ABNORMALITY IN IDLE VALIDATION IS DISPLAYED",
+                "M-11 E041 [4.1:FLASHES] SHORT CIRCUIT WITH GROUND/DISCONNECTION IN SUSPENSION PRESSURE SENSOR (RIGHT) SYSTEM IS DISPLAYED",
+                "M-11 E042 [4.2:FLASHES] SHORT CIRCUIT WITH GROUND/DISCONNECTION IN SUSPENSION PRESSURE SENSOR (LEFT) SYSTEM IS DISPLAYED",
+                "M-11 E043 [4.3:FLASHES] SHORT CIRCUIT IN SUSPENSION PRESSURE SENSOR (RIGHT) SYSTEM IS DISPLAYED",
+                "M-11 E044 [4.4:FLASHES] SHORT CIRCUIT IN SUSPENSION PRESSURE SENSOR (LEFT) SYSTEM IS DISPLAYED",
+                "M-12 E054 [5.4:FLASHES] DISCONNECTION IN ACCELERATOR SIGNAL SYSTEM IS DISPLAYED",
+                "M-13 E055 [5.5:FLASHES] SHORT CIRCUIT IN ACCELERATOR CELL SIGNAL SYSTEM IS DISPLAYED",
+                "M-14 E056 [5.6:FLASHES] ABNORMALITY IN ENGINE SPEED SENSOR SYSTEM IS DISPLAYED",
+                "M-15 E057 [5.7:FLASHES] ABNORMALITY IN INPUT SHAFT SPEED SENSOR SYSTEM IS DISPLAYED",
+                "M-16 E058 [5.8:FLASHES] ABNORMALITY IN TRAVEL SPEED SENSOR (TRANSMISSION OUTPUT SHAFT SPEED SENSOR) IS DISPLAYED",
+                "M-17 E0A1 [A.1:FLASHES] WHEN ENGINE IS NOT RUNNING,DROP IN BRAKE OIL LEVEL IS DISPLAYED",
+                "M-18 E0A2 [A.2:FLASHES] WHEN ENGINE IS NOT RUNNING,DROP IN RETARDER OIL LEVEL IS DISPLAYED",
+                "M-19 E0A3 [A.3:FLASHES] WHEN ENGINE IS NOT RUNNING,DROP IN HYDRAULIC OIL LEVEL IS DISPLAYED",
+                "M-20 E0A6 [A.6:FLASHES] WHEN ENGINE IS RUNNING,RETARDER FILTER CLOGGED IS DISPLAYED",
+                "M-21 E0A7 [A.7:FLASHES] WHEN ENGINE IS RUNNING,FULL-FLOW FILTER CLOGGED IS DISPLAYED",
+                "M-22 E0A8 [A.8:FLASHES] WHEN ENGINE IS RUNNING,HYDRAULIC FILTER CLOGGED IS DISPLAYED",
+                "M-23 E0b2 [b.2:FLASHES] AT NEUTRAL,RIHGT RETARDER BRAKE DISC WEAR IS DISPLAYED",
+                "M-24 E0b3 [b.3:FLASHES] AT NEUTRAL,LEFT RETARDER BRAKE DISC WEAR IS DISPLAYED",
+                "M-25 E0b4 [b.4:FLASHES] WHEN ENGINE IS NOT RUNNING,DROP IN BATTERY ELECTROLYTE LEVEL IS DISPLAYED",
+                "M-26 E0b5 [b.5:FLASHES] WHEN ENGINE IS NOT RUNNING, DROP IN ENGINE OIL LEVEL IS DISPLAYED",
+                "M-27 E0b6 [b.6:FLASHES] WHEN ENGINE IS RUNNING,AIR CLEANER CLOGGED IS DISPLAYED",
+                "M-28 E0C1 [C.1:FLASHES] ABNORMALITY IN NETWORK SYSTEM IS DISPLAYED",
+                "M-28 E0C2 [C.2:FLASHES] ABNORMALITY IN MODEL SELECTION DATA IS DISPLAYED",
+                "M-29 E0C3 [C.3:FLASHES] ABNORMALITY IN TRAVEL SPEED COMPENSATION DATA IS DISPLAYED",
+                "M-30 SETTING OF PMC DIPSWITCHES",
+                "M-101 MOM DISPLAY IS NOT GIVEN",
+                "M-102 MOM DISPLAY IS GOES UT",
+                "M-103 4-DIGIT ERROR CODE AND ERROR MESSAGE ARE DISPLAYED ON MOM",
+                "M-104 MOM TIME DISPLAY IS SLOW,WARNING DISPLAY SHOWS DEFECTIVE OPERATION OF CLOCK IC,OR WARNING DISPLAY SHOWS DROP IN BATTERY VOLTAGE",
+                "M-105 (DROP IN BATTERY VOLTAGE) WARNING IS DISPLAYED"
+              ]
+            },
+            "troubleshooting_of_abs_asr_system": {
+              "pdf_start": 932,
+              "pdf_end": 964,
+              "title": "TROUBLESHOOTING OF ABS/ASR SYSTEM (OP)",
+              "topics": [
+                "TROUBLESHOOTING FLOWCHART",
+                "FOR MACHINES WITH ABS INSTALLED INDEPENDENTLY",
+                "FOR MACHINES WITH ABS/ASR INSTALLED",
+                "METHOD OF DELETING ECU TROUBLE DATA FROM MEMORY",
+                "PROCEDURE FOR DELETING TROUBLE DATA FROM MEMORY",
+                "METHOD OF TROUBLESHOOTING USING SELF-DIAGNOSTIC FUNCTION OF ECU",
+                "INDEX (TROUBLESHOOTING CODE)",
+                "SYSTEM CHECK SHEET FOR USING SYSTEM CHECKER",
+                "W-1 WARNING LAMP DOES NOT LIGHT UP",
+                "I-1 ASR INFORMATION SWITCH DOES NOT GO OUT",
+                "ASR-1 FAILURE IN ASR CONTROL VALVE (ONLY MACHINES WITH ABS/ASR INSTALLED)",
+                "ASR-2",
+                "ABS-1 FAILURE INSIDE ECU",
+                "ABS-2 FAILURE IN FRONT RIGHT PRESSURE CONTROL VALVE",
+                "ABS-3 FAILURE IN FRONT LEFT PRESSURE CONTROL VALVE",
+                "ABS-4 FAILURE IN REAR LEFT PRESSURE CONTROL VALVE",
+                "ABS-5 FAILURE IN REAR RIGHT PRESSURE CONTROL VALVE",
+                "ABS-6 FAILURE IN FRONT RIGHT WHEEL SPEED SENSOR",
+                "ABS-10 ABNORMALITY IN FRONT RIGHT WHEEL SPEED SENSOR OUTPUT",
+                "ABS-7 FAILURE IN FRONT LEFT WHEEL SPEED SENSOR",
+                "ABS-11 ABNORMALITY IN FRONT LEFT WHEEL SPEED SENSOR OUTPUT",
+                "ABS-8 FAILURE IN REAR WHEEL SPEED SENSOR",
+                "ABS-12 ABNORMALITY IN REAR LEFT WHEEL SPEED SENSOR OUTPUT",
+                "ABS-9 FAILURE IN REAR RIGHT WHEEL SPEED SENSOR",
+                "ABS-13 ABNORMALITY IN REAR RIGHT WHEEL SPEED SENSOR OUTPUT",
+                "ABS-14 FAILURE IN VALVE RELAY (VR2)",
+                "ABS-15 FAILURE IN VALVE RELAY (VR1)",
+                "ABS-16 FAILURE IN VALVE RELAY (VR2)",
+                "ABS-17 FAILURE IN VALVE RELAY (VR1)",
+                "ABS-18 ABNORMALITY IN POWER SOURCE VOLTAGE"
+              ]
+            },
+            "troubleshooting_for_maintenance_monitor_system": {
+              "pdf_start": 965,
+              "pdf_end": 981,
+              "title": "TROUBLESHOOTING FOR MAINTENANCE MONITOR SYSTEM",
+              "topics": [
+                "MM-1 MAINTENANCE MONITOR DOES NOT WORK",
+                "a) WHEN NOTHING WORKS",
+                "b) WHEN CHECK DISPLAY DOES NOT WORK",
+                "MM-2 WHEN ENGINE IS STOPPED,ENGINE OIL LEVEL DISPLAY FLASHES",
+                "MM-3 WHEN ENGINE IS STOPPED,TRANSMISSION OIL LEVEL DISPLAY FLASHES",
+                "MM-4 WHEN ENGINE IS STOPPED,HYDRAULIC OIL LEVEL DISPLAY FLASHES",
+                "MM-5 WHEN ENGINE IS STOPPED,RETARDER OIL LEVEL DISPLAY FLASHES",
+                "MM-6 WHEN ENGINE IS STOPPED,BRAKE OIL LEVEL DISPLAY FLASHES",
+                "MM-7 WHEN ENGINE IS STOPPED,BATTERY ELECTROLYTE LEVEL DISPLAY FLASHES",
+                "MM-8 AT NEUTRAL,RETARDER WEAR DISPLAY FLASHES",
+                "MM-9 WHEN ENGINE IS RUNNING,AIR CLEANER CLOGGING DISPLAY FLASHES",
+                "MM-10 WHEN ENGINE IS RUNNING,FULL-FLOW FILTER CLOGGING DISPLAY FLASHES",
+                "MM-11 WHEN ENGINE IS RUNNING,TRANSMISSION FILTER CLOGGING DISPLAY FLASHES",
+                "MM-12 WHEN ENGINE IS RUNNING,HYDRAULIC FILTER CLOGGING DISPLAY FLASHES",
+                "MM-13 WHEN ENGINE IS RUNNING,RETARDER FILTER CLOGGING DISPLAY FLASHES",
+                "MM-14 MAINTENANCE TIMER DOES NOT WORK",
+                "MM-15 MAINTENANCE TIMER IS NOT 0H OR BELOW,BUT MAINTENANCE ITEM LIGHTS UP",
+                "MM-16 ABNROMALITY IN SWITCH",
+                "a) CONFIRMATION SWITCH FOR OIL OR FILTER REPLACEMENT TIME DOES NOT WORK",
+                "b) REPLACEMENT SWITCH,MISOPERATION CANCEL SWITCH DO NOT WORK",
+                "MM-17 NIGHT LIGHTING DOES NOT LIGHT UP"
+              ]
+            },
+            "troubleshooting_for_automatic_spin_regulator_system": {
+              "pdf_start": 982,
+              "pdf_end": 1020,
+              "title": "TROUBLESHOOTING FOR AUTOMATIC SPIN REGULATOR (ASR-Ⅱ) SYSTEM (AS MODE)",
+              "topics": [
+                "OUTLINE",
+                "AS-1 FAILURE CODE 0.1 \"ABNORMALITY IN POWER SOURCE VOLTAGE\" IS DISPLAYED",
+                "AS-2 FAILURE CODE 1.0 \"DISCONNECTION IN ENGINE SPEED SENSOR SYSTEM\" IS DISPLAYED",
+                "AS-3 FAILURE CODE 1.1 \"DISCONNECTION IN RR WHEEL SPEED SENSOR\" IS DISPLAYED",
+                "AS-4 FAILURE CODE 1.2 \"DISCONNECTION IN RL WHEEL SPEED SENSOR\" IS DISPLAYED",
+                "AS-5 FAILURE CODE 1.3 \"DISCONNECTION IN TRANSMISSION OUTPUT SHAFT SPEED SENSOR SYSTEM\" IS DISPLAYED",
+                "AS-6 FAILURE CODE 1.6 \"FAILURE IN STEERING ANGLE SENSOR\" IS DISPLAYED",
+                "AS-7 FAILURE CODE 1.7 \"FAILURE IN ACCELERATOR SIGNAL SYSTEM\" IS DISPLAYED",
+                "AS-8 FAILURE CODE 4.3 \"DISCONNECTION ON ARSC CAUTION LAMP SYSTEM\" IS DISPLAYED",
+                "AS-9 FAILURE CODE 4.5 \"DISCONNECTION IN PANEL CAUTION LAMP AND BUZZER SYSTEM\" IS DISPLAYED",
+                "AS-10 FAILURE CODE 5.3 \"SHORT CIRCUIT WITH GROUND IN ARSC CAUTION LAMP SYSTEM\" IS DISPLAYED",
+                "AS-11 FAILURE CODE 5.5 \"SHORT CIRCUIT WITH GROUND IN PANEL CAUTION LAMP AND BUZZER SYSTEM\" IS DISPLAYED",
+                "AS-12 FAILURE CODE 6.0 \"FAILURE IN ENGINE SPEED SENSOR SYSTEM\" IS DISPLAYED",
+                "AS-13 FAILURE CODE 6.1 \"FAILURE IN RR WHEEL SPEED SENSOR SYSTEM\" IS DISPLAYED",
+                "AS-14 FAILURE CODE 6.2 \"FAILURE IN RL WHEEL SPEED SENSOR SYSTEM\" IS DISPLAYED",
+                "AS-15 FAILURE CODE 8.0 \"FAILURE IN PRESSURE CONTROL VALVE (L.H.) SYSTEM:PRESSURE CONTROL VALVE (L.H.)DOES NOT OPEN\" IS DISPLAYED",
+                "AS-16 FAILURE CODE 8.1 \"SHORT CIRCUIT WITH CHASSIS GROUND IN PRESSURE CONTROL VALVE (R.H.) SYSTEM\" IS DISPLAYED",
+                "AS-17 FAILURE CODE 8.2 \"SHORT CIRCUIT WITH CHASSIS GROUND IN PRESSURE CONTROL VALVE (L.H.) SYSTEM\" IS DISPLAYED",
+                "AS-18 FAILURE CODE 8.3 \"DISCONNECTION IN PRESSURE CONTROL VALVE (R.H.) SYSTEM\" IS DISPLAYED",
+                "AS-19 FAILURE CODE 8.4 \"DISCONNECTION IN PRESSURE CONTROL VALVE (L.H.) SYSTEM\" IS DISPLAYED",
+                "AS-20 FAILURE CODE 8.5 \"FAILURE IN PRESSURE CONTROL VALVE (R.H.) SYSTEM:PRESSURE CONTROL VALVE (R.H.) DOES NOT CLOSE\" IS DISPLAYED",
+                "AS-21 FAILURE CODE 8.6 \"FAILURE IN PRESSURE CONTROL VALVE (L.H.) SYSTEM:PRESSURE CONTROL VALVE (L.H.) DOES NOT CLOSE\" IS DISPLAYED",
+                "AS-22 FAILURE CODE 8.7 \"FAILURE IN PRESSURE CONTROL VALVE (R.H.) SYSTEM:PRESSURE CONTROL VALVE (R.H.) DOES NOT OPEN\" IS DISPLAYED",
+                "AS-23 FAILURE CODE 8.9 \"SHORT CIRCUIT WITH CHASSIS GROUND IN PRESSURE SWITCH VALVE SYSTEM\" IS DISPLAYED",
+                "AS-24 FAILURE CODE 9.0 \"DISCONNECTION IN PRESSURE SWITCH VALVE SYSTEM\" IS DISPLAYED",
+                "AS-25 FAILURE CODE 9.1 \"FAILURE IN PRESSURE SWITCH VALVE SYSTEM:VALVE DOES NOT CLOSE\" IS DISPLAYED",
+                "AS-26 FAILURE CODE 9.2 \"FAILURE IN PRESSURE SWITCH VALVE SYSTEM:VALVE DOES NOT OPEN\" IS DISPLAYED",
+                "AS-101 NOTHING IS DISPLAYED ON DISPLAY WINDOW OF CONTROLLER",
+                "AS-102 FAILURE CODE IS KEPT CLEARED (\"--\" IS ALWAYS DISPLAYED IN DISPLAY WINDOW OF CONTROLLER) OR CANNOT BE CLEARED",
+                "AS-103 ANOTHER CONTROLLER HAS A FAILURE",
+                "AS-104 MONITOR LAMP (BUZZER) STAYS ON (OR OFF)",
+                "AS-105 DISCONNECTION IN SWITCH SYSTEM OF ASR SYSTEM",
+                "AS-106 SHORT CIRCUIT WITH CHASSIS GROUND IN SWITCH SYSTEM OF ASR SYSTEM",
+                "AS-107 ASR WORKING LAMP DOES NOT LIGHT UP",
+                "AS-108 ASR WORKING LAMP REMAINS LIT"
+              ]
+            },
+            "vhms_machine_health_diagnosis_system": {
+              "pdf_start": 1021,
+              "pdf_end": 1075,
+              "title": "VHMS MACHINE HEALTH DIAGNOSIS SYSTEM (OP)",
+              "topics": [
+                "1.BSAIC PRECAUTIONS",
+                "1-1. OPERAION, SAFETY, INSPECITON AND MAINTENANCE OF MACHINE",
+                "1-2. OPERATION OF MONITORING SYSTEM",
+                "1-3. CONSTANT POWER SUPPLY (BATERY DIRECT POWER SUPPLY)",
+                "1-4. PRECAUTIONS AT THE TIME OF TURNING ON THE POWER FOR VHMS",
+                "1-5. PRECAUTIONS AT THE TIME OF REPLACING VHMS AND TRANSMISSION CONTROLLER",
+                "1-6. OPERATION OF COMMUNICATION (ORB...ORB COMMUNICATION) CONTROLLER",
+                "2. OVERVIEW",
+                "2-1. APPLICABLE MODEL",
+                "2-2. BASIC CONFIGURATION (1) AND (2)",
+                "2-3. INSTALLATION DRAWING",
+                "3. STRUCTURE AND FUNCTION",
+                "3-1. VHMS CONTROLLER",
+                "3-2. BLOW-BY GAS SENSOR",
+                "3-3. ENGINE OIL TEMPERAUTRE SENSOR",
+                "3-4. AMPLIFIER FOR EXHAUST GAS TEMPERATURE SENSOR",
+                "3-5. COMMUNICATION (ORB...ORB COMMUNICATION) CONTROLLER/ANTENNA",
+                "4. TROUBLESHOOTING",
+                "4-1. TROUBLESHOOTING EQUIPMENT LIST",
+                "4-2. CONNECTOR TYPE AND MOUNTING LOCATIONS",
+                "4-3. CONNECTOR ARRANGEMENT DIAGRAM",
+                "4-4. ELECTRICAL CIRCUIT DIAGRAM",
+                "4-5. ERROR CODE LIST",
+                "4-6. STANDARD VALUE TABLE FOR ELECTRICAL PARTS",
+                "4-7. TROUBLE PHENOMENA LIST",
+                "5. DISASSEMBLY AND ASSEMBLY",
+                "5-1. REMOVAL AND INTRALLATION OF VHMS CONTROLLER",
+                "5-2. REMOVAL AND INSTALLATION OF BLOW-BY GAS SENSOR",
+                "5-3. REMOVAL AND INSTALLATION OF BREATHER",
+                "5-4. REMOVAL AND INSTALLATION OF ENGINE OIL TEMPERATURE SENSOR",
+                "5-5. REMOVAL AND INSTALLATION OF EXHAUST GAS TEMPERATURE SENSOR",
+                "5-6. REMOVAL AND INSTALLATION OF EXHAUST GAS TEMPERATURE AMPLIFIER",
+                "5-7. REMOVAL AND INSTALLATION OF SNAPSHOT SWITCH",
+                "5-8. REMOVAL AND INSTALLATION OF COMMUNICATION (ORB ...ORG COMMUNICATION) CONTROLER AND ANTENNA",
+                "6. SETTING OF VHMS CONTROLLER",
+                "6-1. SETTING OF CHMS CONTROLLER",
+                "6-2. SETTING ITEM",
+                "6-3. SRTTING FLOW (OUTLINE)",
+                "6-4. CHECK OF OPERATION AND PERFORMANCE",
+                "6-5. DATA COLLECTION",
+                "7. DATA RECOVERY AND TRANSMISSION",
+                "7-1. DATA RECOVERY",
+                "8. INSPECTION AND MAINTEANCE",
+                "8-1. INSPECTION TIMING: INSPECTION AND MAINTENANCE TIMING OF MACHINE",
+                "8-2. INSPECTION ITEM",
+                "9. REPLACEMENT OF PARTS",
+                "9-1. WHEN THE CHMS CONTROLLER IS REPLACED",
+                "9-2. WHEN COMMUNICATION CONTROLLER IS REPLACED",
+                "PROCEDURE Ⅰ FOR INITIAL SETUP OF VHMS",
+                "PROCEDURE Ⅱ FOR OPENING ORBCOMM SERVICE"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "disassembly_assembly": {
+      "pdf_start": 1076,
+      "pdf_end": 1325,
+      "contents_start": 1076,
+      "contents_end": 1077,
+      "title": "30 DISASSEMBLY AND ASSEMBLY",
+      "subsections": {
+        "method_of_using_manual": {
+          "pdf_start": 1078,
+          "pdf_end": 1078,
+          "title": "METHOD OF USING MANUAL"
+        },
+        "precautions_when_carrying_out_operation": {
+          "pdf_start": 1079,
+          "pdf_end": 1080,
+          "title": "PRECAUTIONS WHEN CARRYING OUT OPERATION"
+        },
+        "special_tool_list": {
+          "pdf_start": 1081,
+          "pdf_end": 1083,
+          "title": "SPECIAL TOOL LIST"
+        },
+        "staring_motor": {
+          "pdf_start": 1084,
+          "pdf_end": 1084,
+          "title": "STARING MOTOR",
+          "subsections": {
+            "removal_and_installation": {
+              "pdf_start": 1084,
+              "pdf_end": 1084,
+              "title": "REMOVAL AND INSTALLATION"
+            }
+          }
+        },
+        "alternator": {
+          "pdf_start": 1085,
+          "pdf_end": 1085,
+          "title": "ALTERNATOR",
+          "subsections": {
+            "removal_and_installation": {
+              "pdf_start": 1085,
+              "pdf_end": 1085,
+              "title": "REMOVAL AND INSTALLATION"
+            }
+          }
+        },
+        "engine_oil_cooler": {
+          "pdf_start": 1086,
+          "pdf_end": 1086,
+          "title": "ENGINE OIL COOLER",
+          "subsections": {
+            "removal_and_installation": {
+              "pdf_start": 1086,
+              "pdf_end": 1086,
+              "title": "REMOVAL AND INSTALLATION"
+            }
+          }
+        },
+        "left_bank_fuel_injection_pump": {
+          "pdf_start": 1087,
+          "pdf_end": 1087,
+          "title": "LEFT BANK FUEL INJECTION PUMP",
+          "subsections": {
+            "removal_and_installation": {
+              "pdf_start": 1087,
+              "pdf_end": 1087,
+              "title": "REMOVAL AND INSTALLATION"
+            }
+          }
+        },
+        "right_bank_fuel_injection_pump_assembky": {
+          "pdf_start": 1088,
+          "pdf_end": 1088,
+          "title": "RIGHT BANK FUEL INJECTION PUMP ASSEMBKY (WITHOUT GOVERNOR)",
+          "subsections": {
+            "removal_and_installation": {
+              "pdf_start": 1088,
+              "pdf_end": 1088,
+              "title": "REMOVAL AND INSTALLATION"
+            }
+          }
+        },
+        "air_compressor": {
+          "pdf_start": 1089,
+          "pdf_end": 1089,
+          "title": "AIR COMPRESSOR",
+          "subsections": {
+            "removal_and_installation": {
+              "pdf_start": 1089,
+              "pdf_end": 1089,
+              "title": "REMOVAL AND INSTALLATION"
+            }
+          }
+        },
+        "water_pump": {
+          "pdf_start": 1090,
+          "pdf_end": 1090,
+          "title": "WATER PUMP",
+          "subsections": {
+            "removal_and_installation": {
+              "pdf_start": 1090,
+              "pdf_end": 1090,
+              "title": "REMOVAL AND INSTALLATION"
+            }
+          }
+        },
+        "aftercooler_core": {
+          "pdf_start": 1091,
+          "pdf_end": 1092,
+          "title": "AFTERCOOLER CORE",
+          "subsections": {
+            "removal": {
+              "pdf_start": 1091,
+              "pdf_end": 1091,
+              "title": "REMOVAL"
+            },
+            "installation": {
+              "pdf_start": 1092,
+              "pdf_end": 1092,
+              "title": "INSTALLATION"
+            }
+          }
+        },
+        "turbocharger": {
+          "pdf_start": 1093,
+          "pdf_end": 1093,
+          "title": "TURBOCHARGER",
+          "subsections": {
+            "removal_and_installation": {
+              "pdf_start": 1093,
+              "pdf_end": 1093,
+              "title": "REMOVAL AND INSTALLATION"
+            }
+          }
+        },
+        "nozzle_holder": {
+          "pdf_start": 1094,
+          "pdf_end": 1094,
+          "title": "NOZZLE HOLDER",
+          "subsections": {
+            "removal_and_installation": {
+              "pdf_start": 1094,
+              "pdf_end": 1094,
+              "title": "REMOVAL AND INSTALLATION"
+            }
+          }
+        },
+        "cylinder_head": {
+          "pdf_start": 1095,
+          "pdf_end": 1097,
+          "title": "CYLINDER HEAD",
+          "subsections": {
+            "removal": {
+              "pdf_start": 1095,
+              "pdf_end": 1095,
+              "title": "REMOVAL"
+            },
+            "installation": {
+              "pdf_start": 1096,
+              "pdf_end": 1097,
+              "title": "INSTALLATION"
+            }
+          }
+        },
+        "exhaust_brake": {
+          "pdf_start": 1098,
+          "pdf_end": 1098,
+          "title": "EXHAUST BRAKE",
+          "subsections": {
+            "removal_and_installation": {
+              "pdf_start": 1098,
+              "pdf_end": 1098,
+              "title": "REMOVAL AND INSTALLATION"
+            }
+          }
+        },
+        "engine": {
+          "pdf_start": 1099,
+          "pdf_end": 1103,
+          "title": "ENGINE",
+          "subsections": {
+            "removal": {
+              "pdf_start": 1099,
+              "pdf_end": 1102,
+              "title": "REMOVAL"
+            },
+            "inatallation": {
+              "pdf_start": 1103,
+              "pdf_end": 1103,
+              "title": "INATALLATION"
+            }
+          }
+        },
+        "engine_front_seal": {
+          "pdf_start": 1104,
+          "pdf_end": 1106,
+          "title": "ENGINE FRONT SEAL",
+          "subsections": {
+            "removal_and_installation": {
+              "pdf_start": 1104,
+              "pdf_end": 1106,
+              "title": "REMOVAL AND INSTALLATION"
+            }
+          }
+        },
+        "engine_rear_seal": {
+          "pdf_start": 1107,
+          "pdf_end": 1110,
+          "title": "ENGINE REAR SEAL",
+          "subsections": {
+            "removal_and_installation": {
+              "pdf_start": 1107,
+              "pdf_end": 1110,
+              "title": "REMOVAL AND INSTALLATION"
+            }
+          }
+        },
+        "radiator_torque_converter_cooler": {
+          "pdf_start": 1111,
+          "pdf_end": 1112,
+          "title": "RADIATOR TORQUE CONVERTER COOLER",
+          "subsections": {
+            "removal": {
+              "pdf_start": 1111,
+              "pdf_end": 1111,
+              "title": "REMOVAL"
+            },
+            "installation": {
+              "pdf_start": 1112,
+              "pdf_end": 1112,
+              "title": "INSTALLATION"
+            }
+          }
+        },
+        "brake_cooler": {
+          "pdf_start": 1113,
+          "pdf_end": 1113,
+          "title": "BRAKE COOLER",
+          "subsections": {
+            "removal_and_installation": {
+              "pdf_start": 1113,
+              "pdf_end": 1113,
+              "title": "REMOVAL AND INSTALLATION"
+            }
+          }
+        },
+        "output_shaft": {
+          "pdf_start": 1114,
+          "pdf_end": 1118,
+          "title": "OUTPUT SHAFT",
+          "subsections": {
+            "removal_and_installation": {
+              "pdf_start": 1114,
+              "pdf_end": 1115,
+              "title": "REMOVAL AND INSTALLATION"
+            },
+            "disassembly": {
+              "pdf_start": 1116,
+              "pdf_end": 1116,
+              "title": "DISASSEMBLY"
+            },
+            "assembly": {
+              "pdf_start": 1117,
+              "pdf_end": 1118,
+              "title": "ASSEMBLY"
+            }
+          }
+        },
+        "torque_converter_transmission": {
+          "pdf_start": 1119,
+          "pdf_end": 1121,
+          "title": "TORQUE CONVERTER, TRANSMISSION",
+          "subsections": {
+            "removal": {
+              "pdf_start": 1119,
+              "pdf_end": 1120,
+              "title": "REMOVAL"
+            },
+            "installation": {
+              "pdf_start": 1121,
+              "pdf_end": 1121,
+              "title": "INSTALLATION"
+            }
+          }
+        },
+        "procedure_for_centering_the_engine_assembly_and_troque_converter_transmission_assembly": {
+          "pdf_start": 1122,
+          "pdf_end": 1122,
+          "title": "PROCEDURE FOR CENTERING THE ENGINE ASSEMBLY AND TROQUE CONVERTER, TRANSMISSION ASSEMBLY"
+        },
+        "torque_converter_control_valve": {
+          "pdf_start": 1123,
+          "pdf_end": 1124,
+          "title": "TORQUE CONVERTER, CONTROL VALVE",
+          "subsections": {
+            "removal_and_installation": {
+              "pdf_start": 1123,
+              "pdf_end": 1123,
+              "title": "REMOVAL AND INSTALLATION"
+            },
+            "disassembly_and_assembly": {
+              "pdf_start": 1124,
+              "pdf_end": 1124,
+              "title": "DISASSEMBLY AND ASSEMBLY"
+            }
+          }
+        },
+        "torque_converter_and_transmission": {
+          "pdf_start": 1125,
+          "pdf_end": 1126,
+          "title": "TORQUE CONVERTER AND TRANSMISSION",
+          "subsections": {
+            "disconnection": {
+              "pdf_start": 1125,
+              "pdf_end": 1125,
+              "title": "DISCONNECTION"
+            },
+            "connection": {
+              "pdf_start": 1126,
+              "pdf_end": 1126,
+              "title": "CONNECTION"
+            }
+          }
+        },
+        "torque_converter_pto": {
+          "pdf_start": 1127,
+          "pdf_end": 1138,
+          "title": "TORQUE CONVERTER, PTO",
+          "subsections": {
+            "disassembly": {
+              "pdf_start": 1127,
+              "pdf_end": 1132,
+              "title": "DISASSEMBLY"
+            },
+            "assembly": {
+              "pdf_start": 1133,
+              "pdf_end": 1138,
+              "title": "ASSEMBLY"
+            }
+          }
+        },
+        "transmission": {
+          "pdf_start": 1139,
+          "pdf_end": 1169,
+          "title": "TRANSMISSION",
+          "subsections": {
+            "disassembly": {
+              "pdf_start": 1139,
+              "pdf_end": 1152,
+              "title": "DISASSEMBLY"
+            },
+            "assembly": {
+              "pdf_start": 1153,
+              "pdf_end": 1169,
+              "title": "ASSEMBLY"
+            }
+          }
+        },
+        "ecmv": {
+          "pdf_start": 1170,
+          "pdf_end": 1171,
+          "title": "ECMV",
+          "subsections": {
+            "disassembly_and_assembly": {
+              "pdf_start": 1170,
+              "pdf_end": 1171,
+              "title": "DISASSEMBLY AND ASSEMBLY"
+            }
+          }
+        },
+        "differential": {
+          "pdf_start": 1172,
+          "pdf_end": 1186,
+          "title": "DIFFERENTIAL (FOR STANFARD DIFFERENTIAL)",
+          "subsections": {
+            "removal": {
+              "pdf_start": 1172,
+              "pdf_end": 1172,
+              "title": "REMOVAL"
+            },
+            "installation": {
+              "pdf_start": 1173,
+              "pdf_end": 1173,
+              "title": "INSTALLATION"
+            },
+            "disassembly": {
+              "pdf_start": 1174,
+              "pdf_end": 1177,
+              "title": "DISASSEMBLY"
+            },
+            "assembly": {
+              "pdf_start": 1178,
+              "pdf_end": 1186,
+              "title": "ASSEMBLY"
+            }
+          }
+        },
+        "differential_2": {
+          "pdf_start": 1187,
+          "pdf_end": 1203,
+          "title": "DIFFERENTIAL (WITH DIFFERENTIAL LOCK)",
+          "subsections": {
+            "removal": {
+              "pdf_start": 1187,
+              "pdf_end": 1187,
+              "title": "REMOVAL"
+            },
+            "installation": {
+              "pdf_start": 1188,
+              "pdf_end": 1188,
+              "title": "INSTALLATION"
+            },
+            "disassembly": {
+              "pdf_start": 1189,
+              "pdf_end": 1193,
+              "title": "DISASSEMBLY"
+            },
+            "assembly": {
+              "pdf_start": 1194,
+              "pdf_end": 1203,
+              "title": "ASSEMBLY"
+            }
+          }
+        },
+        "front_wheel": {
+          "pdf_start": 1204,
+          "pdf_end": 1204,
+          "title": "FRONT WHEEL",
+          "subsections": {
+            "removal_and_installation": {
+              "pdf_start": 1204,
+              "pdf_end": 1204,
+              "title": "REMOVAL AND INSTALLATION"
+            }
+          }
+        },
+        "rear_wheel": {
+          "pdf_start": 1205,
+          "pdf_end": 1206,
+          "title": "REAR WHEEL",
+          "subsections": {
+            "removal": {
+              "pdf_start": 1205,
+              "pdf_end": 1205,
+              "title": "REMOVAL"
+            },
+            "installation": {
+              "pdf_start": 1206,
+              "pdf_end": 1206,
+              "title": "INSTALLATION"
+            }
+          }
+        },
+        "front_brake_caliper": {
+          "pdf_start": 1207,
+          "pdf_end": 1210,
+          "title": "FRONT BRAKE CALIPER",
+          "subsections": {
+            "removal_and_installation": {
+              "pdf_start": 1207,
+              "pdf_end": 1207,
+              "title": "REMOVAL AND INSTALLATION"
+            },
+            "disassembly": {
+              "pdf_start": 1208,
+              "pdf_end": 1208,
+              "title": "DISASSEMBLY"
+            },
+            "assembly": {
+              "pdf_start": 1209,
+              "pdf_end": 1210,
+              "title": "ASSEMBLY"
+            }
+          }
+        },
+        "front_brake_caliper_pad": {
+          "pdf_start": 1211,
+          "pdf_end": 1211,
+          "title": "FRONT BRAKE CALIPER PAD",
+          "subsections": {
+            "removal_and_installation": {
+              "pdf_start": 1211,
+              "pdf_end": 1211,
+              "title": "REMOVAL AND INSTALLATION"
+            }
+          }
+        },
+        "front_wheel_hub": {
+          "pdf_start": 1212,
+          "pdf_end": 1216,
+          "title": "FRONT WHEEL HUB",
+          "subsections": {
+            "disassembly": {
+              "pdf_start": 1212,
+              "pdf_end": 1213,
+              "title": "DISASSEMBLY"
+            },
+            "assembly": {
+              "pdf_start": 1214,
+              "pdf_end": 1216,
+              "title": "ASSEMBLY"
+            }
+          }
+        },
+        "final_drive_carrier": {
+          "pdf_start": 1217,
+          "pdf_end": 1218,
+          "title": "FINAL DRIVE CARRIER",
+          "subsections": {
+            "removal_and_installation": {
+              "pdf_start": 1217,
+              "pdf_end": 1217,
+              "title": "REMOVAL AND INSTALLATION"
+            },
+            "disassembly_and_assembly": {
+              "pdf_start": 1218,
+              "pdf_end": 1218,
+              "title": "DISASSEMBLY AND ASSEMBLY"
+            }
+          }
+        },
+        "final_drive": {
+          "pdf_start": 1219,
+          "pdf_end": 1222,
+          "title": "FINAL DRIVE",
+          "subsections": {
+            "disassembly": {
+              "pdf_start": 1219,
+              "pdf_end": 1220,
+              "title": "DISASSEMBLY"
+            },
+            "assembly": {
+              "pdf_start": 1221,
+              "pdf_end": 1222,
+              "title": "ASSEMBLY"
+            }
+          }
+        },
+        "rear_brake": {
+          "pdf_start": 1223,
+          "pdf_end": 1223,
+          "title": "REAR BRAKE",
+          "subsections": {
+            "removal_and_installation": {
+              "pdf_start": 1223,
+              "pdf_end": 1223,
+              "title": "REMOVAL AND INSTALLATION"
+            }
+          }
+        },
+        "rear_wheel_brake": {
+          "pdf_start": 1224,
+          "pdf_end": 1226,
+          "title": "REAR WHEEL BRAKE",
+          "subsections": {
+            "disassembly": {
+              "pdf_start": 1224,
+              "pdf_end": 1224,
+              "title": "DISASSEMBLY"
+            },
+            "assembly": {
+              "pdf_start": 1225,
+              "pdf_end": 1226,
+              "title": "ASSEMBLY"
+            }
+          }
+        },
+        "parking_brake_pad": {
+          "pdf_start": 1227,
+          "pdf_end": 1228,
+          "title": "PARKING BRAKE PAD",
+          "subsections": {
+            "removal": {
+              "pdf_start": 1227,
+              "pdf_end": 1227,
+              "title": "REMOVAL"
+            },
+            "installation": {
+              "pdf_start": 1228,
+              "pdf_end": 1228,
+              "title": "INSTALLATION"
+            }
+          }
+        },
+        "parking_brake_caliper": {
+          "pdf_start": 1229,
+          "pdf_end": 1230,
+          "title": "PARKING BRAKE CALIPER",
+          "subsections": {
+            "removal_and_installation": {
+              "pdf_start": 1229,
+              "pdf_end": 1229,
+              "title": "REMOVAL AND INSTALLATION"
+            },
+            "disassembly_and_assembly": {
+              "pdf_start": 1230,
+              "pdf_end": 1230,
+              "title": "DISASSEMBLY AND ASSEMBLY"
+            }
+          }
+        },
+        "front_suspendion_cylinder": {
+          "pdf_start": 1231,
+          "pdf_end": 1236,
+          "title": "FRONT SUSPENDION CYLINDER",
+          "subsections": {
+            "removal_and_isntallation": {
+              "pdf_start": 1231,
+              "pdf_end": 1231,
+              "title": "REMOVAL AND ISNTALLATION"
+            },
+            "disassembly": {
+              "pdf_start": 1232,
+              "pdf_end": 1232,
+              "title": "DISASSEMBLY (STANDARD CYLINDER)"
+            },
+            "assembly": {
+              "pdf_start": 1233,
+              "pdf_end": 1233,
+              "title": "ASSEMBLY (STANDARD CYLINDER)"
+            },
+            "dissassembly": {
+              "pdf_start": 1234,
+              "pdf_end": 1234,
+              "title": "DISSASSEMBLY (CYLINDER WITH BUFFER RING)"
+            },
+            "assembly_2": {
+              "pdf_start": 1235,
+              "pdf_end": 1236,
+              "title": "ASSEMBLY (CYLINDER WITH BUFFER RING)"
+            }
+          }
+        },
+        "king_pin": {
+          "pdf_start": 1237,
+          "pdf_end": 1237,
+          "title": "KING PIN",
+          "subsections": {
+            "removal_and_installation": {
+              "pdf_start": 1237,
+              "pdf_end": 1237,
+              "title": "REMOVAL AND INSTALLATION"
+            }
+          }
+        },
+        "varible_damping_selectior_valve": {
+          "pdf_start": 1238,
+          "pdf_end": 1239,
+          "title": "VARIBLE DAMPING SELECTIOR VALVE",
+          "subsections": {
+            "disassembly": {
+              "pdf_start": 1238,
+              "pdf_end": 1238,
+              "title": "DISASSEMBLY"
+            },
+            "assembly": {
+              "pdf_start": 1239,
+              "pdf_end": 1239,
+              "title": "ASSEMBLY"
+            }
+          }
+        },
+        "rear_suspension_cylinder": {
+          "pdf_start": 1240,
+          "pdf_end": 1244,
+          "title": "REAR SUSPENSION CYLINDER",
+          "subsections": {
+            "removal_and_installation": {
+              "pdf_start": 1240,
+              "pdf_end": 1240,
+              "title": "REMOVAL AND INSTALLATION"
+            },
+            "disassembly": {
+              "pdf_start": 1241,
+              "pdf_end": 1241,
+              "title": "DISASSEMBLY (STANDARD CYLINDER)"
+            },
+            "assembly": {
+              "pdf_start": 1242,
+              "pdf_end": 1242,
+              "title": "ASSEMBLY (STANDARD CYLINDER)"
+            },
+            "disassembly_2": {
+              "pdf_start": 1243,
+              "pdf_end": 1243,
+              "title": "DISASSEMBLY (CYLINDER WITH BUFFER RING)"
+            },
+            "assembly_2": {
+              "pdf_start": 1244,
+              "pdf_end": 1244,
+              "title": "ASSEMBLY (CYLINDERWITH BUFFER RING)"
+            }
+          }
+        },
+        "air_governor": {
+          "pdf_start": 1245,
+          "pdf_end": 1246,
+          "title": "AIR GOVERNOR",
+          "subsections": {
+            "removal_and_inatallation": {
+              "pdf_start": 1245,
+              "pdf_end": 1245,
+              "title": "REMOVAL AND INATALLATION"
+            },
+            "disassembly_and_assembly": {
+              "pdf_start": 1246,
+              "pdf_end": 1246,
+              "title": "DISASSEMBLY AND ASSEMBLY"
+            }
+          }
+        },
+        "brake_valve": {
+          "pdf_start": 1247,
+          "pdf_end": 1251,
+          "title": "BRAKE VALVE",
+          "subsections": {
+            "removal_and_installation": {
+              "pdf_start": 1247,
+              "pdf_end": 1247,
+              "title": "REMOVAL AND INSTALLATION"
+            },
+            "disassembly": {
+              "pdf_start": 1248,
+              "pdf_end": 1249,
+              "title": "DISASSEMBLY"
+            },
+            "assembly": {
+              "pdf_start": 1250,
+              "pdf_end": 1251,
+              "title": "ASSEMBLY"
+            }
+          }
+        },
+        "parking_vrake_chamber": {
+          "pdf_start": 1252,
+          "pdf_end": 1255,
+          "title": "PARKING VRAKE CHAMBER",
+          "subsections": {
+            "removal_and_installation": {
+              "pdf_start": 1252,
+              "pdf_end": 1252,
+              "title": "REMOVAL AND INSTALLATION"
+            },
+            "disassembly": {
+              "pdf_start": 1253,
+              "pdf_end": 1253,
+              "title": "DISASSEMBLY"
+            },
+            "assembly": {
+              "pdf_start": 1254,
+              "pdf_end": 1255,
+              "title": "ASSEMBLY"
+            }
+          }
+        },
+        "rear_brake_vhamber": {
+          "pdf_start": 1256,
+          "pdf_end": 1263,
+          "title": "REAR BRAKE VHAMBER",
+          "subsections": {
+            "removal_and_installation": {
+              "pdf_start": 1256,
+              "pdf_end": 1256,
+              "title": "REMOVAL AND INSTALLATION"
+            },
+            "disassembly": {
+              "pdf_start": 1257,
+              "pdf_end": 1260,
+              "title": "DISASSEMBLY"
+            },
+            "assembly": {
+              "pdf_start": 1261,
+              "pdf_end": 1263,
+              "title": "ASSEMBLY"
+            }
+          }
+        },
+        "front_brake_chamber": {
+          "pdf_start": 1264,
+          "pdf_end": 1267,
+          "title": "FRONT BRAKE CHAMBER",
+          "subsections": {
+            "disassembly": {
+              "pdf_start": 1264,
+              "pdf_end": 1265,
+              "title": "DISASSEMBLY"
+            },
+            "assembly": {
+              "pdf_start": 1266,
+              "pdf_end": 1267,
+              "title": "ASSEMBLY"
+            }
+          }
+        },
+        "slack_adjuster": {
+          "pdf_start": 1268,
+          "pdf_end": 1269,
+          "title": "SLACK ADJUSTER",
+          "subsections": {
+            "removal_and_installation": {
+              "pdf_start": 1268,
+              "pdf_end": 1268,
+              "title": "REMOVAL AND INSTALLATION"
+            },
+            "disassembly_and_assembly": {
+              "pdf_start": 1269,
+              "pdf_end": 1269,
+              "title": "DISASSEMBLY AND ASSEMBLY"
+            }
+          }
+        },
+        "air_drier": {
+          "pdf_start": 1270,
+          "pdf_end": 1287,
+          "title": "AIR DRIER (DESICCANT TYPE)",
+          "subsections": {
+            "removal_and_installation": {
+              "pdf_start": 1270,
+              "pdf_end": 1270,
+              "title": "REMOVAL AND INSTALLATION"
+            },
+            "disassembly_and_assembly": {
+              "pdf_start": 1271,
+              "pdf_end": 1287,
+              "title": "DISASSEMBLY AND ASSEMBLY"
+            }
+          }
+        },
+        "brake_colling_pump": {
+          "pdf_start": 1288,
+          "pdf_end": 1288,
+          "title": "BRAKE COLLING PUMP",
+          "subsections": {
+            "removal_and_installation": {
+              "pdf_start": 1288,
+              "pdf_end": 1288,
+              "title": "REMOVAL AND INSTALLATION"
+            }
+          }
+        },
+        "steering_hoist_pump": {
+          "pdf_start": 1289,
+          "pdf_end": 1289,
+          "title": "STEERING, HOIST PUMP",
+          "subsections": {
+            "removal_and_installation": {
+              "pdf_start": 1289,
+              "pdf_end": 1289,
+              "title": "REMOVAL AND INSTALLATION"
+            }
+          }
+        },
+        "torque_converter_transmission_pump": {
+          "pdf_start": 1290,
+          "pdf_end": 1290,
+          "title": "TORQUE CONVERTER, TRANSMISSION PUMP",
+          "subsections": {
+            "removal_and_installation": {
+              "pdf_start": 1290,
+              "pdf_end": 1290,
+              "title": "REMOVAL AND INSTALLATION"
+            }
+          }
+        },
+        "emergency_steering_motor_pump": {
+          "pdf_start": 1291,
+          "pdf_end": 1291,
+          "title": "EMERGENCY STEERING MOTOR PUMP",
+          "subsections": {
+            "removal_and_installation": {
+              "pdf_start": 1291,
+              "pdf_end": 1291,
+              "title": "REMOVAL AND INSTALLATION"
+            }
+          }
+        },
+        "steering_valve": {
+          "pdf_start": 1292,
+          "pdf_end": 1303,
+          "title": "STEERING VALVE",
+          "subsections": {
+            "removal_and_installation": {
+              "pdf_start": 1292,
+              "pdf_end": 1292,
+              "title": "REMOVAL AND INSTALLATION"
+            },
+            "disassembly": {
+              "pdf_start": 1293,
+              "pdf_end": 1296,
+              "title": "DISASSEMBLY"
+            },
+            "assembly": {
+              "pdf_start": 1297,
+              "pdf_end": 1303,
+              "title": "ASSEMBLY"
+            }
+          }
+        },
+        "brake_control_valve": {
+          "pdf_start": 1304,
+          "pdf_end": 1304,
+          "title": "BRAKE CONTROL VALVE (BCV)",
+          "subsections": {
+            "removal_and_installation": {
+              "pdf_start": 1304,
+              "pdf_end": 1304,
+              "title": "REMOVAL AND INSTALLATION"
+            }
+          }
+        },
+        "demand_valve": {
+          "pdf_start": 1305,
+          "pdf_end": 1306,
+          "title": "DEMAND VALVE",
+          "subsections": {
+            "removal_and_installation": {
+              "pdf_start": 1305,
+              "pdf_end": 1305,
+              "title": "REMOVAL AND INSTALLATION"
+            },
+            "disassembly_and_assembly": {
+              "pdf_start": 1306,
+              "pdf_end": 1306,
+              "title": "DISASSEMBLY AND ASSEMBLY"
+            }
+          }
+        },
+        "relief_valve": {
+          "pdf_start": 1307,
+          "pdf_end": 1307,
+          "title": "RELIEF VALVE",
+          "subsections": {
+            "disassembly_and_assembly": {
+              "pdf_start": 1307,
+              "pdf_end": 1307,
+              "title": "DISASSEMBLY AND ASSEMBLY"
+            }
+          }
+        },
+        "hoist_valve": {
+          "pdf_start": 1308,
+          "pdf_end": 1310,
+          "title": "HOIST VALVE",
+          "subsections": {
+            "removal_and_installation": {
+              "pdf_start": 1308,
+              "pdf_end": 1308,
+              "title": "REMOVAL AND INSTALLATION"
+            },
+            "disassembly_and_assembly": {
+              "pdf_start": 1309,
+              "pdf_end": 1310,
+              "title": "DISASSEMBLY AND ASSEMBLY"
+            }
+          }
+        },
+        "steering_cylinder": {
+          "pdf_start": 1311,
+          "pdf_end": 1316,
+          "title": "STEERING CYLINDER",
+          "subsections": {
+            "removal_and_instalation": {
+              "pdf_start": 1311,
+              "pdf_end": 1311,
+              "title": "REMOVAL AND INSTALATION"
+            },
+            "disassembly": {
+              "pdf_start": 1312,
+              "pdf_end": 1313,
+              "title": "DISASSEMBLY"
+            },
+            "assembly": {
+              "pdf_start": 1314,
+              "pdf_end": 1316,
+              "title": "ASSEMBLY"
+            }
+          }
+        },
+        "hoist_cylinder": {
+          "pdf_start": 1317,
+          "pdf_end": 1319,
+          "title": "HOIST CYLINDER",
+          "subsections": {
+            "removal_and_installation": {
+              "pdf_start": 1317,
+              "pdf_end": 1317,
+              "title": "REMOVAL AND INSTALLATION"
+            },
+            "disassembly": {
+              "pdf_start": 1318,
+              "pdf_end": 1318,
+              "title": "DISASSEMBLY"
+            },
+            "assembly": {
+              "pdf_start": 1319,
+              "pdf_end": 1319,
+              "title": "ASSEMBLY"
+            }
+          }
+        },
+        "body": {
+          "pdf_start": 1320,
+          "pdf_end": 1321,
+          "title": "BODY",
+          "subsections": {
+            "removal": {
+              "pdf_start": 1320,
+              "pdf_end": 1320,
+              "title": "REMOVAL"
+            },
+            "installation": {
+              "pdf_start": 1321,
+              "pdf_end": 1321,
+              "title": "INSTALLATION"
+            }
+          }
+        },
+        "controller": {
+          "pdf_start": 1322,
+          "pdf_end": 1322,
+          "title": "CONTROLLER",
+          "subsections": {
+            "removal_and_installation": {
+              "pdf_start": 1322,
+              "pdf_end": 1322,
+              "title": "REMOVAL AND INSTALLATION"
+            }
+          }
+        },
+        "air_conitioner_compressor": {
+          "pdf_start": 1323,
+          "pdf_end": 1323,
+          "title": "AIR CONITIONER COMPRESSOR",
+          "subsections": {
+            "removal_and_installation": {
+              "pdf_start": 1323,
+              "pdf_end": 1323,
+              "title": "REMOVAL AND INSTALLATION"
+            }
+          }
+        },
+        "receiver_take": {
+          "pdf_start": 1324,
+          "pdf_end": 1324,
+          "title": "RECEIVER TAKE",
+          "subsections": {
+            "removal_and_installation": {
+              "pdf_start": 1324,
+              "pdf_end": 1324,
+              "title": "REMOVAL AND INSTALLATION"
+            }
+          }
+        },
+        "air_conditioner_condenser": {
+          "pdf_start": 1325,
+          "pdf_end": 1325,
+          "title": "AIR CONDITIONER CONDENSER",
+          "subsections": {
+            "removal_and_installation": {
+              "pdf_start": 1325,
+              "pdf_end": 1325,
+              "title": "REMOVAL AND INSTALLATION"
+            }
+          }
+        }
+      }
+    },
+    "maintenance_standard": {
+      "pdf_start": 1326,
+      "pdf_end": 1366,
+      "contents_start": 1326,
+      "contents_end": 1326,
+      "title": "40 MAINTENANCE STANDARD",
+      "subsections": {
+        "output_shaft": {
+          "pdf_start": 1327,
+          "pdf_end": 1327,
+          "title": "OUTPUT SHAFT"
+        },
+        "turque_converter_valve": {
+          "pdf_start": 1328,
+          "pdf_end": 1328,
+          "title": "TURQUE CONVERTER VALVE"
+        },
+        "torque_converter": {
+          "pdf_start": 1329,
+          "pdf_end": 1330,
+          "title": "TORQUE CONVERTER"
+        },
+        "transmission": {
+          "pdf_start": 1331,
+          "pdf_end": 1335,
+          "title": "TRANSMISSION"
+        },
+        "ecmv": {
+          "pdf_start": 1336,
+          "pdf_end": 1336,
+          "title": "ECMV (ELECTRONIC CONTROL MODULATION VALVE)"
+        },
+        "front_axle": {
+          "pdf_start": 1337,
+          "pdf_end": 1338,
+          "title": "FRONT AXLE"
+        },
+        "front_axle_2": {
+          "pdf_start": 1339,
+          "pdf_end": 1339,
+          "title": "FRONT AXLE (WITH ABS/ASR) (IF EQUIPPED)"
+        },
+        "rear_axle_support": {
+          "pdf_start": 1340,
+          "pdf_end": 1340,
+          "title": "REAR AXLE SUPPORT (HD785-5)"
+        },
+        "rear_axle_support_2": {
+          "pdf_start": 1341,
+          "pdf_end": 1341,
+          "title": "REAR AXLE SUPPORT (HD985-5)"
+        },
+        "differential": {
+          "pdf_start": 1342,
+          "pdf_end": 1343,
+          "title": "DIFFERENTIAL"
+        },
+        "final_drive": {
+          "pdf_start": 1344,
+          "pdf_end": 1346,
+          "title": "FINAL DRIVE (HD785-5)"
+        },
+        "final_drive_2": {
+          "pdf_start": 1347,
+          "pdf_end": 1348,
+          "title": "FINAL DRIVE (HD985-5)"
+        },
+        "front_brake": {
+          "pdf_start": 1349,
+          "pdf_end": 1349,
+          "title": "FRONT BRAKE"
+        },
+        "rear_brake": {
+          "pdf_start": 1350,
+          "pdf_end": 1351,
+          "title": "REAR BRAKE"
+        },
+        "rear_brake_2": {
+          "pdf_start": 1352,
+          "pdf_end": 1353,
+          "title": "REAR BRAKE (WITH ABS/ASR) (IF EQUIPPED)"
+        },
+        "parking_brake": {
+          "pdf_start": 1354,
+          "pdf_end": 1354,
+          "title": "PARKING BRAKE"
+        },
+        "steering_linkage": {
+          "pdf_start": 1355,
+          "pdf_end": 1356,
+          "title": "STEERING LINKAGE"
+        },
+        "front_suspension_cylinder": {
+          "pdf_start": 1357,
+          "pdf_end": 1357,
+          "title": "FRONT SUSPENSION CYLINDER"
+        },
+        "rear_suspension_cylinder": {
+          "pdf_start": 1358,
+          "pdf_end": 1358,
+          "title": "REAR SUSPENSION CYLINDER"
+        },
+        "parking_brake_chamber": {
+          "pdf_start": 1359,
+          "pdf_end": 1359,
+          "title": "PARKING BRAKE CHAMBER"
+        },
+        "slack_adjuster": {
+          "pdf_start": 1360,
+          "pdf_end": 1360,
+          "title": "SLACK ADJUSTER"
+        },
+        "hydraulic_pump": {
+          "pdf_start": 1361,
+          "pdf_end": 1361,
+          "title": "HYDRAULIC PUMP (SAR-160) (FOR TORQUE CONVERTER AND TRANSMISSION)"
+        },
+        "hydraulic_pump_2": {
+          "pdf_start": 1362,
+          "pdf_end": 1362,
+          "title": "HYDRAULIC PUMP (SAR4-180+180:FOR STEERING,WORK EQUIPMENT) (SAR4-285+285:FOR BRAKE COOLING)"
+        },
+        "demand_valve": {
+          "pdf_start": 1363,
+          "pdf_end": 1363,
+          "title": "DEMAND VALVE"
+        },
+        "cross_over_relief_valve": {
+          "pdf_start": 1363,
+          "pdf_end": 1363,
+          "title": "CROSS-OVER RELIEF VALVE"
+        },
+        "hoist_valve": {
+          "pdf_start": 1364,
+          "pdf_end": 1364,
+          "title": "HOIST VALVE"
+        },
+        "steering_cylinder": {
+          "pdf_start": 1365,
+          "pdf_end": 1365,
+          "title": "STEERING CYLINDER"
+        },
+        "hoist_cylinder": {
+          "pdf_start": 1366,
+          "pdf_end": 1366,
+          "title": "HOIST CYLINDER"
+        }
+      }
+    },
+    "others": {
+      "pdf_start": 1367,
+      "pdf_end": 1392,
+      "contents_start": 1367,
+      "contents_end": 1367,
+      "title": "90 OTHERS",
+      "subsections": {
+        "electrical_circuit_diagram": {
+          "pdf_start": 1368,
+          "pdf_end": 1377,
+          "title": "ELECTRICAL CIRCUIT DIAGRAM",
+          "subsections": {
+            "electrical_circuit_diagram_for_inside_cab": {
+              "pdf_start": 1368,
+              "pdf_end": 1368,
+              "title": "ELECTRICAL CIRCUIT DIAGRAM FOR INSIDE CAB (WITH MECHANICAL GOVERNOR) (1/3)"
+            },
+            "electrical_circuit_diagram_for_inside_cab_2": {
+              "pdf_start": 1369,
+              "pdf_end": 1369,
+              "title": "ELECTRICAL CIRCUIT DIAGRAM FOR INSIDE CAB (WITH MECHANICAL GOVERNOR) (2/3)"
+            },
+            "electrical_circuit_diagram_for_inside_cab_3": {
+              "pdf_start": 1370,
+              "pdf_end": 1370,
+              "title": "ELECTRICAL CIRCUIT DIAGRAM FOR INSIDE CAB (WITH MECHANICAL GOVERNOR) (3/3)"
+            },
+            "electrical_circuit_diagram_for_inside_cab_4": {
+              "pdf_start": 1371,
+              "pdf_end": 1371,
+              "title": "ELECTRICAL CIRCUIT DIAGRAM FOR INSIDE CAB (WITH ELECTRONIC GOVERNOR) (1/5)"
+            },
+            "electrical_circuit_diagram_for_inside_cab_5": {
+              "pdf_start": 1372,
+              "pdf_end": 1372,
+              "title": "ELECTRICAL CIRCUIT DIAGRAM FOR INSIDE CAB (WITH ELECTRONIC GOVERNOR) (2/5)"
+            },
+            "electrical_circuit_diagram_for_inside_cab_6": {
+              "pdf_start": 1373,
+              "pdf_end": 1373,
+              "title": "ELECTRICAL CIRCUIT DIAGRAM FOR INSIDE CAB (WITH ELECTRONIC GOVERNOR) (3/5)"
+            },
+            "electrical_circuit_diagram_for_inside_cab_7": {
+              "pdf_start": 1374,
+              "pdf_end": 1374,
+              "title": "ELECTRICAL CIRCUIT DIAGRAM FOR INSIDE CAB (WITH ELECTRONIC GOVERNOR) (4/5)"
+            },
+            "electrical_circuit_diagram_for_inside_cab_8": {
+              "pdf_start": 1375,
+              "pdf_end": 1375,
+              "title": "ELECTRICAL CIRCUIT DIAGRAM FOR INSIDE CAB (WITH ELECTRONIC GOVERNOR) (5/5)"
+            },
+            "electrical_circuit_diagram_for_outside_cab": {
+              "pdf_start": 1376,
+              "pdf_end": 1376,
+              "title": "ELECTRICAL CIRCUIT DIAGRAM FOR OUTSIDE CAB (1/2)"
+            },
+            "electrical_circuit_diagram_for_outside_cab_2": {
+              "pdf_start": 1377,
+              "pdf_end": 1377,
+              "title": "ELECTRICAL CIRCUIT DIAGRAM FOR OUTSIDE CAB (2/2)"
+            }
+          }
+        },
+        "electrical_control_system": {
+          "pdf_start": 1378,
+          "pdf_end": 1378,
+          "title": "ELECTRICAL CONTROL SYSTEM",
+          "subsections": {
+            "electrical_circuit_diagram": {
+              "pdf_start": 1378,
+              "pdf_end": 1378,
+              "title": "ELECTRICAL CIRCUIT DIAGRAM"
+            }
+          }
+        },
+        "automatic_shift_control_system": {
+          "pdf_start": 1379,
+          "pdf_end": 1380,
+          "title": "AUTOMATIC SHIFT CONTROL SYSTEM",
+          "subsections": {
+            "electrical_circuit_diagram": {
+              "pdf_start": 1379,
+              "pdf_end": 1379,
+              "title": "ELECTRICAL CIRCUIT DIAGRAM (1/2)"
+            },
+            "electrical_circuit_diagram_2": {
+              "pdf_start": 1380,
+              "pdf_end": 1380,
+              "title": "ELECTRICAL CIRCUIT DIAGRAM (2/2)"
+            }
+          }
+        },
+        "automatic_suspension_system": {
+          "pdf_start": 1381,
+          "pdf_end": 1382,
+          "title": "AUTOMATIC SUSPENSION SYSTEM",
+          "subsections": {
+            "system_circuit_diagram": {
+              "pdf_start": 1381,
+              "pdf_end": 1381,
+              "title": "SYSTEM CIRCUIT DIAGRAM (1/2)"
+            },
+            "system_circuit_diagram_2": {
+              "pdf_start": 1382,
+              "pdf_end": 1382,
+              "title": "SYSTEM CIRCUIT DIAGRAM (2/2)"
+            }
+          }
+        },
+        "payload_meter": {
+          "pdf_start": 1383,
+          "pdf_end": 1383,
+          "title": "PAYLOAD METER (PRINTER TYPE) (OP)",
+          "subsections": {
+            "electrical_circuit_diagram": {
+              "pdf_start": 1383,
+              "pdf_end": 1383,
+              "title": "ELECTRICAL CIRCUIT DIAGRAM"
+            }
+          }
+        },
+        "payload_meter_2": {
+          "pdf_start": 1384,
+          "pdf_end": 1384,
+          "title": "PAYLOAD METER Ⅱ(CARD TYPE) (OP)",
+          "subsections": {
+            "electrical_circuit_diagram": {
+              "pdf_start": 1384,
+              "pdf_end": 1384,
+              "title": "ELECTRICAL CIRCUIT DIAGRAM"
+            }
+          }
+        },
+        "pmc_system": {
+          "pdf_start": 1385,
+          "pdf_end": 1386,
+          "title": "PMC SYSTEM (OP)",
+          "subsections": {
+            "electrical_circuit_diagram": {
+              "pdf_start": 1385,
+              "pdf_end": 1386,
+              "title": "ELECTRICAL CIRCUIT DIAGRAM (1/2)"
+            },
+            "electrical_circuit_diagram_2": {
+              "pdf_start": 1386,
+              "pdf_end": 1386,
+              "title": "ELECTRICAL CIRCUIT DIAGRAM (2/2)"
+            }
+          }
+        },
+        "asr_system": {
+          "pdf_start": 1387,
+          "pdf_end": 1388,
+          "title": "ASR-Ⅱ SYSTEM (OP)",
+          "subsections": {
+            "electrial_circuit_diagram": {
+              "pdf_start": 1387,
+              "pdf_end": 1387,
+              "title": "ELECTRIAL CIRCUIT DIAGRAM"
+            },
+            "air_circuit_diagram": {
+              "pdf_start": 1388,
+              "pdf_end": 1388,
+              "title": "AIR CIRCUIT DIAGRAM"
+            }
+          }
+        },
+        "electrical_circuit_diagram_2": {
+          "pdf_start": 1389,
+          "pdf_end": 1391,
+          "title": "ELECTRICAL CIRCUIT DIAGRAM",
+          "subsections": {
+            "engine_control_system": {
+              "pdf_start": 1389,
+              "pdf_end": 1389,
+              "title": "ENGINE CONTROL SYSTEM"
+            },
+            "transmission_control_system": {
+              "pdf_start": 1390,
+              "pdf_end": 1391,
+              "title": "TRANSMISSION CONTROL SYSTEM",
+              "topics": [
+                "1. ELECTRIC GOVENOR SPECIFICATION",
+                "2. MECHANICAL GOVENOR SPECIFICATION"
+              ]
+            }
+          }
+        },
+        "4_4_electrical_circuit_diagram": {
+          "pdf_start": 1392,
+          "pdf_end": 1392,
+          "title": "4-4. ELECTRICAL CIRCUIT DIAGRAM"
+        }
+      }
+    }
+  }
+}

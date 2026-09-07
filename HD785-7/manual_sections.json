@@ -1,0 +1,515 @@
+{
+  "manual": "E:\\KomatsoAI\\HD785-7\\HD785-7.pdf",
+  "models": [
+    "HD785-7"
+  ],
+  "serial_range": "7001 and up",
+  "pdf_pages": 1336,
+  "note": "This file is routing metadata only. All technical facts, values, procedures, pins, pressures, voltages and conclusions must be verified from the actual Shop Manual.",
+
+  "sections": {
+    "index": {
+      "pdf_start": 1,
+      "pdf_end": 17,
+      "title": "Index / Shop Manual composition"
+    },
+
+    "foreword_general": {
+      "pdf_start": 18,
+      "pdf_end": 58,
+      "form": "SEN01277-01",
+      "title": "Foreword and general information"
+    },
+
+    "specification": {
+      "pdf_start": 59,
+      "pdf_end": 68,
+      "form": "SEN01279-00",
+      "title": "Specification and technical data"
+    },
+
+    "structure_function": {
+      "pdf_start": 69,
+      "pdf_end": 300,
+      "title": "Structure, function and maintenance standard",
+
+      "subsections": {
+        "engine_cooling": {
+          "pdf_start": 69,
+          "pdf_end": 72,
+          "form": "SEN01281-00",
+          "title": "Engine and cooling system"
+        },
+
+        "power_train_part_1": {
+          "pdf_start": 73,
+          "pdf_end": 120,
+          "form": "SEN01282-00",
+          "title": "Power train system, Part 1",
+          "topics": [
+            "output shaft",
+            "drive shaft",
+            "torque converter",
+            "transmission",
+            "transmission control valve",
+            "ECMV",
+            "brake cooling oil control valve",
+            "lubricating oil amount selector valve"
+          ]
+        },
+
+        "power_train_part_2": {
+          "pdf_start": 121,
+          "pdf_end": 127,
+          "form": "SEN01283-00",
+          "title": "Power train system, Part 2",
+          "topics": [
+            "axle",
+            "differential",
+            "final drive",
+            "wheels"
+          ]
+        },
+
+        "steering_system": {
+          "pdf_start": 128,
+          "pdf_end": 133,
+          "form": "SEN01284-00",
+          "title": "Steering system"
+        },
+
+        "brake_system": {
+          "pdf_start": 134,
+          "pdf_end": 158,
+          "form": "SEN01285-01",
+          "title": "Brake system",
+          "topics": [
+            "brake piping",
+            "brake valve",
+            "secondary brake valve",
+            "accumulator charge valve",
+            "accumulator",
+            "slack adjuster",
+            "brake",
+            "parking brake",
+            "parking brake solenoid valve",
+            "proportional reducing valve",
+            "exhaust brake"
+          ]
+        },
+
+        "undercarriage_frame": {
+          "pdf_start": 159,
+          "pdf_end": 170,
+          "form": "SEN01286-00",
+          "title": "Undercarriage and frame",
+          "topics": [
+            "suspension",
+            "suspension cylinder",
+            "rear axle support"
+          ]
+        },
+
+        "hydraulic_system": {
+          "pdf_start": 171,
+          "pdf_end": 200,
+          "form": "SEN01287-00",
+          "title": "Hydraulic system",
+          "topics": [
+            "steering",
+            "hoist",
+            "dump body",
+            "hydraulic tank",
+            "steering valve",
+            "steering cylinder",
+            "hoist valve",
+            "dump control valve",
+            "EPC valve",
+            "hoist cylinder",
+            "hydraulic pump"
+          ]
+        },
+
+        "cab_attachments": {
+          "pdf_start": 201,
+          "pdf_end": 208,
+          "form": "SEN01288-00",
+          "title": "Cab and its attachments"
+        },
+
+        "electrical_part_1": {
+          "pdf_start": 209,
+          "pdf_end": 222,
+          "form": "SEN01289-00",
+          "title": "Electrical system, Part 1",
+          "topics": [
+            "machine monitor system"
+          ]
+        },
+
+        "electrical_part_2": {
+          "pdf_start": 223,
+          "pdf_end": 258,
+          "form": "SEN01290-01",
+          "title": "Electrical system, Part 2",
+          "topics": [
+            "automatic shift control",
+            "transmission controller",
+            "automatic emergency steering",
+            "automatic suspension",
+            "retarder control system",
+            "dump control lever"
+          ]
+        },
+
+        "electrical_part_3": {
+          "pdf_start": 259,
+          "pdf_end": 300,
+          "form": "SEN01291-00",
+          "title": "Electrical system, Part 3",
+          "topics": [
+            "VHMS",
+            "sensors",
+            "switches"
+          ]
+        }
+      }
+    },
+
+    "standard_values": {
+      "pdf_start": 301,
+      "pdf_end": 314,
+      "form": "SEN01769-00",
+      "title": "Standard service value table"
+    },
+
+    "testing_adjusting": {
+      "pdf_start": 315,
+      "pdf_end": 522,
+      "title": "Testing and adjusting",
+
+      "subsections": {
+        "part_1": {
+          "pdf_start": 315,
+          "pdf_end": 350,
+          "form": "SEN01770-00",
+          "title": "Testing and adjusting, Part 1",
+          "topics": [
+            "engine speed",
+            "boost pressure",
+            "exhaust temperature",
+            "compression pressure",
+            "blow-by pressure",
+            "engine oil pressure",
+            "fuel pressure",
+            "fuel leakage"
+          ]
+        },
+
+        "part_2": {
+          "pdf_start": 351,
+          "pdf_end": 399,
+          "form": "SEN01771-00",
+          "title": "Testing and adjusting, Part 2",
+          "topics": [
+            "torque converter stall",
+            "power train oil pressure",
+            "transmission speed sensor",
+            "brake oil pressure",
+            "accumulator",
+            "brake performance",
+            "ASR",
+            "parking brake",
+            "suspension",
+            "steering pressure",
+            "hoist pressure",
+            "dump EPC",
+            "transmission controller"
+          ]
+        },
+
+        "part_3": {
+          "pdf_start": 400,
+          "pdf_end": 436,
+          "form": "SEN01772-00",
+          "title": "Testing and adjusting, Part 3",
+          "topics": [
+            "setting and adjusting devices",
+            "machine monitor",
+            "EMMS"
+          ]
+        },
+
+        "part_4": {
+          "pdf_start": 437,
+          "pdf_end": 480,
+          "form": "SEN01773-00",
+          "title": "Testing and adjusting, Part 4",
+          "topics": [
+            "machine monitor",
+            "EMMS"
+          ]
+        },
+
+        "part_5": {
+          "pdf_start": 481,
+          "pdf_end": 522,
+          "form": "SEN01774-00",
+          "title": "Testing and adjusting, Part 5",
+          "topics": [
+            "VHMS",
+            "Pm Clinic",
+            "payload meter"
+          ]
+        }
+      }
+    },
+
+    "troubleshooting": {
+      "pdf_start": 523,
+      "pdf_end": 1197,
+      "title": "Troubleshooting",
+
+      "subsections": {
+        "failure_code_table_fuses": {
+          "pdf_start": 523,
+          "pdf_end": 543,
+          "form": "SEN01936-00",
+          "title": "Failure code table and fuse locations"
+        },
+
+        "general_information": {
+          "pdf_start": 544,
+          "pdf_end": 583,
+          "form": "SEN01937-00",
+          "title": "General information on troubleshooting"
+        },
+
+        "failure_codes_part_1": {
+          "pdf_start": 584,
+          "pdf_end": 625,
+          "form": "SEN01938-00",
+          "title": "Troubleshooting by failure code, Part 1",
+          "topics": [
+            "transmission",
+            "clutch",
+            "solenoids"
+          ]
+        },
+
+        "failure_codes_part_2": {
+          "pdf_start": 626,
+          "pdf_end": 671,
+          "form": "SEN01939-00",
+          "title": "Troubleshooting by failure code, Part 2",
+          "topics": [
+            "transmission",
+            "clutch",
+            "parking brake",
+            "accumulator",
+            "brake cooling",
+            "torque converter"
+          ]
+        },
+
+        "failure_codes_part_3": {
+          "pdf_start": 672,
+          "pdf_end": 726,
+          "form": "SEN01940-00",
+          "title": "Troubleshooting by failure code, Part 3",
+          "topics": [
+            "engine controllers",
+            "engine sensors",
+            "left bank",
+            "right bank"
+          ]
+        },
+
+        "failure_codes_part_4": {
+          "pdf_start": 727,
+          "pdf_end": 781,
+          "form": "SEN01941-00",
+          "title": "Troubleshooting by failure code, Part 4",
+          "topics": [
+            "injectors",
+            "engine controller",
+            "common rail",
+            "engine sensors"
+          ]
+        },
+
+        "failure_codes_part_5": {
+          "pdf_start": 782,
+          "pdf_end": 815,
+          "form": "SEN01942-00",
+          "title": "Troubleshooting by failure code, Part 5",
+          "topics": [
+            "engine controllers",
+            "injectors",
+            "KOMNET",
+            "fuel pressure"
+          ]
+        },
+
+        "failure_codes_part_6": {
+          "pdf_start": 816,
+          "pdf_end": 901,
+          "form": "SEN01943-00",
+          "title": "Troubleshooting by failure code, Part 6",
+          "topics": [
+            "transmission controller",
+            "retarder controller",
+            "ABS",
+            "ARSC",
+            "ASR",
+            "retarder oil temperature sensor",
+            "torque converter oil temperature sensor"
+          ]
+        },
+
+        "failure_codes_part_7": {
+          "pdf_start": 902,
+          "pdf_end": 949,
+          "form": "SEN01944-00",
+          "title": "Troubleshooting by failure code, Part 7",
+          "topics": [
+            "suspension sensors",
+            "torque converter pressure sensor",
+            "accumulator pressure sensors",
+            "retarder lever potentiometer",
+            "steering sensors",
+            "hoist sensors"
+          ]
+        },
+
+        "failure_codes_part_8": {
+          "pdf_start": 950,
+          "pdf_end": 1013,
+          "form": "SEN01945-00",
+          "title": "Troubleshooting by failure code, Part 8",
+          "topics": [
+            "wheel speed sensors",
+            "transmission speed sensors",
+            "main pressure variable valve",
+            "transmission lubrication",
+            "suspension solenoids",
+            "exhaust brake",
+            "brake cooling valve",
+            "ASR"
+          ]
+        },
+
+        "failure_codes_part_9": {
+          "pdf_start": 1014,
+          "pdf_end": 1048,
+          "form": "SEN01946-00",
+          "title": "Troubleshooting by failure code, Part 9",
+          "topics": [
+            "rear brake proportional valve",
+            "front brake proportional valve",
+            "hoist EPC",
+            "ASR"
+          ]
+        },
+
+        "failure_codes_part_10": {
+          "pdf_start": 1049,
+          "pdf_end": 1101,
+          "form": "SEN01947-00",
+          "title": "Troubleshooting by failure code, Part 10",
+          "topics": [
+            "lockup clutch solenoid",
+            "transmission clutch solenoids"
+          ]
+        },
+
+        "electrical_e_mode": {
+          "pdf_start": 1102,
+          "pdf_end": 1147,
+          "form": "SEN01948-00",
+          "title": "Troubleshooting of electrical system (E-mode)"
+        },
+
+        "hydraulic_mechanical_h_mode": {
+          "pdf_start": 1148,
+          "pdf_end": 1172,
+          "form": "SEN01949-00",
+          "title": "Troubleshooting of hydraulic and mechanical system (H-mode)",
+          "topics": [
+            "travel",
+            "transmission",
+            "torque converter",
+            "brake",
+            "steering",
+            "dump body"
+          ]
+        },
+
+        "engine_s_mode": {
+          "pdf_start": 1173,
+          "pdf_end": 1197,
+          "form": "SEN01950-00",
+          "title": "Troubleshooting of engine (S-mode)"
+        }
+      }
+    },
+
+    "disassembly_assembly": {
+      "pdf_start": 1198,
+      "pdf_end": 1321,
+      "title": "Disassembly and assembly",
+
+      "subsections": {
+        "general": {
+          "pdf_start": 1198,
+          "pdf_end": 1206,
+          "form": "SEN01951-00",
+          "title": "General information on disassembly and assembly"
+        },
+
+        "engine_cooling": {
+          "pdf_start": 1207,
+          "pdf_end": 1229,
+          "form": "SEN01952-00",
+          "title": "Engine and cooling system"
+        },
+
+        "power_train_part_1": {
+          "pdf_start": 1230,
+          "pdf_end": 1287,
+          "form": "SEN01953-00",
+          "title": "Power train, Part 1"
+        },
+
+        "power_train_part_2": {
+          "pdf_start": 1288,
+          "pdf_end": 1321,
+          "form": "SEN02106-00",
+          "title": "Power train, Part 2"
+        }
+      }
+    },
+
+    "diagrams": {
+      "pdf_start": 1322,
+      "pdf_end": 1336,
+      "title": "Diagrams and drawings",
+
+      "subsections": {
+        "hydraulic": {
+          "pdf_start": 1322,
+          "pdf_end": 1326,
+          "form": "SEN01298-00",
+          "title": "Hydraulic circuit diagram"
+        },
+
+        "electrical": {
+          "pdf_start": 1327,
+          "pdf_end": 1336,
+          "form": "SEN01299-01",
+          "title": "Electrical circuit diagram"
+        }
+      }
+    }
+  }
+}

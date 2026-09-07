@@ -1,0 +1,507 @@
+{
+  "manual": "E:\\KomatsoAI\\PC1250-8R\\PC1250-8R SHOP MANUAL.pdf",
+  "models": [
+    "PC1250-8R",
+    "PC1250SP-8R"
+  ],
+  "serial_range": "35001 and up",
+  "pdf_pages": 1205,
+  "note": "This file is routing metadata only. All technical facts, values, procedures, pins, pressures, voltages and conclusions must be verified from the actual Shop Manual.",
+  "sections": {
+    "index": {
+      "pdf_start": 1,
+      "pdf_end": 16,
+      "title": "Index / Shop Manual composition"
+    },
+    "foreword_general": {
+      "pdf_start": 17,
+      "pdf_end": 58,
+      "form": "SEN02051-01",
+      "title": "Foreword and general information"
+    },
+    "specification": {
+      "pdf_start": 59,
+      "pdf_end": 86,
+      "form": "SEN02053-01",
+      "title": "Specification and technical data",
+      "topics": [
+        "backhoe specification",
+        "loading shovel specification",
+        "specifications",
+        "weight table",
+        "fuel coolant and lubricants"
+      ]
+    },
+    "structure_function": {
+      "pdf_start": 87,
+      "pdf_end": 359,
+      "title": "Structure, function and maintenance standard",
+      "subsections": {
+        "engine_cooling": {
+          "pdf_start": 87,
+          "pdf_end": 94,
+          "form": "SEN02055-00",
+          "title": "Engine and cooling system",
+          "topics": [
+            "PTO",
+            "PTO lubrication system",
+            "radiator",
+            "oil cooler"
+          ]
+        },
+        "power_train": {
+          "pdf_start": 95,
+          "pdf_end": 108,
+          "form": "SEN02056-01",
+          "title": "Power train",
+          "topics": [
+            "swing machinery",
+            "swing circle",
+            "final drive",
+            "sprocket"
+          ]
+        },
+        "undercarriage_frame": {
+          "pdf_start": 109,
+          "pdf_end": 120,
+          "form": "SEN02057-00",
+          "title": "Undercarriage and frame",
+          "topics": [
+            "track frame",
+            "recoil spring",
+            "idler",
+            "carrier roller",
+            "track roller",
+            "track shoe"
+          ]
+        },
+        "air_system": {
+          "pdf_start": 121,
+          "pdf_end": 130,
+          "form": "SEN02058-00",
+          "title": "Air system",
+          "topics": [
+            "air piping",
+            "air circuit",
+            "air governor",
+            "air tank",
+            "safety valve",
+            "horn valve",
+            "grease pump"
+          ]
+        },
+        "hydraulic_part_1": {
+          "pdf_start": 131,
+          "pdf_end": 206,
+          "form": "SEN02059-00",
+          "title": "Hydraulic system, Part 1",
+          "topics": [
+            "hydraulic piping",
+            "hydraulic tank",
+            "hydraulic pump",
+            "line oil filter",
+            "pilot oil filter",
+            "return oil filter",
+            "drain oil filter",
+            "cooling fan pump",
+            "cooling fan motor",
+            "aftercooler fan motor"
+          ]
+        },
+        "hydraulic_part_2": {
+          "pdf_start": 207,
+          "pdf_end": 268,
+          "form": "SEN02060-01",
+          "title": "Hydraulic system, Part 2",
+          "topics": [
+            "control valve",
+            "swing motor",
+            "center swivel joint",
+            "travel motor",
+            "PPC control relief valve",
+            "accumulator",
+            "valve control",
+            "PPC valve",
+            "solenoid valve",
+            "hydraulic cylinder"
+          ]
+        },
+        "work_equipment": {
+          "pdf_start": 269,
+          "pdf_end": 278,
+          "form": "SEN02061-00",
+          "title": "Work equipment",
+          "topics": [
+            "work equipment",
+            "dimensions of work equipment"
+          ]
+        },
+        "cab_attachments": {
+          "pdf_start": 279,
+          "pdf_end": 281,
+          "form": "SEN02062-00",
+          "title": "Cab and its attachments",
+          "topics": [
+            "air conditioner"
+          ]
+        },
+        "electrical_system": {
+          "pdf_start": 282,
+          "pdf_end": 359,
+          "form": "SEN02063-01",
+          "title": "Electrical system",
+          "topics": [
+            "engine control",
+            "electric control system",
+            "monitor system",
+            "sensor"
+          ]
+        }
+      }
+    },
+    "standard_values": {
+      "pdf_start": 360,
+      "pdf_end": 382,
+      "form": "SEN02071-00",
+      "title": "Standard service value table",
+      "topics": [
+        "engine related standard values",
+        "chassis related standard values"
+      ]
+    },
+    "testing_adjusting": {
+      "pdf_start": 383,
+      "pdf_end": 530,
+      "title": "Testing and adjusting",
+      "subsections": {
+        "part_1": {
+          "pdf_start": 383,
+          "pdf_end": 410,
+          "form": "SEN02072-00",
+          "title": "Testing and adjusting, Part 1",
+          "topics": [
+            "engine speed",
+            "boost pressure",
+            "exhaust temperature",
+            "exhaust color",
+            "valve clearance",
+            "compression pressure",
+            "blow-by pressure",
+            "engine oil pressure",
+            "engine speed sensor",
+            "fuel pressure",
+            "fuel return rate",
+            "fuel leakage",
+            "fuel circuit air bleeding",
+            "alternator and belt"
+          ]
+        },
+        "part_2": {
+          "pdf_start": 411,
+          "pdf_end": 432,
+          "form": "SEN02073-00",
+          "title": "Testing and adjusting, Part 2",
+          "topics": [
+            "swing circle bearing clearance",
+            "sprocket wear",
+            "track shoe tension",
+            "work equipment hydraulic pressure",
+            "swing hydraulic pressure",
+            "travel hydraulic pressure",
+            "control circuit oil pressure",
+            "piston pump control pressure",
+            "servo piston stroke"
+          ]
+        },
+        "part_3": {
+          "pdf_start": 433,
+          "pdf_end": 455,
+          "form": "SEN02074-00",
+          "title": "Testing and adjusting, Part 3",
+          "topics": [
+            "PPC valve output pressure",
+            "swing PPC shuttle valve",
+            "solenoid valve output pressure",
+            "work equipment PPC valve",
+            "swing PPC valve",
+            "travel deviation",
+            "hydraulic drift",
+            "oil leakage",
+            "fan speed",
+            "fan circuit oil pressure",
+            "fan pump EPC solenoid valve",
+            "hydraulic air bleeding",
+            "hydraulic residual pressure",
+            "diode testing"
+          ]
+        },
+        "part_4": {
+          "pdf_start": 456,
+          "pdf_end": 496,
+          "form": "SEN02075-00",
+          "title": "Testing and adjusting, Part 4",
+          "topics": [
+            "machine monitor special functions",
+            "controller voltage circuit"
+          ]
+        },
+        "part_5": {
+          "pdf_start": 497,
+          "pdf_end": 519,
+          "form": "SEN02076-00",
+          "title": "Testing and adjusting, Part 5",
+          "topics": [
+            "VHMS controller initial setting",
+            "VHMS controller replacement"
+          ]
+        },
+        "part_6": {
+          "pdf_start": 520,
+          "pdf_end": 530,
+          "form": "SEN02077-00",
+          "title": "Testing and adjusting, Part 6",
+          "topics": [
+            "Pm-clinic service"
+          ]
+        }
+      }
+    },
+    "troubleshooting": {
+      "pdf_start": 531,
+      "pdf_end": 938,
+      "title": "Troubleshooting",
+      "subsections": {
+        "failure_code_table_fuses": {
+          "pdf_start": 536,
+          "pdf_end": 543,
+          "form": "SEN02078-00",
+          "title": "Failure code table and fuse locations"
+        },
+        "general_information": {
+          "pdf_start": 544,
+          "pdf_end": 586,
+          "form": "SEN02079-00",
+          "title": "General information on troubleshooting"
+        },
+        "failure_codes_part_1": {
+          "pdf_start": 587,
+          "pdf_end": 653,
+          "form": "SEN02080-00",
+          "title": "Troubleshooting by failure code, Part 1",
+          "topics": [
+            "engine warning codes",
+            "engine controller",
+            "engine sensors",
+            "fuel system",
+            "injectors"
+          ]
+        },
+        "failure_codes_part_2": {
+          "pdf_start": 654,
+          "pdf_end": 700,
+          "form": "SEN02081-00",
+          "title": "Troubleshooting by failure code, Part 2",
+          "topics": [
+            "sensor power supply",
+            "battery voltage",
+            "common rail pressure",
+            "engine speed sensors",
+            "KOMNET",
+            "grid heater",
+            "pump controller",
+            "monitor communication"
+          ]
+        },
+        "failure_codes_part_3": {
+          "pdf_start": 701,
+          "pdf_end": 760,
+          "form": "SEN02082-00",
+          "title": "Troubleshooting by failure code, Part 3",
+          "topics": [
+            "VHMS",
+            "temperature sensors",
+            "PTO temperature",
+            "exhaust temperature",
+            "blow-by pressure",
+            "pump pressure sensors",
+            "fan pump pressure",
+            "travel alarm",
+            "swing priority solenoid",
+            "travel speed solenoid",
+            "swing brake solenoid",
+            "CO cancel solenoid"
+          ]
+        },
+        "failure_codes_part_4": {
+          "pdf_start": 761,
+          "pdf_end": 824,
+          "form": "SEN02083-00",
+          "title": "Troubleshooting by failure code, Part 4",
+          "topics": [
+            "fan reverse solenoid",
+            "travel junction solenoid",
+            "2-stage relief solenoid",
+            "fan pump EPC solenoid",
+            "TVC solenoid",
+            "wiper",
+            "washer",
+            "blow-by pressure",
+            "exhaust temperature",
+            "swing pump pressure",
+            "gear pump pressure"
+          ]
+        },
+        "electrical_e_mode": {
+          "pdf_start": 825,
+          "pdf_end": 876,
+          "form": "SEN02085-00",
+          "title": "Troubleshooting of electrical system (E-mode)",
+          "topics": [
+            "engine does not rotate",
+            "auto-decelerator",
+            "engine warm-up",
+            "preheater",
+            "work equipment swing and travel electrical faults",
+            "machine monitor",
+            "wiper",
+            "air conditioner",
+            "travel alarm",
+            "lamps"
+          ]
+        },
+        "hydraulic_mechanical_h_mode": {
+          "pdf_start": 877,
+          "pdf_end": 914,
+          "form": "SEN02086-00",
+          "title": "Troubleshooting of hydraulic and mechanical system (H-mode)",
+          "topics": [
+            "work equipment speed and power",
+            "engine stall under hydraulic load",
+            "hydraulic pump noise",
+            "boom",
+            "arm",
+            "bucket",
+            "hydraulic drift",
+            "travel",
+            "swing",
+            "fan"
+          ]
+        },
+        "engine_s_mode": {
+          "pdf_start": 915,
+          "pdf_end": 938,
+          "form": "SEN02087-00",
+          "title": "Troubleshooting of engine (S-mode)"
+        }
+      }
+    },
+    "disassembly_assembly": {
+      "pdf_start": 939,
+      "pdf_end": 1186,
+      "title": "Disassembly and assembly",
+      "subsections": {
+        "general": {
+          "pdf_start": 939,
+          "pdf_end": 960,
+          "form": "SEN02785-00",
+          "title": "General information on disassembly and assembly"
+        },
+        "engine_cooling": {
+          "pdf_start": 961,
+          "pdf_end": 990,
+          "form": "SEN02786-00",
+          "title": "Engine and cooling system (SAA6D170E-5)"
+        },
+        "engine": {
+          "pdf_start": 991,
+          "pdf_end": 1028,
+          "form": "SEN02787-00",
+          "title": "Engine (SAA6D170E-5)"
+        },
+        "power_train": {
+          "pdf_start": 1029,
+          "pdf_end": 1056,
+          "form": "SEN02788-00",
+          "title": "Power train"
+        },
+        "undercarriage_frame": {
+          "pdf_start": 1057,
+          "pdf_end": 1078,
+          "form": "SEN02789-00",
+          "title": "Undercarriage and frame"
+        },
+        "hydraulic_system": {
+          "pdf_start": 1079,
+          "pdf_end": 1126,
+          "form": "SEN02790-00",
+          "title": "Hydraulic system"
+        },
+        "work_equipment": {
+          "pdf_start": 1127,
+          "pdf_end": 1154,
+          "form": "SEN02791-00",
+          "title": "Work equipment"
+        },
+        "cab_attachments": {
+          "pdf_start": 1155,
+          "pdf_end": 1176,
+          "form": "SEN02792-00",
+          "title": "Cab and its attachments"
+        },
+        "electrical_system": {
+          "pdf_start": 1177,
+          "pdf_end": 1186,
+          "form": "SEN02793-00",
+          "title": "Electrical system"
+        }
+      }
+    },
+    "diagrams": {
+      "pdf_start": 1187,
+      "pdf_end": 1205,
+      "title": "Diagrams and drawings",
+      "subsections": {
+        "hydraulic": {
+          "pdf_start": 1187,
+          "pdf_end": 1196,
+          "form": "SEN02069-01",
+          "title": "Hydraulic circuit diagrams",
+          "serial_variants": [
+            {
+              "serial_range": "35001-35016",
+              "manual_internal_pages": [
+                3,
+                5
+              ],
+              "description": "Hydraulic circuit diagram (1/2) and (2/2)"
+            },
+            {
+              "serial_range": "35017 and up",
+              "manual_internal_pages": [
+                7,
+                9,
+                11
+              ],
+              "description": "Hydraulic circuit diagram (1/3), (2/3), and (3/3)"
+            }
+          ]
+        },
+        "electrical": {
+          "pdf_start": 1197,
+          "pdf_end": 1205,
+          "form": "SEN02070-00",
+          "title": "Electrical diagrams and drawings",
+          "topics": [
+            "electrical circuit diagram 1/7",
+            "electrical circuit diagram 2/7",
+            "electrical circuit diagram 3/7",
+            "electrical circuit diagram 4/7",
+            "electrical circuit diagram 5/7",
+            "electrical circuit diagram 6/7",
+            "electrical circuit diagram 7/7"
+          ]
+        }
+      }
+    }
+  }
+}

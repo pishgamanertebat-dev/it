@@ -1,0 +1,222 @@
+{
+  "machine": "PC800-8R / PC850-8R",
+  "manual": "E:\\KomatsoAI\\PC800\\PC800-8R_ShopManual.pdf",
+  "pdf_pages": 1060,
+
+  "sections": {
+    "index_foreword": {
+      "pdf_start": 1,
+      "pdf_end": 56,
+      "description": "Index, foreword, general information, safety, connector handling, general torque and conversion information"
+    },
+
+    "specification": {
+      "pdf_start": 57,
+      "pdf_end": 88,
+      "form": "SEN02321-01",
+      "description": "Specifications, technical data, dimensions, weights, fuel, coolant and lubricants"
+    },
+
+    "structure_function": {
+      "pdf_start": 89,
+      "pdf_end": 305,
+      "description": "Structure, function and maintenance standard",
+      "subsections": {
+        "engine_cooling": {
+          "pdf_start": 89,
+          "pdf_end": 94,
+          "form": "SEN02323-00"
+        },
+        "power_train": {
+          "pdf_start": 95,
+          "pdf_end": 105,
+          "form": "SEN02324-00"
+        },
+        "undercarriage_frame": {
+          "pdf_start": 106,
+          "pdf_end": 118,
+          "form": "SEN02325-00"
+        },
+        "hydraulic_system_part_1": {
+          "pdf_start": 119,
+          "pdf_end": 158,
+          "form": "SEN02326-02"
+        },
+        "hydraulic_system_part_2": {
+          "pdf_start": 159,
+          "pdf_end": 222,
+          "form": "SEN02327-01"
+        },
+        "work_equipment": {
+          "pdf_start": 223,
+          "pdf_end": 234,
+          "form": "SEN02328-00"
+        },
+        "cab_attachments": {
+          "pdf_start": 235,
+          "pdf_end": 237,
+          "form": "SEN02329-00"
+        },
+        "electrical_system": {
+          "pdf_start": 238,
+          "pdf_end": 305,
+          "form": "SEN02330-01"
+        }
+      }
+    },
+
+    "standard_values": {
+      "pdf_start": 306,
+      "pdf_end": 319,
+      "form": "SEN02675-00",
+      "description": "Standard service values for engine and chassis"
+    },
+
+    "testing_adjusting": {
+      "pdf_start": 320,
+      "pdf_end": 439,
+      "description": "Testing, measurement, inspection and adjustment procedures",
+      "subsections": {
+        "part_1": {
+          "pdf_start": 320,
+          "pdf_end": 339,
+          "form": "SEN02676-00"
+        },
+        "part_2": {
+          "pdf_start": 340,
+          "pdf_end": 357,
+          "form": "SEN02677-00"
+        },
+        "part_3": {
+          "pdf_start": 358,
+          "pdf_end": 383,
+          "form": "SEN02678-00"
+        },
+        "part_4": {
+          "pdf_start": 384,
+          "pdf_end": 419,
+          "form": "SEN02679-00"
+        },
+        "part_5": {
+          "pdf_start": 420,
+          "pdf_end": 439,
+          "form": "SEN02680-00"
+        }
+      }
+    },
+
+    "troubleshooting": {
+      "pdf_start": 440,
+      "pdf_end": 811,
+      "description": "General troubleshooting, failure codes, electrical, hydraulic/mechanical and engine troubleshooting",
+      "subsections": {
+        "general": {
+          "pdf_start": 440,
+          "pdf_end": 485,
+          "form": "SEN02681-00"
+        },
+        "failure_codes_part_1": {
+          "pdf_start": 486,
+          "pdf_end": 557,
+          "form": "SEN02682-00"
+        },
+        "failure_codes_part_2": {
+          "pdf_start": 558,
+          "pdf_end": 609,
+          "form": "SEN02683-00"
+        },
+        "failure_codes_part_3": {
+          "pdf_start": 610,
+          "pdf_end": 681,
+          "form": "SEN02684-00"
+        },
+        "electrical_e_mode": {
+          "pdf_start": 682,
+          "pdf_end": 751,
+          "form": "SEN02685-00"
+        },
+        "hydraulic_mechanical_h_mode": {
+          "pdf_start": 752,
+          "pdf_end": 785,
+          "form": "SEN02686-00"
+        },
+        "engine_s_mode": {
+          "pdf_start": 786,
+          "pdf_end": 811,
+          "form": "SEN02687-00"
+        }
+      }
+    },
+
+    "disassembly_assembly": {
+      "pdf_start": 812,
+      "pdf_end": 1047,
+      "description": "Removal, installation, disassembly and assembly procedures",
+      "subsections": {
+        "general": {
+          "pdf_start": 812,
+          "pdf_end": 829,
+          "form": "SEN02767-00"
+        },
+        "engine_cooling": {
+          "pdf_start": 830,
+          "pdf_end": 855,
+          "form": "SEN02768-00"
+        },
+        "engine": {
+          "pdf_start": 856,
+          "pdf_end": 885,
+          "form": "SEN02769-00"
+        },
+        "power_train": {
+          "pdf_start": 886,
+          "pdf_end": 917,
+          "form": "SEN02770-00"
+        },
+        "undercarriage_frame": {
+          "pdf_start": 918,
+          "pdf_end": 945,
+          "form": "SEN02771-00"
+        },
+        "hydraulic_system": {
+          "pdf_start": 946,
+          "pdf_end": 991,
+          "form": "SEN02772-00"
+        },
+        "work_equipment": {
+          "pdf_start": 992,
+          "pdf_end": 1019,
+          "form": "SEN02773-00"
+        },
+        "cab_attachments": {
+          "pdf_start": 1020,
+          "pdf_end": 1039,
+          "form": "SEN02774-00"
+        },
+        "electrical_system": {
+          "pdf_start": 1040,
+          "pdf_end": 1047,
+          "form": "SEN02775-00"
+        }
+      }
+    },
+
+    "diagrams": {
+      "pdf_start": 1048,
+      "pdf_end": 1060,
+      "description": "Hydraulic and electrical diagrams",
+      "subsections": {
+        "hydraulic": {
+          "pdf_start": 1048,
+          "pdf_end": 1052,
+          "form": "SEN02336-01"
+        },
+        "electrical": {
+          "pdf_start": 1053,
+          "pdf_end": 1060,
+          "form": "SEN02337-00"
+        }
+      }
+    }
+  }
+}

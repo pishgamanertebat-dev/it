@@ -1,0 +1,993 @@
+{
+  "cutoff": "1405/06/08",
+  "plan_date": "1405/06/09",
+  "source_sha256": "d0af01feece23ed2de57340ae9ead37addc06424418c37e4a8d48138cf7d25ea",
+  "items": [
+    {
+      "machine_code": "710",
+      "machine_name": "دامپتراک",
+      "action_code": "AIR_FILTER_OUTER",
+      "action_text": "تعویض هواکش بیرونی",
+      "evidence": "داخلی: 21/100 ساعت؛ آخرین انجام 1405/06/06; بیرونی: 21/20 ساعت؛ آخرین انجام 1405/06/06",
+      "components": {
+        "inner": {
+          "last_service": "1405/06/06",
+          "state": "OK",
+          "value": 21.0,
+          "threshold": 100,
+          "unit": "ساعت"
+        },
+        "outer": {
+          "last_service": "1405/06/06",
+          "state": "DUE",
+          "value": 21.0,
+          "threshold": 20,
+          "unit": "ساعت"
+        }
+      }
+    },
+    {
+      "machine_code": "712",
+      "machine_name": "دامپتراک",
+      "action_code": "AIR_FILTER_OUTER",
+      "action_text": "تعویض هواکش بیرونی",
+      "evidence": "داخلی: 21/100 ساعت؛ آخرین انجام 1405/06/06; بیرونی: 21/20 ساعت؛ آخرین انجام 1405/06/06",
+      "components": {
+        "inner": {
+          "last_service": "1405/06/06",
+          "state": "OK",
+          "value": 21.0,
+          "threshold": 100,
+          "unit": "ساعت"
+        },
+        "outer": {
+          "last_service": "1405/06/06",
+          "state": "DUE",
+          "value": 21.0,
+          "threshold": 20,
+          "unit": "ساعت"
+        }
+      }
+    },
+    {
+      "machine_code": "463",
+      "machine_name": "دامپتراک",
+      "action_code": "AIR_FILTER_INNER_OUTER",
+      "action_text": "تعویض هواکش داخلی و بیرونی",
+      "evidence": "داخلی: 108/100 ساعت؛ آخرین انجام 1405/05/30; بیرونی: 11/20 ساعت؛ آخرین انجام 1405/06/07",
+      "components": {
+        "inner": {
+          "last_service": "1405/05/30",
+          "state": "DUE",
+          "value": 108.0,
+          "threshold": 100,
+          "unit": "ساعت"
+        },
+        "outer": {
+          "last_service": "1405/06/07",
+          "state": "OK",
+          "value": 11.0,
+          "threshold": 20,
+          "unit": "ساعت"
+        }
+      }
+    },
+    {
+      "machine_code": "465",
+      "machine_name": "دامپتراک",
+      "action_code": "AIR_FILTER_OUTER",
+      "action_text": "تعویض هواکش بیرونی",
+      "evidence": "داخلی: 21/100 ساعت؛ آخرین انجام 1405/06/04; بیرونی: 21/20 ساعت؛ آخرین انجام 1405/06/04",
+      "components": {
+        "inner": {
+          "last_service": "1405/06/04",
+          "state": "OK",
+          "value": 21.0,
+          "threshold": 100,
+          "unit": "ساعت"
+        },
+        "outer": {
+          "last_service": "1405/06/04",
+          "state": "DUE",
+          "value": 21.0,
+          "threshold": 20,
+          "unit": "ساعت"
+        }
+      }
+    },
+    {
+      "machine_code": "TA1",
+      "machine_name": "کامیون آب پاش",
+      "action_code": "AIR_FILTER_INNER_OUTER",
+      "action_text": "تعویض هواکش داخلی و بیرونی",
+      "evidence": "داخلی: 67/50 ساعت؛ آخرین انجام 1405/05/30; بیرونی: 0/10 ساعت؛ آخرین انجام 1405/06/07",
+      "components": {
+        "inner": {
+          "last_service": "1405/05/30",
+          "state": "DUE",
+          "value": 67.0,
+          "threshold": 50,
+          "unit": "ساعت"
+        },
+        "outer": {
+          "last_service": "1405/06/07",
+          "state": "OK",
+          "value": 0,
+          "threshold": 10,
+          "unit": "ساعت"
+        }
+      }
+    },
+    {
+      "machine_code": "MZ7",
+      "machine_name": "مزدا",
+      "action_code": "AIR_FILTER_OUTER",
+      "action_text": "تعویض هواکش بیرونی",
+      "evidence": "بیرونی: 3/2 روز؛ آخرین انجام 1405/06/06",
+      "components": {
+        "outer": {
+          "last_service": "1405/06/06",
+          "state": "DUE",
+          "value": 3,
+          "threshold": 2,
+          "unit": "روز"
+        }
+      }
+    }
+  ],
+  "warnings": [],
+  "review": [
+    {
+      "code": "462",
+      "reason": "داخلی: مبنای آخرین سرویس مشخص نیست"
+    },
+    {
+      "code": "S3",
+      "reason": "داخلی: مبنای آخرین سرویس مشخص نیست"
+    },
+    {
+      "code": "S3",
+      "reason": "بیرونی: مبنای آخرین سرویس مشخص نیست"
+    },
+    {
+      "code": "DG1",
+      "reason": "1405/05/09 بیرونی: 'ژنراتور' علامت سرویس معتبر نیست"
+    }
+  ],
+  "machines": [
+    {
+      "code": "701",
+      "name": "دامپتراک",
+      "components": {
+        "inner": {
+          "last_service": "1405/05/25",
+          "state": "OK",
+          "value": 78.0,
+          "threshold": 100,
+          "unit": "ساعت"
+        },
+        "outer": {
+          "last_service": "1405/06/07",
+          "state": "OK",
+          "value": 0,
+          "threshold": 20,
+          "unit": "ساعت"
+        }
+      },
+      "issues": [],
+      "action_code": null
+    },
+    {
+      "code": "702",
+      "name": "دامپتراک",
+      "components": {
+        "inner": {
+          "last_service": "1405/06/07",
+          "state": "OK",
+          "value": 11.0,
+          "threshold": 100,
+          "unit": "ساعت"
+        },
+        "outer": {
+          "last_service": "1405/06/07",
+          "state": "OK",
+          "value": 11.0,
+          "threshold": 20,
+          "unit": "ساعت"
+        }
+      },
+      "issues": [],
+      "action_code": null
+    },
+    {
+      "code": "703",
+      "name": "دامپتراک",
+      "components": {
+        "inner": {
+          "last_service": "1405/06/04",
+          "state": "OK",
+          "value": 41.0,
+          "threshold": 100,
+          "unit": "ساعت"
+        },
+        "outer": {
+          "last_service": "1405/06/07",
+          "state": "OK",
+          "value": 11.0,
+          "threshold": 20,
+          "unit": "ساعت"
+        }
+      },
+      "issues": [],
+      "action_code": null
+    },
+    {
+      "code": "704",
+      "name": "دامپتراک",
+      "components": {
+        "inner": {
+          "last_service": "1405/05/25",
+          "state": "OK",
+          "value": 62.0,
+          "threshold": 100,
+          "unit": "ساعت"
+        },
+        "outer": {
+          "last_service": "1405/06/08",
+          "state": "OK",
+          "value": 0,
+          "threshold": 20,
+          "unit": "ساعت"
+        }
+      },
+      "issues": [],
+      "action_code": null
+    },
+    {
+      "code": "705",
+      "name": "دامپتراک",
+      "components": {
+        "inner": {
+          "last_service": "1405/05/26",
+          "state": "OK",
+          "value": 70.0,
+          "threshold": 100,
+          "unit": "ساعت"
+        },
+        "outer": {
+          "last_service": "1405/06/08",
+          "state": "OK",
+          "value": 0,
+          "threshold": 20,
+          "unit": "ساعت"
+        }
+      },
+      "issues": [],
+      "action_code": null
+    },
+    {
+      "code": "706",
+      "name": "دامپتراک",
+      "components": {
+        "inner": {
+          "last_service": "1405/06/06",
+          "state": "OK",
+          "value": 22.0,
+          "threshold": 100,
+          "unit": "ساعت"
+        },
+        "outer": {
+          "last_service": "1405/06/08",
+          "state": "OK",
+          "value": 0,
+          "threshold": 20,
+          "unit": "ساعت"
+        }
+      },
+      "issues": [],
+      "action_code": null
+    },
+    {
+      "code": "707",
+      "name": "دامپتراک",
+      "components": {
+        "inner": {
+          "last_service": "1405/05/17",
+          "state": "OK",
+          "value": 76.0,
+          "threshold": 100,
+          "unit": "ساعت"
+        },
+        "outer": {
+          "last_service": "1405/06/07",
+          "state": "OK",
+          "value": 8.0,
+          "threshold": 20,
+          "unit": "ساعت"
+        }
+      },
+      "issues": [],
+      "action_code": null
+    },
+    {
+      "code": "708",
+      "name": "دامپتراک",
+      "components": {
+        "inner": {
+          "last_service": "1405/05/25",
+          "state": "OK",
+          "value": 32.0,
+          "threshold": 100,
+          "unit": "ساعت"
+        },
+        "outer": {
+          "last_service": "1405/05/28",
+          "state": "OK",
+          "value": 14.0,
+          "threshold": 20,
+          "unit": "ساعت"
+        }
+      },
+      "issues": [],
+      "action_code": null
+    },
+    {
+      "code": "709",
+      "name": "دامپتراک",
+      "components": {
+        "inner": {
+          "last_service": "1405/06/02",
+          "state": "OK",
+          "value": 88.0,
+          "threshold": 100,
+          "unit": "ساعت"
+        },
+        "outer": {
+          "last_service": "1405/06/07",
+          "state": "OK",
+          "value": 14.0,
+          "threshold": 20,
+          "unit": "ساعت"
+        }
+      },
+      "issues": [],
+      "action_code": null
+    },
+    {
+      "code": "710",
+      "name": "دامپتراک",
+      "components": {
+        "inner": {
+          "last_service": "1405/06/06",
+          "state": "OK",
+          "value": 21.0,
+          "threshold": 100,
+          "unit": "ساعت"
+        },
+        "outer": {
+          "last_service": "1405/06/06",
+          "state": "DUE",
+          "value": 21.0,
+          "threshold": 20,
+          "unit": "ساعت"
+        }
+      },
+      "issues": [],
+      "action_code": "AIR_FILTER_OUTER"
+    },
+    {
+      "code": "711",
+      "name": "دامپتراک",
+      "components": {
+        "inner": {
+          "last_service": "1405/06/04",
+          "state": "OK",
+          "value": 41.0,
+          "threshold": 100,
+          "unit": "ساعت"
+        },
+        "outer": {
+          "last_service": "1405/06/07",
+          "state": "OK",
+          "value": 11.0,
+          "threshold": 20,
+          "unit": "ساعت"
+        }
+      },
+      "issues": [],
+      "action_code": null
+    },
+    {
+      "code": "712",
+      "name": "دامپتراک",
+      "components": {
+        "inner": {
+          "last_service": "1405/06/06",
+          "state": "OK",
+          "value": 21.0,
+          "threshold": 100,
+          "unit": "ساعت"
+        },
+        "outer": {
+          "last_service": "1405/06/06",
+          "state": "DUE",
+          "value": 21.0,
+          "threshold": 20,
+          "unit": "ساعت"
+        }
+      },
+      "issues": [],
+      "action_code": "AIR_FILTER_OUTER"
+    },
+    {
+      "code": "713",
+      "name": "دامپتراک",
+      "components": {
+        "inner": {
+          "last_service": "1405/06/04",
+          "state": "OK",
+          "value": 70.0,
+          "threshold": 100,
+          "unit": "ساعت"
+        },
+        "outer": {
+          "last_service": "1405/06/08",
+          "state": "OK",
+          "value": 0,
+          "threshold": 20,
+          "unit": "ساعت"
+        }
+      },
+      "issues": [],
+      "action_code": null
+    },
+    {
+      "code": "714",
+      "name": "دامپتراک",
+      "components": {
+        "inner": {
+          "last_service": "1405/06/08",
+          "state": "OK",
+          "value": 0,
+          "threshold": 100,
+          "unit": "ساعت"
+        },
+        "outer": {
+          "last_service": "1405/06/08",
+          "state": "OK",
+          "value": 0,
+          "threshold": 20,
+          "unit": "ساعت"
+        }
+      },
+      "issues": [],
+      "action_code": null
+    },
+    {
+      "code": "715",
+      "name": "دامپتراک",
+      "components": {
+        "inner": {
+          "last_service": "1405/06/03",
+          "state": "OK",
+          "value": 52.0,
+          "threshold": 100,
+          "unit": "ساعت"
+        },
+        "outer": {
+          "last_service": "1405/06/08",
+          "state": "OK",
+          "value": 0,
+          "threshold": 20,
+          "unit": "ساعت"
+        }
+      },
+      "issues": [],
+      "action_code": null
+    },
+    {
+      "code": "716",
+      "name": "دامپتراک",
+      "components": {
+        "inner": {
+          "last_service": "1405/06/04",
+          "state": "OK",
+          "value": 1.0,
+          "threshold": 100,
+          "unit": "ساعت"
+        },
+        "outer": {
+          "last_service": "1405/06/07",
+          "state": "OK",
+          "value": 0,
+          "threshold": 20,
+          "unit": "ساعت"
+        }
+      },
+      "issues": [],
+      "action_code": null
+    },
+    {
+      "code": "461",
+      "name": "دامپتراک",
+      "components": {
+        "inner": {
+          "last_service": "1405/06/05",
+          "state": "OK",
+          "value": 30.0,
+          "threshold": 100,
+          "unit": "ساعت"
+        },
+        "outer": {
+          "last_service": "1405/06/08",
+          "state": "OK",
+          "value": 0,
+          "threshold": 20,
+          "unit": "ساعت"
+        }
+      },
+      "issues": [],
+      "action_code": null
+    },
+    {
+      "code": "462",
+      "name": "دامپتراک",
+      "components": {
+        "inner": {
+          "last_service": "-",
+          "state": "NEEDS_REVIEW",
+          "value": null
+        },
+        "outer": {
+          "last_service": "1405/05/06",
+          "state": "OK",
+          "value": 2.0,
+          "threshold": 20,
+          "unit": "ساعت"
+        }
+      },
+      "issues": [
+        "داخلی: مبنای آخرین سرویس مشخص نیست"
+      ],
+      "action_code": null
+    },
+    {
+      "code": "463",
+      "name": "دامپتراک",
+      "components": {
+        "inner": {
+          "last_service": "1405/05/30",
+          "state": "DUE",
+          "value": 108.0,
+          "threshold": 100,
+          "unit": "ساعت"
+        },
+        "outer": {
+          "last_service": "1405/06/07",
+          "state": "OK",
+          "value": 11.0,
+          "threshold": 20,
+          "unit": "ساعت"
+        }
+      },
+      "issues": [],
+      "action_code": "AIR_FILTER_INNER_OUTER"
+    },
+    {
+      "code": "464",
+      "name": "دامپتراک",
+      "components": {
+        "inner": {
+          "last_service": "1405/06/06",
+          "state": "OK",
+          "value": 22.0,
+          "threshold": 100,
+          "unit": "ساعت"
+        },
+        "outer": {
+          "last_service": "1405/06/08",
+          "state": "OK",
+          "value": 0,
+          "threshold": 20,
+          "unit": "ساعت"
+        }
+      },
+      "issues": [],
+      "action_code": null
+    },
+    {
+      "code": "465",
+      "name": "دامپتراک",
+      "components": {
+        "inner": {
+          "last_service": "1405/06/04",
+          "state": "OK",
+          "value": 21.0,
+          "threshold": 100,
+          "unit": "ساعت"
+        },
+        "outer": {
+          "last_service": "1405/06/04",
+          "state": "DUE",
+          "value": 21.0,
+          "threshold": 20,
+          "unit": "ساعت"
+        }
+      },
+      "issues": [],
+      "action_code": "AIR_FILTER_OUTER"
+    },
+    {
+      "code": "466",
+      "name": "دامپتراک",
+      "components": {
+        "inner": {
+          "last_service": "1405/06/04",
+          "state": "OK",
+          "value": 41.0,
+          "threshold": 100,
+          "unit": "ساعت"
+        },
+        "outer": {
+          "last_service": "1405/06/08",
+          "state": "OK",
+          "value": 0,
+          "threshold": 20,
+          "unit": "ساعت"
+        }
+      },
+      "issues": [],
+      "action_code": null
+    },
+    {
+      "code": "467",
+      "name": "دامپتراک",
+      "components": {
+        "inner": {
+          "last_service": "1405/06/04",
+          "state": "OK",
+          "value": 11.0,
+          "threshold": 100,
+          "unit": "ساعت"
+        },
+        "outer": {
+          "last_service": "1405/06/06",
+          "state": "OK",
+          "value": 0,
+          "threshold": 20,
+          "unit": "ساعت"
+        }
+      },
+      "issues": [],
+      "action_code": null
+    },
+    {
+      "code": "468",
+      "name": "دامپتراک",
+      "components": {
+        "inner": {
+          "last_service": "1405/05/30",
+          "state": "OK",
+          "value": 76.0,
+          "threshold": 100,
+          "unit": "ساعت"
+        },
+        "outer": {
+          "last_service": "1405/06/08",
+          "state": "OK",
+          "value": 0,
+          "threshold": 20,
+          "unit": "ساعت"
+        }
+      },
+      "issues": [],
+      "action_code": null
+    },
+    {
+      "code": "469",
+      "name": "دامپتراک",
+      "components": {
+        "inner": {
+          "last_service": "1405/06/06",
+          "state": "OK",
+          "value": 22.0,
+          "threshold": 100,
+          "unit": "ساعت"
+        },
+        "outer": {
+          "last_service": "1405/06/08",
+          "state": "OK",
+          "value": 0,
+          "threshold": 20,
+          "unit": "ساعت"
+        }
+      },
+      "issues": [],
+      "action_code": null
+    },
+    {
+      "code": "S1",
+      "name": "کامیون سهند زرد",
+      "components": {
+        "inner": {
+          "last_service": "1405/06/02",
+          "state": "OK",
+          "value": 30.0,
+          "threshold": 50,
+          "unit": "ساعت"
+        },
+        "outer": {
+          "last_service": "1405/06/08",
+          "state": "OK",
+          "value": 0,
+          "threshold": 10,
+          "unit": "ساعت"
+        }
+      },
+      "issues": [],
+      "action_code": null
+    },
+    {
+      "code": "S3",
+      "name": "کامیون سهند زرد",
+      "components": {
+        "inner": {
+          "last_service": "-",
+          "state": "NEEDS_REVIEW",
+          "value": null
+        },
+        "outer": {
+          "last_service": "-",
+          "state": "NEEDS_REVIEW",
+          "value": null
+        }
+      },
+      "issues": [
+        "داخلی: مبنای آخرین سرویس مشخص نیست",
+        "بیرونی: مبنای آخرین سرویس مشخص نیست"
+      ],
+      "action_code": null
+    },
+    {
+      "code": "TA1",
+      "name": "کامیون آب پاش",
+      "components": {
+        "inner": {
+          "last_service": "1405/05/30",
+          "state": "DUE",
+          "value": 67.0,
+          "threshold": 50,
+          "unit": "ساعت"
+        },
+        "outer": {
+          "last_service": "1405/06/07",
+          "state": "OK",
+          "value": 0,
+          "threshold": 10,
+          "unit": "ساعت"
+        }
+      },
+      "issues": [],
+      "action_code": "AIR_FILTER_INNER_OUTER"
+    },
+    {
+      "code": "TR1",
+      "name": "خاور",
+      "components": {
+        "inner": {
+          "last_service": "1405/06/07",
+          "state": "OK",
+          "value": 1.0,
+          "threshold": 10,
+          "unit": "ساعت"
+        },
+        "outer": {
+          "last_service": "1405/06/07",
+          "state": "OK",
+          "value": 1.0,
+          "threshold": 10,
+          "unit": "ساعت"
+        }
+      },
+      "issues": [],
+      "action_code": null
+    },
+    {
+      "code": "231",
+      "name": "بیل",
+      "components": {},
+      "issues": [],
+      "action_code": null,
+      "excluded": true
+    },
+    {
+      "code": "DG1",
+      "name": "ژنراتور",
+      "components": {
+        "inner": {
+          "last_service": "1405/05/27",
+          "state": "OK",
+          "value": 34.0,
+          "threshold": 50,
+          "unit": "ساعت"
+        },
+        "outer": {
+          "last_service": "1405/06/07",
+          "state": "OK",
+          "value": 4.0,
+          "threshold": 10,
+          "unit": "ساعت"
+        }
+      },
+      "issues": [
+        "1405/05/09 بیرونی: 'ژنراتور' علامت سرویس معتبر نیست"
+      ],
+      "action_code": null
+    },
+    {
+      "code": "MZ1",
+      "name": "مزدا",
+      "components": {
+        "outer": {
+          "last_service": "1405/06/08",
+          "state": "OK",
+          "value": 1,
+          "threshold": 2,
+          "unit": "روز"
+        }
+      },
+      "issues": [],
+      "action_code": null
+    },
+    {
+      "code": "MZ3",
+      "name": "مزدا",
+      "components": {
+        "outer": {
+          "last_service": "1405/06/08",
+          "state": "OK",
+          "value": 1,
+          "threshold": 2,
+          "unit": "روز"
+        }
+      },
+      "issues": [],
+      "action_code": null
+    },
+    {
+      "code": "MZ4",
+      "name": "مزدا",
+      "components": {
+        "outer": {
+          "last_service": "1405/06/08",
+          "state": "OK",
+          "value": 1,
+          "threshold": 2,
+          "unit": "روز"
+        }
+      },
+      "issues": [],
+      "action_code": null
+    },
+    {
+      "code": "MZ5",
+      "name": "مزدا",
+      "components": {
+        "outer": {
+          "last_service": "1405/06/08",
+          "state": "OK",
+          "value": 1,
+          "threshold": 2,
+          "unit": "روز"
+        }
+      },
+      "issues": [],
+      "action_code": null
+    },
+    {
+      "code": "MZ6",
+      "name": "مزدا",
+      "components": {
+        "outer": {
+          "last_service": "1405/06/08",
+          "state": "OK",
+          "value": 1,
+          "threshold": 2,
+          "unit": "روز"
+        }
+      },
+      "issues": [],
+      "action_code": null
+    },
+    {
+      "code": "MZ7",
+      "name": "مزدا",
+      "components": {
+        "outer": {
+          "last_service": "1405/06/06",
+          "state": "DUE",
+          "value": 3,
+          "threshold": 2,
+          "unit": "روز"
+        }
+      },
+      "issues": [],
+      "action_code": "AIR_FILTER_OUTER"
+    },
+    {
+      "code": "MZ8",
+      "name": "مزدا",
+      "components": {
+        "outer": {
+          "last_service": "1405/06/08",
+          "state": "OK",
+          "value": 1,
+          "threshold": 2,
+          "unit": "روز"
+        }
+      },
+      "issues": [],
+      "action_code": null
+    },
+    {
+      "code": "MZ9",
+      "name": "مزدا",
+      "components": {
+        "outer": {
+          "last_service": "1405/06/08",
+          "state": "OK",
+          "value": 1,
+          "threshold": 2,
+          "unit": "روز"
+        }
+      },
+      "issues": [],
+      "action_code": null
+    },
+    {
+      "code": "MZ10",
+      "name": "مزدا",
+      "components": {
+        "outer": {
+          "last_service": "1405/06/08",
+          "state": "OK",
+          "value": 1,
+          "threshold": 2,
+          "unit": "روز"
+        }
+      },
+      "issues": [],
+      "action_code": null
+    },
+    {
+      "code": "PR2",
+      "name": "پیکاپ ریچ",
+      "components": {
+        "outer": {
+          "last_service": "1405/06/08",
+          "state": "OK",
+          "value": 1,
+          "threshold": 2,
+          "unit": "روز"
+        }
+      },
+      "issues": [],
+      "action_code": null
+    },
+    {
+      "code": "PR3",
+      "name": "پیکاپ ریچ",
+      "components": {
+        "outer": {
+          "last_service": "1405/06/08",
+          "state": "OK",
+          "value": 1,
+          "threshold": 2,
+          "unit": "روز"
+        }
+      },
+      "issues": [],
+      "action_code": null
+    }
+  ]
+}

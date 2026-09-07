@@ -1,0 +1,700 @@
+{
+  "manual": "E:\\KomatsoAI\\WA600-6\\WA600-6 SHOP MANUAL.pdf",
+  "models": [
+    "WA600-6"
+  ],
+  "serial_range": "60001 and up",
+  "pdf_pages": 2007,
+  "note": "This file is routing metadata only. All technical facts, values, procedures, pins, pressures, voltages and conclusions must be verified from the actual Shop Manual.",
+  "sections": {
+    "index": {
+      "pdf_start": 1,
+      "pdf_end": 20,
+      "title": "Index / Shop Manual composition"
+    },
+    "foreword_general": {
+      "pdf_start": 21,
+      "pdf_end": 62,
+      "form": "SEN00415-04",
+      "title": "Foreword and general information"
+    },
+    "specification": {
+      "pdf_start": 63,
+      "pdf_end": 76,
+      "form": "SEN00400-03",
+      "title": "Specification and technical data"
+    },
+    "structure_function": {
+      "pdf_start": 77,
+      "pdf_end": 565,
+      "title": "Structure, function and maintenance standard",
+      "subsections": {
+        "engine_cooling": {
+          "pdf_start": 77,
+          "pdf_end": 98,
+          "form": "SEN00402-01",
+          "title": "Engine and cooling system",
+          "topics": [
+            "engine mount and transmission mount",
+            "cooling system",
+            "cooling fan pump",
+            "cooling fan motor"
+          ]
+        },
+        "power_train_part_1": {
+          "pdf_start": 99,
+          "pdf_end": 147,
+          "form": "SEN00403-02",
+          "title": "Power train, Part 1",
+          "topics": [
+            "power train",
+            "power train system diagram",
+            "torque converter and transmission piping diagram",
+            "torque converter",
+            "modulation clutch",
+            "torque converter regulator valve",
+            "transmission",
+            "transfer",
+            "transmission control valve",
+            "ECMV",
+            "main relief valve",
+            "torque converter relief valve",
+            "lubrication relief valve"
+          ]
+        },
+        "power_train_part_2": {
+          "pdf_start": 148,
+          "pdf_end": 179,
+          "form": "SEN02455-01",
+          "title": "Power train, Part 2",
+          "topics": [
+            "torque converter oil cooler",
+            "torque converter oil filter",
+            "drive shaft",
+            "center support",
+            "axle",
+            "differential",
+            "limited slip differential",
+            "final drive"
+          ]
+        },
+        "steering_system": {
+          "pdf_start": 180,
+          "pdf_end": 239,
+          "form": "SEN00404-03",
+          "title": "Steering system",
+          "topics": [
+            "steering piping diagram",
+            "steering column",
+            "joystick steering lever linkage",
+            "joystick EPC valve",
+            "lock valve",
+            "steering valve",
+            "rotary valve",
+            "steering control valve",
+            "two-way restrictor valve",
+            "stop valve",
+            "steering pump",
+            "steering cylinder",
+            "emergency steering piping diagram",
+            "diverter valve",
+            "emergency steering pump"
+          ]
+        },
+        "brake_system": {
+          "pdf_start": 240,
+          "pdf_end": 275,
+          "form": "SEN00405-02",
+          "title": "Brake system",
+          "topics": [
+            "brake piping diagram",
+            "brake",
+            "brake valve",
+            "accumulator charge valve",
+            "EPC relief valve",
+            "accumulator",
+            "slack adjuster",
+            "parking brake",
+            "parking brake solenoid valve",
+            "emergency parking brake release valve",
+            "brake cooling pump"
+          ]
+        },
+        "undercarriage_frame": {
+          "pdf_start": 276,
+          "pdf_end": 284,
+          "form": "SEN00406-00",
+          "title": "Undercarriage and frame",
+          "topics": [
+            "axle mount",
+            "center hinge pin"
+          ]
+        },
+        "hydraulic_part_1": {
+          "pdf_start": 285,
+          "pdf_end": 310,
+          "form": "SEN00407-01",
+          "title": "Hydraulic system, Part 1",
+          "topics": [
+            "hydraulic piping diagram",
+            "work equipment control lever linkage",
+            "hydraulic tank",
+            "work equipment hydraulic pump"
+          ]
+        },
+        "hydraulic_part_2": {
+          "pdf_start": 311,
+          "pdf_end": 355,
+          "form": "SEN02456-01",
+          "title": "Hydraulic system, Part 2",
+          "topics": [
+            "control valve",
+            "CLSS",
+            "each function and operation of each valve",
+            "accumulator for PPC circuit",
+            "accumulator for ECSS",
+            "triple pump"
+          ]
+        },
+        "work_equipment": {
+          "pdf_start": 356,
+          "pdf_end": 384,
+          "form": "SEN00408-03",
+          "title": "Work equipment",
+          "topics": [
+            "work equipment linkage",
+            "bucket",
+            "bucket positioner",
+            "boom kick-out",
+            "work equipment lubrication",
+            "work equipment cylinder"
+          ]
+        },
+        "cab_attachments": {
+          "pdf_start": 385,
+          "pdf_end": 392,
+          "form": "SEN00409-01",
+          "title": "Cab and its attachments",
+          "topics": [
+            "ROPS cab",
+            "air conditioner"
+          ]
+        },
+        "electrical_part_1": {
+          "pdf_start": 393,
+          "pdf_end": 456,
+          "form": "SEN01009-02",
+          "title": "Electrical system, Part 1",
+          "topics": [
+            "machine monitor system",
+            "machine monitor"
+          ]
+        },
+        "electrical_part_2": {
+          "pdf_start": 457,
+          "pdf_end": 525,
+          "form": "SEN00410-02",
+          "title": "Electrical system, Part 2",
+          "topics": [
+            "work equipment control system",
+            "transmission controller system"
+          ]
+        },
+        "electrical_part_3": {
+          "pdf_start": 526,
+          "pdf_end": 565,
+          "form": "SEN00411-03",
+          "title": "Electrical system, Part 3",
+          "topics": [
+            "electric transmission control",
+            "engine starting/stopping circuit",
+            "parking brake circuit",
+            "sensor",
+            "VHMS controller related",
+            "work equipment electric lever"
+          ]
+        }
+      }
+    },
+    "standard_values": {
+      "pdf_start": 566,
+      "pdf_end": 577,
+      "form": "SEN00552-04",
+      "title": "Standard service value table",
+      "topics": [
+        "standard service value table for engine",
+        "standard service value table for chassis"
+      ]
+    },
+    "testing_adjusting": {
+      "pdf_start": 578,
+      "pdf_end": 811,
+      "title": "Testing and adjusting",
+      "subsections": {
+        "part_1": {
+          "pdf_start": 578,
+          "pdf_end": 635,
+          "form": "SEN00553-05",
+          "title": "Testing and adjusting, Part 1",
+          "topics": [
+            "engine speed",
+            "exhaust gas color",
+            "exhaust temperature",
+            "valve clearance",
+            "compression pressure",
+            "blow-by pressure",
+            "engine oil pressure",
+            "EGR valve and bypass valve drive oil pressure",
+            "boost pressure",
+            "fuel system",
+            "fuel pressure",
+            "return rate and leakage",
+            "fuel circuit air bleeding",
+            "controller voltage circuit",
+            "belt tension",
+            "modulation clutch speed sensor",
+            "directional lever and gear shift lever",
+            "power train oil pressure",
+            "torque converter and transmission hydraulic circuit",
+            "steering stop valve"
+          ]
+        },
+        "part_2": {
+          "pdf_start": 636,
+          "pdf_end": 701,
+          "form": "SEN00554-05",
+          "title": "Testing and adjusting, Part 2",
+          "topics": [
+            "AJSS lever",
+            "AJSS lever angle sensor",
+            "frame angle sensor",
+            "steering stopper bolt",
+            "steering wheel",
+            "steering oil pressure",
+            "steering cylinder air bleeding",
+            "hydraulic drive fan",
+            "brake pedal",
+            "brake performance",
+            "accumulator charge pressure",
+            "wheel brake oil pressure",
+            "wheel brake disc wear",
+            "wheel brake air bleeding",
+            "parking brake performance",
+            "parking brake oil pressure",
+            "parking brake disc wear",
+            "manual parking brake release",
+            "work equipment control lever",
+            "work equipment oil pressure",
+            "work equipment circuit air bleeding",
+            "ECSS accumulator",
+            "brake accumulator",
+            "bucket positioner",
+            "lift arm position detecting lever",
+            "proximity switch",
+            "electric system troubleshooting preparation",
+            "diode testing"
+          ]
+        },
+        "part_3": {
+          "pdf_start": 702,
+          "pdf_end": 781,
+          "form": "SEN00555-06",
+          "title": "Testing and adjusting, Part 3",
+          "topics": [
+            "machine monitor-based adjustment",
+            "sensor and controller replacement adjustment",
+            "machine monitor special functions",
+            "EMMS"
+          ]
+        },
+        "part_4": {
+          "pdf_start": 782,
+          "pdf_end": 811,
+          "form": "SEN00556-05",
+          "title": "Testing and adjusting, Part 4",
+          "topics": [
+            "VHMS controller initial setting",
+            "VHMS controller replacement precautions",
+            "Pm-clinic inspection table"
+          ]
+        }
+      }
+    },
+    "troubleshooting": {
+      "pdf_start": 812,
+      "pdf_end": 1643,
+      "title": "Troubleshooting",
+      "subsections": {
+        "failure_code_table_fuses": {
+          "pdf_start": 812,
+          "pdf_end": 829,
+          "form": "SEN03364-01",
+          "title": "Failure code table and fuse locations"
+        },
+        "general_information": {
+          "pdf_start": 830,
+          "pdf_end": 877,
+          "form": "SEN00557-01",
+          "title": "General information on troubleshooting"
+        },
+        "failure_codes_part_1": {
+          "pdf_start": 878,
+          "pdf_end": 913,
+          "form": "SEN00558-02",
+          "title": "Troubleshooting by failure code (Display of code), Part 1",
+          "topics": [
+            "TORQFLOW transmission",
+            "transmission filter",
+            "ECMV",
+            "modulation clutch",
+            "parking brake",
+            "front accumulator"
+          ]
+        },
+        "failure_codes_part_2": {
+          "pdf_start": 914,
+          "pdf_end": 979,
+          "form": "SEN00559-03",
+          "title": "Troubleshooting by failure code (Display of code), Part 2",
+          "topics": [
+            "rear accumulator",
+            "bucket positioner",
+            "engine",
+            "alternator",
+            "engine oil pressure",
+            "coolant",
+            "brake oil",
+            "torque converter oil",
+            "hydraulic oil",
+            "CA111",
+            "engine sensors"
+          ]
+        },
+        "failure_codes_part_3": {
+          "pdf_start": 980,
+          "pdf_end": 1049,
+          "form": "SEN00560-02",
+          "title": "Troubleshooting by failure code (Display of code), Part 3",
+          "topics": [
+            "engine sensors",
+            "PCV",
+            "injectors",
+            "common rail",
+            "fuel pressure",
+            "EGR",
+            "KOMNET"
+          ]
+        },
+        "failure_codes_part_4": {
+          "pdf_start": 1050,
+          "pdf_end": 1105,
+          "form": "SEN00561-03",
+          "title": "Troubleshooting by failure code (Display of code), Part 4",
+          "topics": [
+            "throttle sensor power supply",
+            "EGR",
+            "intake heater relay",
+            "AJSS neutral safety relay",
+            "ECSS solenoid",
+            "transmission oil pressure bypass solenoid",
+            "machine monitor",
+            "transmission controller",
+            "CAN communication"
+          ]
+        },
+        "failure_codes_part_5": {
+          "pdf_start": 1106,
+          "pdf_end": 1159,
+          "form": "SEN00562-03",
+          "title": "Troubleshooting by failure code (Display of code), Part 5",
+          "topics": [
+            "engine controller communication",
+            "work equipment controller",
+            "VHMS controller",
+            "CAN communication",
+            "panel switches",
+            "load meter switches"
+          ]
+        },
+        "failure_codes_part_6": {
+          "pdf_start": 1160,
+          "pdf_end": 1215,
+          "form": "SEN00569-03",
+          "title": "Troubleshooting by failure code (Display of code), Part 6",
+          "topics": [
+            "parking brake switch",
+            "traction adjustment dial",
+            "emergency steering",
+            "AJSS FNR switch",
+            "shift switches",
+            "steering lock pressure switch",
+            "transmission shift lever",
+            "temperature sensors"
+          ]
+        },
+        "failure_codes_part_7": {
+          "pdf_start": 1216,
+          "pdf_end": 1265,
+          "form": "SEN00570-03",
+          "title": "Troubleshooting by failure code (Display of code), Part 7",
+          "topics": [
+            "hydraulic oil temperature sensor",
+            "brake oil temperature sensor",
+            "torque converter oil temperature sensor",
+            "exhaust gas temperature sensors",
+            "work equipment pump oil pressure sensor",
+            "blow-by pressure sensor",
+            "lift arm cylinder pressure sensors",
+            "transmission filter clogging sensor",
+            "steering oil pressure sensor",
+            "brake oil pressure sensors",
+            "AJSS lever angle sensor"
+          ]
+        },
+        "failure_codes_part_8": {
+          "pdf_start": 1266,
+          "pdf_end": 1317,
+          "form": "SEN00571-03",
+          "title": "Troubleshooting by failure code (Display of code), Part 8",
+          "topics": [
+            "lift arm EPC lever potentiometers",
+            "bucket EPC lever potentiometers",
+            "3-spool valve EPC lever potentiometers",
+            "lift arm angle sensor"
+          ]
+        },
+        "failure_codes_part_9": {
+          "pdf_start": 1318,
+          "pdf_end": 1369,
+          "form": "SEN00572-03",
+          "title": "Troubleshooting by failure code (Display of code), Part 9",
+          "topics": [
+            "frame angle sensor",
+            "AJSS sensor circuits",
+            "transmission speed sensors",
+            "alarm buzzer",
+            "lift arm EPC solenoids",
+            "bucket EPC solenoids",
+            "fan reverse solenoid",
+            "hydraulic drive fan neutral solenoid"
+          ]
+        },
+        "failure_codes_part_10": {
+          "pdf_start": 1370,
+          "pdf_end": 1421,
+          "form": "SEN00573-03",
+          "title": "Troubleshooting by failure code (Display of code), Part 10",
+          "topics": [
+            "work equipment neutral lock solenoid",
+            "magnet detent solenoids",
+            "modulation clutch cut-off release solenoid",
+            "fan pump EPC solenoid",
+            "pump PC-EPC solenoid",
+            "AJSS EPC solenoid",
+            "lockup ECMV",
+            "1st clutch ECMV"
+          ]
+        },
+        "failure_codes_part_11": {
+          "pdf_start": 1422,
+          "pdf_end": 1479,
+          "form": "SEN00574-03",
+          "title": "Troubleshooting by failure code (Display of code), Part 11",
+          "topics": [
+            "2nd clutch ECMV",
+            "3rd clutch ECMV",
+            "R clutch ECMV",
+            "F clutch ECMV",
+            "4th clutch ECMV",
+            "3-spool valve EPC solenoids",
+            "modulation clutch solenoid",
+            "blow-by pressure",
+            "exhaust gas temperature"
+          ]
+        },
+        "electrical_e_mode": {
+          "pdf_start": 1480,
+          "pdf_end": 1569,
+          "form": "SEN00563-03",
+          "title": "Troubleshooting of electrical system (E-mode)",
+          "topics": [
+            "engine start",
+            "wiper",
+            "windshield washer",
+            "headlamp",
+            "working lamp",
+            "step lamp",
+            "turn signal",
+            "brake lamp",
+            "backup lamp",
+            "backup buzzer",
+            "horn",
+            "alarm buzzer",
+            "air conditioner",
+            "electric priming pump"
+          ]
+        },
+        "hydraulic_mechanical_h_mode": {
+          "pdf_start": 1570,
+          "pdf_end": 1611,
+          "form": "SEN00564-02",
+          "title": "Troubleshooting of hydraulic and mechanical system (H-mode)",
+          "topics": [
+            "machine travel",
+            "torque converter lockup",
+            "travel speed",
+            "thrusting force",
+            "gear shifting",
+            "steering",
+            "AJSS",
+            "wheel brake",
+            "parking brake",
+            "lift arm",
+            "bucket",
+            "work equipment",
+            "ECSS",
+            "hydraulic drive fan"
+          ]
+        },
+        "engine_s_mode": {
+          "pdf_start": 1612,
+          "pdf_end": 1643,
+          "form": "SEN00565-02",
+          "title": "Troubleshooting of engine (S-mode)",
+          "topics": [
+            "engine starting",
+            "engine power",
+            "hunting",
+            "exhaust smoke",
+            "oil consumption",
+            "fuel consumption",
+            "coolant",
+            "oil pressure",
+            "overheating",
+            "abnormal noise",
+            "vibration",
+            "fuel circuit air bleeding"
+          ]
+        }
+      }
+    },
+    "disassembly_assembly": {
+      "pdf_start": 1644,
+      "pdf_end": 1971,
+      "title": "Disassembly and assembly",
+      "subsections": {
+        "general": {
+          "pdf_start": 1644,
+          "pdf_end": 1663,
+          "form": "SEN01156-03",
+          "title": "General information on disassembly and assembly"
+        },
+        "engine_cooling_part_1": {
+          "pdf_start": 1664,
+          "pdf_end": 1691,
+          "form": "SEN01157-02",
+          "title": "Engine and cooling system, Part 1"
+        },
+        "engine_cooling_part_2": {
+          "pdf_start": 1692,
+          "pdf_end": 1727,
+          "form": "SEN01158-03",
+          "title": "Engine and cooling system, Part 2"
+        },
+        "power_train_part_1": {
+          "pdf_start": 1728,
+          "pdf_end": 1737,
+          "form": "SEN01160-02",
+          "title": "Power train, Part 1"
+        },
+        "power_train_part_2": {
+          "pdf_start": 1738,
+          "pdf_end": 1815,
+          "form": "SEN01162-02",
+          "title": "Power train, Part 2"
+        },
+        "power_train_part_3": {
+          "pdf_start": 1816,
+          "pdf_end": 1841,
+          "form": "SEN01164-03",
+          "title": "Power train, Part 3"
+        },
+        "power_train_part_4": {
+          "pdf_start": 1842,
+          "pdf_end": 1851,
+          "form": "SEN01165-02",
+          "title": "Power train, Part 4"
+        },
+        "brake_system": {
+          "pdf_start": 1852,
+          "pdf_end": 1867,
+          "form": "SEN01167-02",
+          "title": "Brake system"
+        },
+        "undercarriage_frame": {
+          "pdf_start": 1868,
+          "pdf_end": 1877,
+          "form": "SEN01169-02",
+          "title": "Undercarriage and frame"
+        },
+        "hydraulic_system": {
+          "pdf_start": 1878,
+          "pdf_end": 1899,
+          "form": "SEN01171-02",
+          "title": "Hydraulic system"
+        },
+        "work_equipment": {
+          "pdf_start": 1900,
+          "pdf_end": 1907,
+          "form": "SEN01174-02",
+          "title": "Work equipment"
+        },
+        "cab_attachments": {
+          "pdf_start": 1908,
+          "pdf_end": 1961,
+          "form": "SEN01175-02",
+          "title": "Cab and its attachments"
+        },
+        "electrical_system": {
+          "pdf_start": 1962,
+          "pdf_end": 1971,
+          "form": "SEN01177-03",
+          "title": "Electrical system"
+        }
+      }
+    },
+    "diagrams": {
+      "pdf_start": 1972,
+      "pdf_end": 2007,
+      "title": "Diagrams and drawings",
+      "subsections": {
+        "hydraulic": {
+          "pdf_start": 1972,
+          "pdf_end": 1981,
+          "form": "SEN00412-04",
+          "title": "Hydraulic diagrams and drawings",
+          "topics": [
+            "power train hydraulic circuit diagram",
+            "brake hydraulic circuit diagram",
+            "work equipment hydraulic circuit diagram",
+            "steering wheel specification",
+            "ECSS",
+            "AJSS"
+          ]
+        },
+        "electrical": {
+          "pdf_start": 1982,
+          "pdf_end": 2007,
+          "form": "SEN00413-04",
+          "title": "Electrical diagrams and drawings",
+          "topics": [
+            "air conditioner electrical circuit diagram",
+            "steering wheel specification electrical circuit diagrams",
+            "AJSS electrical circuit diagrams",
+            "connector arrangement diagram"
+          ]
+        }
+      }
+    }
+  }
+}
