@@ -1,0 +1,131 @@
+# ==================================================
+# Secrets and credentials
+# ==================================================
+
+.env
+.env.*
+!.env.example
+
+auth.json
+credentials.json
+
+*.token
+*.secret
+*.key
+*.pem
+*.p12
+*.pfx
+*.png
+*.jpg
+*.jpeg
+backup/
+backups/
+
+secrets/
+private/
+
+
+# ==================================================
+# Hermes local state and authentication
+# ==================================================
+
+.hermes/
+sessions.json
+sessions*.json
+session_store/
+pending/
+
+config.local.yaml
+hermes-config.local.yaml
+
+gateway-service/
+gateway.log
+
+*.sqlite
+*.sqlite3
+*.db-wal
+*.db-shm
+*.db
+
+# ==================================================
+# Python
+# ==================================================
+
+.venv/
+venv/
+env/
+
+__pycache__/
+*.py[cod]
+*$py.class
+
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+build/
+dist/
+*.egg-info/
+
+
+# ==================================================
+# Node.js
+# ==================================================
+
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+
+# ==================================================
+# Generated files
+# ==================================================
+
+runtime/
+artifacts/
+output/
+outputs/
+temp/
+tmp/
+cache/
+
+*.log
+
+
+# ==================================================
+# Manuals and large/private source documents
+# ==================================================
+
+*.pdf
+*.iso
+
+manuals/
+documents/private/
+
+
+# ==================================================
+# Backups and migration archives
+# ==================================================
+
+backups/
+*.zip
+*.7z
+*.rar
+*.bak
+*.backup
+
+
+# ==================================================
+# Windows / editors
+# ==================================================
+
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+.vscode/
+.idea/
