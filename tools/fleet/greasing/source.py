@@ -65,7 +65,7 @@ def color_kind(cell, neutral_themes=(0,1)):
     color=fill.fgColor
     if fill.patternType == 'solid' and color.type == 'rgb' and color.tint == 0:
         rgb=str(color.rgb)[-6:].upper()
-        if rgb == 'FFC000':
+        if rgb in {'FFC000', 'FFCE3C'}:
             return 'ORANGE'
         if rgb in {'FFFF00','FFFFFF','000000','92D050','0099FF','00FF99','00B0F0'}:
             return 'OTHER'

@@ -58,7 +58,7 @@ class RuleTests(unittest.TestCase):
 
     def test_exact_orange_only(self):
         ws=Workbook().active
-        for rgb,expected in [('FFFFC000','ORANGE'),('00FFC000','ORANGE'),('FFFFFF00','OTHER'),('FFFFCE3C','SUSPECT')]:
+        for rgb,expected in [('FFFFC000','ORANGE'),('00FFC000','ORANGE'),('FFFFFF00','OTHER'),('FFFFCE3C','ORANGE')]:
             ws['A1'].fill=PatternFill('solid',fgColor=rgb)
             self.assertEqual(color_kind(ws['A1']),expected)
 
