@@ -4,8 +4,12 @@ ACTIONS = {OUTER: 'تعویض هواکش بیرونی', BOTH: 'تعویض هوا
 
 
 def rule_for(code, name):
-    if code == '231' or name == 'بیل':
-        return None
+    if name in {'بیل', 'بیل مکانیکی'} or code.startswith('EX'):
+        return {'inner': (10, 7), 'outer': (5, 4)}
+    if name == 'لودر' or code.startswith('W'):
+        return {'inner': (10, 7), 'outer': (10, 7), 'together': True}
+    if name == 'بلدوزر' or code in {'151', '152'}:
+        return {'inner': (10, 7), 'outer': (10, 7), 'together': True}
     if name == 'دامپتراک':
         return {'inner': (100, 90), 'outer': (20, 17)}
     if name in {'کامیون سهند زرد', 'کامیون آب پاش', 'ژنراتور'}:

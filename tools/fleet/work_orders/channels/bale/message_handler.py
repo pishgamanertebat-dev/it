@@ -176,7 +176,7 @@ class WorkOrderMenuHandler:
                     reply = render(session.proposal)
                 else:
                     session.stage = 'ADD_ACTION'
-                    reply = 'نوع تعویض دستگاه‌های اضافه‌شده را انتخاب کنید:\n1) بیرونی\n2) داخلی و بیرونی\nخاور: گزینهٔ ۲؛ مزدا و ریچ: گزینهٔ ۱\nبرای بازگشت بنویسید: برگشت'
+                    reply = 'نوع تعویض دستگاه‌های اضافه‌شده را انتخاب کنید:\n1) بیرونی\n2) داخلی و بیرونی\nخاور، لودر و بلدوزر: گزینهٔ ۲؛ مزدا و ریچ: گزینهٔ ۱\nبرای بازگشت بنویسید: برگشت'
             elif request["action"] == "validate_machines":
                 session.machine_codes = result["machine_codes"]
                 session.stage = "DATE"

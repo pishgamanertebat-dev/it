@@ -57,7 +57,20 @@ def machine_name_from_code(
             return "دامپتراک"
 
         if n == 231:
-            return "بیل"
+            return "بیل مکانیکی"
+
+        if n in {151, 152}:
+            return "بلدوزر"
+
+    if c.startswith("EX") and c[2:].isdigit():
+        return "بیل مکانیکی"
+
+    if ((c.startswith("WA") and c[2:].isdigit())
+            or (c.startswith("W") and c[1:].isdigit())):
+        return "لودر"
+
+    if c.startswith("D") and c[1:].isdigit():
+        return "بلدوزر"
 
     if c.startswith("MZ"):
         return "مزدا"
@@ -149,8 +162,6 @@ def get_items(
         for item in items:
             rule = rule_for(item['machine_code'], item['machine_name'])
             action = actions[item['machine_code']]
-            if rule is None:
-                raise ValueError('بیل در برنامهٔ هواکش این مرحله قرار ندارد.')
             if action not in ACTIONS or ('calendar' in rule and action != OUTER) or (rule.get('together') and action != BOTH):
                 raise ValueError('نوع تعویض برای دستگاه ' + item['machine_code'] + ' معتبر نیست.')
             item.update(action_code=action, action_text=ACTIONS[action])

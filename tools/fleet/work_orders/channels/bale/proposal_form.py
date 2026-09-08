@@ -70,7 +70,7 @@ def add_items(proposal, items, action):
             continue
         rule = rule_for(item['machine_code'],item['machine_name'])
         if rule is None or ('calendar' in rule and action != OUTER) or (rule.get('together') and action != BOTH):
-            raise ValueError('نوع تعویض با قانون دستگاه ' + item['machine_code'] + ' سازگار نیست؛ مزدا/ریچ فقط بیرونی و خاور هر دو با هم است.')
+            raise ValueError('نوع تعویض با قانون دستگاه ' + item['machine_code'] + ' سازگار نیست؛ مزدا/ریچ فقط بیرونی و خاور/لودر/بلدوزر هر دو با هم است.')
         additions.append({**item,'action_code':action,'action_text':ACTIONS[action]})
     codes = {i['machine_code'] for i in additions}
     proposal['items'] = [i for i in proposal['items'] if i['machine_code'] not in codes] + additions

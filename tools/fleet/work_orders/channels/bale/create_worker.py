@@ -44,7 +44,7 @@ def execute_request(request: dict, *, db_path=None) -> dict:
             machines, *_ = read_source()
             known = {m['code'] for m in machines if not m.get('duplicate') and rule_for(m['code'],m['name']) is not None}
             if any(c not in known for c in request['machine_codes']):
-                raise ValueError('دستگاه ناشناخته، تکراری در منبع یا بیل در فهرست اضافه‌کردن مجاز نیست.')
+                raise ValueError('دستگاه ناشناخته یا تکراری در منبع است؛ برای بیل و لودر کد کامل EX یا W را وارد کنید.')
             return {'ok': True, 'items': get_items(request['machine_codes'])}
         if request["action"] == "confirm_review":
             review = confirm_document_review(request["work_order_no"], actor.bale_id)

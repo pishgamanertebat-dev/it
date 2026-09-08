@@ -6,6 +6,11 @@ ACTION = 'GREASING_FULL'
 TEXT = 'گریسکاری کامل'
 
 
+def excluded_from_greasing(code, name):
+    """Rows explicitly outside the mine's greasing program."""
+    return code == 'EX1251' or 'ژنراتور' in name
+
+
 def rule_for(code, name):
     if code.startswith('HD') or 'دامپ' in name:
         return 60, 54, 'ساعت'
@@ -46,6 +51,8 @@ def catalog(source):
     result=[]
     codes={m['code'] for m in source['machines']}
     for m in source['machines']:
+        if excluded_from_greasing(m['code'], m['name']):
+            continue
         code=m['code']
         # Duplicate model codes (e.g. D155) are distinguished by verified old IDs.
         if m.get('duplicate'):
@@ -97,6 +104,8 @@ def build_proposal(path=SOURCE, as_of=None):
               'source_warnings':source['warnings'],'evaluations':[]}
     available={m['row']:m for m in catalog(source)}
     for m in source['machines']:
+        if excluded_from_greasing(m['code'], m['name']):
+            continue
         machine=available.get(m['row'])
         label=machine['order_code'] if machine else m['code'] or f"ردیف {m['row']} ({m['name']})"
         suspect=[e['cell'] for e in m['entries'] if e['color']=='SUSPECT']

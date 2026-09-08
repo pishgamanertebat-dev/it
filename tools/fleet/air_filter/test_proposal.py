@@ -1,4 +1,7 @@
 import unittest
+import tempfile
+from pathlib import Path
+from openpyxl import Workbook
 from tools.fleet.air_filter.proposal import evaluate_machine, build_proposal
 from tools.fleet.air_filter.rules import BOTH, OUTER
 
@@ -48,16 +51,61 @@ class ProposalTests(unittest.TestCase):
             r=self.evaluate('دامپتراک',[day((6,1),inner='صبح'),day((6,8),bad)])
             self.assertEqual(r['components']['outer']['state'],'NEEDS_REVIEW')
 
-    def test_excavator_excluded_and_inner_warning_does_not_replace_outer_due(self):
-        self.assertTrue(self.evaluate('بیل',[day((6,8),100)],'231')['excluded'])
+    def test_excavator_loader_bulldozer_rules(self):
+        excavator=self.evaluate('بیل مکانیکی',[day((6,1),inner='صبح'),day((6,8),4)],'EX231')
+        self.assertEqual(excavator['components']['outer']['state'],'NEAR_DUE')
+        excavator=self.evaluate('بیل مکانیکی',[day((6,1),inner='صبح'),day((6,8),5)],'EX231')
+        self.assertEqual(excavator['action_code'],OUTER)
+        excavator=self.evaluate('بیل مکانیکی',[day((6,1),inner='صبح'),day((6,8),10)],'EX231')
+        self.assertEqual(excavator['action_code'],BOTH)
+        for name,code in [('لودر','W471'),('بلدوزر','D151')]:
+            near=self.evaluate(name,[day((6,1),outer='شب'),day((6,8),7)],code)
+            self.assertEqual({c['state'] for c in near['components'].values()},{'NEAR_DUE'})
+            due=self.evaluate(name,[day((6,1),outer='شب'),day((6,8),10)],code)
+            self.assertEqual(due['action_code'],BOTH)
+
+    def test_new_codes_are_valid_work_order_items(self):
+        from tools.fleet.work_orders.types.air_filter.builder import get_items
+        actions={'EX601':OUTER,'WA601':BOTH,'W471':BOTH,'D151':BOTH,'D152':BOTH}
+        items=get_items(list(actions),actions=actions)
+        self.assertEqual([i['machine_name'] for i in items],
+                         ['بیل مکانیکی','لودر','لودر','بلدوزر','بلدوزر'])
+        bad=dict(actions); bad['W471']=OUTER
+        with self.assertRaises(ValueError):
+            get_items(list(bad),actions=bad)
+
+    def test_five_column_day_night_layout_is_combined(self):
+        from tools.fleet.air_filter.proposal import read_source
+        root=Path('runtime/air_filter_proposal'); root.mkdir(parents=True,exist_ok=True)
+        with tempfile.TemporaryDirectory(dir=root) as directory:
+            path=Path(directory)/'source.xlsx'
+            workbook=Workbook(); sheet=workbook.active; sheet.title='1'
+            for col,value in enumerate(('ردیف','نام دستگاه','کد دستگاه'),1):
+                sheet.cell(1,col,value)
+            for col,field in enumerate(('کارکرد','درونی','بیرونی','درونی','بیرونی'),4):
+                sheet.cell(1,col,6.01); sheet.cell(2,col,field)
+            sheet.cell(3,2,'بیل مکانیکی'); sheet.cell(3,3,801)
+            sheet.cell(3,4,4); sheet.cell(3,8,'شب')
+            workbook.save(path); workbook.close()
+            machines,cutoff,plan,issues,_=read_source(path,target=(6,2))
+        self.assertEqual((cutoff,plan,issues),((6,1),(6,2),[]))
+        self.assertEqual(machines[0]['code'],'EX801')
+        self.assertEqual(machines[0]['daily'][0]['outer_values'],[None,'شب'])
+        result=evaluate_machine(machines[0],cutoff,plan)
+        self.assertEqual(result['components']['outer']['last_service'],'1405/06/01')
+
+    def test_inner_warning_does_not_replace_outer_due(self):
         r=self.evaluate('دامپتراک',[day((5,1),inner='صبح'),day((5,2),70),day((6,1),outer='صبح'),day((6,8),20)])
         self.assertEqual(r['components']['inner']['state'],'NEAR_DUE')
         self.assertEqual(r['action_code'],OUTER)
 
     def test_real_source_target_and_quality(self):
         p=build_proposal()
-        self.assertEqual(p['cutoff'],'1405/06/08')
-        self.assertEqual(p['plan_date'],'1405/06/09')
+        self.assertEqual(p['cutoff'],'1405/06/15')
+        self.assertEqual(p['plan_date'],'1405/06/16')
         self.assertIn('S3',{r['code'] for r in p['review']})
         self.assertIn('DG1',{r['code'] for r in p['review']})
-        self.assertNotIn('231',{i['machine_code'] for i in p['items']})
+        self.assertIn('EX231',{i['machine_code'] for i in p['items']})
+        codes={r['code'] for r in p['machines']}
+        self.assertTrue({'EX601','WA601','D151','D152'}.issubset(codes))
+        self.assertEqual(len(codes),len(p['machines']))

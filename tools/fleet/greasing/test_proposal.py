@@ -5,7 +5,7 @@ from unittest.mock import patch
 from openpyxl import Workbook
 from openpyxl.styles import PatternFill
 from .source import read_source, date_columns, color_kind, SOURCE, completed_cutoff
-from .proposal import evaluate, build_proposal, resolve_items, rule_for
+from .proposal import evaluate, build_proposal, resolve_items, rule_for, catalog
 
 
 def entry(day, hours, color='NONE', month=6, shift=0):
@@ -74,6 +74,17 @@ class RuleTests(unittest.TestCase):
         self.assertEqual([i['machine_code'] for i in resolve_items(['151','152'],source)],['151','152'])
         with self.assertRaises(ValueError): resolve_items(['D155'],source)
 
+    def test_generator_and_ex1251_are_fully_outside_greasing(self):
+        excluded=[]
+        for row,code,name in ((4,'EX1251','بیل مکانیکی آوردن موتور'),(5,'','ژنراتور')):
+            excluded.append({'row':row,'code':code,'legacy_code':'','name':name,'duplicate':False,
+                             'entries':[entry(1,None,'ORANGE'),entry(2,20,'SUSPECT')]})
+        source={'machines':excluded,'cutoff':(6,2,1),'as_of':(6,2,1),'warnings':[],
+                'sha256':'test','excluded_count':0}
+        self.assertEqual(catalog(source),[])
+        with self.assertRaises(ValueError):
+            resolve_items(['EX1251'],source)
+
 
 class ReaderTests(unittest.TestCase):
     def workbook(self):
@@ -111,7 +122,8 @@ class ReaderTests(unittest.TestCase):
         self.assertFalse({'S1','S2','HD715','HD468'} & codes)
         truck=next(i for i in p['evaluations'] if i['machine_code']=='HD715')['components']['greasing']
         self.assertEqual((truck['value'],truck['remaining']),(49,11))
-        self.assertTrue(any(i['code']=='EX801' and 'مشخص نیست' in i['reason'] for i in p['review']))
+        self.assertTrue(any(i.startswith('EX801: 9 از 10 ساعت') for i in p['warnings']))
+        self.assertFalse(any(i['code']=='EX1251' or 'ژنراتور' in i['code'] for i in p['review']))
         self.assertEqual({i['code'] for i in p['review'] if 'رنگ مشکوک' in i['reason']},{'HD712','HD714'})
         self.assertEqual(next(i for i in p['evaluations'] if i['machine_code']=='EX231')['components']['greasing']['last_service'],'1405/05/18 - روز')
 

@@ -41,8 +41,8 @@ def run(backtest=False):
                 if d['date'] != target:
                     continue
                 recorded |= any(clean(d[k]) for k in ('hours','inner','outer'))
-                inner=clean(d['inner']) in MARKS
-                outer=inner or clean(d['outer']) in MARKS
+                inner=any(clean(value) in MARKS for value in d.get('inner_values',[d['inner']]))
+                outer=inner or any(clean(value) in MARKS for value in d.get('outer_values',[d['outer']]))
                 if rule.get('together') and outer:
                     inner=True
                 if inner and 'calendar' not in rule:

@@ -117,11 +117,12 @@ async def verify(root: Path) -> None:
     await asyncio.gather(*list(handler_module._handler.tasks))
     await asyncio.sleep(0)
     session = next(iter(handler_module._handler.pending.values()))
-    assert session.proposal['plan_date'] == '1405/06/09'
-    assert len(session.proposal['items']) == 6
+    assert session.proposal['plan_date'] == '1405/06/16'
+    assert len(session.proposal['items']) == 10
+    assert any(i['machine_code'] == 'EX231' for i in session.proposal['items'])
     await event('حذف')
     await event('۱ ۳')
-    assert len(session.proposal['items']) == 4
+    assert len(session.proposal['items']) == 8
     await event('اضافه')
     await event('714')
     await asyncio.gather(*list(handler_module._handler.tasks))
@@ -136,12 +137,12 @@ async def verify(root: Path) -> None:
     assert len(documents) == 1 and documents[0][0] == "455740857"
     assert documents[0][1].startswith(b"PK")
     handler_module._handler.pending.clear()
-    assert (await event("ثبت تأیید AF-1405-06-09-001"))["reason"] == "work-order-review"
+    assert (await event("ثبت تأیید AF-1405-06-16-001"))["reason"] == "work-order-review"
     await asyncio.gather(*list(handler_module._handler.tasks))
     await asyncio.sleep(0)
     assert "تایید بررسی فایل" in replies[-1][1]
     handler_module._handler.pending.clear()
-    assert (await event("ویرایش AF-1405-06-09-001"))["reason"] == "work-order-review"
+    assert (await event("ویرایش AF-1405-06-16-001"))["reason"] == "work-order-review"
     await asyncio.gather(*list(handler_module._handler.tasks))
     await asyncio.sleep(0)
     assert "پیشنهاد حکم هواکش" in replies[-1][1]
@@ -156,17 +157,17 @@ async def verify(root: Path) -> None:
     await event("صبح ظهر")
     await asyncio.gather(*list(handler_module._handler.tasks))
     await asyncio.sleep(0)
-    assert "AF-1405-06-09-002" in replies[-1][1]
+    assert "AF-1405-06-16-002" in replies[-1][1]
     assert "ویرایش" in replies[-1][1]
     assert len(documents) == 2
     assert len(list((root / "orders").rglob("*.xlsx"))) == 2
     from openpyxl import load_workbook
     wb = load_workbook(next((root / "orders").rglob("*002.xlsx")), read_only=True)
     assert wb.active["A1"].value == "لیست هواکش شیفت صبح-ظهر"
-    assert wb.active['F1'].value == '1405/06/09'
+    assert wb.active['F1'].value == '1405/06/16'
     assert any(row[3] == 'تعویض هواکش داخلی و بیرونی' for row in wb.active.iter_rows(min_row=3,values_only=True))
     wb.close()
-    denied = await isolated_worker({"action": "edit", "bale_id": "1006", "work_order_no": "AF-1405-06-09-001"})
+    denied = await isolated_worker({"action": "edit", "bale_id": "1006", "work_order_no": "AF-1405-06-16-001"})
     assert not denied["ok"]
     await event('تایید')
     await asyncio.gather(*list(handler_module._handler.tasks))
@@ -192,7 +193,7 @@ async def verify(root: Path) -> None:
     await asyncio.gather(*list(staff_flow.tasks))
     assert len([t for c,t in replies if c == '455740857' and 'دریافت حکم' in t]) == notices
     con = sqlite3.connect(root / 'permissions.db')
-    row = con.execute("SELECT status,assigned_staff_id,approved_at,sent_at,acknowledged_at FROM service_work_orders WHERE work_order_no='AF-1405-06-09-002'").fetchone()
+    row = con.execute("SELECT status,assigned_staff_id,approved_at,sent_at,acknowledged_at FROM service_work_orders WHERE work_order_no='AF-1405-06-16-002'").fetchone()
     con.close()
     assert row[0] == 'SENT' and all(row[1:])
     await event('حکم کار')
@@ -200,7 +201,7 @@ async def verify(root: Path) -> None:
     await asyncio.gather(*list(handler_module._handler.tasks))
     session = next(iter(handler_module._handler.pending.values()))
     assert session.stage == 'PROPOSAL'
-    assert session.proposal['cutoff'] == '1405/06/15 - روز'
+    assert session.proposal['cutoff'] == '1405/06/15 - شب'
     assert session.proposal['plan_date'] == '1405/06/16'
     assert 's1' in [i['machine_code'] for i in session.proposal['items']]
     assert 'S1' not in [i['machine_code'] for i in session.proposal['items']]

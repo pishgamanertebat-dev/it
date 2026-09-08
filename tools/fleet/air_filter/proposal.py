@@ -15,17 +15,44 @@ MARKS = {'صبح', 'ظهر', 'عصر', 'شب', '*'}
 from tools.fleet.air_filter.rules import OUTER, BOTH, ACTIONS, rule_for
 
 
+def _sheet_name(workbook):
+    preferred = 'Sheet1 (2)'
+    if preferred in workbook.sheetnames:
+        return preferred
+    candidates = []
+    for sheet in workbook:
+        first = tuple(clean(sheet.cell(1, col).value) for col in range(1, 4))
+        fields = tuple(clean(sheet.cell(2, col).value) for col in range(4, 7))
+        if first == ('ردیف', 'نام دستگاه', 'کد دستگاه') and fields == ('کارکرد', 'درونی', 'بیرونی'):
+            candidates.append(sheet.title)
+    if len(candidates) != 1:
+        raise ValueError('شیت عملیاتی هواکش به‌صورت یکتا قابل تشخیص نیست.')
+    return candidates[0]
+
+
+def _source_code(name, value):
+    code = clean_code(value)
+    if code.isdecimal() and name == 'بیل مکانیکی':
+        return 'EX' + code
+    if code.isdecimal() and name == 'لودر':
+        return ('WA' if code == '601' else 'W') + code
+    if code.isdecimal() and name == 'بلدوزر':
+        return 'D' + code
+    return code
+
+
 def read_source(path=SOURCE, target=None):
     payload = Path(path).read_bytes()
     cached = load_workbook(BytesIO(payload), data_only=True, read_only=True)
     formulas = load_workbook(BytesIO(payload), data_only=False, read_only=True)
     try:
-        rows = list(cached['Sheet1 (2)'].iter_rows(values_only=True))
-        raw = list(formulas['Sheet1 (2)'].iter_rows(values_only=True))
+        sheet_name = _sheet_name(cached)
+        rows = list(cached[sheet_name].iter_rows(values_only=True))
+        raw = list(formulas[sheet_name].iter_rows(values_only=True))
     finally:
         cached.close()
         formulas.close()
-    machines = [(i, clean(r[1]), clean_code(r[2])) for i,r in enumerate(rows[2:],2) if r[1] or r[2]]
+    machines = [(i, clean(r[1]), _source_code(clean(r[1]), r[2])) for i,r in enumerate(rows[2:],2) if r[1] or r[2]]
     blocks = []
     issues = []
     col = 3
@@ -34,39 +61,50 @@ def read_source(path=SOURCE, target=None):
         if md is None and clean(rows[1][col]) == 'کارکرد':
             raise ValueError(f'تاریخ ستون {col+1} قابل تشخیص نیست؛ ساختار اکسل بررسی شود.')
         if md and (target is None or md < target):
-            if tuple(clean(v) for v in rows[1][col:col+3]) != ('کارکرد','درونی','بیرونی'):
+            fields = tuple(clean(v) for v in rows[1][col:col+5])
+            if fields[:3] != ('کارکرد','درونی','بیرونی'):
                 issues.append({'code':'FILE','reason':f'ساختار تاریخ {fmt_date(md)} نامعتبر است.'})
                 col += 1
                 continue
-            blocks.append((md,col))
-            col += 3
+            width = 5 if fields == ('کارکرد','درونی','بیرونی','درونی','بیرونی') and all(
+                parse_header_date(rows[0][col+offset]) == md for offset in range(5)
+            ) else 3
+            blocks.append((md,col,width))
+            col += width
         else:
             col += 1
-    counts = Counter(md for md,c in blocks)
+    counts = Counter(md for md,c,width in blocks)
     if any(n > 1 for n in counts.values()):
         raise ValueError('تاریخ تکراری در اکسل؛ پیش از محاسبه ساختار فایل بررسی شود.')
     if issues:
         raise ValueError(' / '.join(i['reason'] for i in issues))
-    populated = [(md,c) for md,c in blocks if any(any(clean(v) for v in rows[i][c:c+3]) for i,n,k in machines if k != '231')]
+    populated = [(md,c) for md,c,width in blocks if any(
+        any(clean(v) for v in rows[i][c:c+width]) for i,n,k in machines
+    )]
     if not populated:
         raise ValueError('هیچ دادهٔ عملیاتی پیش از روز هدف وجود ندارد.')
     cutoff = max(md for md,c in populated)
     plan = target or next_jalali_day(*cutoff)
     if plan[0] > 12:
         raise ValueError('روز هدف خارج از سال عملیاتی ۱۴۰۵ است.')
-    blocks = sorted((md,c) for md,c in blocks if md <= cutoff)
+    blocks = sorted((md,c,width) for md,c,width in blocks if md <= cutoff)
     if jalali_ordinal(*plan) - jalali_ordinal(*cutoff) > 1:
         issues.append({'code':'FILE','reason':f'داده تا {fmt_date(cutoff)} است و با روز هدف فاصله دارد.'})
     result = []
     code_counts = Counter(k for i,n,k in machines)
     for i,name,code in machines:
         daily = []
-        for md,c in blocks:
-            values = list(rows[i][c:c+3])
-            for offset in range(3):
+        for md,c,width in blocks:
+            values = list(rows[i][c:c+width])
+            for offset in range(width):
                 if values[offset] is None and isinstance(raw[i][c+offset],str) and raw[i][c+offset].startswith('='):
                     values[offset] = 'فرمول بدون مقدار محاسبه‌شده'
-            daily.append({'date':md,'hours':values[0],'inner':values[1],'outer':values[2]})
+            inner_values = [values[1]] + ([values[3]] if width == 5 else [])
+            outer_values = [values[2]] + ([values[4]] if width == 5 else [])
+            daily.append({'date':md,'hours':values[0],
+                          'inner':next((v for v in inner_values if clean(v)),None),
+                          'outer':next((v for v in outer_values if clean(v)),None),
+                          'inner_values':inner_values,'outer_values':outer_values})
         result.append({'code':code,'name':name,'daily':daily,'duplicate':code_counts[code] > 1})
     return result, cutoff, plan, issues, hashlib.sha256(payload).hexdigest()
 
@@ -92,18 +130,20 @@ def evaluate_machine(machine, cutoff, plan):
         md = d['date']
         if md > cutoff or md >= plan:
             continue
-        marks = {k:clean(d[k]) for k in events}
-        inner,outer = marks['inner'] in MARKS,marks['outer'] in MARKS
+        mark_values = {k:d.get(k + '_values',[d[k]]) for k in events}
+        marks = {k:[clean(value) for value in values] for k,values in mark_values.items()}
+        inner,outer = any(text in MARKS for text in marks['inner']),any(text in MARKS for text in marks['outer'])
         if rule.get('together') and (inner or outer):
             inner = outer = True
         if inner:
             events['inner'] = events['outer'] = md
         elif outer:
             events['outer'] = md
-        for k,text in marks.items():
-            if text and text not in MARKS:
-                unknown[k].append(md)
-                result['issues'].append(f"{fmt_date(md)} {'داخلی' if k == 'inner' else 'بیرونی'}: {text!r} علامت سرویس معتبر نیست")
+        for k,texts in marks.items():
+            for text in texts:
+                if text and text not in MARKS:
+                    unknown[k].append(md)
+                    result['issues'].append(f"{fmt_date(md)} {'داخلی' if k == 'inner' else 'بیرونی'}: {text!r} علامت سرویس معتبر نیست")
         wh = d['hours']
         numeric = not isinstance(wh,bool) and isinstance(wh,(int,float)) and math.isfinite(wh) and wh >= 0
         if numeric:
