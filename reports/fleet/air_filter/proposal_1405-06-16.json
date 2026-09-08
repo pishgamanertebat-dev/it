@@ -94,102 +94,6 @@
           "unit": "ساعت"
         }
       }
-    },
-    {
-      "machine_code": "MZ1",
-      "machine_name": "مزدا",
-      "action_code": "AIR_FILTER_OUTER",
-      "action_text": "تعویض هواکش بیرونی",
-      "evidence": "بیرونی: 8/2 روز؛ آخرین انجام 1405/06/08",
-      "components": {
-        "outer": {
-          "last_service": "1405/06/08",
-          "state": "DUE",
-          "value": 8,
-          "threshold": 2,
-          "unit": "روز"
-        }
-      }
-    },
-    {
-      "machine_code": "MZ3",
-      "machine_name": "مزدا",
-      "action_code": "AIR_FILTER_OUTER",
-      "action_text": "تعویض هواکش بیرونی",
-      "evidence": "بیرونی: 2/2 روز؛ آخرین انجام 1405/06/14",
-      "components": {
-        "outer": {
-          "last_service": "1405/06/14",
-          "state": "DUE",
-          "value": 2,
-          "threshold": 2,
-          "unit": "روز"
-        }
-      }
-    },
-    {
-      "machine_code": "MZ4",
-      "machine_name": "مزدا",
-      "action_code": "AIR_FILTER_OUTER",
-      "action_text": "تعویض هواکش بیرونی",
-      "evidence": "بیرونی: 2/2 روز؛ آخرین انجام 1405/06/14",
-      "components": {
-        "outer": {
-          "last_service": "1405/06/14",
-          "state": "DUE",
-          "value": 2,
-          "threshold": 2,
-          "unit": "روز"
-        }
-      }
-    },
-    {
-      "machine_code": "MZ8",
-      "machine_name": "مزدا",
-      "action_code": "AIR_FILTER_OUTER",
-      "action_text": "تعویض هواکش بیرونی",
-      "evidence": "بیرونی: 2/2 روز؛ آخرین انجام 1405/06/14",
-      "components": {
-        "outer": {
-          "last_service": "1405/06/14",
-          "state": "DUE",
-          "value": 2,
-          "threshold": 2,
-          "unit": "روز"
-        }
-      }
-    },
-    {
-      "machine_code": "MZ9",
-      "machine_name": "مزدا",
-      "action_code": "AIR_FILTER_OUTER",
-      "action_text": "تعویض هواکش بیرونی",
-      "evidence": "بیرونی: 2/2 روز؛ آخرین انجام 1405/06/14",
-      "components": {
-        "outer": {
-          "last_service": "1405/06/14",
-          "state": "DUE",
-          "value": 2,
-          "threshold": 2,
-          "unit": "روز"
-        }
-      }
-    },
-    {
-      "machine_code": "PR2",
-      "machine_name": "پیکاپ ریچ",
-      "action_code": "AIR_FILTER_OUTER",
-      "action_text": "تعویض هواکش بیرونی",
-      "evidence": "بیرونی: 8/2 روز؛ آخرین انجام 1405/06/08",
-      "components": {
-        "outer": {
-          "last_service": "1405/06/08",
-          "state": "DUE",
-          "value": 8,
-          "threshold": 2,
-          "unit": "روز"
-        }
-      }
     }
   ],
   "warnings": [
@@ -198,32 +102,7 @@
     "701 داخلی: 92 از 100 ساعت",
     "464 داخلی: 96 از 100 ساعت"
   ],
-  "review": [
-    {
-      "code": "W471",
-      "reason": "داخلی: مبنای آخرین سرویس مشخص نیست"
-    },
-    {
-      "code": "W471",
-      "reason": "بیرونی: مبنای آخرین سرویس مشخص نیست"
-    },
-    {
-      "code": "462",
-      "reason": "داخلی: مبنای آخرین سرویس مشخص نیست"
-    },
-    {
-      "code": "S3",
-      "reason": "داخلی: مبنای آخرین سرویس مشخص نیست"
-    },
-    {
-      "code": "S3",
-      "reason": "بیرونی: مبنای آخرین سرویس مشخص نیست"
-    },
-    {
-      "code": "DG1",
-      "reason": "1405/05/09 بیرونی: 'ژنراتور' علامت سرویس معتبر نیست"
-    }
-  ],
+  "review": [],
   "machines": [
     {
       "code": "EX801",
@@ -531,27 +410,6 @@
         }
       },
       "issues": [],
-      "action_code": null
-    },
-    {
-      "code": "W471",
-      "name": "لودر",
-      "components": {
-        "inner": {
-          "last_service": "-",
-          "state": "NEEDS_REVIEW",
-          "value": null
-        },
-        "outer": {
-          "last_service": "-",
-          "state": "NEEDS_REVIEW",
-          "value": null
-        }
-      },
-      "issues": [
-        "داخلی: مبنای آخرین سرویس مشخص نیست",
-        "بیرونی: مبنای آخرین سرویس مشخص نیست"
-      ],
       "action_code": null
     },
     {
@@ -1039,28 +897,6 @@
       "action_code": null
     },
     {
-      "code": "462",
-      "name": "دامپتراک",
-      "components": {
-        "inner": {
-          "last_service": "-",
-          "state": "NEEDS_REVIEW",
-          "value": null
-        },
-        "outer": {
-          "last_service": "1405/05/06",
-          "state": "OK",
-          "value": 2.0,
-          "threshold": 20,
-          "unit": "ساعت"
-        }
-      },
-      "issues": [
-        "داخلی: مبنای آخرین سرویس مشخص نیست"
-      ],
-      "action_code": null
-    },
-    {
       "code": "463",
       "name": "دامپتراک",
       "components": {
@@ -1237,27 +1073,6 @@
       "action_code": null
     },
     {
-      "code": "S3",
-      "name": "کامیون سهند زرد",
-      "components": {
-        "inner": {
-          "last_service": "-",
-          "state": "NEEDS_REVIEW",
-          "value": null
-        },
-        "outer": {
-          "last_service": "-",
-          "state": "NEEDS_REVIEW",
-          "value": null
-        }
-      },
-      "issues": [
-        "داخلی: مبنای آخرین سرویس مشخص نیست",
-        "بیرونی: مبنای آخرین سرویس مشخص نیست"
-      ],
-      "action_code": null
-    },
-    {
       "code": "TA1",
       "name": "کامیون آب پاش",
       "components": {
@@ -1304,191 +1119,10 @@
     {
       "code": "DG1",
       "name": "ژنراتور",
-      "components": {
-        "inner": {
-          "last_service": "1405/05/27",
-          "state": "OK",
-          "value": 40.0,
-          "threshold": 50,
-          "unit": "ساعت"
-        },
-        "outer": {
-          "last_service": "1405/06/12",
-          "state": "OK",
-          "value": 0,
-          "threshold": 10,
-          "unit": "ساعت"
-        }
-      },
-      "issues": [
-        "1405/05/09 بیرونی: 'ژنراتور' علامت سرویس معتبر نیست"
-      ],
-      "action_code": null
-    },
-    {
-      "code": "MZ1",
-      "name": "مزدا",
-      "components": {
-        "outer": {
-          "last_service": "1405/06/08",
-          "state": "DUE",
-          "value": 8,
-          "threshold": 2,
-          "unit": "روز"
-        }
-      },
+      "components": {},
       "issues": [],
-      "action_code": "AIR_FILTER_OUTER"
-    },
-    {
-      "code": "MZ3",
-      "name": "مزدا",
-      "components": {
-        "outer": {
-          "last_service": "1405/06/14",
-          "state": "DUE",
-          "value": 2,
-          "threshold": 2,
-          "unit": "روز"
-        }
-      },
-      "issues": [],
-      "action_code": "AIR_FILTER_OUTER"
-    },
-    {
-      "code": "MZ4",
-      "name": "مزدا",
-      "components": {
-        "outer": {
-          "last_service": "1405/06/14",
-          "state": "DUE",
-          "value": 2,
-          "threshold": 2,
-          "unit": "روز"
-        }
-      },
-      "issues": [],
-      "action_code": "AIR_FILTER_OUTER"
-    },
-    {
-      "code": "MZ5",
-      "name": "مزدا",
-      "components": {
-        "outer": {
-          "last_service": "1405/06/15",
-          "state": "OK",
-          "value": 1,
-          "threshold": 2,
-          "unit": "روز"
-        }
-      },
-      "issues": [],
-      "action_code": null
-    },
-    {
-      "code": "MZ6",
-      "name": "مزدا",
-      "components": {
-        "outer": {
-          "last_service": "1405/06/15",
-          "state": "OK",
-          "value": 1,
-          "threshold": 2,
-          "unit": "روز"
-        }
-      },
-      "issues": [],
-      "action_code": null
-    },
-    {
-      "code": "MZ7",
-      "name": "مزدا",
-      "components": {
-        "outer": {
-          "last_service": "1405/06/15",
-          "state": "OK",
-          "value": 1,
-          "threshold": 2,
-          "unit": "روز"
-        }
-      },
-      "issues": [],
-      "action_code": null
-    },
-    {
-      "code": "MZ8",
-      "name": "مزدا",
-      "components": {
-        "outer": {
-          "last_service": "1405/06/14",
-          "state": "DUE",
-          "value": 2,
-          "threshold": 2,
-          "unit": "روز"
-        }
-      },
-      "issues": [],
-      "action_code": "AIR_FILTER_OUTER"
-    },
-    {
-      "code": "MZ9",
-      "name": "مزدا",
-      "components": {
-        "outer": {
-          "last_service": "1405/06/14",
-          "state": "DUE",
-          "value": 2,
-          "threshold": 2,
-          "unit": "روز"
-        }
-      },
-      "issues": [],
-      "action_code": "AIR_FILTER_OUTER"
-    },
-    {
-      "code": "MZ10",
-      "name": "مزدا",
-      "components": {
-        "outer": {
-          "last_service": "1405/06/15",
-          "state": "OK",
-          "value": 1,
-          "threshold": 2,
-          "unit": "روز"
-        }
-      },
-      "issues": [],
-      "action_code": null
-    },
-    {
-      "code": "PR2",
-      "name": "پیکاپ ریچ",
-      "components": {
-        "outer": {
-          "last_service": "1405/06/08",
-          "state": "DUE",
-          "value": 8,
-          "threshold": 2,
-          "unit": "روز"
-        }
-      },
-      "issues": [],
-      "action_code": "AIR_FILTER_OUTER"
-    },
-    {
-      "code": "PR3",
-      "name": "پیکاپ ریچ",
-      "components": {
-        "outer": {
-          "last_service": "1405/06/15",
-          "state": "OK",
-          "value": 1,
-          "threshold": 2,
-          "unit": "روز"
-        }
-      },
-      "issues": [],
-      "action_code": null
+      "action_code": null,
+      "excluded": true
     }
   ]
 }

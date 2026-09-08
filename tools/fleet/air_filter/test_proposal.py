@@ -15,7 +15,7 @@ class ProposalTests(unittest.TestCase):
         return evaluate_machine(dict(code=code,name=name,daily=daily),cutoff,plan)
 
     def test_all_hour_thresholds_and_alert_boundaries(self):
-        for name,code,outer,oa,inner,ia in [('دامپتراک','710',20,17,100,90),('کامیون سهند زرد','S1',10,7,50,45),('کامیون آب پاش','TA1',10,7,50,45),('ژنراتور','DG1',10,7,50,45),('خاور','TR1',10,7,10,7)]:
+        for name,code,outer,oa,inner,ia in [('دامپتراک','710',20,17,100,90),('کامیون سهند زرد','S1',10,7,50,45),('کامیون آب پاش','TA1',10,7,50,45),('خاور','TR1',10,7,10,7)]:
             for field,due,alert in [('outer',outer,oa),('inner',inner,ia)]:
                 for hours,state in [(alert-1,'OK'),(alert,'NEAR_DUE'),(due-1,'NEAR_DUE'),(due,'DUE')]:
                     with self.subTest(name=name,field=field,hours=hours):
@@ -43,7 +43,7 @@ class ProposalTests(unittest.TestCase):
             self.assertIsNone(r['action_code'])
 
     def test_unknown_service_and_invalid_hours_are_not_events_or_zero(self):
-        r=self.evaluate('ژنراتور',[day((5,8),inner='صبح'),day((5,9),4,outer='ژنراتور'),day((6,8),20)],'DG1')
+        r=self.evaluate('دامپتراک',[day((5,8),inner='صبح'),day((5,9),4,outer='نامشخص'),day((6,8),20)])
         self.assertEqual(r['components']['outer']['last_service'],'1405/05/08')
         self.assertEqual(r['components']['outer']['state'],'NEEDS_REVIEW')
         self.assertTrue(r['issues'])
@@ -103,9 +103,23 @@ class ProposalTests(unittest.TestCase):
         p=build_proposal()
         self.assertEqual(p['cutoff'],'1405/06/15')
         self.assertEqual(p['plan_date'],'1405/06/16')
-        self.assertIn('S3',{r['code'] for r in p['review']})
-        self.assertIn('DG1',{r['code'] for r in p['review']})
+        self.assertFalse({'S3','DG1','W471','462'} & {r['code'] for r in p['review']})
         self.assertIn('EX231',{i['machine_code'] for i in p['items']})
         codes={r['code'] for r in p['machines']}
         self.assertTrue({'EX601','WA601','D151','D152'}.issubset(codes))
         self.assertEqual(len(codes),len(p['machines']))
+
+    def test_month_activity_ignores_old_work_and_future_work(self):
+        from tools.fleet.air_filter.proposal import has_month_activity
+        daily=[day((5,31),100,inner='صبح'),day((6,1),None),day((6,2),0),day((6,3),'-'),day((6,9),10)]
+        self.assertFalse(has_month_activity(daily,(6,8)))
+        self.assertTrue(has_month_activity(daily+[day((6,4),1)],(6,8)))
+        self.assertTrue(has_month_activity(daily+[day((6,4),'نامشخص')],(6,8)))
+
+    def test_generator_is_excluded_even_with_work(self):
+        from tools.fleet.work_orders.types.air_filter.builder import get_items
+        result=self.evaluate('ژنراتور',[day((6,1),inner='صبح'),day((6,8),100)],'DG1')
+        self.assertTrue(result['excluded'])
+        self.assertEqual(result['issues'],[])
+        with self.assertRaises(ValueError):
+            get_items(['DG1'])

@@ -41,6 +41,20 @@ def _source_code(name, value):
     return code
 
 
+def has_month_activity(daily, cutoff):
+    for entry in daily:
+        if entry['date'][0] != cutoff[0] or entry['date'] > cutoff:
+            continue
+        value = entry['hours']
+        if clean(value) in {'', '-'}:
+            continue
+        if not isinstance(value, bool) and isinstance(value, (int, float)) and value == 0:
+            continue
+        # Invalid recorded hours still require review; they are not inactivity.
+        return True
+    return False
+
+
 def read_source(path=SOURCE, target=None):
     payload = Path(path).read_bytes()
     cached = load_workbook(BytesIO(payload), data_only=True, read_only=True)
@@ -105,7 +119,8 @@ def read_source(path=SOURCE, target=None):
                           'inner':next((v for v in inner_values if clean(v)),None),
                           'outer':next((v for v in outer_values if clean(v)),None),
                           'inner_values':inner_values,'outer_values':outer_values})
-        result.append({'code':code,'name':name,'daily':daily,'duplicate':code_counts[code] > 1})
+        if has_month_activity(daily, cutoff):
+            result.append({'code':code,'name':name,'daily':daily,'duplicate':code_counts[code] > 1})
     return result, cutoff, plan, issues, hashlib.sha256(payload).hexdigest()
 
 

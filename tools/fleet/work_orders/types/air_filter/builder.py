@@ -85,7 +85,7 @@ def machine_name_from_code(
         return "خاور"
 
     if c == "DG1":
-        return "ژنراتور"
+        raise ValueError('ژنراتور در برنامهٔ هواکش قرار ندارد.')
 
     if c in {"PR2", "PR3"}:
         return "پیکاپ ریچ"
@@ -162,6 +162,8 @@ def get_items(
         for item in items:
             rule = rule_for(item['machine_code'], item['machine_name'])
             action = actions[item['machine_code']]
+            if rule is None:
+                raise ValueError('این دستگاه در برنامهٔ هواکش قرار ندارد.')
             if action not in ACTIONS or ('calendar' in rule and action != OUTER) or (rule.get('together') and action != BOTH):
                 raise ValueError('نوع تعویض برای دستگاه ' + item['machine_code'] + ' معتبر نیست.')
             item.update(action_code=action, action_text=ACTIONS[action])
