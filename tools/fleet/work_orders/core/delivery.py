@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from tools.fleet.work_orders.core.db import connect_db
+from tools.fleet.work_orders.core.pdf_document import export_staff_pdf
 
 
 def send_work_order(
@@ -87,6 +88,8 @@ def send_work_order(
             )
 
 
+        file_path = export_staff_pdf(file_path)
+
         result = sender.send_document(
             chat_id=order["bale_id"],
             file_path=str(file_path),
@@ -99,6 +102,7 @@ def send_work_order(
             UPDATE service_work_orders
             SET
                 status='SENT',
+                pdf_path=?,
                 send_attempts =
                     send_attempts + 1,
                 sent_at=CURRENT_TIMESTAMP,
@@ -107,6 +111,7 @@ def send_work_order(
             WHERE id=?
             """,
             (
+                str(file_path),
                 order["id"],
             )
         )
