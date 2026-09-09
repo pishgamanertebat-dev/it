@@ -1,78 +1,44 @@
 @echo off
 setlocal
-
 set "HERMES_ROOT=C:\Users\win-10\AppData\Local\hermes\hermes-agent"
 set "HERMES_HOME=C:\Users\win-10\AppData\Local\hermes"
-
-set "PY=%HERMES_ROOT%\venv\Scripts\python.exe"
+set "PY=%~dp0.venv\Scripts\python.exe"
 set "HERMES=%HERMES_ROOT%\venv\Scripts\hermes.exe"
-
+set "SCRIPT=%~dp0tools\reset_user_sessions.py"
+set "PYTHONDONTWRITEBYTECODE=1"
+set "PLATFORM=bale"
+if not "%~1"=="" set "PLATFORM=%~1"
 echo.
-echo ==========================================
-echo       KOMATSO AI - RESET ALL USERS
-echo ==========================================
+echo KOMATSO AI - Fresh sessions for %PLATFORM%
+"%PY%" "%SCRIPT%" --platform "%PLATFORM%"
+if errorlevel 1 goto failed
 echo.
-echo This will start a fresh Telegram session
-echo for every currently routed user.
-echo.
-choice /C YN /M "Continue"
-
-if errorlevel 2 (
-    echo.
-    echo Cancelled.
-    pause
-    exit /b 0
-)
-
-echo.
-echo [1/4] Stopping Hermes Gateway...
+echo Conversation context will start fresh on the next message.
+echo Stored history and user registration will be retained.
+echo Gateway will stop briefly. Run this between active conversations.
+choice /C YN /M "Apply this reset"
+if errorlevel 2 exit /b 0
 "%HERMES%" gateway stop
-
-timeout /t 2 /nobreak >nul
-
-echo.
-echo [2/4] Creating backup...
-
-if exist "%HERMES_HOME%\state.db" (
-    copy /Y "%HERMES_HOME%\state.db" "%HERMES_HOME%\state.before_bulk_reset.db" >nul
-)
-
-if exist "%HERMES_HOME%\sessions\sessions.json" (
-    copy /Y "%HERMES_HOME%\sessions\sessions.json" "%HERMES_HOME%\sessions\sessions.before_bulk_reset.json" >nul
-)
-
-echo.
-echo [3/4] Resetting Telegram sessions...
-
-cd /d "%HERMES_ROOT%"
-
-"%PY%" -c "from pathlib import Path; from hermes_constants import get_hermes_home; from gateway.session import SessionStore; from gateway.config import GatewayConfig; h=Path(get_hermes_home()); s=SessionStore(h/'sessions',GatewayConfig()); es=s.list_sessions(); t=[e for e in es if str(getattr(getattr(e,'platform',None),'value',getattr(e,'platform',None))).lower()=='telegram']; print('Telegram routes found:',len(t)); [(lambda r,e=e: print('RESET:',e.session_key,'->',r.session_id if r else 'FAILED'))(s.reset_session(e.session_key,getattr(e,'display_name',None))) for e in t]; print('Done.')"
-
-set "RESET_RESULT=%ERRORLEVEL%"
-
-echo.
-echo [4/4] Starting Hermes Gateway...
+if errorlevel 1 goto failed
+"%PY%" "%SCRIPT%" --platform "%PLATFORM%" --apply
+if errorlevel 1 goto reset_failed
 "%HERMES%" gateway start
-
-echo.
-
-if not "%RESET_RESULT%"=="0" (
-    echo ==========================================
-    echo RESET FAILED
-    echo Gateway was started again.
-    echo Backups were preserved.
-    echo ==========================================
-    pause
-    exit /b 1
-)
-
-echo ==========================================
-echo SUCCESS
-echo Telegram sessions were reset.
-echo ==========================================
-echo.
-echo Users without an existing route will also
-echo receive a fresh session on their next message.
-echo.
-
+if errorlevel 1 goto start_failed
+echo Reset completed; gateway start command succeeded.
 pause
+exit /b 0
+:reset_failed
+echo RESET FAILED. Gateway is left stopped for inspection.
+echo Inspect the error and %HERMES_HOME%\backups\session-reset before retrying.
+echo To start manually: "%HERMES%" gateway start
+pause
+exit /b 1
+:start_failed
+echo Sessions were reset, but gateway startup failed. Do not repeat the reset.
+echo To retry startup: "%HERMES%" gateway start
+pause
+exit /b 1
+:failed
+echo Operation failed. No reset was applied by this launcher.
+pause
+exit /b 1

@@ -1,0 +1,85 @@
+Resetting Bale / Telegram conversations
+======================================
+
+Usage (from E:\KomatsoAI):
+
+  RESET_ALL_USERS.bat            Bale only (default)
+  RESET_ALL_USERS.bat telegram   Telegram only
+  RESET_ALL_USERS.bat both       Both platforms
+
+Read-only preview, without stopping the gateway:
+
+  .venv\Scripts\python.exe tools\reset_user_sessions.py
+  .venv\Scripts\python.exe tools\reset_user_sessions.py --platform both
+
+The launcher previews route counts, asks before applying, stops the gateway,
+applies the reset and starts it again. Run between active conversations. Users
+get a fresh conversation on their next message; they do not have to send /new.
+No announcement or other message is sent by this tool.
+
+Use this when publishing changes that require fresh session context. It is
+not an automatic update/deployment system. Restarting the gateway alone keeps
+the persisted session and may keep the old conversation/system prompt.
+Resetting also clears conversation metadata and session model overrides.
+Previous messages remain archived, but are not included in the new conversation.
+Global configuration and persistent memories are not reset. Code/config/plugin
+changes must still be made correctly and loaded by the restarted gateway.
+
+Storage and implementation
+--------------------------
+Both platforms use HERMES_HOME\state.db for session metadata/messages and its
+gateway_routing table for current routing. sessions\sessions.json is a legacy
+mirror; database routes take precedence. Counts are conversation routes, not
+necessarily unique people. Registrations (including data\telegram_users.db),
+fleet databases and transcripts are not deleted or edited by this tool.
+
+The old BAT selected only telegram. The replacement explicitly registers Bale
+metadata before parsing native sessions, without loading its adapter or hooks.
+It holds the native gateway runtime lock while applying the reset. Each apply:
+
+1. Checks SQLite integrity and rejects pending delegation/delivery work.
+2. Creates a unique SQLite backup (including committed WAL data) and JSON copy
+   under HERMES_HOME\backups\session-reset\<timestamp>.
+3. Runs the installed SessionStore.reset_session on an isolated backup copy.
+   Selected routes are seeded explicitly so already-ended sessions also reset
+   instead of being dropped by normal startup recovery/pruning.
+4. Checks new IDs, empty context, origin preservation and schema compatibility.
+5. Publishes only selected session metadata/routes in one SQLite transaction.
+   It never replaces the live database or changes unrelated session rows.
+6. Updates the JSON mirror and writes report.json with old/new session IDs.
+
+This provides the fresh-conversation effect of /new with the gateway stopped.
+It does not replay /new's notification, lifecycle hooks or cleanup of running
+agents. Pending durable work causes refusal; finish it before a maintenance
+reset. The gateway stop clears its process-local agent caches.
+
+Failures and recovery
+---------------------
+The launcher does not restart after an apply failure, to allow inspection.
+If gateway startup alone fails, do not reset again; retry gateway start.
+
+Inspect the printed backup directory and report.json. A SQLite publication
+error rolls back the entire selected batch. A JSON/report write error AFTER
+the commit cannot undo the committed reset. Database routes remain authoritative.
+The report has planned old/new IDs before commit so a crash can be checked by
+comparing those IDs with gateway_routing. Do not blindly rerun after a failure.
+Statuses: prepared; validated_before_commit; database_committed; complete.
+
+Keep backups local: they contain chat history. Do not restore the whole DB
+over newer activity or copy only state.db while a live WAL exists. Recovery
+must be done offline, with the gateway stopped, after checking committed IDs.
+
+Manual gateway start:
+  C:\Users\win-10\AppData\Local\hermes\hermes-agent\venv\Scripts\hermes.exe gateway start
+
+Tests (synthetic databases only):
+  .venv\Scripts\python.exe test\test_reset_user_sessions.py
+
+Tests cover Bale/Telegram isolation, archived messages, fresh next-message
+routing in a new native process, backup contents, stale JSON precedence,
+running-gateway refusal, transactional rollback and post-commit mirror failure.
+The native Hermes API/schema is version-sensitive; rerun tests after upgrading.
+
+Optional rehearsal using a temporary copy of the current database:
+  .venv\Scripts\python.exe test\rehearse_session_reset.py
+The source is opened read-only. This does not stop/restart the real gateway.
