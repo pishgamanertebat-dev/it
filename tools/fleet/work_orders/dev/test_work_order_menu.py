@@ -33,7 +33,7 @@ class WorkOrderMenuTests(PermissionDatabaseTestCase):
     def test_menu_lists_three_types_in_requested_order(self):
         self.assertEqual(
             self.menu().splitlines()[-3:],
-            ["1) هواکش", "2) تعویض روغن (به‌زودی)", "3) گریس‌کاری"],
+            ["1) هواکش", "2) تعویض روغن", "3) گریس‌کاری"],
         )
 
     def test_air_filter_selection_accepts_persian_and_arabic_digits(self):
@@ -43,10 +43,9 @@ class WorkOrderMenuTests(PermissionDatabaseTestCase):
                 self.assertEqual(item["key"], "AIR_FILTER")
                 self.assertTrue(item["enabled"])
 
-    def test_future_types_cannot_be_selected(self):
-        for value in (2,):
-            with self.subTest(value=value), self.assertRaises(WorkOrderTypeDisabled):
-                self.select(value)
+    def test_oil_change_is_operational(self):
+        self.assertEqual(self.select('۲')['key'], 'OIL_CHANGE')
+        self.assertTrue(self.select('۲')['enabled'])
 
     def test_invalid_selections_are_rejected(self):
         for value in (0, -1, 4, "", "text", True, 1.0, "1.0", None, "9" * 5000):
@@ -93,7 +92,7 @@ class WorkOrderMenuTests(PermissionDatabaseTestCase):
 class RegistryCompatibilityTests(unittest.TestCase):
     def test_dictionary_and_core_interfaces_agree(self):
         self.assertEqual(len(registry.list_work_order_specs()), 3)
-        self.assertEqual([item["key"] for item in registry.list_work_order_types()], ["AIR_FILTER", "GREASING"])
+        self.assertEqual([item["key"] for item in registry.list_work_order_types()], ["AIR_FILTER", "OIL_CHANGE", "GREASING"])
         for item in registry.list_work_order_types(enabled_only=False):
             spec = registry.get_work_order_spec(item["key"])
             self.assertEqual(item["enabled"], spec.operational)
@@ -107,7 +106,8 @@ class RegistryCompatibilityTests(unittest.TestCase):
         self.assertTrue(callable(builder.build_document))
 
     def test_core_rejects_future_types_before_import_or_database_access(self):
-        with patch.object(service, "connect_db") as connect, patch.object(service.importlib, "import_module") as load:
+        disabled = replace(registry.get_work_order_spec('OIL_CHANGE'), operational=False)
+        with patch.dict(registry.WORK_ORDER_REGISTRY, OIL_CHANGE=disabled), patch.object(service, "connect_db") as connect, patch.object(service.importlib, "import_module") as load:
             for key in ("OIL_CHANGE",):
                 with self.subTest(key=key):
                     with self.assertRaises(RuntimeError):

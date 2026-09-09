@@ -28,7 +28,7 @@ class GreasingIdentityTests(WorkOrderCreateTests):
                  'machine_codes':['HD714'],'item_actions':{'HD714':'GREASING_FULL'},
                  'jalali_date':'1405/06/16','shift':'روزانه'}
         with patch.object(service,'create_work_order',return_value={
-                'work_order_no':'GR-1405-06-16-001','work_order_label_fa':'گریس‌کاری',
+                'work_order_no':'GR-1405-06-16-001','work_order_label_fa':'گریس‌کاری','work_order_type':'GREASING',
                 'items':[{}],'status':'FILE_READY','excel_path':'GR.xlsx'}) as create:
             self.assertTrue(execute_request(request,db_path=self.db_path)['ok'])
         self.assertEqual(create.call_args.kwargs['shift'],'روزانه')

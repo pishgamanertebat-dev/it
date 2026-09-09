@@ -76,7 +76,7 @@ def handle_staff_receipt(event, gateway, *, send):
     actor = normalize_bale_id(getattr(source, 'user_id', None))
     text = (event.text or '').strip()
     text = text.translate(str.maketrans('۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩','01234567890123456789'))
-    match = re.fullmatch(r'(?:تایید|تأیید)(?: ((?:AF|GR)-1405-\d{2}-\d{2}-\d+))?', text)
+    match = re.fullmatch(r'(?:تایید|تأیید)(?: ((?:AF|GR|OC)-1405-\d{2}-\d{2}-\d+))?', text)
     choice_key = (actor, str(source.chat_id))
     choices = receipt_choices.get(choice_key)
     numeric_choice = text.isdecimal() and choices is not None

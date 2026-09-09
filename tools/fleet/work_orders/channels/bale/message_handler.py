@@ -62,6 +62,7 @@ class FormSession:
     expires: float
     stage: str = "MENU"
     work_order_type: str = ""
+    oil_model: str = ""
     machine_codes: list[str] = field(default_factory=list)
     jalali_date: str = ""
     result: str = ""
@@ -196,11 +197,19 @@ class WorkOrderMenuHandler:
                 session.jalali_date = ""
                 session.order_no = ""
                 session.result = ""
-                session.proposal = result['proposal']
-                session.jalali_date = session.proposal['plan_date']
-                reply = 'خروجی اصلاح‌شده شمارهٔ جدید می‌گیرد؛ حکم قبلی محفوظ می‌ماند.\n' + render(session.proposal)
+                if session.work_order_type == 'OIL_CHANGE':
+                    from tools.fleet.work_orders.types.oil_change.form import MODEL_PROMPT
+                    session.proposal = None
+                    session.stage = 'OIL_MODEL'
+                    session.oil_model = ''
+                    reply = 'خروجی اصلاح‌شده شمارهٔ جدید می‌گیرد؛ حکم قبلی محفوظ می‌ماند.\n' + MODEL_PROMPT
+                else:
+                    session.proposal = result['proposal']
+                    session.jalali_date = session.proposal['plan_date']
+                    reply = 'خروجی اصلاح‌شده شمارهٔ جدید می‌گیرد؛ حکم قبلی محفوظ می‌ماند.\n' + render(session.proposal)
             else:
                 order = result["order"]
+                session.work_order_type = order.get('work_order_type', session.work_order_type)
                 session.order_no = order["work_order_no"]
                 session.stage = "RESULT"
                 reply = (
@@ -209,12 +218,16 @@ class WorkOrderMenuHandler:
                     f"فایل: {order['file_name']}\nوضعیت فایل: آماده ارسال\n\n"
                     "حکم هنوز برای سرویسکار ارسال نشده است."
                 )
+                if order.get('item_summary'):
+                    reply += '\n' + order['item_summary']
                 try:
                     require_work_order_permission(key[1], db_path=self.db_path)
                     await self.document_sender(gateway, chat_id, order)
                     session.stage = "REVIEW"
                     reply += "\n\nفایل را بررسی کنید؛ آیا تایید می‌کنید؟\nبرای تایید بنویسید:\nتایید"
-                    if session.work_order_type == 'GREASING':
+                    if session.work_order_type == 'OIL_CHANGE':
+                        reply += "\n\nبرای اصلاح مدل، کد دستگاه یا نوبت سرویس بنویسید:\nویرایش"
+                    elif session.work_order_type == 'GREASING':
                         reply += "\n\nبرای اصلاح دستگاه‌ها بنویسید:\nویرایش"
                     else:
                         reply += "\n\nبرای اصلاح دستگاه‌ها، تاریخ یا شیفت بنویسید:\nویرایش"
@@ -251,7 +264,7 @@ class WorkOrderMenuHandler:
         chat_id = str(getattr(source, "chat_id", "") or "").strip()
         text = normalize_text(event.text or "")
         is_entry = text == "حکم کار"
-        review_command = re.fullmatch(r"(ثبت تایید|ثبت تأیید|ارسال مجدد|اصلاح|ویرایش) ((?:AF|GR)-1405-\d{2}-\d{2}-\d+)", normalize_digits(text))
+        review_command = re.fullmatch(r"(ثبت تایید|ثبت تأیید|ارسال مجدد|اصلاح|ویرایش) ((?:AF|GR|OC)-1405-\d{2}-\d{2}-\d+)", normalize_digits(text))
         key = ("bale", user_id or "", chat_id)
         now = self.clock()
         self.pending = {k: session for k, session in self.pending.items() if session.expires > now or session.stage == "BUSY"}
@@ -293,9 +306,38 @@ class WorkOrderMenuHandler:
             elif session.stage == "MENU" and text.isdecimal():
                 item = resolve_work_order_selection(text, bale_id=user_id, db_path=self.db_path)
                 session.work_order_type = item["key"]
-                self._start_request(key, session, {'action':'propose','bale_id':user_id,'work_order_type':item['key']}, gateway, send)
-                reply = 'در حال بررسی کارکردها و تهیهٔ پیشنهاد گریس‌کاری…' if item['key'] == 'GREASING' else 'در حال بررسی کارکردها و تهیهٔ پیشنهاد هواکش…'
+                if item['key'] == 'OIL_CHANGE':
+                    from tools.fleet.work_orders.types.oil_change.form import MODEL_PROMPT
+                    session.stage = 'OIL_MODEL'
+                    reply = MODEL_PROMPT
+                else:
+                    self._start_request(key, session, {'action':'propose','bale_id':user_id,'work_order_type':item['key']}, gateway, send)
+                    reply = 'در حال بررسی کارکردها و تهیهٔ پیشنهاد گریس‌کاری…' if item['key'] == 'GREASING' else 'در حال بررسی کارکردها و تهیهٔ پیشنهاد هواکش…'
                 reason = "work-order-type-selected"
+            elif session.stage == 'OIL_MODEL':
+                from tools.fleet.work_orders.types.oil_change.form import MODELS, CODE_PROMPT
+                choice = normalize_digits(text)
+                if choice not in MODELS:
+                    raise ValueError('شمارهٔ مدل را از ۱ تا ۳ وارد کنید.')
+                session.oil_model = MODELS[choice]
+                session.stage = 'OIL_CODE'
+                reply = session.oil_model + '\n' + CODE_PROMPT
+            elif session.stage == 'OIL_CODE':
+                from tools.fleet.work_orders.types.oil_change.form import normalize_code, INTERVAL_PROMPT
+                session.machine_codes = [normalize_code(text)]
+                session.stage = 'OIL_INTERVAL'
+                reply = f'کد دستگاه: {session.machine_codes[0]}\n' + INTERVAL_PROMPT
+            elif session.stage == 'OIL_INTERVAL':
+                from tools.fleet.work_orders.types.oil_change.form import create_request, CODE_PROMPT
+                if text == 'برگشت':
+                    session.stage = 'OIL_CODE'
+                    reply = CODE_PROMPT
+                else:
+                    request = create_request(session, text, user_id)
+                    session.jalali_date = request['jalali_date']
+                    self._start_request(key, session, request, gateway, send)
+                    reply = 'در حال ساخت حکم کار و فایل اکسل…'
+                    reason = 'work-order-creating'
             elif session.proposal is not None and session.stage in {'PROPOSAL','REMOVE','ADD_CODES','ADD_ACTION'}:
                 from tools.fleet.work_orders.channels.bale.proposal_form import render, add_items
                 if text == 'برگشت':

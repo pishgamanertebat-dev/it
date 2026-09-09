@@ -5,9 +5,9 @@ SPEC = WorkOrderTypeSpec(
     code="OIL_CHANGE",
     label_fa="تعویض روغن",
     menu_order=2,
-    operational=False,
+    operational=True,
     staff_role="OIL_CHANGE",
-    number_prefix=None,
-    template_key=None,
-    builder_module=None,
+    number_prefix="OC",
+    template_key="KOMATSU_PM_200_2000_v2",
+    builder_module="tools.fleet.work_orders.types.oil_change.builder",
 )

@@ -22,6 +22,8 @@ from tools.fleet.work_orders.core.review import confirm_document_review, normali
 
 def preview_order(order):
     return {"work_order_no": order["work_order_no"], "label": order["work_order_label_fa"],
+            "work_order_type": order['work_order_type'],
+            "item_summary": '؛ '.join(f"{item['machine_code']}: {item['action_text']}" for item in order['items']) if order['work_order_type'] == 'OIL_CHANGE' else '',
             "item_count": len(order["items"]), "status": order["status"],
             "file_name": Path(order["excel_path"]).name, "file_path": order["excel_path"]}
 
@@ -30,12 +32,16 @@ def execute_request(request: dict, *, db_path=None) -> dict:
     try:
         actor = require_work_order_permission(request.get("bale_id"), db_path=db_path)
         if request['action'] == 'propose':
+            if request.get('work_order_type') == 'OIL_CHANGE':
+                raise ValueError('تعویض روغن فعلاً فقط با ورود دستی دستگاه و نوبت سرویس صادر می‌شود.')
             if request.get('work_order_type') == 'GREASING':
                 from tools.fleet.greasing.proposal import build_proposal
             else:
                 from tools.fleet.air_filter.proposal import build_proposal
             return {'ok': True, 'proposal': build_proposal()}
         if request['action'] == 'validate_add':
+            if request.get('work_order_type') == 'OIL_CHANGE':
+                raise ValueError('هر حکم تعویض روغن فعلاً برای یک دستگاه است.')
             if request.get('work_order_type') == 'GREASING':
                 from tools.fleet.greasing.proposal import resolve_items
                 return {'ok':True, 'items':resolve_items(request['machine_codes'])}
@@ -57,6 +63,8 @@ def execute_request(request: dict, *, db_path=None) -> dict:
             if request["action"] == "edit":
                 if order["status"] != "FILE_READY":
                     raise ValueError("اصلاح فقط پیش از انتخاب سرویسکار امکان‌پذیر است.")
+                if order['work_order_type'] == 'OIL_CHANGE':
+                    return {'ok': True, 'work_order_type': 'OIL_CHANGE'}
                 return {"ok": True, "work_order_type": order["work_order_type"], 'proposal': {
                     'work_order_type':order['work_order_type'],
                     'plan_date':order['jalali_date'], 'cutoff':'نسخهٔ اصلاحی حکم قبلی',
@@ -80,7 +88,7 @@ def execute_request(request: dict, *, db_path=None) -> dict:
         order = service.create_work_order(
             work_order_type=work_order_type,
             jalali_date=request["jalali_date"],
-            shift=("روزانه" if work_order_type == "GREASING" and request.get("shift") == "روزانه"
+            shift=("روزانه" if work_order_type in {"GREASING", "OIL_CHANGE"} and request.get("shift") == "روزانه"
                    else normalize_shift(request["shift"])),
             machine_codes=request["machine_codes"],
             created_by=f"bale:{actor.bale_id}",
