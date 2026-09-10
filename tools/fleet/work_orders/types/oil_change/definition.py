@@ -8,6 +8,6 @@ SPEC = WorkOrderTypeSpec(
     operational=True,
     staff_role="OIL_CHANGE",
     number_prefix="OC",
-    template_key="KOMATSU_PM_200_2000_v2",
+    template_key="FLEET_PM_200_2000_v3",
     builder_module="tools.fleet.work_orders.types.oil_change.builder",
 )

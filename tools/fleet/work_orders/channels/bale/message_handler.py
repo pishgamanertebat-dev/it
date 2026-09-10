@@ -315,23 +315,23 @@ class WorkOrderMenuHandler:
                     reply = 'در حال بررسی کارکردها و تهیهٔ پیشنهاد گریس‌کاری…' if item['key'] == 'GREASING' else 'در حال بررسی کارکردها و تهیهٔ پیشنهاد هواکش…'
                 reason = "work-order-type-selected"
             elif session.stage == 'OIL_MODEL':
-                from tools.fleet.work_orders.types.oil_change.form import MODELS, CODE_PROMPT
+                from tools.fleet.work_orders.types.oil_change.form import MODELS, code_prompt
                 choice = normalize_digits(text)
                 if choice not in MODELS:
-                    raise ValueError('شمارهٔ مدل را از ۱ تا ۳ وارد کنید.')
+                    raise ValueError('شمارهٔ مدل را از ۱ تا ۶ وارد کنید.')
                 session.oil_model = MODELS[choice]
                 session.stage = 'OIL_CODE'
-                reply = session.oil_model + '\n' + CODE_PROMPT
+                reply = session.oil_model + '\n' + code_prompt(session.oil_model)
             elif session.stage == 'OIL_CODE':
                 from tools.fleet.work_orders.types.oil_change.form import normalize_code, INTERVAL_PROMPT
-                session.machine_codes = [normalize_code(text)]
+                session.machine_codes = [normalize_code(text, session.oil_model)]
                 session.stage = 'OIL_INTERVAL'
                 reply = f'کد دستگاه: {session.machine_codes[0]}\n' + INTERVAL_PROMPT
             elif session.stage == 'OIL_INTERVAL':
-                from tools.fleet.work_orders.types.oil_change.form import create_request, CODE_PROMPT
+                from tools.fleet.work_orders.types.oil_change.form import create_request, code_prompt
                 if text == 'برگشت':
                     session.stage = 'OIL_CODE'
-                    reply = CODE_PROMPT
+                    reply = code_prompt(session.oil_model)
                 else:
                     request = create_request(session, text, user_id)
                     session.jalali_date = request['jalali_date']

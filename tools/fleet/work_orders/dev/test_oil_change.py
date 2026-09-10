@@ -63,7 +63,7 @@ class OilChangeTests(WorkOrderCreateTests):
             self.assertEqual(con.execute('SELECT COUNT(*) FROM service_work_orders').fetchone()[0], 0)
 
     def test_bale_manual_review_dispatch_and_receipt_offline(self):
-        for choice, code in [('1', '702'), ('2', '463'), ('3', '708')]:
+        for choice, code in [('1', '702'), ('2', '463'), ('3', '708'), ('4', '۸۰۱'), ('5', 'ex333'), ('6', '851')]:
             with self.subTest(model=choice):
                 self.run_bale_model(choice, code)
 
@@ -109,6 +109,7 @@ class OilChangeTests(WorkOrderCreateTests):
             from tools.fleet.work_orders.types.oil_change.form import MODELS
             saved = service.get_work_order(number)
             self.assertEqual(builder.parse_action(saved['items'][0]['action_code']), (MODELS[model_choice], 1200))
+            self.assertEqual(saved['items'][0]['machine_code'], builder.normalize_code(machine_code, MODELS[model_choice]))
             await enter('تایید')
             self.assertEqual(session.stage, 'STAFF')
             self.assertEqual(len(documents), 1)
@@ -137,7 +138,7 @@ class OilChangeTests(WorkOrderCreateTests):
             asyncio.run(scenario())
 
     def test_new_model_templates_all_intervals(self):
-        for model, code in [('HD465-7R', 'HD464'), ('HD785-7', 'HD709')]:
+        for model, code in [('HD465-7R', 'HD464'), ('HD785-7', 'HD709'), ('PC800-7', 'EX801'), ('R330-9', 'EX333'), ('PC850-8', 'EX851')]:
             source_path = builder.TEMPLATES[model][0]
             before = hashlib.sha256(source_path.read_bytes()).hexdigest()
             original = load_workbook(source_path)
@@ -167,3 +168,14 @@ class OilChangeTests(WorkOrderCreateTests):
         for action in ['OIL_CHANGE_HD999_200', 'OIL_CHANGE_HD785-7_2200', 'OIL_CHANGE_HD465-7R_201']:
             with self.assertRaises(ValueError):
                 builder.get_items(['463'], {'HD463': action})
+
+    def test_prefix_follows_selected_model_and_rejects_mismatches(self):
+        for model in ('PC800-7', 'R330-9', 'PC850-8'):
+            self.assertEqual(builder.normalize_code('۸۰۱', model), 'EX801')
+            self.assertEqual(builder.normalize_code('ex801', model), 'EX801')
+            with self.assertRaises(ValueError):
+                builder.normalize_code('HD801', model)
+            with self.assertRaises(ValueError):
+                builder.get_items(['HD801'], {'HD801': builder.action_for(model, 200)})
+        with self.assertRaises(ValueError):
+            builder.normalize_code('EX701', 'HD785-5')
