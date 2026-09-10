@@ -99,6 +99,7 @@ def build_document(*, output_path, jalali_date, items, shift='روزانه'):
         target = next(r.get('Target') for r in relations if r.get('Id') == rid)
         sheet_path = target.lstrip('/') if target.startswith('/') else 'xl/' + target
         sheet = source.read(sheet_path).decode('utf-8')
+        sheet = _single_page_a4(sheet)
         cell = ET.fromstring(sheet).find(f'.//{{{NS}}}c[@r="F3"]')
         if cell is None:
             raise ValueError('محل کد دستگاه در الگو تغییر کرده است؛ الگو بررسی شود.')
@@ -137,3 +138,25 @@ def build_document(*, output_path, jalali_date, items, shift='روزانه'):
                     data = sheet.encode('utf-8')
                 output.writestr(entry, data)
     return output_path
+
+
+def _single_page_a4(sheet):
+    """Change print settings only; preserve the template's header/drawing XML."""
+    def setup(match):
+        tag = re.sub(r'\s+(?:paperSize|scale|fitToWidth|fitToHeight|orientation|usePrinterDefaults)="[^"]*"', '', match[0])
+        return tag[:-2] + ' paperSize="9" orientation="portrait" fitToWidth="1" fitToHeight="1" usePrinterDefaults="0"/>'
+
+    sheet, count = re.subn(r'<pageSetup\b[^>]*/>', setup, sheet)
+    if count != 1:
+        raise ValueError('Expected one pageSetup in the work-order template.')
+    fit = '<pageSetUpPr fitToPage="1"/>'
+    if re.search(r'<pageSetUpPr\b', sheet):
+        sheet = re.sub(r'<pageSetUpPr\b[^>]*/>', lambda m: re.sub(
+            r'\s+fitToPage="[^"]*"', '', m[0])[:-2] + ' fitToPage="1"/>', sheet)
+    elif '</sheetPr>' in sheet:
+        sheet = sheet.replace('</sheetPr>', fit + '</sheetPr>', 1)
+    elif re.search(r'<sheetPr\b[^>]*/>', sheet):
+        sheet = re.sub(r'<sheetPr\b[^>]*/>', lambda m: m[0][:-2] + '>' + fit + '</sheetPr>', sheet, count=1)
+    else:
+        sheet = re.sub(r'<worksheet\b[^>]*>', lambda m: m[0] + '<sheetPr>' + fit + '</sheetPr>', sheet, count=1)
+    return sheet
