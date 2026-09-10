@@ -56,10 +56,22 @@ def execute_request(request: dict, *, db_path=None) -> dict:
             review = confirm_document_review(request["work_order_no"], actor.bale_id)
             order = service.get_work_order(request['work_order_no'])
             return {"ok": True, "review": review, 'work_order_type':order['work_order_type']}
+        if request['action'] == 'preview_latest':
+            from tools.fleet.work_orders.core.db import connect_db
+            con = connect_db()
+            try:
+                row = con.execute("SELECT work_order_no FROM service_work_orders WHERE created_by=? AND status='FILE_READY' ORDER BY id DESC LIMIT 1", (f'bale:{actor.bale_id}',)).fetchone()
+            finally:
+                con.close()
+            if not row:
+                raise ValueError('حکم آمادهٔ بررسی برای ارسال مجدد ندارید.')
+            request = {**request, 'action': 'preview', 'work_order_no': row['work_order_no']}
         if request["action"] in {"preview", "edit"}:
             order = service.get_work_order(request["work_order_no"])
             if order["created_by"] != f"bale:{actor.bale_id}":
                 raise ValueError("این حکم متعلق به حساب شما نیست.")
+            if order['status'] != 'FILE_READY':
+                raise ValueError('این حکم دیگر در مرحلهٔ بررسی فایل نیست.')
             if request["action"] == "edit":
                 if order["status"] != "FILE_READY":
                     raise ValueError("اصلاح فقط پیش از انتخاب سرویسکار امکان‌پذیر است.")

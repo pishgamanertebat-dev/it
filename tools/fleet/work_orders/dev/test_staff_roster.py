@@ -39,6 +39,9 @@ class ReceiptChoiceTests(unittest.IsolatedAsyncioTestCase):
         flow.busy.clear()
         self.replies=[]
         self.received=[]
+        context_patch = patch.object(flow, 'review_context', return_value=None)
+        context_patch.start()
+        self.addCleanup(context_patch.stop)
         self.orders=[dict(work_order_no=n,work_order_type='AIR_FILTER',jalali_date='1405/06/09',acknowledged_at=None,notified_at=None) for n in ('AF-1405-06-09-002','AF-1405-06-09-001')]
         async def receipt(gateway,actor,chat,number):
             self.received.append(number)

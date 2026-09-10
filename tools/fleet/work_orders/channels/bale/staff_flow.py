@@ -9,6 +9,7 @@ from tools.fleet.work_orders.core import staff_dispatch as core
 from tools.fleet.work_orders.core.delivery import send_work_order
 from tools.fleet.work_orders.core.permissions import normalize_bale_id
 from tools.fleet.work_orders.core.registry import get_work_order_spec
+from tools.fleet.work_orders.core.conversation import review_context
 
 logger = logging.getLogger(__name__)
 tasks = set()
@@ -59,6 +60,7 @@ async def receipt(gateway, actor, chat, number):
             staff_name = core.staff_display_name({'bale_id':actor,'display_name':order['display_name']},order['work_order_type'])
             await bot.send_message(chat_id=order['manager_chat_id'], text=f"✅ {staff_name} دریافت حکم {order_label(order)} تاریخ {order['jalali_date']} را تایید کرد.\nشماره حکم: {number}")
             await asyncio.to_thread(core.mark_notified, number)
+        review_context(actor, chat, 'staff', number='', stage='DONE')
     except Exception:
         logger.exception('Staff acknowledgement or manager notification failed')
         try:
@@ -69,26 +71,75 @@ async def receipt(gateway, actor, chat, number):
         busy.discard(actor)
 
 
+async def show_order(gateway, actor, chat, number):
+    try:
+        orders = await asyncio.to_thread(core.recipient_orders, actor)
+        order = next(o for o in orders if o['work_order_no'] == number and not o['acknowledged_at'])
+        with Path(order['pdf_path']).open('rb') as document:
+            await bot_for(gateway).send_document(
+                chat_id=chat, document=document, filename=Path(order['pdf_path']).name,
+                caption=f"حکم کار {order_label(order)} — {order['jalali_date']}\nشماره حکم: {number}\nتایید می‌کنید؟ بنویسید: تایید")
+        review_context(actor, chat, 'staff', number=number, stage='REVIEW')
+    except Exception:
+        logger.exception('Could not redisplay staff order')
+        await bot_for(gateway).send_message(chat_id=chat, text='ارسال فایل ناموفق بود؛ برای تلاش دوباره «حکم کار» را بفرستید.')
+    finally:
+        busy.discard(actor)
+
+
+def schedule_preview(gateway, actor, chat, number):
+    review_context(actor, chat, 'staff', number=number, stage='RESULT')
+    busy.add(actor)
+    task = asyncio.get_running_loop().create_task(show_order(gateway, actor, chat, number))
+    tasks.add(task)
+    task.add_done_callback(tasks.discard)
+    return {'action': 'skip', 'reason': 'staff-order-preview'}
+
+
 def handle_staff_receipt(event, gateway, *, send):
     source = event.source
     if str(getattr(source.platform, 'value', source.platform)).lower() != 'bale' or source.chat_type != 'dm':
         return None
     actor = normalize_bale_id(getattr(source, 'user_id', None))
-    text = (event.text or '').strip()
+    text = ' '.join((event.text or '').translate(str.maketrans('كي', 'کی')).replace('\u200c', ' ').split())
     text = text.translate(str.maketrans('۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩','01234567890123456789'))
     match = re.fullmatch(r'(?:تایید|تأیید)(?: ((?:AF|GR|OC)-1405-\d{2}-\d{2}-\d+))?', text)
     choice_key = (actor, str(source.chat_id))
     choices = receipt_choices.get(choice_key)
     numeric_choice = text.isdecimal() and choices is not None
-    if not actor or (not match and not numeric_choice):
+    is_entry = text == 'حکم کار'
+    if not actor or (not match and not numeric_choice and not is_entry):
         return None
+    if is_entry:
+        from tools.fleet.work_orders.core.permissions import check_work_order_permission
+        if check_work_order_permission(actor).allowed or not core.is_recipient(actor):
+            return None
     if actor in busy:
         return {'action':'skip','reason':'staff-receipt-busy'}
     orders = core.recipient_orders(actor)
-    if not orders:
+    if not orders and not is_entry:
         return None
     pending = [o for o in orders if not o['acknowledged_at']]
+    if is_entry:
+        receipt_choices.pop(choice_key, None)
+        review_context(actor, source.chat_id, 'staff', number='', stage='MENU')
+        if not pending:
+            send(gateway, source.chat_id, 'شما حکم کار تایید نشده ندارید.')
+            return {'action': 'skip', 'reason': 'staff-orders-empty'}
+        if len(pending) == 1:
+            return schedule_preview(gateway, actor, source.chat_id, pending[0]['work_order_no'])
+        receipt_choices[choice_key] = {'numbers': [o['work_order_no'] for o in pending], 'expires': time.monotonic()+600, 'preview': True}
+        send(gateway, source.chat_id, 'حکم‌های جاری در انتظار تایید؛ برای دریافت فایل شمارهٔ گزینه را بفرستید:\n\n' + '\n\n'.join(
+            f"{i}) {order_label(o)} — {o['jalali_date']}\n{o['work_order_no']}" for i, o in enumerate(pending, 1)))
+        return {'action': 'skip', 'reason': 'staff-orders-list'}
     number = match[1] if match else None
+    if match and not number:
+        saved = review_context(actor, source.chat_id, 'staff')
+        if saved and saved[0]:
+            if saved[1] != 'REVIEW':
+                send(gateway, source.chat_id, 'ابتدا با «حکم کار» فایل را دریافت و بررسی کنید.')
+                return {'action': 'skip', 'reason': 'staff-order-needs-preview'}
+            number = saved[0]
     if numeric_choice:
         if choices['expires'] < time.monotonic():
             receipt_choices.pop(choice_key, None)
@@ -98,6 +149,11 @@ def handle_staff_receipt(event, gateway, *, send):
             send(gateway, source.chat_id, 'شمارهٔ یکی از حکم‌های همین فهرست را بفرستید.')
             return {'action':'skip','reason':'staff-receipt-invalid-choice'}
         number = choices['numbers'][int(text)-1]
+        if choices.get('preview'):
+            if not any(o['work_order_no'] == number for o in pending):
+                send(gateway, source.chat_id, 'این حکم دیگر منتظر تایید نیست؛ برای فهرست جدید «حکم کار» را بفرستید.')
+                return {'action': 'skip', 'reason': 'staff-order-stale'}
+            return schedule_preview(gateway, actor, source.chat_id, number)
     if number:
         if not any(o['work_order_no'] == number for o in orders):
             send(gateway, source.chat_id, 'این حکم برای شما ارسال نشده است.')

@@ -19,6 +19,7 @@ from tools.fleet.work_orders.core.permissions import (
 from tools.fleet.work_orders.core.paths import PROJECT_ROOT
 from tools.fleet.work_orders.core.service import validate_jalali_date
 from tools.fleet.work_orders.core.review import normalize_shift
+from tools.fleet.work_orders.core.conversation import review_context
 from tools.fleet.work_orders.channels.bale.work_order_menu import (
     InvalidWorkOrderSelection,
     WorkOrderTypeDisabled,
@@ -197,6 +198,7 @@ class WorkOrderMenuHandler:
                 session.jalali_date = ""
                 session.order_no = ""
                 session.result = ""
+                review_context(key[1], chat_id, 'manager', number='', stage='EDIT', db_path=self.db_path)
                 if session.work_order_type == 'OIL_CHANGE':
                     from tools.fleet.work_orders.types.oil_change.form import MODEL_PROMPT
                     session.proposal = None
@@ -212,8 +214,10 @@ class WorkOrderMenuHandler:
                 session.work_order_type = order.get('work_order_type', session.work_order_type)
                 session.order_no = order["work_order_no"]
                 session.stage = "RESULT"
+                review_context(key[1], chat_id, 'manager', number=session.order_no, stage='RESULT', db_path=self.db_path)
                 reply = (
-                    f"✅ حکم کار ساخته شد\n\nشماره: {order['work_order_no']}\n"
+                    ("✅ فایل حکم برای بررسی مجدد\n\n" if request['action'] in {'preview', 'preview_latest'} else "✅ حکم کار ساخته شد\n\n") +
+                    f"شماره: {order['work_order_no']}\n"
                     f"نوع: {order['label']}\nتعداد دستگاه: {order['item_count']}\n"
                     f"فایل: {order['file_name']}\nوضعیت فایل: آماده ارسال\n\n"
                     "حکم هنوز برای سرویسکار ارسال نشده است."
@@ -224,6 +228,7 @@ class WorkOrderMenuHandler:
                     require_work_order_permission(key[1], db_path=self.db_path)
                     await self.document_sender(gateway, chat_id, order)
                     session.stage = "REVIEW"
+                    review_context(key[1], chat_id, 'manager', number=session.order_no, stage='REVIEW', db_path=self.db_path)
                     reply += "\n\nفایل را بررسی کنید؛ آیا تایید می‌کنید؟\nبرای تایید بنویسید:\nتایید"
                     if session.work_order_type == 'OIL_CHANGE':
                         reply += "\n\nبرای اصلاح مدل، کد دستگاه یا نوبت سرویس بنویسید:\nویرایش"
@@ -233,7 +238,7 @@ class WorkOrderMenuHandler:
                         reply += "\n\nبرای اصلاح دستگاه‌ها، تاریخ یا شیفت بنویسید:\nویرایش"
                 except Exception:
                     logger.exception("Manager Excel delivery failed")
-                    reply += f"\n\nارسال فایل ناموفق بود؛ حکم محفوظ است. برای تلاش دوباره بنویسید:\nارسال مجدد {session.order_no}"
+                    reply += "\n\nارسال فایل ناموفق بود؛ حکم محفوظ است. برای تلاش دوباره بنویسید:\nارسال مجدد"
                 session.result = reply
             session.expires = self.clock() + 600
         except Exception:
@@ -273,13 +278,28 @@ class WorkOrderMenuHandler:
         message_key = (*key, str(message_id)) if message_id is not None else None
         if message_key in self.processed:
             return {"action": "skip", "reason": "work-order-duplicate-message"}
-        if not is_entry and not review_command and key not in self.pending:
+        recovery = text in {'ارسال مجدد', 'تایید', 'تأیید'}
+        if not is_entry and not review_command and not recovery and key not in self.pending:
             return None
         if not chat_id:
             return {"action": "skip", "reason": "work-order-missing-chat"}
 
         reason = "work-order-menu"
         try:
+            if recovery and key not in self.pending:
+                from tools.fleet.work_orders.core.permissions import check_work_order_permission
+                if not check_work_order_permission(user_id, db_path=self.db_path).allowed:
+                    return None
+                saved = review_context(user_id, chat_id, 'manager', db_path=self.db_path)
+                if saved and saved[0]:
+                    self.pending[key] = FormSession(expires=now + 600, order_no=saved[0], stage=saved[1])
+                elif text != 'ارسال مجدد':
+                    return None
+                else:
+                    session = self.pending[key] = FormSession(expires=now + 600)
+                    self._start_request(key, session, {'action': 'preview_latest', 'bale_id': user_id}, gateway, send)
+                    self._send_reply(gateway, chat_id, 'در حال بازیابی آخرین فایل حکم شما…', send)
+                    return {'action': 'skip', 'reason': 'work-order-review'}
             require_work_order_permission(user_id, db_path=self.db_path)
             session = self.pending.get(key)
             if session and session.stage == "BUSY":
@@ -292,6 +312,8 @@ class WorkOrderMenuHandler:
                     session = self.pending[key] = FormSession(expires=now + 600)
                 session.order_no = number
                 action = {"ارسال مجدد": "preview", "اصلاح": "edit", "ویرایش": "edit"}.get(command, "confirm_review")
+                if action == 'confirm_review' and session.stage == 'RESULT' and not review_command:
+                    raise ValueError('ابتدا با «ارسال مجدد» فایل را دریافت و بررسی کنید؛ سپس «تایید» را بفرستید.')
                 self._start_request(key, session, {"action": action, "bale_id": user_id, "work_order_no": number}, gateway, send)
                 reply = {"preview": "در حال ارسال فایل…", "edit": "در حال باز کردن فرم اصلاح…", "confirm_review": "در حال ثبت تأیید بررسی فایل…"}[action]
                 reason = "work-order-review"
@@ -429,7 +451,8 @@ class WorkOrderMenuHandler:
                 reason = "work-order-result"
             else:
                 # Ordinary chat and other commands leave this short menu flow.
-                self.pending.pop(key, None)
+                if session.stage not in {'RESULT', 'REVIEW', 'STAFF'}:
+                    self.pending.pop(key, None)
                 return None
         except WorkOrderPermissionDenied as exc:
             self.pending.pop(key, None)

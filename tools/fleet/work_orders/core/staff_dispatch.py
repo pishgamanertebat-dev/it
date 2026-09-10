@@ -114,6 +114,14 @@ def recipient_orders(actor):
         con.close()
 
 
+def is_recipient(actor):
+    con = connect_db()
+    try:
+        return con.execute('SELECT 1 FROM service_staff WHERE bale_id=? AND active=1', (actor,)).fetchone() is not None
+    finally:
+        con.close()
+
+
 def acknowledge(number, actor):
     con = connect_db()
     try:
