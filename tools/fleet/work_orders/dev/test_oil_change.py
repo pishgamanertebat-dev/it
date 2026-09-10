@@ -137,8 +137,13 @@ class OilChangeTests(WorkOrderCreateTests):
         with patch('tools.fleet.work_orders.core.permissions.DB_PATH', self.db_path):
             asyncio.run(scenario())
 
+    def test_loader_bale_review_pdf_dispatch_receipt(self):
+        for choice, code in [('7', '۶۰۲'), ('8', 'w473')]:
+            with self.subTest(model=choice):
+                self.run_bale_model(choice, code)
+
     def test_new_model_templates_all_intervals(self):
-        for model, code in [('HD465-7R', 'HD464'), ('HD785-7', 'HD709'), ('PC800-7', 'EX801'), ('R330-9', 'EX333'), ('PC850-8', 'EX851')]:
+        for model, code in [('HD465-7R', 'HD464'), ('HD785-7', 'HD709'), ('PC800-7', 'EX801'), ('R330-9', 'EX333'), ('PC850-8', 'EX851'), ('WA600-6', 'W602'), ('WA470-3', 'W473')]:
             source_path = builder.TEMPLATES[model][0]
             before = hashlib.sha256(source_path.read_bytes()).hexdigest()
             original = load_workbook(source_path)
@@ -170,6 +175,12 @@ class OilChangeTests(WorkOrderCreateTests):
                 builder.get_items(['463'], {'HD463': action})
 
     def test_prefix_follows_selected_model_and_rejects_mismatches(self):
+        for model in ('WA600-6', 'WA470-3'):
+            for code in ('۶۰۱', 'w601', 'wa601'):
+                self.assertEqual(builder.normalize_code(code, model), 'W601')
+            for code in ('EX601', 'HD601'):
+                with self.assertRaises(ValueError):
+                    builder.normalize_code(code, model)
         for model in ('PC800-7', 'R330-9', 'PC850-8'):
             self.assertEqual(builder.normalize_code('۸۰۱', model), 'EX801')
             self.assertEqual(builder.normalize_code('ex801', model), 'EX801')

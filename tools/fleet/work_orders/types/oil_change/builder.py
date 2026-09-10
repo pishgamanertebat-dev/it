@@ -13,6 +13,8 @@ TEMPLATES = {
     'PC800-7': (Path('E:/Function/دستور کار PM-800-7.xlsx'), 'بیل مکانیکی کوماتسو 7-800', {'1400': 'EX1251'}),
     'R330-9': (Path('E:/Function/دستورکار PM-330-9.xlsx'), 'بیل مکانیکی هیوندا 330-9', 'EX332'),
     'PC850-8': (Path('E:/Function/دستور کار PM-850-8.xlsx'), 'بیل مکانیکی کوماتسو 850-8', None),
+    'WA600-6': (Path('E:/Function/دستورکار PM-600-6.xlsx'), 'لودر 6-600', 'W601'),
+    'WA470-3': (Path('E:/Function/دستورکار PM-470-3.xlsx'), 'لودر 3-470', 'W472'),
 }
 INTERVALS = tuple(range(200, 2001, 200))
 NS = 'http://schemas.openxmlformats.org/spreadsheetml/2006/main'
@@ -22,8 +24,10 @@ REL = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships'
 def normalize_code(value, model='HD785-5'):
     if model not in TEMPLATES:
         raise ValueError('مدل حکم تعویض روغن پشتیبانی نمی‌شود.')
-    prefix = 'HD' if model.startswith('HD') else 'EX'
+    prefix = 'W' if model.startswith('WA') else ('HD' if model.startswith('HD') else 'EX')
     code = str(value).strip().translate(str.maketrans('۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩', '01234567890123456789')).upper()
+    if prefix == 'W' and code.startswith('WA'):
+        code = 'W' + code[2:]
     if not re.fullmatch(rf'(?:{prefix})?[0-9]{{1,10}}', code):
         raise ValueError(f'کد یک دستگاه با پیشوند {prefix} یا فقط شمارهٔ آن را وارد کنید.')
     return code if code.startswith(prefix) else prefix + code
