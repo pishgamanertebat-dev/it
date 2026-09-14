@@ -340,7 +340,7 @@ class WorkOrderMenuHandler:
                 from tools.fleet.work_orders.types.oil_change.form import MODELS, code_prompt
                 choice = normalize_digits(text)
                 if choice not in MODELS:
-                    raise ValueError('شمارهٔ مدل را از ۱ تا ۸ وارد کنید.')
+                    raise ValueError('شمارهٔ مدل را از ۱ تا ۱۳ وارد کنید.')
                 session.oil_model = MODELS[choice]
                 session.stage = 'OIL_CODE'
                 reply = session.oil_model + '\n' + code_prompt(session.oil_model)

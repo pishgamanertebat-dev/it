@@ -2,13 +2,16 @@
 from datetime import date, datetime, timedelta, timezone
 from tools.fleet.work_orders.types.oil_change.builder import normalize_code, normalize_interval, action_for
 
-MODELS = {'1': 'HD785-5', '2': 'HD465-7R', '3': 'HD785-7', '4': 'PC800-7', '5': 'R330-9', '6': 'PC850-8', '7': 'WA600-6', '8': 'WA470-3'}
-MODEL_PROMPT = 'مدل دستگاه را انتخاب کنید:\n1) 785 خط ۵\n2) 465 خط ۷ (465-7R)\n3) 785 خط ۷\n4) 800 خط ۷\n5) 330 خط ۹\n6) 850 خط ۸\n7) لودر 600 خط ۶\n8) لودر 470 خط ۳'
+MODELS = {'1': 'HD785-5', '2': 'HD465-7R', '3': 'HD785-7', '4': 'PC800-7', '5': 'R330-9', '6': 'PC850-8', '7': 'WA600-6', '8': 'WA470-3',
+          '9': 'D155A-2', '10': 'D155A-6', '11': 'R320-9', '12': 'R520-9', '13': 'PC600-8'}
+MODEL_PROMPT = 'مدل دستگاه را انتخاب کنید:\n1) 785 خط ۵\n2) 465 خط ۷ (465-7R)\n3) 785 خط ۷\n4) 800 خط ۷\n5) 330 خط ۹\n6) 850 خط ۸\n7) لودر 600 خط ۶\n8) لودر 470 خط ۳\n9) بلدوزر 155 خط ۲\n10) بلدوزر 155 خط ۶\n11) بیل 320 خط ۹\n12) بیل 520 خط ۹\n13) بیل 600 خط ۸'
 CODE_PROMPT = 'کد یک دستگاه را وارد کنید؛ مانند HD701 یا 701.'
 INTERVAL_PROMPT = 'نوبت سرویس را وارد کنید: ۲۰۰، ۴۰۰، ۶۰۰، ۸۰۰، ۱۰۰۰، ۱۲۰۰، ۱۴۰۰، ۱۶۰۰، ۱۸۰۰ یا ۲۰۰۰.'
 
 
 def code_prompt(model):
+    if model.startswith('D'):
+        return 'کد یک بلدوزر را وارد کنید؛ مانند D152 یا 152.'
     if model.startswith('WA'):
         return 'کد یک لودر را وارد کنید؛ مانند W601 یا 601.'
     return CODE_PROMPT if model.startswith('HD') else 'کد یک بیل را وارد کنید؛ مانند EX801 یا 801.'

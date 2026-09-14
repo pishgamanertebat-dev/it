@@ -15,8 +15,15 @@ TEMPLATES = {
     'PC850-8': (Path('E:/Function/دستور کار PM-850-8.xlsx'), 'بیل مکانیکی کوماتسو 850-8', None),
     'WA600-6': (Path('E:/Function/دستورکار PM-600-6.xlsx'), 'لودر 6-600', 'W601'),
     'WA470-3': (Path('E:/Function/دستورکار PM-470-3.xlsx'), 'لودر 3-470', 'W472'),
+    'D155A-2': (Path('E:/Function/دستورکار PM-155-2.xlsx'), 'بلدوزر 155-A2', 'D152'),
+    'D155A-6': (Path('E:/Function/دستورکار PM-155-6.xlsx'), 'بلدوزر 155-A6', 'D151'),
+    'R320-9': (Path('E:/Function/دستورکار PM-320-9.xlsx'), 'بیل مکانیکی هیوندا 9-320', 'EX321'),
+    'R520-9': (Path('E:/Function/دستورکار PM-520-9.xlsx'), 'بیل مکانیکی هیوندا 9-520', 'EX521'),
+    'PC600-8': (Path('E:/Function/دستورکار PM-600-8.xlsx'), 'بیل مکانیکی کوماتسو 8-600', 'EX601'),
 }
 INTERVALS = tuple(range(200, 2001, 200))
+# Approved output-only title corrections; source workbooks remain untouched.
+PC600_SERVICE_TITLES = {'400': 200, '1400': 1000, '1600': 1200, '1800': 1000}
 NS = 'http://schemas.openxmlformats.org/spreadsheetml/2006/main'
 REL = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships'
 
@@ -24,7 +31,7 @@ REL = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships'
 def normalize_code(value, model='HD785-5'):
     if model not in TEMPLATES:
         raise ValueError('مدل حکم تعویض روغن پشتیبانی نمی‌شود.')
-    prefix = 'W' if model.startswith('WA') else ('HD' if model.startswith('HD') else 'EX')
+    prefix = 'W' if model.startswith('WA') else ('HD' if model.startswith('HD') else ('D' if model.startswith('D') else 'EX'))
     code = str(value).strip().translate(str.maketrans('۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩', '01234567890123456789')).upper()
     if prefix == 'W' and code.startswith('WA'):
         code = 'W' + code[2:]
@@ -114,8 +121,21 @@ def build_document(*, output_path, jalali_date, items, shift='روزانه'):
         if current_code != sample_code:
             raise ValueError('کد نمونه در الگو تغییر کرده است؛ الگو بررسی شود.')
         model_cell = ET.fromstring(sheet).find(f'.//{{{NS}}}c[@r="C3"]')
-        if model_cell is None or model_cell.get('t') != 's' or ''.join(strings[int(model_cell.find(f'{{{NS}}}v').text)].itertext()).strip() != model_title:
+        valid_titles = {model_title}
+        # The current source uses reversed model notation on this one sheet.
+        if model == 'R330-9' and interval == '2000':
+            valid_titles.add('بیل مکانیکی هیوندا 9-330')
+        if model_cell is None or model_cell.get('t') != 's' or ''.join(strings[int(model_cell.find(f'{{{NS}}}v').text)].itertext()).strip() not in valid_titles:
             raise ValueError('عنوان مدل در الگو با مدل انتخاب‌شده تطابق ندارد.')
+        if model == 'PC600-8' and interval in PC600_SERVICE_TITLES:
+            title_cell = ET.fromstring(sheet).find(f'.//{{{NS}}}c[@r="C2"]')
+            value = title_cell.find(f'{{{NS}}}v') if title_cell is not None else None
+            if value is None or value.text not in {str(PC600_SERVICE_TITLES[interval]), interval}:
+                raise ValueError('عدد عنوان سرویس در الگوی 600 خط ۸ تغییر کرده است؛ الگو بررسی شود.')
+            sheet, count = re.subn(r'<c\b(?=[^>]*\br="C2")[^>]*>.*?</c>',
+                lambda m: re.sub(r'<v>[^<]*</v>', '<v>' + interval + '</v>', m[0], count=1), sheet, flags=re.S)
+            if count != 1:
+                raise ValueError('محل عنوان سرویس در الگو یکتا نیست.')
         style = cell.get('s')
         style_attr = f' s="{style}"' if style else ''
         replacement = f'<c r="F3"{style_attr} t="inlineStr"><is><t>{escape(code)}</t></is></c>'

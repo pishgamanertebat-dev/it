@@ -94,7 +94,7 @@ class OilChangeTests(WorkOrderCreateTests):
             await enter('حکم کار')
             await enter('۲')
             self.assertEqual(requests, [])
-            self.assertEqual((await enter('9'))['reason'], 'work-order-input-rejected')
+            self.assertEqual((await enter('14'))['reason'], 'work-order-input-rejected')
             await enter(model_choice)
             await enter(machine_code)
             self.assertEqual((await enter('4350'))['reason'], 'work-order-input-rejected')
@@ -142,8 +142,40 @@ class OilChangeTests(WorkOrderCreateTests):
             with self.subTest(model=choice):
                 self.run_bale_model(choice, code)
 
+    def test_final_five_models_create_review_files_from_bale(self):
+        from tools.fleet.work_orders.types.oil_change.form import MODELS
+        async def scenario():
+            documents = []
+            async def worker(request):
+                return create_worker.execute_request(request, db_path=self.db_path)
+            async def document_sender(gateway, chat, order):
+                documents.append(order)
+            handler = WorkOrderMenuHandler(db_path=self.db_path, worker=worker, document_sender=document_sender)
+            async def enter(text):
+                event = SimpleNamespace(text=text, source=SimpleNamespace(platform='bale', chat_type='dm', user_id='455740857', chat_id='455740857'))
+                handler.handle(event, None, send=lambda *args: None)
+                if handler.tasks:
+                    await asyncio.gather(*list(handler.tasks))
+            for choice, raw, canonical in [('۹','۱۵۳','D153'), ('۱۰','d154','D154'), ('۱۱','۳۲۲','EX322'), ('۱۲','ex522','EX522'), ('۱۳','602','EX602')]:
+                await enter('حکم کار')
+                await enter('۲')
+                await enter(choice)
+                await enter(raw)
+                session = next(iter(handler.pending.values()))
+                self.assertEqual(session.machine_codes, [canonical])
+                await enter('۲۰۰۰')
+                self.assertEqual(session.stage, 'REVIEW')
+                order = service.get_work_order(session.order_no)
+                self.assertEqual(order['status'], 'FILE_READY')
+                self.assertIsNone(order['assigned_staff_id'])
+                self.assertEqual(builder.parse_action(order['items'][0]['action_code']), (MODELS[str(int(choice))], 2000))
+                self.assertEqual(order['items'][0]['machine_code'], canonical)
+            self.assertEqual(len(documents), 5)
+        asyncio.run(scenario())
+
     def test_new_model_templates_all_intervals(self):
-        for model, code in [('HD465-7R', 'HD464'), ('HD785-7', 'HD709'), ('PC800-7', 'EX801'), ('R330-9', 'EX333'), ('PC850-8', 'EX851'), ('WA600-6', 'W602'), ('WA470-3', 'W473')]:
+        for model, code in [('HD465-7R', 'HD464'), ('HD785-7', 'HD709'), ('PC800-7', 'EX801'), ('R330-9', 'EX333'), ('PC850-8', 'EX851'), ('WA600-6', 'W602'), ('WA470-3', 'W473'),
+                            ('D155A-2', 'D153'), ('D155A-6', 'D154'), ('R320-9', 'EX322'), ('R520-9', 'EX522'), ('PC600-8', 'EX602')]:
             source_path = builder.TEMPLATES[model][0]
             before = hashlib.sha256(source_path.read_bytes()).hexdigest()
             original = load_workbook(source_path)
@@ -159,7 +191,10 @@ class OilChangeTests(WorkOrderCreateTests):
                             expected, actual = original[str(interval)], wb.active
                             for row in expected:
                                 for cell in row:
-                                    self.assertEqual(actual[cell.coordinate].value, code if cell.coordinate == 'F3' else cell.value)
+                                    expected_value = code if cell.coordinate == 'F3' else cell.value
+                                    if model == 'PC600-8' and cell.coordinate == 'C2':
+                                        expected_value = interval
+                                    self.assertEqual(actual[cell.coordinate].value, expected_value)
                                     self.assertEqual(actual[cell.coordinate]._style, cell._style)
                             self.assertEqual(str(actual.merged_cells), str(expected.merged_cells))
                         finally:
@@ -175,6 +210,11 @@ class OilChangeTests(WorkOrderCreateTests):
                 builder.get_items(['463'], {'HD463': action})
 
     def test_prefix_follows_selected_model_and_rejects_mismatches(self):
+        for model in ('D155A-2', 'D155A-6'):
+            self.assertEqual(builder.normalize_code('۱۵۲', model), 'D152')
+            self.assertEqual(builder.normalize_code('d152', model), 'D152')
+            with self.assertRaises(ValueError):
+                builder.normalize_code('EX152', model)
         for model in ('WA600-6', 'WA470-3'):
             for code in ('۶۰۱', 'w601', 'wa601'):
                 self.assertEqual(builder.normalize_code(code, model), 'W601')
