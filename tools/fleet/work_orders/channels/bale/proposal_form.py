@@ -29,14 +29,26 @@ def _component_card(field, component):
 
 def render(proposal):
     greasing = proposal.get('work_order_type') == 'GREASING'
-    label = 'گریس‌کاری' if greasing else 'هواکش'
+    oil = proposal.get('work_order_type') == 'OIL_CHANGE'
+    label = 'تعویض روغن' if oil else 'گریس‌کاری' if greasing else 'هواکش'
     lines = [f"پیشنهاد حکم {label} برای {proposal['plan_date']}", f"داده‌ها تا: {proposal['cutoff']}"]
+    if oil:
+        lines += ['برای هر دستگاه یک حکم مستقل ساخته می‌شود.',
+                  'سرویس بعدی از آخرین سرویس ثبت‌شده در برنامه‌ریزی محاسبه شده است.']
     lines += ['', 'دستگاه‌های انتخاب‌شده:']
     for i,item in enumerate(proposal['items'],1):
         lines += ['', f"{i}) دستگاه {item['machine_code']}", item['action_text'], '']
         fields = ('greasing',) if greasing else (('inner', 'outer') if item['action_code'] == BOTH else ('outer',))
         components = item.get('components', {})
         rendered = False
+        if oil and components.get('oil_change'):
+            c = components['oil_change']
+            lines += [f"⏱ ساعت‌کار دستگاه: {c['current_meter']:g}",
+                      f"مانده به تعویض: {c['remaining']:g} ساعت",
+                      f"سرویس انجام‌شده: {c['last_interval']} ← حکم بعدی: {c['next_interval']} ساعتی",
+                      f"آخرین ثبت زرد تعویض روغن: {c['last_service']}"]
+            rendered = True
+            fields = ()
         for field in fields:
             component = components.get(field)
             if component and component.get('value') is not None:
@@ -55,7 +67,7 @@ def render(proposal):
         lines += ['', '⚠️ نزدیک موعد؛ داخل حکم نیستند:'] + proposal['warnings']
     if proposal.get('review'):
         lines += ['', '🔎 نیازمند بررسی داده:'] + [f"{i['code']}: {i['reason']}" for i in proposal['review']]
-    confirm_text = 'تایید: ساخت اکسل' if greasing else 'تایید: انتخاب شیفت و ساخت اکسل'
+    confirm_text = 'تایید: ساخت اکسل' if greasing or oil else 'تایید: انتخاب شیفت و ساخت اکسل'
     lines += ['', 'حذف: حذف دستگاه با شمارهٔ ردیف', 'اضافه: افزودن دستگاه با کد', confirm_text, 'انصراف: خروج']
     return '\n'.join(lines)
 
@@ -63,6 +75,9 @@ def render(proposal):
 def add_items(proposal, items, action):
     additions = []
     for item in items:
+        if proposal.get('work_order_type') == 'OIL_CHANGE':
+            additions.append({**item, 'evidence':'با انتخاب مسئول نت اضافه شد؛ نوبت سرویس از برنامه‌ریزی خوانده شد.'})
+            continue
         if proposal.get('work_order_type') == 'GREASING':
             if action != 'GREASING_FULL':
                 raise ValueError('شرح کار گریس‌کاری ثابت است.')

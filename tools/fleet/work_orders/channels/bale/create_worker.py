@@ -33,15 +33,16 @@ def execute_request(request: dict, *, db_path=None) -> dict:
         actor = require_work_order_permission(request.get("bale_id"), db_path=db_path)
         if request['action'] == 'propose':
             if request.get('work_order_type') == 'OIL_CHANGE':
-                raise ValueError('تعویض روغن فعلاً فقط با ورود دستی دستگاه و نوبت سرویس صادر می‌شود.')
-            if request.get('work_order_type') == 'GREASING':
+                from tools.fleet.oil_change.proposal import build_proposal
+            elif request.get('work_order_type') == 'GREASING':
                 from tools.fleet.greasing.proposal import build_proposal
             else:
                 from tools.fleet.air_filter.proposal import build_proposal
             return {'ok': True, 'proposal': build_proposal()}
         if request['action'] == 'validate_add':
             if request.get('work_order_type') == 'OIL_CHANGE':
-                raise ValueError('هر حکم تعویض روغن فعلاً برای یک دستگاه است.')
+                from tools.fleet.oil_change.proposal import resolve_items
+                return {'ok': True, 'items': resolve_items(request['machine_codes'])}
             if request.get('work_order_type') == 'GREASING':
                 from tools.fleet.greasing.proposal import resolve_items
                 return {'ok':True, 'items':resolve_items(request['machine_codes'])}
@@ -76,7 +77,11 @@ def execute_request(request: dict, *, db_path=None) -> dict:
                 if order["status"] != "FILE_READY":
                     raise ValueError("اصلاح فقط پیش از انتخاب سرویسکار امکان‌پذیر است.")
                 if order['work_order_type'] == 'OIL_CHANGE':
-                    return {'ok': True, 'work_order_type': 'OIL_CHANGE'}
+                    from tools.fleet.oil_change.proposal import build_proposal
+                    proposal = build_proposal()
+                    available = {i['machine_code']:i for i in proposal['evaluations']}
+                    proposal['items'] = [available[i['machine_code']] for i in order['items'] if i['machine_code'] in available]
+                    return {'ok': True, 'work_order_type': 'OIL_CHANGE', 'proposal': proposal}
                 return {"ok": True, "work_order_type": order["work_order_type"], 'proposal': {
                     'work_order_type':order['work_order_type'],
                     'plan_date':order['jalali_date'], 'cutoff':'نسخهٔ اصلاحی حکم قبلی',
@@ -91,12 +96,45 @@ def execute_request(request: dict, *, db_path=None) -> dict:
         proposal = request.get('proposal')
         if proposal and proposal.get('source_sha256'):
             import hashlib
-            if work_order_type == 'GREASING':
+            if work_order_type == 'OIL_CHANGE':
+                from tools.fleet.oil_change.source import source_hash
+                current_hash = source_hash()
+            elif work_order_type == 'GREASING':
                 from tools.fleet.greasing.source import SOURCE
+                current_hash = hashlib.sha256(SOURCE.read_bytes()).hexdigest()
             else:
                 from tools.fleet.air_filter.proposal import SOURCE
-            if hashlib.sha256(SOURCE.read_bytes()).hexdigest() != proposal['source_sha256']:
+                current_hash = hashlib.sha256(SOURCE.read_bytes()).hexdigest()
+            if current_hash != proposal['source_sha256']:
                 raise ValueError('فایل اطلاعات سرویس تغییر کرده است؛ با «حکم کار» پیشنهاد جدید بگیرید.')
+        if work_order_type == 'OIL_CHANGE' and proposal:
+            from tools.fleet.oil_change.source import read_source
+            from tools.fleet.oil_change.proposal import resolve_items
+            source = read_source()
+            if source['sha256'] != proposal.get('source_sha256'):
+                raise ValueError('فایل اطلاعات سرویس تغییر کرده است؛ پیشنهاد جدید بگیرید.')
+            items = resolve_items(request['machine_codes'], source)
+            actions = {i['machine_code']:i['action_code'] for i in items}
+            if actions != request.get('item_actions'):
+                raise ValueError('نوبت سرویس با برنامه‌ریزی فعلی تطابق ندارد؛ پیشنهاد جدید بگیرید.')
+            orders = []
+            for index, item in enumerate(items):
+                try:
+                    # Each machine has its own number, workbook, review and dispatch.
+                    order = service.create_work_order(
+                        work_order_type='OIL_CHANGE', jalali_date=request['jalali_date'], shift='روزانه',
+                        machine_codes=[item['machine_code']],created_by=f'bale:{actor.bale_id}',
+                        item_actions={item['machine_code']:item['action_code']},
+                        notes='OIL_CHANGE_PROPOSAL: ' + json.dumps({**proposal,'item':item},ensure_ascii=False))
+                    orders.append(preview_order(order))
+                except Exception:
+                    logging.getLogger(__name__).exception('Oil order batch stopped at %s', item['machine_code'])
+                    if not orders:
+                        raise
+                    return {'ok':True, 'orders':orders, 'batch_error':
+                            'ساخت ادامهٔ حکم‌ها متوقف شد. پیش از تلاش دوباره وضعیت این دستگاه‌ها بررسی شود: ' +
+                            '، '.join(i['machine_code'] for i in items[index:])}
+            return {'ok':True, 'orders':orders}
         order = service.create_work_order(
             work_order_type=work_order_type,
             jalali_date=request["jalali_date"],

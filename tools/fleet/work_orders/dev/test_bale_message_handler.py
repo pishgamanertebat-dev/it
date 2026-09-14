@@ -37,10 +37,11 @@ class BaleMessageHandlerTests(PermissionDatabaseTestCase):
     def test_chat_id_cannot_substitute_for_sender_identity(self):
         self.assertEqual(self.message("حکم کار", user_id=None)["reason"], "work-order-permission-denied")
 
-    def test_oil_type_opens_manual_code_form(self):
+    def test_oil_type_requests_automatic_proposal(self):
         self.message("حکم کار")
         self.assertEqual(self.message("۲")["reason"], "work-order-type-selected")
-        self.assertEqual(next(iter(self.handler.pending.values())).stage, 'OIL_MODEL')
+        self.assertEqual(next(iter(self.handler.pending.values())).stage, 'BUSY')
+        self.assertIn('پیشنهاد تعویض روغن', self.replies[-1][1])
 
     def test_unrelated_channels_and_groups_are_untouched(self):
         self.assertIsNone(self.message("حکم کار", platform="telegram"))

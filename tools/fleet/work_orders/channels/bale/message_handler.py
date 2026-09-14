@@ -63,7 +63,6 @@ class FormSession:
     expires: float
     stage: str = "MENU"
     work_order_type: str = ""
-    oil_model: str = ""
     machine_codes: list[str] = field(default_factory=list)
     jalali_date: str = ""
     result: str = ""
@@ -171,7 +170,7 @@ class WorkOrderMenuHandler:
                 reply = render(session.proposal)
             elif request['action'] == 'validate_add':
                 session.additions = result['items']
-                if session.work_order_type == 'GREASING':
+                if session.work_order_type in {'GREASING', 'OIL_CHANGE'}:
                     from tools.fleet.work_orders.channels.bale.proposal_form import add_items, render
                     add_items(session.proposal, session.additions, 'GREASING_FULL')
                     session.stage = 'PROPOSAL'
@@ -199,16 +198,35 @@ class WorkOrderMenuHandler:
                 session.order_no = ""
                 session.result = ""
                 review_context(key[1], chat_id, 'manager', number='', stage='EDIT', db_path=self.db_path)
-                if session.work_order_type == 'OIL_CHANGE':
-                    from tools.fleet.work_orders.types.oil_change.form import MODEL_PROMPT
-                    session.proposal = None
-                    session.stage = 'OIL_MODEL'
-                    session.oil_model = ''
-                    reply = 'خروجی اصلاح‌شده شمارهٔ جدید می‌گیرد؛ حکم قبلی محفوظ می‌ماند.\n' + MODEL_PROMPT
-                else:
-                    session.proposal = result['proposal']
-                    session.jalali_date = session.proposal['plan_date']
-                    reply = 'خروجی اصلاح‌شده شمارهٔ جدید می‌گیرد؛ حکم قبلی محفوظ می‌ماند.\n' + render(session.proposal)
+                session.proposal = result['proposal']
+                session.jalali_date = session.proposal['plan_date']
+                reply = 'خروجی اصلاح‌شده شمارهٔ جدید می‌گیرد؛ حکم قبلی محفوظ می‌ماند.\n' + render(session.proposal)
+            elif result.get('orders'):
+                session.work_order_type = 'OIL_CHANGE'
+                summaries = []
+                for order in result['orders']:
+                    number = order['work_order_no']
+                    reply = f"✅ حکم مستقل {number}\n{order['item_summary']}\nحکم هنوز برای سرویسکار ارسال نشده است."
+                    session.order_no = number
+                    try:
+                        require_work_order_permission(key[1], db_path=self.db_path)
+                        await self.document_sender(gateway, chat_id, order)
+                        session.stage = 'REVIEW'
+                        reply += f"\nپس از بررسی همین فایل بنویسید:\nثبت تایید {number}\nبرای اصلاح:\nویرایش {number}"
+                    except Exception:
+                        logger.exception('Manager oil Excel delivery failed for %s', number)
+                        session.stage = 'RESULT'
+                        reply += f"\nارسال فایل ناموفق بود؛ حکم محفوظ است. بنویسید:\nارسال مجدد {number}"
+                    review_context(key[1],chat_id,'manager',number=number,stage=session.stage,db_path=self.db_path)
+                    delivery = self._send_reply(gateway,chat_id,reply,send)
+                    if delivery:
+                        await delivery
+                    summaries.append(number + ': ' + order['item_summary'])
+                reply = 'حکم‌های مستقل ساخته‌شده:\n' + '\n'.join(summaries)
+                reply += '\nبرای هر حکم، تأیید و انتخاب سرویسکار جداگانه انجام می‌شود.'
+                if result.get('batch_error'):
+                    reply += '\n⚠️ ' + result['batch_error']
+                session.result = reply
             else:
                 order = result["order"]
                 session.work_order_type = order.get('work_order_type', session.work_order_type)
@@ -231,7 +249,7 @@ class WorkOrderMenuHandler:
                     review_context(key[1], chat_id, 'manager', number=session.order_no, stage='REVIEW', db_path=self.db_path)
                     reply += "\n\nفایل را بررسی کنید؛ آیا تایید می‌کنید؟\nبرای تایید بنویسید:\nتایید"
                     if session.work_order_type == 'OIL_CHANGE':
-                        reply += "\n\nبرای اصلاح مدل، کد دستگاه یا نوبت سرویس بنویسید:\nویرایش"
+                        reply += "\n\nبرای اصلاح دستگاه‌ها و دریافت نوبت سرویس از برنامه‌ریزی بنویسید:\nویرایش"
                     elif session.work_order_type == 'GREASING':
                         reply += "\n\nبرای اصلاح دستگاه‌ها بنویسید:\nویرایش"
                     else:
@@ -328,38 +346,10 @@ class WorkOrderMenuHandler:
             elif session.stage == "MENU" and text.isdecimal():
                 item = resolve_work_order_selection(text, bale_id=user_id, db_path=self.db_path)
                 session.work_order_type = item["key"]
-                if item['key'] == 'OIL_CHANGE':
-                    from tools.fleet.work_orders.types.oil_change.form import MODEL_PROMPT
-                    session.stage = 'OIL_MODEL'
-                    reply = MODEL_PROMPT
-                else:
-                    self._start_request(key, session, {'action':'propose','bale_id':user_id,'work_order_type':item['key']}, gateway, send)
-                    reply = 'در حال بررسی کارکردها و تهیهٔ پیشنهاد گریس‌کاری…' if item['key'] == 'GREASING' else 'در حال بررسی کارکردها و تهیهٔ پیشنهاد هواکش…'
+                self._start_request(key, session, {'action':'propose','bale_id':user_id,'work_order_type':item['key']}, gateway, send)
+                labels = {'OIL_CHANGE':'تعویض روغن', 'GREASING':'گریس‌کاری', 'AIR_FILTER':'هواکش'}
+                reply = 'در حال بررسی کارکردها و تهیهٔ پیشنهاد ' + labels[item['key']] + '…'
                 reason = "work-order-type-selected"
-            elif session.stage == 'OIL_MODEL':
-                from tools.fleet.work_orders.types.oil_change.form import MODELS, code_prompt
-                choice = normalize_digits(text)
-                if choice not in MODELS:
-                    raise ValueError('شمارهٔ مدل را از ۱ تا ۱۳ وارد کنید.')
-                session.oil_model = MODELS[choice]
-                session.stage = 'OIL_CODE'
-                reply = session.oil_model + '\n' + code_prompt(session.oil_model)
-            elif session.stage == 'OIL_CODE':
-                from tools.fleet.work_orders.types.oil_change.form import normalize_code, INTERVAL_PROMPT
-                session.machine_codes = [normalize_code(text, session.oil_model)]
-                session.stage = 'OIL_INTERVAL'
-                reply = f'کد دستگاه: {session.machine_codes[0]}\n' + INTERVAL_PROMPT
-            elif session.stage == 'OIL_INTERVAL':
-                from tools.fleet.work_orders.types.oil_change.form import create_request, code_prompt
-                if text == 'برگشت':
-                    session.stage = 'OIL_CODE'
-                    reply = code_prompt(session.oil_model)
-                else:
-                    request = create_request(session, text, user_id)
-                    session.jalali_date = request['jalali_date']
-                    self._start_request(key, session, request, gateway, send)
-                    reply = 'در حال ساخت حکم کار و فایل اکسل…'
-                    reason = 'work-order-creating'
             elif session.proposal is not None and session.stage in {'PROPOSAL','REMOVE','ADD_CODES','ADD_ACTION'}:
                 from tools.fleet.work_orders.channels.bale.proposal_form import render, add_items
                 if text == 'برگشت':
@@ -375,7 +365,7 @@ class WorkOrderMenuHandler:
                     elif text in {'تایید','تأیید'}:
                         if not session.proposal['items']:
                             raise ValueError('فهرست خالی است؛ دستگاه اضافه کنید یا انصراف بدهید.')
-                        if session.work_order_type == 'GREASING':
+                        if session.work_order_type in {'GREASING', 'OIL_CHANGE'}:
                             request = {"action": "create", "bale_id": user_id,
                                        "work_order_type": session.work_order_type,
                                        "machine_codes": [i['machine_code'] for i in session.proposal['items']],
@@ -400,7 +390,7 @@ class WorkOrderMenuHandler:
                     reply = render(session.proposal)
                 elif session.stage == 'ADD_CODES':
                     codes = [c for c in re.split(r'[\s,،]+',normalize_digits(text)) if c]
-                    if session.work_order_type != 'GREASING':
+                    if session.work_order_type not in {'GREASING','OIL_CHANGE'}:
                         codes = [c.upper() for c in codes]
                         codes = [c[2:] if re.fullmatch(r'HD\d+',c) else c for c in codes]
                     if not codes or len(codes) > 100:

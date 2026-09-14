@@ -16,10 +16,91 @@ from tools.fleet.work_orders.dev.test_permissions import test_database
 
 
 class OilChangeTests(WorkOrderCreateTests):
+    def setUp(self):
+        super().setUp()
+        from tools.fleet.oil_change.test_proposal import sample_source
+        self.source = sample_source()
+        for target in ('tools.fleet.oil_change.source.read_source', 'tools.fleet.oil_change.proposal.read_source'):
+            patcher = patch(target, side_effect=lambda *a,**kw:self.source)
+            patcher.start();self.addCleanup(patcher.stop)
+        patcher=patch('tools.fleet.oil_change.source.source_hash',return_value='fixture')
+        patcher.start();self.addCleanup(patcher.stop)
+
     def oil_order(self, interval=200):
         return service.create_work_order(work_order_type='OIL_CHANGE', jalali_date='1405/06/18',
             shift='روزانه', machine_codes=['702'], created_by='bale:455740857',
             item_actions={'HD702': f'OIL_CHANGE_{interval}'})
+
+    def test_multiple_selected_machines_get_independent_reviewable_orders(self):
+        from tools.fleet.oil_change.test_proposal import sample_source
+        self.source=sample_source('HD785-7','HD708',last=200)
+        second=sample_source('R330-9','EX332',last=2000,remaining=24)
+        self.source['machines'] += second['machines']
+        self.source['plans'] += second['plans']
+        async def scenario():
+            documents, replies = [], []
+            async def worker(request):
+                return create_worker.execute_request(request,db_path=self.db_path)
+            async def document(gateway,chat,order):
+                documents.append(order)
+            handler=WorkOrderMenuHandler(db_path=self.db_path,worker=worker,document_sender=document)
+            async def enter(text):
+                event=SimpleNamespace(text=text,source=SimpleNamespace(platform='bale',chat_type='dm',user_id='455740857',chat_id='455740857'))
+                handler.handle(event,None,send=lambda g,c,t:replies.append(t))
+                while handler.tasks: await asyncio.gather(*list(handler.tasks))
+            await enter('حکم کار');await enter('۲')
+            session=next(iter(handler.pending.values()))
+            self.assertEqual([i['machine_code'] for i in session.proposal['items']],['HD708'])
+            await enter('اضافه');await enter('EX332')
+            self.assertEqual(session.stage,'PROPOSAL')
+            await enter('حذف');await enter('1')
+            self.assertEqual([i['machine_code'] for i in session.proposal['items']],['EX332'])
+            await enter('اضافه');await enter('HD708')
+            await enter('تایید')
+            self.assertEqual(len(documents),2)
+            self.assertNotEqual(documents[0]['work_order_no'],documents[1]['work_order_no'])
+            for document in documents:
+                order=service.get_work_order(document['work_order_no'])
+                self.assertEqual(len(order['items']),1)
+                self.assertEqual(order['status'],'FILE_READY')
+                self.assertIsNone(order['sent_at'])
+                self.assertTrue(any('ثبت تایید '+document['work_order_no'] in text for text in replies))
+            self.assertIn('200 ساعتی',documents[0]['item_summary'])
+            self.assertIn('400 ساعتی',documents[1]['item_summary'])
+            handler.pending.clear()
+            await enter('ارسال مجدد '+documents[0]['work_order_no'])
+            self.assertEqual(documents[-1]['work_order_no'],documents[0]['work_order_no'])
+        asyncio.run(scenario())
+
+    def test_source_changes_and_wrong_cycle_block_oil_creation(self):
+        request=dict(action='create',bale_id='455740857',work_order_type='OIL_CHANGE',
+                     machine_codes=['HD708'],item_actions={'HD708':builder.action_for('HD785-7',400)},
+                     jalali_date='1405/06/23',shift='روزانه',proposal={'source_sha256':'outdated'})
+        with patch.object(service,'create_work_order') as create:
+            self.assertEqual(create_worker.execute_request(request,db_path=self.db_path)['error'],'INVALID_INPUT')
+            request['proposal']['source_sha256']='fixture'
+            request['item_actions']['HD708']=builder.action_for('HD785-7',200)
+            self.assertEqual(create_worker.execute_request(request,db_path=self.db_path)['error'],'INVALID_INPUT')
+            create.assert_not_called()
+
+    def test_partial_batch_failure_reports_created_orders_without_retry(self):
+        from tools.fleet.oil_change.proposal import build_proposal
+        from tools.fleet.oil_change.test_proposal import sample_source
+        second=sample_source('HD785-7','HD709')
+        self.source['machines']+=second['machines'];self.source['plans']+=second['plans']
+        proposal=build_proposal()
+        request=dict(action='create',bale_id='455740857',work_order_type='OIL_CHANGE',
+                     machine_codes=['HD708','HD709'],item_actions={i['machine_code']:i['action_code'] for i in proposal['items']},
+                     jalali_date=proposal['plan_date'],shift='روزانه',proposal=proposal)
+        original=service.create_work_order
+        def create(**kwargs):
+            if kwargs['machine_codes']==['HD709']:raise ValueError('test failure')
+            return original(**kwargs)
+        with patch.object(service,'create_work_order',side_effect=create), self.assertLogs(level='ERROR'):
+            result=create_worker.execute_request(request,db_path=self.db_path)
+        self.assertTrue(result['ok'])
+        self.assertEqual(len(result['orders']),1)
+        self.assertIn('HD709',result['batch_error'])
 
     def test_all_ten_templates_keep_cells_styles_and_package_assets(self):
         before = hashlib.sha256(builder.SOURCE.read_bytes()).hexdigest()
@@ -62,12 +143,15 @@ class OilChangeTests(WorkOrderCreateTests):
         with test_database(self.db_path) as con:
             self.assertEqual(con.execute('SELECT COUNT(*) FROM service_work_orders').fetchone()[0], 0)
 
-    def test_bale_manual_review_dispatch_and_receipt_offline(self):
+    def test_bale_automatic_review_dispatch_and_receipt_offline(self):
         for choice, code in [('1', '702'), ('2', '463'), ('3', '708'), ('4', '۸۰۱'), ('5', 'ex333'), ('6', '851')]:
             with self.subTest(model=choice):
                 self.run_bale_model(choice, code)
 
     def run_bale_model(self, model_choice, machine_code):
+        from tools.fleet.oil_change.test_proposal import sample_source
+        from tools.fleet.work_orders.types.oil_change.form import MODELS
+        self.source=sample_source(MODELS[model_choice],builder.normalize_code(machine_code,MODELS[model_choice]),last=1000)
         with test_database(self.db_path) as con:
             importlib.import_module('tools.fleet.work_orders.migrations.003_staff_dispatch').migrate(con)
         async def scenario():
@@ -93,13 +177,10 @@ class OilChangeTests(WorkOrderCreateTests):
                 return result
             await enter('حکم کار')
             await enter('۲')
-            self.assertEqual(requests, [])
-            self.assertEqual((await enter('14'))['reason'], 'work-order-input-rejected')
-            await enter(model_choice)
-            await enter(machine_code)
-            self.assertEqual((await enter('4350'))['reason'], 'work-order-input-rejected')
-            self.assertEqual(requests, [])
-            await enter('۱۲۰۰')
+            self.assertEqual(requests[0]['action'], 'propose')
+            self.assertEqual(next(iter(handler.pending.values())).stage,'PROPOSAL')
+            self.assertEqual(len(documents),0)
+            await enter('تایید')
             session = next(iter(handler.pending.values()))
             self.assertEqual(session.stage, 'REVIEW')
             self.assertEqual(len(documents), 1)
@@ -125,14 +206,12 @@ class OilChangeTests(WorkOrderCreateTests):
             # Commands survive expired in-memory forms and reconstruct oil editing.
             await enter('حکم کار')
             await enter('۲')
-            await enter(model_choice)
-            await enter(machine_code)
-            await enter('400')
+            await enter('تایید')
             editable = session = next(iter(handler.pending.values()))
             edit_number = editable.order_no
             handler.pending.clear()
             await enter('ویرایش ' + edit_number)
-            self.assertEqual(next(iter(handler.pending.values())).stage, 'OIL_MODEL')
+            self.assertEqual(next(iter(handler.pending.values())).stage, 'PROPOSAL')
             self.assertEqual(service.get_work_order(edit_number)['status'], 'FILE_READY')
         with patch('tools.fleet.work_orders.core.permissions.DB_PATH', self.db_path):
             asyncio.run(scenario())
@@ -157,13 +236,13 @@ class OilChangeTests(WorkOrderCreateTests):
                 if handler.tasks:
                     await asyncio.gather(*list(handler.tasks))
             for choice, raw, canonical in [('۹','۱۵۳','D153'), ('۱۰','d154','D154'), ('۱۱','۳۲۲','EX322'), ('۱۲','ex522','EX522'), ('۱۳','602','EX602')]:
+                from tools.fleet.oil_change.test_proposal import sample_source
+                self.source=sample_source(MODELS[str(int(choice))],canonical,last=1800)
                 await enter('حکم کار')
                 await enter('۲')
-                await enter(choice)
-                await enter(raw)
                 session = next(iter(handler.pending.values()))
-                self.assertEqual(session.machine_codes, [canonical])
-                await enter('۲۰۰۰')
+                self.assertEqual(session.proposal['items'][0]['machine_code'],canonical)
+                await enter('تایید')
                 self.assertEqual(session.stage, 'REVIEW')
                 order = service.get_work_order(session.order_no)
                 self.assertEqual(order['status'], 'FILE_READY')
