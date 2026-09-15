@@ -87,7 +87,10 @@ def build_proposal(path=SOURCE, planning_path=PLANNING_SOURCE, as_of=None):
         if component['state']=='DUE':
             due.append(item)
         elif component['state']=='NEAR_DUE':
-            warnings.append(f"{item['machine_code']}: {component['remaining']:g} ساعت تا موعد؛ {item['action_text']}")
+            warnings.append(
+                f"{item['machine_code']} : تا موعد بعدی {component['remaining']:g} ساعت، "
+                f"برای سرویس {component['next_interval']} ساعتی"
+            )
     return dict(work_order_type='OIL_CHANGE',plan_date=plan_date,
                 cutoff=format_shift(source['cutoff']) if source['cutoff'] else 'ثبت موجود نیست',
                 source_sha256=source['sha256'],items=due,warnings=warnings,review=review,

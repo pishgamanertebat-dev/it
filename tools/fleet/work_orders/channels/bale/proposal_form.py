@@ -75,10 +75,10 @@ def render(proposal):
         lines.append('━━━━━━━━━━━━━━')
     if not proposal['items']:
         lines.append('هیچ دستگاهی انتخاب نشده است.')
-    if proposal.get('source_warnings'):
+    if proposal.get('source_warnings') and not oil:
         lines += ['', '⚠️ وضعیت اطلاعات:'] + proposal['source_warnings']
     if proposal.get('warnings'):
-        lines += ['', '⚠️ نزدیک موعد؛ داخل حکم نیستند:'] + proposal['warnings']
+        lines += ['', '⚠️ نزدیک موعد:'] + proposal['warnings']
     if proposal.get('review'):
         lines += ['', '🔎 نیازمند بررسی داده:'] + [f"{i['code']}: {i['reason']}" for i in proposal['review']]
     confirm_text = 'تایید: ساخت اکسل' if greasing or oil else 'تایید: انتخاب شیفت و ساخت اکسل'

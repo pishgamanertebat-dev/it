@@ -60,7 +60,8 @@ class ProposalFormTests(CreationFlowTests):
                       'components':{'oil_change':{'current_meter':6539.5, 'target_meter':6520,
                           'remaining':-19.5, 'last_interval':1000, 'next_interval':1200,
                           'last_service':'1405/06/01 - روز', 'state':'DUE'}}}],
-            'warnings':[], 'review':[]}
+            'source_warnings':['اطلاعات کارکرد قدیمی است؛ آخرین ثبت: 1405/06/22 - شب؛ مانده فقط از داده‌های ثبت‌شده محاسبه شده است.'],
+            'warnings':['W473 : تا موعد بعدی 28 ساعت، برای سرویس 2000 ساعتی'], 'review':[]}
         text = render(proposal)
         self.assertIn('1) دستگاه: EX802', text)
         self.assertIn('مدل: PC800-7', text)
@@ -68,6 +69,10 @@ class ProposalFormTests(CreationFlowTests):
         self.assertIn('ساعت‌کار فعلی دستگاه: 6539.5 ساعت', text)
         self.assertIn('ساعت‌کار موعد تعویض: 6520 ساعت', text)
         self.assertIn('19.5 ساعت از موعد تعویض گذشته است', text)
+        self.assertIn('⚠️ نزدیک موعد:\nW473 : تا موعد بعدی 28 ساعت، برای سرویس 2000 ساعتی', text)
+        self.assertNotIn('داخل حکم نیستند', text)
+        self.assertNotIn('اطلاعات کارکرد قدیمی است', text)
+        self.assertNotIn('مانده فقط از داده‌های ثبت‌شده', text)
         self.assertNotIn('\\', text)
         self.assertNotIn('&#x20;', text)
 
@@ -129,10 +134,10 @@ class ProposalFormTests(CreationFlowTests):
     def test_manual_add_removes_machine_from_near_due_warnings(self):
         from tools.fleet.work_orders.channels.bale.proposal_form import add_items
         proposal = {'work_order_type':'OIL_CHANGE', 'items':[],
-                    'warnings':['W470: 12 ساعت تا موعد؛ WA470-3 — سرویس 1200 ساعتی',
-                                'HD714: 20 ساعت تا موعد؛ HD785-7 — سرویس 800 ساعتی']}
+                    'warnings':['W470 : تا موعد بعدی 12 ساعت، برای سرویس 1200 ساعتی',
+                                'HD714 : تا موعد بعدی 20 ساعت، برای سرویس 800 ساعتی']}
         item = {'machine_code':'W470', 'machine_name':'لودر', 'action_code':'OIL_CHANGE_WA470-3_1200',
                 'action_text':'WA470-3 — سرویس 1200 ساعتی'}
         add_items(proposal, [item], 'GREASING_FULL')
         self.assertEqual([i['machine_code'] for i in proposal['items']], ['W470'])
-        self.assertEqual(proposal['warnings'], ['HD714: 20 ساعت تا موعد؛ HD785-7 — سرویس 800 ساعتی'])
+        self.assertEqual(proposal['warnings'], ['HD714 : تا موعد بعدی 20 ساعت، برای سرویس 800 ساعتی'])

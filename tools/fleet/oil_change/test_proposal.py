@@ -33,6 +33,8 @@ class ProposalTests(unittest.TestCase):
             self.assertEqual(proposal['evaluations'][0]['components']['oil_change']['state'],state)
             self.assertEqual(len(proposal['items']),selected)
             self.assertEqual(len(proposal['warnings']),warned)
+            if warned:
+                self.assertEqual(proposal['warnings'], [f'HD708 : تا موعد بعدی {remaining:g} ساعت، برای سرویس 400 ساعتی'])
 
     def test_confirmed_bulldozer_alias_and_legacy_identity(self):
         for raw,model,canonical in [('W151','D155A-6','D151'),('W152','D155A-2','D152')]:
