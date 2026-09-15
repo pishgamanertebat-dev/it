@@ -1,0 +1,14 @@
+# Server-local time. Reloaded automatically on every scheduler tick.
+version: 1
+timezone: local
+misfire_grace_seconds: 900
+schedules:
+  - id: overflow_daily_test
+    enabled: true
+    task: overflow
+    recipient: "455740857"
+    trigger:
+      type: cron
+      hour: 9
+      minute: 0
+    params: {}
