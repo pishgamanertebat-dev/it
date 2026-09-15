@@ -32,21 +32,35 @@ def render(proposal):
     oil = proposal.get('work_order_type') == 'OIL_CHANGE'
     label = 'تعویض روغن' if oil else 'گریس‌کاری' if greasing else 'هواکش'
     lines = [f"پیشنهاد حکم {label} برای {proposal['plan_date']}", f"داده‌ها تا: {proposal['cutoff']}"]
-    if oil:
-        lines += ['برای هر دستگاه یک حکم مستقل ساخته می‌شود.',
-                  'سرویس بعدی از آخرین سرویس ثبت‌شده در برنامه‌ریزی محاسبه شده است.']
     lines += ['', 'دستگاه‌های انتخاب‌شده:']
     for i,item in enumerate(proposal['items'],1):
-        lines += ['', f"{i}) دستگاه {item['machine_code']}", item['action_text'], '']
+        if oil:
+            action_parts = item['action_text'].split(' — ', 1)
+            lines += ['', f"{i}) دستگاه: {item['machine_code']}"]
+            if len(action_parts) == 2:
+                lines += [f"مدل: {action_parts[0]}", f"سرویس مورد نیاز: {action_parts[1]}", '']
+            else:
+                lines += [f"سرویس مورد نیاز: {item['action_text']}", '']
+        else:
+            lines += ['', f"{i}) دستگاه {item['machine_code']}", item['action_text'], '']
         fields = ('greasing',) if greasing else (('inner', 'outer') if item['action_code'] == BOTH else ('outer',))
         components = item.get('components', {})
         rendered = False
         if oil and components.get('oil_change'):
             c = components['oil_change']
-            lines += [f"⏱ ساعت‌کار دستگاه: {c['current_meter']:g}",
-                      f"مانده به تعویض: {c['remaining']:g} ساعت",
-                      f"سرویس انجام‌شده: {c['last_interval']} ← حکم بعدی: {c['next_interval']} ساعتی",
-                      f"آخرین ثبت زرد تعویض روغن: {c['last_service']}"]
+            remaining = c['remaining']
+            if remaining < 0:
+                due_text = f"🔴 {abs(remaining):g} ساعت از موعد تعویض گذشته است"
+            elif remaining == 0:
+                due_text = "🔴 موعد تعویض روغن رسیده است"
+            else:
+                due_text = f"🟢 {remaining:g} ساعت تا موعد تعویض روغن باقی مانده است"
+            lines += [f"ساعت‌کار فعلی دستگاه: {c['current_meter']:g} ساعت",
+                      f"ساعت‌کار موعد تعویض: {c['target_meter']:g} ساعت",
+                      f"وضعیت: {due_text}",
+                      f"نوبت قبلی: سرویس {c['last_interval']} ساعتی",
+                      f"نوبت این حکم: سرویس {c['next_interval']} ساعتی",
+                      f"آخرین ثبت تعویض روغن: {c['last_service']}"]
             rendered = True
             fields = ()
         for field in fields:
@@ -89,3 +103,9 @@ def add_items(proposal, items, action):
         additions.append({**item,'action_code':action,'action_text':ACTIONS[action]})
     codes = {i['machine_code'] for i in additions}
     proposal['items'] = [i for i in proposal['items'] if i['machine_code'] not in codes] + additions
+    # A manually selected near-due machine is now inside the draft order and
+    # must no longer be repeated under "near due; not in the order".
+    proposal['warnings'] = [
+        warning for warning in proposal.get('warnings', [])
+        if str(warning).split(':', 1)[0].strip() not in codes
+    ]

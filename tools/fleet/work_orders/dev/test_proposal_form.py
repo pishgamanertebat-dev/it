@@ -5,6 +5,20 @@ from tools.fleet.work_orders.dev.test_bale_creation_flow import CreationFlowTest
 
 
 class ProposalFormTests(CreationFlowTests):
+    async def test_work_order_reply_uses_plain_text_bale_delivery(self):
+        delivered = []
+        async def send_message(**kwargs):
+            delivered.append(kwargs)
+        class Adapter:
+            _bot = SimpleNamespace(send_message=send_message)
+            async def send(self, *_):
+                raise AssertionError('Markdown delivery must not be used')
+        gateway = SimpleNamespace(adapters={'bale':Adapter()})
+        reply = '1) EX802 PC800-7\nساعت‌کار: 6539.5'
+        self.handler._send_reply(gateway, '455740857', reply, lambda *_: None)
+        await asyncio.gather(*list(self.handler.tasks))
+        self.assertEqual(delivered, [{'chat_id':'455740857', 'text':reply, 'parse_mode':None}])
+
     async def test_long_reply_chunks_are_delivered_in_order(self):
         delivered=[]
         calls=0
@@ -37,6 +51,25 @@ class ProposalFormTests(CreationFlowTests):
         self.assertLess(text.index('🔎 نیازمند بررسی'),text.index('حذف:'))
         self.assertIn('تایید: ساخت اکسل',text)
         self.assertNotIn('تایید: انتخاب شیفت',text)
+
+    def test_oil_render_explains_meter_and_overdue_hours_plainly(self):
+        from tools.fleet.work_orders.channels.bale.proposal_form import render
+        proposal = {'work_order_type':'OIL_CHANGE', 'plan_date':'1405/06/23', 'cutoff':'1405/06/22 - شب',
+            'items':[{'machine_code':'EX802', 'action_code':'OIL_CHANGE_PC800-7_1200',
+                      'action_text':'PC800-7 — سرویس 1200 ساعتی',
+                      'components':{'oil_change':{'current_meter':6539.5, 'target_meter':6520,
+                          'remaining':-19.5, 'last_interval':1000, 'next_interval':1200,
+                          'last_service':'1405/06/01 - روز', 'state':'DUE'}}}],
+            'warnings':[], 'review':[]}
+        text = render(proposal)
+        self.assertIn('1) دستگاه: EX802', text)
+        self.assertIn('مدل: PC800-7', text)
+        self.assertIn('سرویس مورد نیاز: سرویس 1200 ساعتی', text)
+        self.assertIn('ساعت‌کار فعلی دستگاه: 6539.5 ساعت', text)
+        self.assertIn('ساعت‌کار موعد تعویض: 6520 ساعت', text)
+        self.assertIn('19.5 ساعت از موعد تعویض گذشته است', text)
+        self.assertNotIn('\\', text)
+        self.assertNotIn('&#x20;', text)
 
     async def start_proposal(self):
         async def worker(request):
@@ -92,3 +125,14 @@ class ProposalFormTests(CreationFlowTests):
         self.assertEqual(proposal['items'],[])
         add_items(proposal,[{'machine_code':'TR1','machine_name':'خاور'}],BOTH)
         self.assertEqual(proposal['items'][0]['action_code'],BOTH)
+
+    def test_manual_add_removes_machine_from_near_due_warnings(self):
+        from tools.fleet.work_orders.channels.bale.proposal_form import add_items
+        proposal = {'work_order_type':'OIL_CHANGE', 'items':[],
+                    'warnings':['W470: 12 ساعت تا موعد؛ WA470-3 — سرویس 1200 ساعتی',
+                                'HD714: 20 ساعت تا موعد؛ HD785-7 — سرویس 800 ساعتی']}
+        item = {'machine_code':'W470', 'machine_name':'لودر', 'action_code':'OIL_CHANGE_WA470-3_1200',
+                'action_text':'WA470-3 — سرویس 1200 ساعتی'}
+        add_items(proposal, [item], 'GREASING_FULL')
+        self.assertEqual([i['machine_code'] for i in proposal['items']], ['W470'])
+        self.assertEqual(proposal['warnings'], ['HD714: 20 ساعت تا موعد؛ HD785-7 — سرویس 800 ساعتی'])

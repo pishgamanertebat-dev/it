@@ -107,16 +107,17 @@ class WorkOrderMenuHandler:
                 chunk += line
             if chunk:
                 chunks.append(chunk)
-            if len(chunks) <= 1:
+            adapter = next((adapter for platform, adapter in gateway.adapters.items()
+                            if str(getattr(platform, 'value', platform)).lower() == 'bale'), None) if gateway else None
+            bot = getattr(adapter, '_bot', None) if adapter is not None else None
+
+            # Adapter.send treats text as Markdown and escapes punctuation. Bale
+            # displays those escapes literally and may expose HTML entities.
+            # Work-order forms are plain text, so disable formatting entirely.
+            if bot is None and len(chunks) <= 1:
                 if chunks:
                     send(gateway, chat_id, chunks[0])
                 return None
-
-            # The plugin's synchronous callback schedules every send as a
-            # separate task. Network completion can then reorder long replies.
-            # Await each Bale send here so proposal sections arrive in order.
-            adapter = next((adapter for platform, adapter in gateway.adapters.items()
-                            if str(getattr(platform, 'value', platform)).lower() == 'bale'), None) if gateway else None
             if adapter is None:
                 for part in chunks:
                     send(gateway, chat_id, part)
@@ -125,7 +126,10 @@ class WorkOrderMenuHandler:
             async def send_in_order():
                 try:
                     for part in chunks:
-                        await adapter.send(str(chat_id), part)
+                        if bot is not None:
+                            await bot.send_message(chat_id=str(chat_id), text=part, parse_mode=None)
+                        else:
+                            await adapter.send(str(chat_id), part)
                 except Exception:
                     logger.exception('Could not send ordered work-order reply')
 
