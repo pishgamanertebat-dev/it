@@ -26,7 +26,7 @@ class ProposalTests(unittest.TestCase):
             with self.assertRaises(ValueError): next_interval(bad)
 
     def test_warning_boundaries_and_source_plan_date(self):
-        for remaining, state, selected, warned in [(-1,'DUE',1,0),(0,'DUE',1,0),(.5,'NEAR_DUE',0,1),(24,'NEAR_DUE',0,1),(24.5,'OK',0,0)]:
+        for remaining, state, selected, warned in [(-1,'DUE',1,0),(0,'DUE',1,0),(.5,'NEAR_DUE',0,1),(24,'NEAR_DUE',0,1),(24.5,'NEAR_DUE',0,1),(30,'NEAR_DUE',0,1),(30.5,'OK',0,0)]:
             with patch('tools.fleet.oil_change.proposal.read_source',return_value=sample_source(remaining=remaining)):
                 proposal=build_proposal()
             self.assertEqual(proposal['plan_date'],'1405/06/23')
@@ -42,8 +42,16 @@ class ProposalTests(unittest.TestCase):
             self.assertEqual(item['machine_code'],canonical)
             self.assertIn(model,item['action_code'])
 
+    def test_pc1250_is_supported_by_automatic_planning(self):
+        source = sample_source('PC1250-8', 'EX1252', last=1800, remaining=30)
+        items, review = evaluate(source)
+        self.assertEqual(review, [])
+        self.assertEqual(items[0]['machine_code'], 'EX1252')
+        self.assertEqual(items[0]['components']['oil_change']['state'], 'NEAR_DUE')
+        self.assertTrue(items[0]['action_code'].endswith('_2000'))
+
     def test_missing_duplicate_unsupported_and_invalid_rows_require_review(self):
-        for mutate in (lambda s:s['plans'][0].update(model='1250-8'),
+        for mutate in (lambda s:s['plans'][0].update(model='9999-9'),
                        lambda s:s['plans'].append(s['plans'][0].copy()),
                        lambda s:s['machines'].clear(),
                        lambda s:s['machines'][0].update(errors=['bad formula'])):
@@ -57,6 +65,20 @@ class ProposalTests(unittest.TestCase):
         source=sample_source(last=2000,remaining=100)
         self.assertTrue(resolve_items(['708'],source)[0]['action_code'].endswith('_200'))
         with self.assertRaises(ValueError):resolve_items(['708','HD708'],source)
+
+    def test_excluded_units_never_enter_orders_warnings_or_review(self):
+        for with_plans in (False, True):
+            source = sample_source()
+            for code, kind, model in [('W471','لودر','470-6'), ('EX231','بیل مکانیکی','230')]:
+                source['machines'].append({**source['machines'][0], 'code':code, 'remaining':-100, 'errors':['bad formula']})
+                if with_plans:
+                    source['plans'].append(dict(row=9,code=code,kind=kind,model=model,last_interval=None))
+            items, review = evaluate(source)
+            self.assertEqual([i['machine_code'] for i in items], ['HD708'])
+            self.assertEqual(review, [])
+            for code in ('W471', 'EX231', '471', '231'):
+                with self.assertRaises(ValueError):
+                    resolve_items([code], source)
 
 
 class SourceTests(unittest.TestCase):
@@ -91,11 +113,18 @@ class SourceTests(unittest.TestCase):
             s['H4'].fill=PatternFill('solid',fgColor='FFFF00')
             s['I4'].fill=PatternFill('solid',fgColor='FFC000')
             s['K4'].fill=PatternFill('solid',fgColor='FFFF00')
+            for row, code, name in [(5,'W471','لودر'), (6,'EX231','بیل مکانیکی')]:
+                s.cell(row,1,name);s.cell(row,2,code)
+                s.cell(row,14,'=1/0')
+                s.cell(row,10,12).fill=PatternFill('solid',fgColor='FFFF00')
             w.save(hours);w.close()
-            p=Workbook();p.active.append(['ردیف','نوع دستگاه','مدل دستگاه','کد دستگاه','نوع سرویس']);p.active.append([1,'دامپتراک','785-7','HD708',200]);p.save(plans);p.close()
+            p=Workbook();p.active.append(['ردیف','نوع دستگاه','مدل دستگاه','کد دستگاه','نوع سرویس']);p.active.append([1,'دامپتراک','785-7','HD708',200])
+            p.active.append([2,'لودر','470-6','W471',None]);p.active.append([3,'بیل مکانیکی',230,'EX231',None]);p.save(plans);p.close()
             before=source_hash(hours,plans)
             source=read_source(hours,plans,as_of=(1,2,1))
             machine=source['machines'][0]
+            self.assertEqual([m['code'] for m in source['machines']], ['HD708'])
+            self.assertEqual([p['code'] for p in source['plans']], ['HD708'])
             self.assertEqual(machine['remaining'],15)
             self.assertEqual(machine['current_meter'],185)
             self.assertEqual(machine['last_service'],(1,1,1))

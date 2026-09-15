@@ -254,7 +254,8 @@ class OilChangeTests(WorkOrderCreateTests):
 
     def test_new_model_templates_all_intervals(self):
         for model, code in [('HD465-7R', 'HD464'), ('HD785-7', 'HD709'), ('PC800-7', 'EX801'), ('R330-9', 'EX333'), ('PC850-8', 'EX851'), ('WA600-6', 'W602'), ('WA470-3', 'W473'),
-                            ('D155A-2', 'D153'), ('D155A-6', 'D154'), ('R320-9', 'EX322'), ('R520-9', 'EX522'), ('PC600-8', 'EX602')]:
+                            ('D155A-2', 'D153'), ('D155A-6', 'D154'), ('R320-9', 'EX322'), ('R520-9', 'EX522'), ('PC600-8', 'EX602'),
+                            ('PC1250-8', 'EX1252')]:
             source_path = builder.TEMPLATES[model][0]
             before = hashlib.sha256(source_path.read_bytes()).hexdigest()
             original = load_workbook(source_path)

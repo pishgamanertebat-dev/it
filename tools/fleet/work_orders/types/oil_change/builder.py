@@ -20,6 +20,9 @@ TEMPLATES = {
     'R320-9': (Path('E:/Function/دستورکار PM-320-9.xlsx'), 'بیل مکانیکی هیوندا 9-320', 'EX321'),
     'R520-9': (Path('E:/Function/دستورکار PM-520-9.xlsx'), 'بیل مکانیکی هیوندا 9-520', 'EX521'),
     'PC600-8': (Path('E:/Function/دستورکار PM-600-8.xlsx'), 'بیل مکانیکی کوماتسو 8-600', 'EX601'),
+    'PC1250-8': (Path('E:/Function/دستور کار PM-1250.xlsx'), 'بیل مکانیکی کوماتسو 1250',
+                 {'2000': None, '1800': 'EX1251', '1600': 'EX1251', '1400': 'EX1251', '1200': 'EX1251',
+                  '1000': 'EX1251', '800': 'EX1251', '600': 'EX1251', '400': 'EX1251', '200': 'EX1251'}),
 }
 INTERVALS = tuple(range(200, 2001, 200))
 # Approved output-only title corrections; source workbooks remain untouched.

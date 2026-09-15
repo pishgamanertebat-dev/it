@@ -5,14 +5,16 @@ import re
 from tools.fleet.greasing.source import clean, format_date, format_shift, from_ordinal, ordinal
 from tools.fleet.work_orders.types.oil_change.builder import action_for, get_items, normalize_interval
 from .source import SOURCE, PLANNING_SOURCE, read_source, number
+from .scope import excluded_codes, included_plans
 
-WARNING_HOURS = 24
+WARNING_HOURS = 30
 MODEL_MAP = {
     ('دامپتراک','785-5'):'HD785-5', ('دامپتراک','785-7'):'HD785-7',
     ('دامپتراک','465-7'):'HD465-7R', ('دامپتراک','465-7R'):'HD465-7R',
     ('بیل مکانیکی','800-7'):'PC800-7', ('بیل مکانیکی','850-8'):'PC850-8',
     ('بیل مکانیکی','600-8'):'PC600-8', ('بیل مکانیکی','330-9'):'R330-9',
     ('بیل مکانیکی','320-9'):'R320-9', ('بیل مکانیکی','520-9'):'R520-9',
+    ('بیل مکانیکی','1250-8'):'PC1250-8',
     ('لودر','600-6'):'WA600-6', ('لودر','470-3'):'WA470-3',
     ('بلدوزر','155-2'):'D155A-2', ('بلدوزر','155-6'):'D155A-6',
 }
@@ -34,9 +36,11 @@ def next_interval(last):
 
 def evaluate(source):
     items, review = [], []
-    counts = Counter(planning_code(p['code']) for p in source['plans'])
+    excluded = excluded_codes(source['plans'])
+    plans = included_plans(source['plans'])
+    counts = Counter(planning_code(p['code']) for p in plans)
     seen = set()
-    for plan in source['plans']:
+    for plan in plans:
         code = planning_code(plan['code'])
         seen.add(code)
         try:
@@ -65,6 +69,8 @@ def evaluate(source):
         except ValueError as exc:
             review.append({'code':code or f"ردیف {plan['row']}", 'reason':str(exc)})
     for machine in source['machines']:
+        if clean(machine['code']).upper() in excluded:
+            continue
         if machine['code'] and machine['code'].upper() not in seen and number(machine['remaining']) and machine['remaining'] <= WARNING_HOURS:
             review.append({'code':machine['code'],'reason':f"مانده {machine['remaining']:g} ساعت؛ در برنامه‌ریزی سرویس نوبت و مدل معتبر ندارد."})
     return items, review

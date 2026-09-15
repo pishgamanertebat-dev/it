@@ -11,6 +11,7 @@ from openpyxl.utils.cell import range_boundaries, coordinate_to_tuple
 from tools.fleet.greasing.source import (
     SOURCE, SHEET, clean, code_text, date_columns, completed_cutoff, format_shift,
 )
+from .scope import excluded_codes, included_plans
 
 PLANNING_SOURCE = Path('E:/Function/برنامه ریزی سرویس.xlsx')
 
@@ -102,6 +103,15 @@ def read_source(path=SOURCE, planning_path=PLANNING_SOURCE, as_of=None):
     planning = load_workbook(BytesIO(planning_data), data_only=False)
     limit = as_of or completed_cutoff()
     try:
+        sheet = planning.active
+        expected = ('نوع دستگاه','مدل دستگاه','کد دستگاه','نوع سرویس')
+        if tuple(clean(sheet.cell(1,c).value) for c in range(2,6)) != expected:
+            raise ValueError('سرستون‌های فایل برنامه‌ریزی سرویس تغییر کرده‌اند.')
+        plans = [dict(row=r, kind=clean(sheet.cell(r,2).value), model=clean(sheet.cell(r,3).value),
+                      code=code_text(sheet.cell(r,4).value), last_interval=sheet.cell(r,5).value)
+                 for r in range(2,sheet.max_row+1) if any(sheet.cell(r,c).value is not None for c in range(2,6))]
+        excluded = excluded_codes(plans)
+        plans = included_plans(plans)
         ws = hours[SHEET]
         columns = date_columns(ws)
         remaining_columns = [c for c in range(1, ws.max_column + 1) if clean(ws.cell(3,c).value) == 'مانده به تعویض']
@@ -112,7 +122,7 @@ def read_source(path=SOURCE, planning_path=PLANNING_SOURCE, as_of=None):
         machines, populated = [], []
         for row in range(4, ws.max_row + 1):
             name, code = clean(ws.cell(row,1).value), code_text(ws.cell(row,2).value)
-            if not name:
+            if not name or code.upper() in excluded:
                 continue
             events, work, errors = [], [], []
             for stamp, col in columns:
@@ -143,13 +153,6 @@ def read_source(path=SOURCE, planning_path=PLANNING_SOURCE, as_of=None):
             machines.append(dict(row=row, code=code, legacy_code=code_text(ws.cell(row,3).value), name=name,
                                  last_service=max(events) if events else None,
                                  last_work=max(work) if work else None, errors=errors, **values))
-        sheet = planning.active
-        expected = ('نوع دستگاه','مدل دستگاه','کد دستگاه','نوع سرویس')
-        if tuple(clean(sheet.cell(1,c).value) for c in range(2,6)) != expected:
-            raise ValueError('سرستون‌های فایل برنامه‌ریزی سرویس تغییر کرده‌اند.')
-        plans = [dict(row=r, kind=clean(sheet.cell(r,2).value), model=clean(sheet.cell(r,3).value),
-                      code=code_text(sheet.cell(r,4).value), last_interval=sheet.cell(r,5).value)
-                 for r in range(2,sheet.max_row+1) if any(sheet.cell(r,c).value is not None for c in range(2,6))]
         cutoff = max(populated) if populated else None
         warnings = []
         if cutoff is None:
