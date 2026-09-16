@@ -6,9 +6,18 @@ schedules:
   - id: overflow_daily_test
     enabled: true
     task: overflow
-    recipient: "455740857"
+    recipient: "654806764"
     trigger:
       type: cron
       hour: 9
+      minute: 0
+    params: {}
+  - id: repairs_daily
+    enabled: true
+    task: repairs
+    recipient: "654806764"
+    trigger:
+      type: cron
+      hour: 8
       minute: 0
     params: {}
