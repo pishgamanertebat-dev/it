@@ -12,7 +12,7 @@ import secrets
 from copy import copy
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from tools.bale_ui import StateStore, KeyboardLifecycle
+from tools.bale_ui import StateStore, KeyboardLifecycle, MultiSelect
 from tools.fleet.work_orders.channels.bale.keyboards import keyboard_for, command_for
 
 from tools.fleet.work_orders.core.permissions import (
@@ -76,6 +76,7 @@ class FormSession:
     additions: list = field(default_factory=list)
     keyboard_revision: str = ''
     keyboard_message_id: str = ''
+    removal_selection: dict | None = None
 
 
 async def send_manager_excel(gateway, chat_id, order):
@@ -140,7 +141,22 @@ class WorkOrderMenuHandler:
         return keyboard_for(session, review=len(key) == 4).build(session.keyboard_revision, stage=session.stage,
             role=permission.role, permits=lambda name: name == 'work_order.manage' and permission.allowed)
 
-    def _send_reply(self, gateway, chat_id, reply, send, *, key=None):
+    def _removal(self, session):
+        if session.removal_selection is None:
+            session.removal_selection = MultiSelect(options=[
+                {'id':item['machine_code'], 'label':' — '.join(str(v) for v in
+                    (item['machine_code'], item.get('machine_name')) if v)}
+                for item in session.proposal['items']]).to_dict()
+        return MultiSelect(**session.removal_selection)
+
+    def _removal_text(self, session):
+        selection = self._removal(session)
+        return ('دستگاه‌های مورد نظر برای حذف را انتخاب کنید.\n'
+                '🔴 انتخاب‌شده برای حذف؛ کلیک دوباره انتخاب را برمی‌دارد.\n'
+                'تا زدن «تأیید حذف» هیچ دستگاهی حذف نمی‌شود.\n'
+                f'انتخاب‌شده: {len(selection.selected)}\nصفحه {selection.page+1} از {selection.pages}')
+
+    def _send_reply(self, gateway, chat_id, reply, send, *, key=None, edit_message_id=None):
         try:
             markup = None
             session = (self.reviews if len(key) == 4 else self.pending).get(key) if key else None
@@ -177,6 +193,18 @@ class WorkOrderMenuHandler:
 
             async def send_in_order():
                 try:
+                    if edit_message_id and markup and session.keyboard_revision == render_revision:
+                        try:
+                            await self.lifecycle.update_message(gateway, chat_id, edit_message_id, reply, markup)
+                            self.lifecycle.bind(key, gateway, chat_id, edit_message_id,
+                                ttl=max(0, session.expires-self.clock()), policy=builder.policy)
+                            session.keyboard_message_id = str(edit_message_id)
+                            self._persist()
+                            return
+                        except Exception:
+                            logger.warning('Could not refresh selection; replacing its message', exc_info=True)
+                            # Retire the stale revision before presenting a replacement.
+                            await self.lifecycle.remove(gateway, chat_id, edit_message_id)
                     if key:
                         await self.lifecycle.retire(key, gateway)
                     for index, part in enumerate(chunks):
@@ -409,6 +437,18 @@ class WorkOrderMenuHandler:
                 if builder is None:
                     raise ValueError('Expired form')
                 def execute(action):
+                    if session.stage == 'REMOVE' and builder.actions[action].refresh:
+                        require_work_order_permission(user_id, db_path=self.db_path)
+                        selection = self._removal(session)
+                        if action != 'select_confirm':
+                            selection.apply(action)
+                        session.removal_selection = selection.to_dict()
+                        session.expires = self.clock() + 600
+                        reply = self._removal_text(session)
+                        if action == 'select_confirm':
+                            reply = 'ابتدا حداقل یک دستگاه را انتخاب کنید.\n' + reply
+                        return self._send_reply(gateway, chat_id, reply, send, key=key,
+                            edit_message_id=raw.get('origin_message_id')) or {'action':'skip','reason':'work-order-selection'}
                     forwarded = copy(event)
                     forwarded.text = command_for(action, order_no=session.order_no)
                     forwarded.raw_message = None
@@ -492,12 +532,14 @@ class WorkOrderMenuHandler:
             elif session.proposal is not None and session.stage in {'PROPOSAL','REMOVE','ADD_CODES','ADD_ACTION'}:
                 from tools.fleet.work_orders.channels.bale.proposal_form import render, add_items
                 if text == 'برگشت':
+                    session.removal_selection = None
                     session.stage = 'PROPOSAL'
                     reply = render(session.proposal)
                 elif session.stage == 'PROPOSAL':
                     if text == 'حذف':
                         session.stage = 'REMOVE'
-                        reply = 'شمارهٔ ردیف‌های حذف را با فاصله بنویسید؛ مانند 1 3. برای بازگشت: برگشت'
+                        session.removal_selection = None
+                        reply = self._removal_text(session)
                     elif text == 'اضافه':
                         session.stage = 'ADD_CODES'
                         reply = 'کد دستگاه‌ها را بنویسید؛ مانند 465 714. برای بازگشت: برگشت'
@@ -520,13 +562,22 @@ class WorkOrderMenuHandler:
                     else:
                         reply = 'از دکمه‌های زیر انتخاب کنید.'
                 elif session.stage == 'REMOVE':
-                    values = re.split(r'[\s,،]+', normalize_digits(text))
-                    if not all(v.isdecimal() and 1 <= int(v) <= len(session.proposal['items']) for v in values):
-                        raise ValueError('شمارهٔ ردیف معتبر وارد کنید یا بنویسید: برگشت')
-                    remove = {int(v) for v in values}
-                    session.proposal['items'] = [i for n,i in enumerate(session.proposal['items'],1) if n not in remove]
-                    session.stage = 'PROPOSAL'
-                    reply = render(session.proposal)
+                    selection = self._removal(session)
+                    if text in {'تایید حذف', 'تأیید حذف'}:
+                        selected = selection.confirmed_ids(i['machine_code'] for i in session.proposal['items'])
+                        session.proposal['items'] = [i for i in session.proposal['items'] if i['machine_code'] not in selected]
+                        session.removal_selection = None
+                        session.stage = 'PROPOSAL'
+                        reply = render(session.proposal)
+                    else:
+                        # Legacy numeric input only stages a selection now;
+                        # confirmation is required on every deletion path.
+                        values = re.split(r'[\s,،]+', normalize_digits(text))
+                        if not all(v.isdecimal() and 1 <= int(v) <= len(selection.options) for v in values):
+                            raise ValueError('دستگاه‌ها را با دکمه‌ها انتخاب و سپس «تأیید حذف» را بزنید.')
+                        selection.selected = [o['id'] for n,o in enumerate(selection.options,1) if n in {int(v) for v in values}]
+                        session.removal_selection = selection.to_dict()
+                        reply = self._removal_text(session)
                 elif session.stage == 'ADD_CODES':
                     codes = [c for c in re.split(r'[\s,،]+',normalize_digits(text)) if c]
                     if session.work_order_type not in {'GREASING','OIL_CHANGE'}:

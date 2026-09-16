@@ -1,5 +1,5 @@
 """Work-order presentation and action names, separate from business execution."""
-from tools.bale_ui import Action, InlineKeyboardBuilder
+from tools.bale_ui import Action, InlineKeyboardBuilder, MultiSelect
 
 _ROLES = frozenset({'MAINTENANCE_MANAGER'})
 
@@ -42,6 +42,10 @@ def staff_keyboard(options):
 
 
 def keyboard_for(session, *, review=False):
+    if session.stage == 'REMOVE' and session.removal_selection is not None:
+        return MultiSelect(**session.removal_selection).keyboard('work_order',
+            permission='work_order.manage', stage='REMOVE', roles=_ROLES,
+            confirm_label='✅ تأیید حذف', back_label='↩️ بازگشت', selected_mark='🔴')
     if review and session.stage == 'REVIEW':
         return review_keyboard
     if session.stage == 'STAFF':
@@ -54,6 +58,10 @@ def keyboard_for(session, *, review=False):
 
 
 def command_for(action_name, *, order_no=''):
+    if action_name == 'select_confirm':
+        return 'تایید حذف'
+    if action_name == 'select_back':
+        return 'برگشت'
     if action_name == 'staff_back':
         return 'برگشت'
     if action_name.startswith('staff_') and action_name[6:].isdecimal():

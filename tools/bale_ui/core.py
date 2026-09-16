@@ -20,6 +20,7 @@ class Action:
     permission: str
     stages: frozenset[str]
     roles: frozenset[str] = frozenset()
+    refresh: bool = False
 
 
 class InlineKeyboardBuilder:

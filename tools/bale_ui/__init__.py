@@ -2,5 +2,6 @@
 
 from .core import Action, InlineKeyboardBuilder, Router, StateStore
 from .lifecycle import KeyboardLifecycle, KeyboardPolicy
+from .multiselect import MultiSelect
 
-__all__ = ['Action', 'InlineKeyboardBuilder', 'Router', 'StateStore', 'KeyboardLifecycle', 'KeyboardPolicy']
+__all__ = ['Action', 'InlineKeyboardBuilder', 'Router', 'StateStore', 'KeyboardLifecycle', 'KeyboardPolicy', 'MultiSelect']

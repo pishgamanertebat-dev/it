@@ -21,6 +21,7 @@ class KeyboardLifecycle:
         self.pending = set()
         self.messages = {}
         self.timers = {}
+        self.bindings = {}
         self.accepted = {}
 
     @staticmethod
@@ -64,9 +65,28 @@ class KeyboardLifecycle:
         await self.remove(gateway, *reference)
         if self.messages.get(scope) == reference:
             self.messages.pop(scope, None)
+            self.bindings.pop(scope, None)
             timer = self.timers.pop(scope, None)
             if timer:
                 timer.cancel()
+
+    async def update_message(self, gateway, chat_id, message_id, text, markup):
+        """Refresh a stateful selection in place; caller persists the revision first."""
+        from telegram import InlineKeyboardMarkup
+        bot = self.bot(gateway)
+        if bot is None:
+            raise RuntimeError('Bale keyboard transport unavailable')
+        for attempt in range(3):
+            try:
+                await bot.edit_message_text(chat_id=str(chat_id), message_id=int(message_id),
+                    text=text, parse_mode=None, reply_markup=InlineKeyboardMarkup.de_json(markup, bot))
+                return
+            except Exception as exc:
+                if 'message is not modified' in str(exc).lower():
+                    return
+                if attempt == 2:
+                    raise
+                await asyncio.sleep(0.2 * (attempt + 1))
 
     def bind(self, scope, gateway, chat_id, message_id, *, ttl, policy=KeyboardPolicy.ONE_SHOT):
         """Call after sending markup; scope includes domain, user and chat.
@@ -77,6 +97,7 @@ class KeyboardLifecycle:
         if not message_id:
             return
         self.messages[scope] = (str(chat_id), str(message_id))
+        binding = self.bindings[scope] = object()
         old = self.timers.pop(scope, None)
         if old:
             old.cancel()
@@ -84,6 +105,12 @@ class KeyboardLifecycle:
             reference = self.messages[scope]
             async def expire():
                 try:
+                    if self.bindings.get(scope) is not binding:
+                        return
+                    if scope in self.pending:
+                        self.timers[scope] = asyncio.get_running_loop().call_later(
+                            0.25, lambda: self.spawn(expire()))
+                        return
                     if self.messages.get(scope) == reference:
                         await self.retire(scope, gateway)
                 except Exception:
@@ -121,10 +148,11 @@ class KeyboardLifecycle:
 
         async def transition():
             try:
-                if builder.policy is KeyboardPolicy.ONE_SHOT:
+                if builder.policy is KeyboardPolicy.ONE_SHOT and not builder.actions[action].refresh:
                     await self.remove(gateway, event.source.chat_id, origin)
                     if self.messages.get(scope) == (str(event.source.chat_id), str(origin)):
                         self.messages.pop(scope, None)
+                        self.bindings.pop(scope, None)
                         timer = self.timers.pop(scope, None)
                         if timer:
                             timer.cancel()
