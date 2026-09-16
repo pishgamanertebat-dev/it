@@ -24,7 +24,7 @@ class BaleMessageHandlerTests(PermissionDatabaseTestCase):
 
     def test_entry_and_selection_reply_to_originating_chat(self):
         self.assertEqual(self.message("حکم کار")["action"], "skip")
-        self.assertIn("1) هواکش", self.replies[-1][1])
+        self.assertIn("دکمه‌های زیر", self.replies[-1][1])
         self.assertEqual(self.replies[-1][0], "455740857")
         self.assertEqual(self.message("۱")["reason"], "work-order-type-selected")
         self.assertIn("تهیهٔ پیشنهاد", self.replies[-1][1])

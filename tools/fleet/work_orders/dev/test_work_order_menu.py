@@ -143,9 +143,16 @@ class CoreLifecycleRegressionTests(PermissionDatabaseTestCase):
         )
         deliveries = []
         sender = SimpleNamespace(send_document=lambda **kwargs: deliveries.append(kwargs) or {"ok": True})
+        # This lifecycle test uses a fake workbook; PDF conversion is an
+        # external document integration and must not launch Excel here.
+        def export_pdf(path):
+            output = path.with_suffix('.pdf')
+            output.write_bytes(b'%PDF-1.4 TEST ONLY')
+            return output
         with (
             patch("tools.fleet.work_orders.core.db.DB_PATH", self.db_path),
             patch.object(service, "WORK_ORDER_OUTPUT_ROOT", self.db_path.parent / "orders"),
+            patch('tools.fleet.work_orders.core.delivery.export_staff_pdf', side_effect=export_pdf),
             patch.object(service.importlib, "import_module", return_value=builder),
         ):
             order = service.create_work_order(work_order_type="AIR_FILTER", jalali_date="1405/06/11", shift="TEST", machine_codes=["714"], created_by="TEST")
@@ -164,6 +171,7 @@ class CoreLifecycleRegressionTests(PermissionDatabaseTestCase):
             self.assertEqual(send_work_order(work_order_no=number, sender=sender)["status"], "SENT")
             self.assertEqual(service.get_work_order(number)["status"], "SENT")
             self.assertEqual(len(deliveries), 1)
+            self.assertTrue(deliveries[0]['file_name'].endswith('.pdf'))
 
 
 if __name__ == "__main__":

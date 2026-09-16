@@ -71,14 +71,14 @@ class ManagerDeliveryTests(CreationFlowTests):
         self.message('ارسال مجدد')
         await self.settle()
         self.assertEqual(self.requests[-1]['action'], 'preview')
-        self.assertIn('آیا تایید می‌کنید', self.replies[-1])
+        self.assertIn('تایید یا ویرایش را از دکمه‌های زیر', self.replies[-1])
         self.handler.pending.clear()
-        with patch('tools.fleet.work_orders.core.staff_dispatch.staff_menu', return_value=('سرویسکار را انتخاب کنید:', [{'id': 1}])):
+        with patch('tools.fleet.work_orders.core.staff_dispatch.staff_menu', return_value=('سرویسکار را انتخاب کنید:', [{'id': 1, 'display_name':'سرویسکار آزمایشی'}])):
             self.message('تایید')
             await self.settle()
         self.assertEqual(self.requests[-1]['action'], 'confirm_review')
         self.assertEqual(next(iter(self.handler.pending.values())).stage, 'STAFF')
-        self.assertIn('سرویسکار را انتخاب کنید', self.replies[-1])
+        self.assertIn('سرویسکار را از دکمه‌های زیر انتخاب کنید', self.replies[-1])
 
     async def test_document_failure_keeps_order_and_offers_retry(self):
         async def fail(*args):
@@ -102,7 +102,7 @@ class ManagerDeliveryTests(CreationFlowTests):
         self.message("صبح")
         await self.settle()
         self.assertEqual(received, [("455740857", "AF-1405-06-15-001")])
-        self.assertIn("آیا تایید می‌کنید", self.replies[-1])
+        self.assertIn("تایید یا ویرایش را از دکمه‌های زیر", self.replies[-1])
         self.handler.pending.clear()
         async def confirm(request):
             self.requests.append(request)
