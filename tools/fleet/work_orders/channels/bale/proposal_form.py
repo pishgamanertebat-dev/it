@@ -18,13 +18,15 @@ def _component_card(field, component):
     label = 'گریس‌کاری کامل' if field == 'greasing' else ('هواکش داخلی' if field == 'inner' else 'هواکش بیرونی')
     due = component.get('state') == 'DUE'
     icon = '🔴' if due else '🟢'
-    return [
-        f"{icon} {label}",
+    lines = [
         f"⏱ {'فاصله تا تاریخ حکم' if field == 'greasing' and component['unit'] == 'روز' else 'کارکرد'}: {component['value']:g} {component['unit']}",
         f"🎯 دوره سرویس: {component['threshold']} {component['unit']}",
         f"⚠️ وضعیت: {_status_text(component)}",
         f"📅 آخرین سرویس: {component['last_service']}",
     ]
+    # The greasing action is already printed immediately above the component
+    # details; repeating "🔴/🟢 گریس‌کاری کامل" adds no information.
+    return lines if field == 'greasing' else [f"{icon} {label}", *lines]
 
 
 def render(proposal):
@@ -43,6 +45,8 @@ def render(proposal):
                 lines += [f"سرویس مورد نیاز: {item['action_text']}", '']
         else:
             lines += ['', f"{i}) دستگاه {item['machine_code']}", item['action_text'], '']
+        if item.get('manual_note'):
+            lines += [item['manual_note'], '']
         fields = ('greasing',) if greasing else (('inner', 'outer') if item['action_code'] == BOTH else ('outer',))
         components = item.get('components', {})
         rendered = False
@@ -75,37 +79,55 @@ def render(proposal):
         lines.append('━━━━━━━━━━━━━━')
     if not proposal['items']:
         lines.append('هیچ دستگاهی انتخاب نشده است.')
-    if proposal.get('source_warnings') and not oil:
-        lines += ['', '⚠️ وضعیت اطلاعات:'] + proposal['source_warnings']
+    source_warnings = proposal.get('source_warnings', [])
+    if greasing:
+        source_warnings = [warning for warning in source_warnings
+                           if 'آخرین داده قدیمی‌تر از آخرین شیفت قابل محاسبه است' not in warning]
+    if source_warnings and not oil:
+        lines += ['', '⚠️ وضعیت اطلاعات:'] + source_warnings
     if proposal.get('warnings'):
         lines += ['', '⚠️ نزدیک موعد:'] + proposal['warnings']
     if proposal.get('review'):
         lines += ['', '🔎 نیازمند بررسی داده:'] + [f"{i['code']}: {i['reason']}" for i in proposal['review']]
-    confirm_text = 'تایید: ساخت اکسل' if greasing or oil else 'تایید: انتخاب شیفت و ساخت اکسل'
-    lines += ['', 'حذف: حذف دستگاه با شمارهٔ ردیف', 'اضافه: افزودن دستگاه با کد', confirm_text, 'انصراف: خروج']
+    if not greasing and not oil:
+        lines += ['', 'پس از تایید، شیفت حکم را انتخاب می‌کنید.']
+    lines += ['', 'عملیات مورد نظر را از دکمه‌های زیر انتخاب کنید.']
     return '\n'.join(lines)
 
 
 def add_items(proposal, items, action):
     additions = []
     for item in items:
+        # Reuse the calculation already shown in this proposal. This keeps a
+        # manually selected machine visually identical to automatic choices
+        # and avoids mixing data from a newer source snapshot.
+        evaluated = proposal.get('evaluations', [])
+        calculated = next((candidate for candidate in evaluated
+                           if candidate.get('machine_code') == item['machine_code']), None)
+        if calculated is None:
+            calculated = next((candidate for candidate in proposal.get('machines', [])
+                               if candidate.get('code') == item['machine_code']), None)
+        if calculated and calculated.get('components'):
+            item = {**item, 'components':calculated['components']}
         if proposal.get('work_order_type') == 'OIL_CHANGE':
-            additions.append({**item, 'evidence':'با انتخاب مسئول نت اضافه شد؛ نوبت سرویس از برنامه‌ریزی خوانده شد.'})
+            additions.append({**item, 'manual_note':'با انتخاب مسئول نت اضافه شد؛ نوبت سرویس از برنامه‌ریزی خوانده شد.'})
             continue
         if proposal.get('work_order_type') == 'GREASING':
             if action != 'GREASING_FULL':
                 raise ValueError('شرح کار گریس‌کاری ثابت است.')
-            additions.append({**item,'action_code':action,'action_text':'گریسکاری کامل', 'evidence':'با انتخاب مسئول نت اضافه شد.'})
+            additions.append({**item,'action_code':action,'action_text':'گریسکاری کامل',
+                              'manual_note':'با انتخاب مسئول نت اضافه شد.'})
             continue
         rule = rule_for(item['machine_code'],item['machine_name'])
         if rule is None or ('calendar' in rule and action != OUTER) or (rule.get('together') and action != BOTH):
             raise ValueError('نوع تعویض با قانون دستگاه ' + item['machine_code'] + ' سازگار نیست؛ مزدا/ریچ فقط بیرونی و خاور/لودر/بلدوزر هر دو با هم است.')
-        additions.append({**item,'action_code':action,'action_text':ACTIONS[action]})
+        additions.append({**item,'action_code':action,'action_text':ACTIONS[action],
+                          'manual_note':'با انتخاب مسئول نت اضافه شد.'})
     codes = {i['machine_code'] for i in additions}
     proposal['items'] = [i for i in proposal['items'] if i['machine_code'] not in codes] + additions
     # A manually selected near-due machine is now inside the draft order and
     # must no longer be repeated under "near due; not in the order".
     proposal['warnings'] = [
         warning for warning in proposal.get('warnings', [])
-        if str(warning).split(':', 1)[0].strip() not in codes
+        if str(warning).split(':', 1)[0].strip().split()[0] not in codes
     ]

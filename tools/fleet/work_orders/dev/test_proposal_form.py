@@ -48,9 +48,21 @@ class ProposalFormTests(CreationFlowTests):
         self.assertLess(text.index('1) دستگاه HD715'),text.index('⚠️ وضعیت اطلاعات:'))
         self.assertLess(text.index('⚠️ وضعیت اطلاعات:'),text.index('⚠️ نزدیک موعد'))
         self.assertLess(text.index('⚠️ نزدیک موعد'),text.index('🔎 نیازمند بررسی'))
-        self.assertLess(text.index('🔎 نیازمند بررسی'),text.index('حذف:'))
-        self.assertIn('تایید: ساخت اکسل',text)
-        self.assertNotIn('تایید: انتخاب شیفت',text)
+        self.assertLess(text.index('🔎 نیازمند بررسی'),text.index('دکمه‌های زیر'))
+        self.assertNotIn('حذف:',text)
+        self.assertNotIn('تایید:',text)
+        self.assertNotIn('🔴 گریس‌کاری کامل', text)
+
+    def test_greasing_hides_stale_summary_warning_and_simplifies_near_due(self):
+        from tools.fleet.work_orders.channels.bale.proposal_form import render
+        proposal = {'work_order_type':'GREASING', 'plan_date':'1405/06/16', 'cutoff':'1405/06/15 - شب',
+            'items':[], 'review':[], 'warnings':['EX1253: 1 ساعت تا موعد'],
+            'source_warnings':['آخرین داده قدیمی‌تر از آخرین شیفت قابل محاسبه است؛ جمع‌بندی کارکرد بررسی شود.']}
+        text = render(proposal)
+        self.assertIn('⚠️ نزدیک موعد:\nEX1253: 1 ساعت تا موعد', text)
+        self.assertNotIn('آخرین داده قدیمی‌تر', text)
+        self.assertNotIn('جمع‌بندی کارکرد بررسی شود', text)
+        self.assertNotIn('&#x20;', text)
 
     def test_oil_render_explains_meter_and_overdue_hours_plainly(self):
         from tools.fleet.work_orders.channels.bale.proposal_form import render
@@ -130,6 +142,42 @@ class ProposalFormTests(CreationFlowTests):
         self.assertEqual(proposal['items'],[])
         add_items(proposal,[{'machine_code':'TR1','machine_name':'خاور'}],BOTH)
         self.assertEqual(proposal['items'][0]['action_code'],BOTH)
+
+    def test_added_air_filter_keeps_full_card_and_leaves_near_due_list(self):
+        from tools.fleet.work_orders.channels.bale.proposal_form import add_items, render
+        from tools.fleet.air_filter.rules import OUTER
+        component = {'state':'NEAR_DUE', 'value':4, 'threshold':5,
+                     'unit':'ساعت', 'last_service':'1405/06/20'}
+        proposal = {'plan_date':'1405/06/23', 'cutoff':'1405/06/22', 'items':[], 'review':[],
+                    'warnings':['EX231 بیرونی: 4 از 5 ساعت', 'HD714 داخلی: 85 از 100 ساعت'],
+                    'machines':[{'code':'EX231', 'components':{'outer':component}}]}
+        add_items(proposal, [{'machine_code':'EX231', 'machine_name':'بیل مکانیکی'}], OUTER)
+        self.assertEqual(proposal['warnings'], ['HD714 داخلی: 85 از 100 ساعت'])
+        self.assertEqual(proposal['items'][0]['components']['outer'], component)
+        text = render(proposal)
+        self.assertIn('با انتخاب مسئول نت اضافه شد.', text)
+        self.assertIn('🟢 هواکش بیرونی', text)
+        self.assertIn('⏱ کارکرد: 4 ساعت', text)
+        self.assertIn('🎯 دوره سرویس: 5 ساعت', text)
+        self.assertIn('⚠️ وضعیت: 1 ساعت تا موعد سرویس', text)
+        self.assertIn('📅 آخرین سرویس: 1405/06/20', text)
+        self.assertLess(text.index('با انتخاب مسئول نت اضافه شد.'), text.index('🟢 هواکش بیرونی'))
+
+    def test_added_greasing_keeps_full_card_and_manual_note(self):
+        from tools.fleet.work_orders.channels.bale.proposal_form import add_items, render
+        component = {'state':'OK', 'value':7, 'threshold':10,
+                     'unit':'ساعت', 'last_service':'1405/06/21 - روز'}
+        proposal = {'work_order_type':'GREASING', 'plan_date':'1405/06/23',
+                    'cutoff':'1405/06/22 - شب', 'items':[], 'warnings':[], 'review':[],
+                    'evaluations':[{'machine_code':'EX231', 'components':{'greasing':component}}]}
+        add_items(proposal, [{'machine_code':'EX231', 'machine_name':'بیل مکانیکی'}], 'GREASING_FULL')
+        text = render(proposal)
+        self.assertIn('با انتخاب مسئول نت اضافه شد.', text)
+        self.assertIn('⏱ کارکرد: 7 ساعت', text)
+        self.assertIn('🎯 دوره سرویس: 10 ساعت', text)
+        self.assertIn('⚠️ وضعیت: 3 ساعت تا موعد سرویس', text)
+        self.assertIn('📅 آخرین سرویس: 1405/06/21 - روز', text)
+        self.assertNotIn('🔴 گریس‌کاری کامل', text)
 
     def test_manual_add_removes_machine_from_near_due_warnings(self):
         from tools.fleet.work_orders.channels.bale.proposal_form import add_items

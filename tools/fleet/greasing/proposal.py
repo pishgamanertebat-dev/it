@@ -122,5 +122,7 @@ def build_proposal(path=SOURCE, as_of=None):
         if component['state']=='DUE':
             proposal['items'].append(item)
         elif component['state']=='NEAR_DUE':
-            proposal['warnings'].append(f"{label}: {component['value']:g} از {component['threshold']} {component['unit']}؛ {component['remaining']:g} {component['unit']} تا موعد")
+            proposal['warnings'].append(
+                f"{label}: {component['remaining']:g} {component['unit']} تا موعد"
+            )
     return proposal

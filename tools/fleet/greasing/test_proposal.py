@@ -122,7 +122,7 @@ class ReaderTests(unittest.TestCase):
         self.assertFalse({'S1','S2','HD715','HD468'} & codes)
         truck=next(i for i in p['evaluations'] if i['machine_code']=='HD715')['components']['greasing']
         self.assertEqual((truck['value'],truck['remaining']),(49,11))
-        self.assertTrue(any(i.startswith('EX801: 9 از 10 ساعت') for i in p['warnings']))
+        self.assertIn('EX801: 1 ساعت تا موعد', p['warnings'])
         self.assertFalse(any(i['code']=='EX1251' or 'ژنراتور' in i['code'] for i in p['review']))
         self.assertEqual({i['code'] for i in p['review'] if 'رنگ مشکوک' in i['reason']},{'HD712','HD714'})
         self.assertEqual(next(i for i in p['evaluations'] if i['machine_code']=='EX231')['components']['greasing']['last_service'],'1405/05/18 - روز')
