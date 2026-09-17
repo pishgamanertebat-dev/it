@@ -96,6 +96,89 @@ class EntryServiceTests(unittest.TestCase):
         finally:
             book.close()
 
+    def test_clear_only_description_removes_machine_row(self):
+        self.save(self.request(text='temporary'))
+        self.save(self.request(text=''))
+        book = openpyxl.load_workbook(self.source)
+        try:
+            today = book.worksheets[0]
+            self.assertIsNone(today['A3'].value)
+            self.assertIsNone(today['C3'].value)
+            self.assertIsNone(today['D3'].value)
+            self.assertEqual(today.max_row, 3)
+        finally:
+            book.close()
+
+    def test_clear_without_existing_row_does_not_create_sheet_or_row(self):
+        self.save(self.request('HD999', text=''))
+        book = openpyxl.load_workbook(self.source)
+        try:
+            self.assertEqual(book.worksheets[0].title, 'گزارش روزانه 1405.06.17')
+            self.assertEqual(len(book.worksheets), 2)
+            self.assertEqual(book.worksheets[0]['C3'].value, 'EX332')
+        finally:
+            book.close()
+        self.save(self.request())
+        self.save(self.request('HD999', text=''))
+        book = openpyxl.load_workbook(self.source)
+        try:
+            today = book.worksheets[0]
+            self.assertEqual(today['C3'].value, 'EX332')
+            self.assertIsNone(today['C4'].value)
+        finally:
+            book.close()
+
+    def test_clear_middle_row_renumbers_remaining(self):
+        self.save(self.request('EX332'))
+        self.save(self.request('HD710'))
+        self.save(self.request('HD999'))
+        self.save(self.request('HD710', text=''))
+        book = openpyxl.load_workbook(self.source)
+        try:
+            today = book.worksheets[0]
+            self.assertEqual(today['A3'].value, 1)
+            self.assertEqual(today['C3'].value, 'EX332')
+            self.assertEqual(today['A4'].value, 2)
+            self.assertEqual(today['C4'].value, 'HD999')
+            self.assertIsNone(today['C5'].value)
+            self.assertIn('E$4', str(today.print_area))
+        finally:
+            book.close()
+
+    def test_row_style_and_height_come_from_template_and_current_text(self):
+        long_text = 'x' * 350
+        expected_tall = min(409, max(40, 5 * 18 + 8))
+        self.save(self.request(text=long_text))
+        book = openpyxl.load_workbook(self.source)
+        try:
+            self.assertEqual(book.worksheets[0].row_dimensions[3].height, expected_tall)
+        finally:
+            book.close()
+        self.save(self.request('HD999', text='short'))
+        book = openpyxl.load_workbook(self.source)
+        try:
+            today = book.worksheets[0]
+            self.assertEqual(today.row_dimensions[3].height, expected_tall)
+            self.assertEqual(today.row_dimensions[4].height, 40)
+            self.assertEqual(copy(today['D4'].font), copy(today['D3'].font))
+        finally:
+            book.close()
+        self.save(self.request(section='metalwork', text=long_text))
+        self.save(self.request(text='short now'))
+        book = openpyxl.load_workbook(self.source)
+        try:
+            today = book.worksheets[0]
+            self.assertEqual(today.row_dimensions[3].height, expected_tall)
+            self.assertEqual(today['D3'].value, 'short now')
+        finally:
+            book.close()
+        self.save(self.request(section='metalwork', text='short metal'))
+        book = openpyxl.load_workbook(self.source)
+        try:
+            self.assertEqual(book.worksheets[0].row_dimensions[3].height, 40)
+        finally:
+            book.close()
+
     def test_append_known_machine_and_print_area(self):
         self.save(self.request('EX332'))
         self.save(self.request('HD999'))

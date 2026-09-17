@@ -222,6 +222,35 @@ def copy_style(source, target):
     target.number_format = source.number_format
 
 
+def wrapped_lines(text):
+    text = text_value(text)
+    if not text.strip():
+        return 0
+    return sum(max(1, (len(line) + 69) // 70) for line in text.splitlines())
+
+
+def fitted_height(texts, default=20):
+    lines = max((wrapped_lines(text) for text in texts), default=0)
+    return default if not lines else min(409, max(default, lines * 18 + 8))
+
+
+def apply_template_row_style(sheet, row, template):
+    """Copy cell and row style from the blank form row, never from a previous data row."""
+    for col in range(1, max(sheet.max_column, template.max_column) + 1):
+        copy_style(template.cell(3, col), sheet.cell(row, col))
+    source, target = template.row_dimensions[3], sheet.row_dimensions[row]
+    target.height, target.hidden, target.outlineLevel = source.height, source.hidden, source.outlineLevel
+    copy_style(source, target)
+
+
+def machine_rows(sheet, cols):
+    return [r for r in range(3, sheet.max_row + 1) if sheet.cell(r, cols['code']).value is not None]
+
+
+def row_texts(sheet, row, cols):
+    return [text_value(sheet.cell(row, cols[name]).value) for name in SECTIONS]
+
+
 def copy_template(template, destination, *, day=None):
     """Copy the fixed blank form across workbooks without reusing style IDs."""
     for row in template.iter_rows():
@@ -295,37 +324,58 @@ def clone_day(book, day, template_path):
 
 
 def set_description(book, selected, section, description, day, expected, template_path):
-    sheet = today_sheet(book, day) or clone_day(book, day, template_path)
+    result = {'date': day, 'sheet': '', 'code': selected['code'], 'name': selected['name'], 'section': section}
+    clearing = not description
+    sheet = today_sheet(book, day)
+    if sheet is None and clearing:
+        return result
+    sheet = sheet or clone_day(book, day, template_path)
+    result['sheet'] = sheet.title
     cols = layout(sheet)
     row = find_row(sheet, selected['code'], cols)
     old = text_value(sheet.cell(row, cols[section]).value) if row else ''
     if old != expected:
         raise EntryError('شرح این دستگاه پس از نمایش شما تغییر کرده است؛ «شرح خرابی» را دوباره باز کنید و متن جدید را بررسی کنید.')
-    if row is None:
-        occupied = [r for r in range(3, sheet.max_row + 1) if sheet.cell(r, cols['code']).value is not None]
-        row = max(occupied) + 1 if occupied else 3
-        template_row = max(3, row - 1)
-        for col in range(1, sheet.max_column + 1):
-            source, target = sheet.cell(template_row, col), sheet.cell(row, col)
-            target._style = copy(source._style)
-            target.protection = copy(source.protection)
-        sheet.row_dimensions[row] = copy(sheet.row_dimensions[template_row])
-        sheet.row_dimensions[row].index = row
-        sheet.cell(row, cols['number'], row - 2)
-        sheet.cell(row, cols['code'], selected['code']).data_type = 's'
-        sheet.cell(row, cols['name'], selected['name']).data_type = 's'
-        sheet.print_area = f'A1:{openpyxl.utils.get_column_letter(max(cols.values()))}{row}'
-    cell = sheet.cell(row, cols[section])
-    cell.value = description or None
-    if description:
-        cell.data_type = 's'  # Descriptions beginning with '=' remain literal text.
-    cell.alignment = copy(cell.alignment)
-    cell.alignment = openpyxl.styles.Alignment(horizontal=cell.alignment.horizontal or 'right',
-        vertical='center', wrap_text=True, readingOrder=2)
-    # Keep long entries readable at the existing wide-column scale.
-    lines = sum(max(1, (len(line) + 69) // 70) for line in description.splitlines())
-    sheet.row_dimensions[row].height = max(sheet.row_dimensions[row].height or 20, min(409, lines * 18 + 8))
-    return {'date': day, 'sheet': sheet.title, 'code': selected['code'], 'name': selected['name'], 'section': section}
+    if row is None and clearing:
+        return result
+    template_book = openpyxl.load_workbook(template_path)
+    try:
+        template = template_book.active
+        default_height = template.row_dimensions[3].height or 20
+        if row is None:
+            occupied = machine_rows(sheet, cols)
+            row = max(occupied) + 1 if occupied else 3
+            apply_template_row_style(sheet, row, template)
+            sheet.cell(row, cols['number'], row - 2)
+            sheet.cell(row, cols['code'], selected['code']).data_type = 's'
+            sheet.cell(row, cols['name'], selected['name']).data_type = 's'
+            sheet.print_area = f'A1:{openpyxl.utils.get_column_letter(max(cols.values()))}{row}'
+        cell = sheet.cell(row, cols[section])
+        cell.value = description or None
+        if description:
+            cell.data_type = 's'  # Descriptions beginning with '=' remain literal text.
+        remaining = row_texts(sheet, row, cols)
+        if not any(text.strip() for text in remaining):
+            sheet.delete_rows(row)
+            occupied = machine_rows(sheet, cols)
+            last = occupied[-1] if occupied else 3
+            if occupied:
+                for index, current in enumerate(occupied, 1):
+                    sheet.cell(current, cols['number'], index)
+                    sheet.row_dimensions[current].height = fitted_height(row_texts(sheet, current, cols), default_height)
+            else:
+                apply_template_row_style(sheet, 3, template)
+            for extra in [idx for idx in list(sheet.row_dimensions) if idx > last]:
+                del sheet.row_dimensions[extra]
+            sheet.print_area = f'A1:{openpyxl.utils.get_column_letter(max(cols.values()))}{last}'
+        else:
+            cell.alignment = copy(cell.alignment)
+            cell.alignment = openpyxl.styles.Alignment(horizontal=cell.alignment.horizontal or 'right',
+                vertical='center', wrap_text=True, readingOrder=2)
+            sheet.row_dimensions[row].height = fitted_height(remaining, default_height)
+    finally:
+        template_book.close()
+    return result
 
 
 def commit(actor, request, *, config=CONFIG, runtime=RUNTIME, day=None, fleet_db=FLEET_DB):
