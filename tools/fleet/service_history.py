@@ -1,7 +1,10 @@
 import argparse
 import json
 import sqlite3
-from collections import defaultdict
+import contextlib
+import io
+
+from normalize_service_year import normalize
 
 
 DB = r"E:\KomatsoAI\data\fleet\db\fleet_ops.db"
@@ -22,6 +25,10 @@ def normalize_code(value):
 
 
 def main():
+
+    import sys
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
 
     parser = argparse.ArgumentParser(
         description="Fleet service history"
@@ -52,9 +59,10 @@ def main():
         help="Return JSON output."
     )
 
+    parser.add_argument("--db", default=DB, help=argparse.SUPPRESS)
     args = parser.parse_args()
 
-    conn = sqlite3.connect(DB)
+    conn = sqlite3.connect(args.db)
     conn.row_factory = sqlite3.Row
     cur = conn.cursor()
 
@@ -114,6 +122,22 @@ def main():
     ]
 
 
+    import_error = None
+    if args.year is not None and year != operational_year:
+        source = cur.execute("SELECT id FROM ingest_sources WHERE source_type='service_events' ORDER BY id DESC LIMIT 1").fetchone()
+        tracked = cur.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='service_year_imports'").fetchone()
+        imported = tracked and source and cur.execute(
+            "SELECT 1 FROM service_year_imports WHERE ingest_source_id=? AND jalali_year=?",
+            (source[0], year),
+        ).fetchone()
+        if not imported:
+            try:
+                # Preserve machine-readable stdout and import only an explicitly requested year.
+                with contextlib.redirect_stdout(io.StringIO()):
+                    normalize(year, args.db)
+            except (ValueError, OSError, KeyError, sqlite3.Error, SystemExit) as exc:
+                import_error = str(exc)
+
     # ========================================================
     # Service snapshot
     # ========================================================
@@ -131,7 +155,7 @@ def main():
         WHERE UPPER(canonical_code)=?
           AND (
               jalali_asof_date LIKE ?
-              OR jalali_asof_date IS NULL
+              OR (jalali_asof_date IS NULL AND ? = ?)
           )
         ORDER BY
             CASE
@@ -145,6 +169,7 @@ def main():
     """, (
         canonical_code.upper(),
         f"{year}/%",
+        year, operational_year,
     )).fetchone()
 
 
@@ -245,7 +270,20 @@ def main():
 
 
     result = {
-        "status": "OK",
+        "status": "SOURCE_IMPORT_FAILED" if import_error else (
+            "OK" if summary["record_count"] else "NO_NORMALIZED_RECORDS"
+        ),
+        "data_availability": {
+            "import_error": import_error,
+            "message": (
+                "Historical source could not be imported; normalized totals may be incomplete."
+                if import_error else (
+                    "Summary covers all recorded hours in the requested year, independent of --limit."
+                    if summary["record_count"] else
+                    "No normalized records for this machine/year; this does not prove the workbook has no data."
+                )
+            ),
+        },
 
         "machine": {
             "canonical_code":
@@ -415,6 +453,9 @@ def main():
 
     else:
 
+        print("Data availability: " + result["data_availability"]["message"])
+        if import_error:
+            print("Import error: " + import_error)
         print(
             "SERVICE HISTORY"
         )

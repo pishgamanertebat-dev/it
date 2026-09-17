@@ -107,6 +107,7 @@ cache/
 *.txt
 *.csv
 *.md
+*.mdc
 !tools/fleet/repairs/ENTRY_README.md
 tools/fix_hermes_web_search.ps1
 
