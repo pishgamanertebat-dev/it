@@ -8,11 +8,11 @@ if (Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue) { throw
 $liveTask = Get-ScheduledTask -TaskName 'KomatsoAI Schedules'
 $verifyAction = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument ('-NoProfile -NonInteractive -ExecutionPolicy Bypass -File "' + $PSScriptRoot + '\probe_repairs.ps1"') -WorkingDirectory $projectRoot
 $verifyTrigger = New-ScheduledTaskTrigger -Once -At (Get-Date).AddHours(1)
-$verifySettings = New-ScheduledTaskSettingsSet -ExecutionTimeLimit (New-TimeSpan -Minutes 6) -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries
+$verifySettings = New-ScheduledTaskSettingsSet -ExecutionTimeLimit (New-TimeSpan -Minutes 10) -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries
 Register-ScheduledTask -TaskName $taskName -Action $verifyAction -Trigger $verifyTrigger -Settings $verifySettings -Principal $liveTask.Principal | Out-Null
 try {
     Start-ScheduledTask -TaskName $taskName
-    $deadline = (Get-Date).AddMinutes(6)
+    $deadline = (Get-Date).AddMinutes(10)
     do {
         Start-Sleep -Seconds 2
         $info = Get-ScheduledTaskInfo -TaskName $taskName

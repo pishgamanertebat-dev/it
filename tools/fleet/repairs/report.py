@@ -17,6 +17,29 @@ from tools.fleet.report_caption import report_caption
 
 ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_SOURCE = Path(r'E:\Function\گزارش روزانه رانندگان2.xlsx')
+SECTIONS = {'mechanical': 'شرح معایب مکانیکی', 'metalwork': 'شرح معایب آهنگری'}
+
+
+def section_columns(source, sheet_name, section):
+    """Only equipment identity and the requested defect column may be printed."""
+    if section not in SECTIONS:
+        raise ValueError('Unknown repairs section')
+    def key(value):
+        return normalize(value).replace('آ', 'ا').replace(' ', '')
+    required = ['ردیف', 'نوع دستگاه', 'کد جدید', SECTIONS[section]]
+    book = openpyxl.load_workbook(source, read_only=True, data_only=True)
+    try:
+        sheet = book[sheet_name]
+        header = next(sheet.iter_rows(min_row=2, max_row=2, values_only=True), ())
+        columns = []
+        for label in required:
+            matches = [index for index, value in enumerate(header, 1) if key(value) == key(label)]
+            if len(matches) != 1:
+                raise ValueError(f'Missing or ambiguous repairs column: {label}')
+            columns.append(matches[0])
+        return columns
+    finally:
+        book.close()
 
 
 def latest_sheet(source):
@@ -44,9 +67,9 @@ def latest_sheet(source):
         workbook.close()
 
 
-def export_pdf(source, sheet, output, work_dir):
+def export_pdf(source, sheet, output, work_dir, columns):
     request = Path(work_dir) / 'export.json'
-    request.write_text(json.dumps(dict(source=str(source), sheet=sheet, output=str(output)), ensure_ascii=False), encoding='utf-8')
+    request.write_text(json.dumps(dict(source=str(source), sheet=sheet, output=str(output), columns=columns), ensure_ascii=False), encoding='utf-8')
     powershell = Path(os.environ.get('SystemRoot', 'C:/Windows')) / 'System32/WindowsPowerShell/v1.0/powershell.exe'
     command = [str(powershell), '-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass',
                '-File', str(Path(__file__).with_name('export_pdf.ps1')), '-RequestPath', str(request)]
@@ -65,7 +88,9 @@ def export_pdf(source, sheet, output, work_dir):
             raise RuntimeError('Excel produced an empty PDF')
 
 
-def build_report(output_dir, source=None):
+def build_report(output_dir, source=None, *, section='mechanical'):
+    if section not in SECTIONS:
+        raise ValueError('Unknown repairs section')
     source = Path(source or os.environ.get('FLEET_REPAIRS_SOURCE', DEFAULT_SOURCE)).resolve(strict=True)
     output_dir = Path(output_dir).resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -79,18 +104,21 @@ def build_report(output_dir, source=None):
         if (before.st_size, before.st_mtime_ns) != (after.st_size, after.st_mtime_ns):
             raise RuntimeError('Workbook changed while copying; retry on a stable source')
         report = latest_sheet(snapshot)
-        output = output_dir / f"repairs-{report['date'].replace('/', '-')}.pdf"
-        export_pdf(snapshot, report['sheet'], output, directory)
-    return {**report, 'pdf': str(output),
-            'caption': report_caption('گزارش روزانه تعمیرات', report['date'], latest=True)}
+        columns = section_columns(snapshot, report['sheet'], section)
+        output = output_dir / f"repairs-{section}-{report['date'].replace('/', '-')}.pdf"
+        export_pdf(snapshot, report['sheet'], output, directory, columns)
+    title = 'گزارش روزانه تعمیرات مکانیکی' if section == 'mechanical' else 'گزارش روزانه آهنگری'
+    return {**report, 'section': section, 'pdf': str(output),
+            'caption': report_caption(title, report['date'], latest=True)}
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--source', type=Path)
     parser.add_argument('--output-dir', required=True, type=Path)
+    parser.add_argument('--section', choices=SECTIONS, default='mechanical')
     args = parser.parse_args()
-    print(json.dumps(build_report(args.output_dir, args.source), ensure_ascii=False))
+    print(json.dumps(build_report(args.output_dir, args.source, section=args.section), ensure_ascii=False))
 
 
 if __name__ == '__main__':

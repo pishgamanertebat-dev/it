@@ -27,7 +27,7 @@ class BaleMessageHandlerTests(PermissionDatabaseTestCase):
         self.assertIn("دکمه‌های زیر", self.replies[-1][1])
         self.assertEqual(self.replies[-1][0], "455740857")
         self.assertEqual(self.message("۱")["reason"], "work-order-type-selected")
-        self.assertIn("تهیهٔ پیشنهاد", self.replies[-1][1])
+        self.assertEqual(len(self.replies), 1)
         self.assertEqual(next(iter(self.handler.pending.values())).stage, "BUSY")
 
     def test_unknown_user_is_denied_and_does_not_fall_through(self):
@@ -41,7 +41,7 @@ class BaleMessageHandlerTests(PermissionDatabaseTestCase):
         self.message("حکم کار")
         self.assertEqual(self.message("۲")["reason"], "work-order-type-selected")
         self.assertEqual(next(iter(self.handler.pending.values())).stage, 'BUSY')
-        self.assertIn('پیشنهاد تعویض روغن', self.replies[-1][1])
+        self.assertEqual(len(self.replies), 1)
 
     def test_unrelated_channels_and_groups_are_untouched(self):
         self.assertIsNone(self.message("حکم کار", platform="telegram"))

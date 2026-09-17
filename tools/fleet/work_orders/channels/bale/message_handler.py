@@ -526,8 +526,8 @@ class WorkOrderMenuHandler:
                 item = resolve_work_order_selection(text, bale_id=user_id, db_path=self.db_path)
                 session.work_order_type = item["key"]
                 self._start_request(key, session, {'action':'propose','bale_id':user_id,'work_order_type':item['key']}, gateway, send)
-                labels = {'OIL_CHANGE':'تعویض روغن', 'GREASING':'گریس‌کاری', 'AIR_FILTER':'هواکش'}
-                reply = 'در حال بررسی کارکردها و تهیهٔ پیشنهاد ' + labels[item['key']] + '…'
+                # Keep state persistence and keyboard retirement, without a waiting message.
+                reply = ''
                 reason = "work-order-type-selected"
             elif session.proposal is not None and session.stage in {'PROPOSAL','REMOVE','ADD_CODES','ADD_ACTION'}:
                 from tools.fleet.work_orders.channels.bale.proposal_form import render, add_items

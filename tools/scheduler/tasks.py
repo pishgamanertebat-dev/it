@@ -94,8 +94,10 @@ def overflow(recipient, params):
 
 
 def validate_repairs(params):
-    if set(params) - {'source'}:
-        raise ValueError('repairs only accepts params.source')
+    if set(params) - {'source', 'section'}:
+        raise ValueError('repairs only accepts params.source and params.section')
+    if params.get('section', 'mechanical') not in {'mechanical', 'metalwork'}:
+        raise ValueError('repairs section must be mechanical or metalwork')
     if 'source' in params and (not isinstance(params['source'], str) or not Path(params['source']).is_absolute()):
         raise ValueError('repairs source must be an absolute workbook path')
 
@@ -105,7 +107,7 @@ def repairs(recipient, params):
     runtime = ROOT / 'runtime/scheduler'
     runtime.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix='repairs-', dir=runtime) as directory:
-        report = build_repairs(directory, params.get('source'))
+        report = build_repairs(directory, params.get('source'), section=params.get('section', 'mechanical'))
         sender = BaleSender()
         try:
             sender.document(recipient, report['pdf'], report['caption'])

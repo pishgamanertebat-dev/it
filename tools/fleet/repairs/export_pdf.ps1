@@ -38,6 +38,19 @@ try {
     $sheet = $sheets.Item($request.sheet)
     # Ungroup worksheets so export includes this report only.
     $sheet.Select($true)
+    # Operate on the temporary read-only workbook, never on the source file.
+    # Hiding every non-selected column also excludes it from the PDF output.
+    if (@($request.columns).Count -ne 4) { throw 'Exactly four report columns are required' }
+    $allColumns = $sheet.Columns
+    try {
+        $allColumns.Hidden = $true
+        foreach ($columnNumber in $request.columns) {
+            $column = $allColumns.Item([int]$columnNumber)
+            try { $column.Hidden = $false }
+            finally { [void][Runtime.InteropServices.Marshal]::FinalReleaseComObject($column) }
+        }
+    }
+    finally { [void][Runtime.InteropServices.Marshal]::FinalReleaseComObject($allColumns) }
     # Preserve the saved print area, scaling, paper, fonts and page breaks.
     $sheet.ExportAsFixedFormat(0, $request.output, 0, $true, $false)
 }

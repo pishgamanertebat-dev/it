@@ -20,4 +20,15 @@ schedules:
       type: cron
       hour: 8
       minute: 0
-    params: {}
+    params:
+      section: mechanical
+  - id: metalwork_daily
+    enabled: true
+    task: repairs
+    recipient: "455740857"
+    trigger:
+      type: cron
+      hour: 8
+      minute: 0
+    params:
+      section: metalwork
