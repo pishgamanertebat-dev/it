@@ -71,6 +71,8 @@ class RepairsEntryHandler:
         self.busy = set()
         self.tasks = set()
         self.lifecycle = KeyboardLifecycle()
+        self._lifecycle_restored = False
+        self._expired_keyboards = []
         self.seen = {}
         if state_store:
             try:
@@ -85,6 +87,21 @@ class RepairsEntryHandler:
                     session['expires'] = self.clock() + 1800
                 if session.get('expires', 0) > self.clock():
                     self.sessions[tuple(key)] = session
+                elif session.get('message_id'):
+                    self._expired_keyboards.append((tuple(key), session['message_id']))
+
+    def restore_keyboards(self, gateway):
+        # The transport and running event loop are available on first dispatch,
+        # not during construction. Restore all saved forms, including idle users.
+        if self._lifecycle_restored or self.lifecycle.bot(gateway) is None:
+            return
+        for key, message_id in self._expired_keyboards:
+            self.lifecycle.bind(key, gateway, key[1], message_id, ttl=0)
+        self._expired_keyboards.clear()
+        for key, session in self.sessions.items():
+            ttl = max(0, session['expires'] - self.clock()) if session.get('revision') else 0
+            self.lifecycle.bind(key, gateway, key[1], session.get('message_id'), ttl=ttl)
+        self._lifecycle_restored = True
 
     def persist(self):
         if self.store:
@@ -222,6 +239,7 @@ class RepairsEntryHandler:
         source = event.source
         if str(getattr(source.platform, 'value', source.platform)).lower() != 'bale' or source.chat_type != 'dm':
             return None
+        self.restore_keyboards(gateway)
         actor = str(getattr(source, 'user_id', '') or '')
         chat = str(getattr(source, 'chat_id', '') or '')
         key = (actor, chat)
@@ -238,6 +256,7 @@ class RepairsEntryHandler:
             send(gateway, chat, 'اجازهٔ ثبت شرح خرابی را ندارید.')
             return {'action': 'skip', 'reason': 'repairs-entry-denied'}
         if key in self.busy:
+            send(gateway, chat, 'در حال ثبت درخواست قبلی هستم؛ چند لحظه صبر کنید.')
             return {'action': 'skip', 'reason': 'repairs-entry-busy'}
         if session and session['expires'] <= self.clock():
             self.sessions.pop(key, None)
@@ -274,8 +293,6 @@ class RepairsEntryHandler:
         if token:
             self.seen[token] = self.clock() + 1800
         async def execute():
-            if session and session.get('message_id') and key not in self.lifecycle.messages:
-                self.lifecycle.bind(key, gateway, chat, session['message_id'], ttl=1800)
             await self.lifecycle.retire(key, gateway)
             await self.advance(key, command, text, gateway, send)
         self.start_task(key, execute(), gateway, send)

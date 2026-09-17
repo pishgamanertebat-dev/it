@@ -143,11 +143,76 @@ class EntryBaleTests(unittest.IsolatedAsyncioTestCase):
         await self.deliver(self.action_event('confirm'))
         self.assertEqual(len(self.calls), 1)
 
+    async def test_busy_preview_or_commit_tells_user_to_wait(self):
+        await self.start_description()
+        calls = len(self.calls)
+        self.handler.busy.add(self.key)
+        result = await self.deliver(self.event('HD710'))
+        self.assertEqual(result['reason'], 'repairs-entry-busy')
+        self.assertEqual(self.messages[-1]['text'], 'در حال ثبت درخواست قبلی هستم؛ چند لحظه صبر کنید.')
+        self.assertEqual(len(self.calls), calls)
+        self.assertEqual(self.handler.sessions[self.key]['stage'], 'DESCRIPTION')
+
     async def test_switch_to_work_order_releases_form(self):
         await self.deliver(self.event('شرح خرابی'))
         self.assertIsNone(await self.deliver(self.event('حکم کار')))
         self.assertNotIn(self.key, self.handler.sessions)
         await asyncio.gather(*list(self.handler.lifecycle.tasks))
+
+    def restart_handler(self):
+        for timer in self.handler.lifecycle.timers.values():
+            timer.cancel()
+        self.handler = self.make_handler()
+
+    async def drain_lifecycle(self):
+        await asyncio.sleep(0.01)
+        await asyncio.gather(*list(self.handler.lifecycle.tasks))
+
+    async def test_restart_restores_idle_keyboard_with_remaining_expiry_once(self):
+        await self.deliver(self.event('شرح خرابی'))
+        saved = dict(self.handler.sessions[self.key])
+        self.now += 1700
+        self.restart_handler()
+        # An unrelated user's message restores every saved keyboard.
+        await self.deliver(self.event('hello', actor='455740857'))
+        self.assertEqual(self.handler.lifecycle.messages[self.key], (self.key[1], saved['message_id']))
+        timer = self.handler.lifecycle.timers[self.key]
+        self.assertAlmostEqual(timer.when() - asyncio.get_running_loop().time(), 100, delta=1)
+        await self.deliver(self.event('hello', actor='455740857'))
+        self.assertIs(self.handler.lifecycle.timers[self.key], timer)
+        self.assertEqual(self.handler.sessions[self.key], saved)
+        self.bot.edit_message_reply_markup.assert_not_awaited()
+
+    async def test_restart_removes_expired_and_interrupted_keyboards(self):
+        for interrupted in (False, True):
+            with self.subTest(interrupted=interrupted):
+                await self.deliver(self.event('شرح خرابی'))
+                message_id = self.handler.sessions[self.key]['message_id']
+                if interrupted:
+                    self.handler.sessions[self.key]['stage'] = 'BUSY'
+                    self.handler.persist()
+                else:
+                    self.now += 2000
+                self.restart_handler()
+                await self.deliver(self.event('hello', actor='455740857'))
+                await self.drain_lifecycle()
+                self.bot.edit_message_reply_markup.assert_awaited_with(
+                    chat_id=self.key[1], message_id=int(message_id), reply_markup=None)
+                self.assertNotIn(self.key, self.handler.lifecycle.messages)
+                if not interrupted:
+                    self.assertNotIn(self.key, self.handler.sessions)
+                self.assertEqual(self.calls, [])
+
+    async def test_restart_then_work_order_retires_old_keyboard(self):
+        await self.deliver(self.event('شرح خرابی'))
+        message_id = self.handler.sessions[self.key]['message_id']
+        self.restart_handler()
+        self.assertIsNone(await self.deliver(self.event('حکم کار')))
+        await self.drain_lifecycle()
+        self.bot.edit_message_reply_markup.assert_awaited_with(
+            chat_id=self.key[1], message_id=int(message_id), reply_markup=None)
+        self.assertNotIn(self.key, self.handler.sessions)
+        self.assertNotIn(self.key, self.handler.lifecycle.messages)
 
 
 if __name__ == '__main__':
