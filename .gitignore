@@ -103,9 +103,11 @@ cache/
 *.pdf
 *.iso
 *.xlsx
+!templates/repairs/daily_report.xlsx
 *.txt
 *.csv
 *.md
+!tools/fleet/repairs/ENTRY_README.md
 tools/fix_hermes_web_search.ps1
 
 manuals/
