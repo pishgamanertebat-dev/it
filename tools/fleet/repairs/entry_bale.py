@@ -44,9 +44,9 @@ def keyboard(stage):
     return InlineKeyboardBuilder('repairs_entry', rows)
 
 
-async def worker(payload):
+async def worker(payload, module='tools.fleet.repairs.entry_service'):
     process = await asyncio.create_subprocess_exec(str(ROOT / '.venv/Scripts/python.exe'),
-        '-E', '-s', '-B', '-X', 'utf8', '-m', 'tools.fleet.repairs.entry_service', cwd=str(ROOT),
+        '-E', '-s', '-B', '-X', 'utf8', '-m', module, cwd=str(ROOT),
         stdin=asyncio.subprocess.PIPE, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE,
         creationflags=subprocess.CREATE_NO_WINDOW)
     try:
@@ -62,6 +62,15 @@ async def worker(payload):
 
 
 class RepairsEntryHandler:
+    entry_command = 'شرح خرابی'
+    namespace = 'repairs_entry'
+    initial_stage = 'CODE'
+    keyboard = staticmethod(keyboard)
+    commands = {'شرح خرابی': 'entry', 'پایان': 'finish', 'انصراف': 'finish', 'لغو': 'finish',
+                '/cancel': 'finish', 'تایید': 'confirm', 'تأیید': 'confirm', 'ویرایش': 'edit',
+                'شرح معایب مکانیکی': 'mechanical', 'شرح معایب آهنگری': 'metalwork', 'شرح معایب اهنگری': 'metalwork'}
+    exit_commands = {'حکم کار', 'تعمیرات'}
+
     def __init__(self, *, state_store=None, run=worker, authorize=permitted, clock=time.time):
         self.store = state_store
         self.run = run
@@ -82,7 +91,7 @@ class RepairsEntryHandler:
                 saved = []
             for key, session in saved:
                 if session.get('stage') == 'BUSY':
-                    session['stage'] = 'CONFIRM' if session.get('request') else 'CODE'
+                    session['stage'] = 'CONFIRM' if session.get('request') else self.initial_stage
                     session['revision'] = ''
                     session['expires'] = self.clock() + 1800
                 if session.get('expires', 0) > self.clock():
@@ -123,7 +132,7 @@ class RepairsEntryHandler:
         if session and session['stage'] != 'BUSY':
             session['revision'] = secrets.token_hex(8)
             session['expires'] = self.clock() + 1800
-            markup = keyboard(session['stage']).build(session['revision'], stage=session['stage'],
+            markup = self.keyboard(session['stage']).build(session['revision'], stage=session['stage'],
                         role='', permits=lambda p: p == 'repairs.edit' and self.authorize(key[0]))
         self.persist()
         kwargs = {}
@@ -145,9 +154,9 @@ class RepairsEntryHandler:
                 logger.exception('Repairs entry interaction failed')
                 session = self.sessions.get(key)
                 if session and session['stage'] == 'BUSY':
-                    session['stage'] = 'CONFIRM' if session.get('request') else 'CODE'
+                    session['stage'] = 'CONFIRM' if session.get('request') else self.initial_stage
                 self.persist()
-                send(gateway, key[1], 'نتیجهٔ عملیات روشن نیست؛ برای پیگیری همان ثبت «تأیید» را دوباره بفرستید. برای شروع تازه «شرح خرابی» را بنویسید.')
+                send(gateway, key[1], f'نتیجهٔ عملیات روشن نیست؛ برای پیگیری همان ثبت «تأیید» را دوباره بفرستید. برای شروع تازه «{self.entry_command}» را بنویسید.')
             finally:
                 self.busy.discard(key)
         task = asyncio.get_running_loop().create_task(execute())
@@ -158,7 +167,7 @@ class RepairsEntryHandler:
         if not self.authorize(key[0]):
             self.sessions.pop(key, None)
             self.persist()
-            await self.reply(key, gateway, send, 'اجازهٔ ثبت شرح خرابی را ندارید.')
+            await self.reply(key, gateway, send, f'اجازهٔ ثبت {self.entry_command} را ندارید.')
             return
         session = self.sessions.get(key)
         if command in {'entry', 'sections'}:
@@ -247,13 +256,13 @@ class RepairsEntryHandler:
         clean = normalized(text)
         raw = getattr(event, 'raw_message', None)
         callback = isinstance(raw, dict) and raw.get('bale_inline_callback') is True
-        if callback and not str(raw.get('data', '')).startswith('ik:repairs_entry:'):
+        if callback and not str(raw.get('data', '')).startswith(f'ik:{self.namespace}:'):
             return None
         session = self.sessions.get(key)
-        if clean != 'شرح خرابی' and not callback and session is None:
+        if clean != self.entry_command and not callback and session is None:
             return None
         if not actor or not chat or not self.authorize(actor):
-            send(gateway, chat, 'اجازهٔ ثبت شرح خرابی را ندارید.')
+            send(gateway, chat, f'اجازهٔ ثبت {self.entry_command} را ندارید.')
             return {'action': 'skip', 'reason': 'repairs-entry-denied'}
         if key in self.busy:
             send(gateway, chat, 'در حال ثبت درخواست قبلی هستم؛ چند لحظه صبر کنید.')
@@ -271,21 +280,18 @@ class RepairsEntryHandler:
             try:
                 if not session:
                     raise ValueError('No active form')
-                command = keyboard(session['stage']).resolve(raw.get('data', ''), session.get('revision', ''),
+                command = self.keyboard(session['stage']).resolve(raw.get('data', ''), session.get('revision', ''),
                     stage=session['stage'], role='', permits=lambda p: p == 'repairs.edit' and self.authorize(actor))
                 if session.get('message_id') and str(raw.get('origin_message_id')) != session['message_id']:
                     raise ValueError('Wrong message')
                 session['revision'] = ''
                 self.persist()
             except (ValueError, PermissionError):
-                send(gateway, chat, 'این دکمه قدیمی یا نامعتبر است؛ «شرح خرابی» را دوباره بنویسید.')
+                send(gateway, chat, f'این دکمه قدیمی یا نامعتبر است؛ «{self.entry_command}» را دوباره بنویسید.')
                 return {'action': 'skip', 'reason': 'repairs-entry-stale'}
         else:
-            commands = {'شرح خرابی': 'entry', 'پایان': 'finish', 'انصراف': 'finish', 'لغو': 'finish',
-                        '/cancel': 'finish', 'تایید': 'confirm', 'تأیید': 'confirm', 'ویرایش': 'edit',
-                        'شرح معایب مکانیکی': 'mechanical', 'شرح معایب آهنگری': 'metalwork', 'شرح معایب اهنگری': 'metalwork'}
-            command = commands.get(clean, '')
-            if clean == 'حکم کار':
+            command = self.commands.get(clean, '')
+            if clean in self.exit_commands:
                 self.sessions.pop(key, None)
                 self.persist()
                 self.lifecycle.spawn(self.lifecycle.retire(key, gateway))

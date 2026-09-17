@@ -386,6 +386,18 @@ def commit(actor, request, *, config=CONFIG, runtime=RUNTIME, day=None, fleet_db
     section, description = request.get('section'), request.get('description')
     if section not in SECTIONS or not isinstance(description, str) or len(description) > 1800:
         raise EntryError('شرح باید حداکثر ۱۸۰۰ نویسه باشد.')
+    def mutate(book):
+        selected = machine(book, request['code'], fleet_db)
+        return set_description(book, selected, section, description, request['date'],
+                               request['expected'], settings['template'])
+    return commit_workbook(actor, request, settings, mutate, runtime=runtime, day=day)
+
+
+def commit_workbook(actor, request, settings, mutate, *, runtime, day=None, command='شرح خرابی'):
+    """Journal and atomically replace an existing workbook for a confirmed operation."""
+    operation = str(request.get('operation', ''))
+    if not re.fullmatch(r'[a-f0-9]{32}', operation):
+        raise EntryError('شناسهٔ تأیید معتبر نیست.')
     source = Path(settings['source']).resolve(strict=True)
     runtime = Path(runtime)
     fingerprint = hashlib.sha256(json.dumps([str(actor), str(source), request], sort_keys=True, ensure_ascii=False).encode()).hexdigest()
@@ -415,12 +427,10 @@ def commit(actor, request, *, config=CONFIG, runtime=RUNTIME, day=None, fleet_db
                     if previous['status'] == 'succeeded':
                         return json.loads(previous['result'])
                 if request.get('date') != (day or jalali_today()):
-                    raise EntryError('روز عوض شده است؛ «شرح خرابی» را دوباره برای تاریخ امروز باز کنید.')
+                    raise EntryError(f'روز عوض شده است؛ «{command}» را دوباره برای تاریخ امروز باز کنید.')
                 book = openpyxl.load_workbook(io.BytesIO(original))
                 try:
-                    selected = machine(book, request['code'], fleet_db)
-                    result = set_description(book, selected, section, description, request['date'],
-                                             request['expected'], settings['template'])
+                    result = mutate(book)
                     output = io.BytesIO()
                     book.save(output)
                     candidate = output.getvalue()

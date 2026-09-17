@@ -7,6 +7,7 @@ import sys
 import time
 
 from .entry_service import ROOT, permission
+from .maintenance_service import permission as maintenance_permission
 
 HERMES = Path(r'C:\Users\win-10\AppData\Local\hermes')
 
@@ -16,7 +17,11 @@ def main():
         settings = permission(actor)
         if not Path(settings['source']).is_file() or not Path(settings['template']).is_file():
             raise RuntimeError('Source or blank template is missing')
-    for name in ('work_order.json', 'repairs_entry.json'):
+    for actor in ('455740857', '654806764'):
+        settings = maintenance_permission(actor)
+        if not Path(settings['source']).is_file():
+            raise RuntimeError('Maintenance workbook is missing')
+    for name in ('work_order.json', 'repairs_entry.json', 'maintenance_entry.json'):
         path = ROOT / 'runtime/bale_ui' / name
         if path.exists() and any(value.get('stage') == 'BUSY' for _, value in json.loads(path.read_text(encoding='utf-8'))):
             raise RuntimeError('A form operation is running; wait for it to finish')

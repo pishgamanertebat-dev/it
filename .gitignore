@@ -109,6 +109,7 @@ cache/
 *.md
 *.mdc
 !tools/fleet/repairs/ENTRY_README.md
+!tools/fleet/repairs/MAINTENANCE_README.md
 tools/fix_hermes_web_search.ps1
 
 manuals/

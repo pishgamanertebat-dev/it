@@ -105,7 +105,9 @@ def handle_staff_receipt(event, gateway, *, send):
     # form, not to an older work-order receipt menu. Registration still gates
     # the normal dispatch path after this handler returns None.
     from tools.fleet.repairs.entry_bale import _handler as repairs_entry
-    if (event.text or '').strip() != 'حکم کار' and repairs_entry.active_for(actor, source.chat_id):
+    from tools.fleet.repairs.maintenance_bale import _handler as maintenance_entry
+    if (event.text or '').strip() != 'حکم کار' and (repairs_entry.active_for(actor, source.chat_id)
+                                                               or maintenance_entry.active_for(actor, source.chat_id)):
         return None
     text = ' '.join((event.text or '').translate(str.maketrans('كي', 'کی')).replace('\u200c', ' ').split())
     text = text.translate(str.maketrans('۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩','01234567890123456789'))
