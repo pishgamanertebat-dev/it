@@ -1,7 +1,60 @@
 """Application composition root. Register additional domains here."""
-from .core import Router
+from pathlib import Path
+
+from .core import Router, StateStore
+from .reply_keyboard import ReplyMenuPresenter, load_registry, normalize
+
+ROOT = Path(__file__).resolve().parents[2]
 
 router = Router()
+
+# Reply menus are the persistent bottom-of-chat UI layer. Their audience lives
+# in configuration, and each button only injects an existing command as text.
+reply_menus = load_registry(ROOT / 'settings/bale_reply_menus.json')
+reply_presenter = ReplyMenuPresenter(reply_menus,
+    state_store=StateStore(ROOT / 'runtime/bale_ui/reply_menu.json'),
+    text='منوی اصلی آماده است؛ از دکمه‌های پایین صفحه استفاده کنید یا دستور را مثل قبل تایپ کنید.')
+
+
+def _reply_menu_role(user_id):
+    """Read the existing work-order role; this layer does not invent roles."""
+    from tools.fleet.work_orders.core.permissions import check_work_order_permission
+    result = check_work_order_permission(user_id)
+    return result.role if result.allowed else None
+
+
+def reply_menu_step(event, gateway, *, send):
+    """Translate a tapped label into its command and keep the menu available.
+
+    No business rule, permission decision or flow state belongs here: every
+    command continues through the existing handlers and their own checks.
+    """
+    source = getattr(event, 'source', None)
+    if source is None or str(getattr(source.platform, 'value', source.platform)).lower() != 'bale':
+        return None
+    if getattr(source, 'chat_type', None) != 'dm':
+        return None
+    user_id = str(getattr(source, 'user_id', '') or '')
+    chat_id = str(getattr(source, 'chat_id', '') or '')
+    if not chat_id:
+        return None
+    raw = getattr(event, 'raw_message', None)
+    if isinstance(raw, dict) and raw.get('bale_inline_callback') is True:
+        # Inline callbacks keep their own lifecycle; reply menus never own them.
+        return None
+    menu = reply_menus.menu_for(user_id, _reply_menu_role(user_id))
+    if menu is None:
+        if (user_id, chat_id) in reply_presenter.delivered:
+            reply_presenter.remove(gateway, chat_id, user_id, text='\u2060', send=send)
+        return None
+    command = menu.command_for(event.text)
+    if command and normalize(event.text) != command:
+        event.text = command
+    if reply_menus.triggered(event.text):
+        reply_presenter.present(gateway, chat_id, user_id, menu, send=send, force=True)
+        return {'action': 'skip', 'reason': 'reply-menu-shown'}
+    reply_presenter.present(gateway, chat_id, user_id, menu, send=send)
+    return None
 
 
 def dispatch(event, gateway, *, send):
@@ -12,6 +65,9 @@ def dispatch(event, gateway, *, send):
         router.register('repairs_entry', repairs_entry.handle)
     if 'maintenance_entry' not in router.handlers:
         router.register('maintenance_entry', maintenance_entry.handle)
+    result = reply_menu_step(event, gateway, send=send)
+    if result is not None:
+        return result
     raw = getattr(event, 'raw_message', None)
     if not (isinstance(raw, dict) and raw.get('bale_inline_callback') is True):
         from tools.fleet.repairs.entry_bale import normalized

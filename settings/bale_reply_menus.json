@@ -1,0 +1,19 @@
+{
+  "triggers": ["منو", "منوی اصلی"],
+  "menus": [
+    {
+      "menu_id": "maintenance_manager",
+      "users": ["641220453", "455740857"],
+      "roles": [],
+      "resize_keyboard": true,
+      "persistent": true,
+      "one_time_keyboard": false,
+      "rows": [
+        [
+          {"text": "📋 حکم کار", "command": "حکم کار"},
+          {"text": "🛠 شرح خرابی", "command": "شرح خرابی"}
+        ]
+      ]
+    }
+  ]
+}
