@@ -23,6 +23,11 @@ def _reply_menu_role(user_id):
     return result.role if result.allowed else None
 
 
+def revoke_reply_menu(gateway, chat_id, user_id, *, send, text):
+    """Drop the client keyboard when registration or authorization is removed."""
+    return reply_presenter.remove(gateway, chat_id, user_id, text=text, send=send)
+
+
 def reply_menu_step(event, gateway, *, send):
     """Translate a tapped label into its command and keep the menu available.
 
@@ -42,9 +47,14 @@ def reply_menu_step(event, gateway, *, send):
     if isinstance(raw, dict) and raw.get('bale_inline_callback') is True:
         # Inline callbacks keep their own lifecycle; reply menus never own them.
         return None
-    menu = reply_menus.menu_for(user_id, _reply_menu_role(user_id))
+    role = _reply_menu_role(user_id)
+    # Authorization, not the config users list, decides whether the operational
+    # menu may stay on the client.
+    menu = reply_menus.menu_for(user_id, role) if role else None
+    key = (user_id, chat_id)
     if menu is None:
-        if (user_id, chat_id) in reply_presenter.delivered:
+        if (key in reply_presenter.delivered or key in reply_presenter.pending
+                or key in reply_presenter.pending_removal):
             reply_presenter.remove(gateway, chat_id, user_id, text='\u2060', send=send)
         return None
     command = menu.command_for(event.text)

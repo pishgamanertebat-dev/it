@@ -190,6 +190,7 @@ class ReplyMenuPresenter:
         self.text = text
         self.delivered: dict[tuple[str, str], str] = {}
         self.pending: set[tuple[str, str]] = set()
+        self.pending_removal: dict[tuple[str, str], str] = {}
         self.tasks: set = set()
         if state_store:
             try:
@@ -217,6 +218,8 @@ class ReplyMenuPresenter:
     def present(self, gateway, chat_id, user_id, menu, *, send=None, force=False, text=None):
         key = (str(user_id), str(chat_id))
         fingerprint = menu.fingerprint()
+        if key in self.pending_removal:
+            return None
         if key in self.pending or (not force and self.delivered.get(key) == fingerprint):
             return None
         message = text if text is not None else self.text
@@ -241,6 +244,8 @@ class ReplyMenuPresenter:
                                            menu.menu_id, exc_info=True)
                             continue
                         raise
+                    if key in self.pending_removal:
+                        break
                     self.delivered[key] = fingerprint
                     self.persist()
                     return
@@ -248,6 +253,9 @@ class ReplyMenuPresenter:
                 logger.exception('Could not deliver Bale reply menu %s', menu.menu_id)
             finally:
                 self.pending.discard(key)
+            notice = self.pending_removal.get(key)
+            if notice is not None:
+                self.remove(gateway, chat_id, user_id, text=notice, send=send)
 
         task = self.spawn(deliver())
         if task is None:
@@ -257,6 +265,7 @@ class ReplyMenuPresenter:
     def remove(self, gateway, chat_id, user_id, *, text, send=None):
         """Retire a reply menu so a role's menu can be replaced or revoked."""
         key = (str(user_id), str(chat_id))
+        self.pending_removal[key] = text
         bot = self.bot_for(gateway)
         if bot is None:
             if send:
@@ -271,6 +280,7 @@ class ReplyMenuPresenter:
                 await bot.send_message(chat_id=str(chat_id), text=text, parse_mode=None,
                                        reply_markup=to_reply_markup(REMOVE_MARKUP, bot))
                 self.delivered.pop(key, None)
+                self.pending_removal.pop(key, None)
                 self.persist()
             except Exception:
                 logger.exception('Could not remove Bale reply menu')

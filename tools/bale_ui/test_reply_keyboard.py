@@ -85,7 +85,7 @@ class ConfiguredMenuTests(unittest.TestCase):
 
 class LabelRoutingTests(unittest.TestCase):
     def setUp(self):
-        patcher = patch.object(runtime, '_reply_menu_role', return_value=None)
+        patcher = patch.object(runtime, '_reply_menu_role', return_value=MAINTENANCE_MANAGER)
         self.addCleanup(patcher.stop)
         patcher.start()
 
@@ -135,7 +135,7 @@ class LabelRoutingTests(unittest.TestCase):
 
 class DispatchIntegrationTests(unittest.TestCase):
     def setUp(self):
-        patcher = patch.object(runtime, '_reply_menu_role', return_value=None)
+        patcher = patch.object(runtime, '_reply_menu_role', return_value=MAINTENANCE_MANAGER)
         self.addCleanup(patcher.stop)
         patcher.start()
 
@@ -281,6 +281,33 @@ class DeliveryTests(unittest.IsolatedAsyncioTestCase):
         await restarted.remove(None, MANAGER, MANAGER, text='منو حذف شد')
         self.assertEqual(restarted.delivered, {})
         self.assertEqual(self.bot.send_message.await_args.kwargs['reply_markup'], REMOVE_MARKUP)
+        self.assertNotIn((MANAGER, MANAGER), restarted.pending_removal)
+
+    async def test_pending_present_then_remove_ends_removed_not_delivered(self):
+        gate = asyncio.Event()
+
+        async def blocked(**kwargs):
+            await gate.wait()
+            return SimpleNamespace(message_id=5)
+
+        self.bot.send_message.side_effect = blocked
+        presenter = self.presenter()
+        present_task = presenter.present(None, MANAGER, MANAGER, self.menu)
+        for _ in range(50):
+            if (MANAGER, MANAGER) in presenter.pending:
+                break
+            await asyncio.sleep(0)
+        self.assertIn((MANAGER, MANAGER), presenter.pending)
+        remove_task = presenter.remove(None, MANAGER, MANAGER, text='منو حذف شد')
+        self.assertIsNone(remove_task)
+        self.assertEqual(presenter.pending_removal.get((MANAGER, MANAGER)), 'منو حذف شد')
+        gate.set()
+        await present_task
+        await asyncio.gather(*list(presenter.tasks))
+        markups = [call.kwargs['reply_markup'] for call in self.bot.send_message.await_args_list]
+        self.assertEqual(markups[-1], REMOVE_MARKUP)
+        self.assertEqual(presenter.delivered, {})
+        self.assertNotIn((MANAGER, MANAGER), presenter.pending_removal)
 
 
 class ClientFallbackTests(unittest.TestCase):
@@ -372,6 +399,20 @@ class ExistingRoleAndRevokeTests(unittest.IsolatedAsyncioTestCase):
             runtime.reply_menu_step(event('سلام', '44'), None, send=lambda *a: None)
             present.assert_not_called()
 
+    def test_users_list_match_is_ignored_when_authorization_denied(self):
+        menu = ReplyMenu('ops', ((ReplyButton(WORK_ORDER_LABEL, 'حکم کار'),),),
+                         users=frozenset({'42', '43'}))
+        registry = ReplyMenuRegistry([menu])
+        presenter = self.presenter(registry)
+        with patch.object(runtime, 'reply_menus', registry), \
+             patch.object(runtime, 'reply_presenter', presenter), \
+             patch.object(presenter, 'present', return_value=None) as present:
+            runtime.reply_menu_step(event('سلام', '43'), None, send=lambda *a: None)
+            present.assert_not_called()
+            runtime.reply_menu_step(event('سلام', '42'), None, send=lambda *a: None)
+            present.assert_called_once()
+            self.assertIs(present.call_args.args[3], menu)
+
     async def test_revoked_role_sends_keyboard_remove_and_retries_after_failure(self):
         presenter = self.presenter()
         await presenter.present(None, '42', '42', self.role_menu)
@@ -402,7 +443,7 @@ class ExistingRoleAndRevokeTests(unittest.IsolatedAsyncioTestCase):
         presenter = self.presenter(ReplyMenuRegistry([menu]))
         await presenter.present(None, MANAGER, MANAGER, menu)
         self.bot.send_message.reset_mock()
-        with patch.object(runtime, 'reply_menus', ReplyMenuRegistry()), \
+        with patch.object(runtime, 'reply_menus', ReplyMenuRegistry([menu])), \
              patch.object(runtime, 'reply_presenter', presenter), \
              patch.object(runtime, '_reply_menu_role', return_value=None):
             runtime.reply_menu_step(event('سلام'), None, send=lambda *a: None)

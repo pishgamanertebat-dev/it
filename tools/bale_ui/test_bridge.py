@@ -4,6 +4,7 @@ import importlib.util
 import logging
 import unittest
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, Mock, patch
 
@@ -69,3 +70,59 @@ class BridgeTests(unittest.IsolatedAsyncioTestCase):
             status.return_value = 'approved'
             self.assertEqual(plugin._handle_bale(event, None)['reason'], 'routed')
             dispatch.assert_called_once()
+
+    def _load_registry_plugin(self):
+        spec = importlib.util.spec_from_file_location(
+            'reply_keyboard_registry_revoke', PLUGIN_ROOT / 'komatso-bale-registry/__init__.py')
+        plugin = importlib.util.module_from_spec(spec)
+        with patch.dict('sys.modules', {'gateway.pairing': SimpleNamespace(PairingStore=Mock())}):
+            spec.loader.exec_module(plugin)
+        folder = TemporaryDirectory()
+        self.addCleanup(folder.cleanup)
+        plugin.DB_PATH = Path(folder.name) / 'users.db'
+        return plugin
+
+    def test_admin_delete_triggers_reply_keyboard_remove_without_waiting(self):
+        plugin = self._load_registry_plugin()
+        conn = plugin._connect()
+        try:
+            conn.execute(
+                """INSERT INTO channel_users
+                   (platform, user_id, chat_id, display_name, verified_name,
+                    registration_status, first_seen_at, updated_at)
+                   VALUES ('bale', '42', '99', 'n', 'n', 'approved', 't', 't')""")
+            conn.commit()
+        finally:
+            conn.close()
+        with patch.object(plugin, '_send') as send, \
+             patch('tools.bale_ui.runtime.revoke_reply_menu') as revoke:
+            result = plugin._handle_admin_command(None, '9', '9', 'حذف 42')
+        self.assertEqual(result['reason'], 'bale-admin-user-deleted')
+        revoke.assert_called_once()
+        self.assertEqual(revoke.call_args.args[:3], (None, '99', '42'))
+        self.assertEqual(revoke.call_args.kwargs['text'], plugin._REVOKED_NOTICE)
+        send.assert_called_once()
+        self.assertIn('با موفقیت حذف شد', send.call_args.args[2])
+
+    def test_revoked_blocked_path_retries_keyboard_remove(self):
+        plugin = self._load_registry_plugin()
+        conn = plugin._connect()
+        try:
+            conn.execute(
+                """INSERT INTO channel_users
+                   (platform, user_id, chat_id, display_name, verified_name,
+                    registration_status, first_seen_at, updated_at)
+                   VALUES ('bale', '42', '42', 'n', 'n', 'revoked', 't', 't')""")
+            conn.commit()
+        finally:
+            conn.close()
+        event = SimpleNamespace(text='سلام', raw_message=None,
+            source=SimpleNamespace(platform='bale', chat_type='dm', user_id='42', chat_id='42'))
+        with patch.object(plugin, '_handle_overflow_report', return_value=None), \
+             patch.object(plugin, '_admin_ids', return_value=set()), \
+             patch.object(plugin, '_send'), \
+             patch('tools.bale_ui.runtime.revoke_reply_menu') as revoke:
+            result = plugin._handle_bale(event, None)
+        self.assertEqual(result['reason'], 'bale-registration-revoked-blocked')
+        revoke.assert_called_once()
+        self.assertEqual(revoke.call_args.args[:3], (None, '42', '42'))
