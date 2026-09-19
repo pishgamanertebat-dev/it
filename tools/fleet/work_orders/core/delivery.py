@@ -4,6 +4,7 @@ from pathlib import Path
 
 from tools.fleet.work_orders.core.db import connect_db
 from tools.fleet.work_orders.core.pdf_document import export_staff_pdf
+from tools.fleet.work_orders.core.daily_archive import archive_delivered_order
 
 
 def send_work_order(
@@ -31,6 +32,7 @@ def send_work_order(
             SELECT
                 wo.id,
                 wo.work_order_no,
+                wo.work_order_type,
                 wo.status,
                 wo.excel_path,
                 wo.send_attempts,
@@ -54,7 +56,9 @@ def send_work_order(
 
 
         if order["status"] == "SENT":
-
+            archive_delivered_order(order)
+            con.execute('UPDATE service_work_orders SET last_send_error=NULL WHERE id=?', (order['id'],))
+            con.commit()
             return {
                 "status": "ALREADY_SENT",
                 "work_order_no": work_order_no,
@@ -119,6 +123,7 @@ def send_work_order(
 
         con.commit()
 
+        archive_delivered_order(order)
 
         return {
             "status": "SENT",
@@ -138,7 +143,7 @@ def send_work_order(
             UPDATE service_work_orders
             SET
                 send_attempts =
-                    send_attempts + 1,
+                    send_attempts + CASE WHEN status='SENT' THEN 0 ELSE 1 END,
                 last_send_error=?,
                 updated_at=CURRENT_TIMESTAMP
             WHERE work_order_no=?

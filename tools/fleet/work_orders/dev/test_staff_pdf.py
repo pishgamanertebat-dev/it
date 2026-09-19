@@ -28,7 +28,7 @@ class StaffPdfTests(StaffDispatchTests):
                 with test_database(self.db_path) as con:
                     con.execute('UPDATE service_work_orders SET work_order_type=? WHERE work_order_no=?', (kind, number))
                 sender = Mock()
-                with patch('tools.fleet.work_orders.core.delivery.export_staff_pdf', return_value=pdf) as export:
+                with patch('tools.fleet.work_orders.core.delivery.export_staff_pdf', return_value=pdf) as export, patch('tools.fleet.work_orders.core.delivery.archive_delivered_order'):
                     send_work_order(work_order_no=number, sender=sender)
                     export.assert_called_once_with(excel)
                 self.assertEqual(sender.send_document.call_args.kwargs['file_path'], str(pdf))

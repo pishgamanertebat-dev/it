@@ -16,6 +16,9 @@ class StaffDispatchTests(WorkOrderCreateTests):
         patcher = unittest.mock.patch('tools.fleet.work_orders.core.permissions.DB_PATH', self.db_path)
         patcher.start()
         self.addCleanup(patcher.stop)
+        archive_patcher = unittest.mock.patch('tools.fleet.work_orders.core.delivery.archive_delivered_order')
+        archive_patcher.start()
+        self.addCleanup(archive_patcher.stop)
 
     def test_dispatch_requires_owner_current_review_and_active_staff(self):
         order = self.create()

@@ -7,6 +7,7 @@ from pathlib import Path
 
 from tools.fleet.work_orders.core import staff_dispatch as core
 from tools.fleet.work_orders.core.delivery import send_work_order
+from tools.fleet.work_orders.core.daily_archive import DailyArchiveError
 from tools.fleet.work_orders.core.permissions import normalize_bale_id
 from tools.fleet.work_orders.core.registry import get_work_order_spec
 from tools.fleet.work_orders.core.conversation import review_context
@@ -44,6 +45,10 @@ async def dispatch(gateway, number, actor, chat, staff_id, roster_id=None):
     try:
         await asyncio.to_thread(send_work_order, work_order_no=number, sender=Sender())
         await asyncio.to_thread(core.finish_send, number, 'SENT')
+    except DailyArchiveError:
+        await asyncio.to_thread(core.finish_send, number, 'FAILED')
+        logger.exception('Daily workbook archive failed after successful delivery')
+        return 'حکم برای سرویسکار ارسال شد، ولی ثبت شیت در اکسل روزانه انجام نشد. اگر فایل در Excel باز است، آن را ببندید و همان شمارهٔ گزینه را دوباره بفرستید؛ فقط ثبت شیت تکرار می‌شود و حکم دوباره ارسال نمی‌شود.'
     except Exception:
         await asyncio.to_thread(core.finish_send, number, 'FAILED')
         logger.exception('Staff document delivery failed')
