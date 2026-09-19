@@ -438,6 +438,8 @@ class InlineMenusTests(PermissionDatabaseTestCase, unittest.IsolatedAsyncioTestC
             self.assertIn(numbers[index], message['text'])
             self.assertEqual(sum(map(len, message['reply_markup']['inline_keyboard'])), 2)
             self.assertNotIn('ثبت تایید OC-', message['text'])
+            self.assertNotIn('دستگاه آزمایشی', message['text'])
+            self.assertNotIn('حکم هنوز برای سرویسکار', message['text'])
         self.assertFalse(self.removed)
         self.result = {'ok':True,'work_order_type':'OIL_CHANGE'}
         self.message('', data=self.button(first, 'review_confirm'), origin=1)
@@ -552,6 +554,8 @@ class InlineMenusTests(PermissionDatabaseTestCase, unittest.IsolatedAsyncioTestC
             self.assertTrue(self.button(message, 'review_confirm'))
             self.assertTrue(self.button(message, 'review_edit'))
             self.assertNotIn('بنویسید', message['text'])
+            self.assertNotIn('تعداد دستگاه', message['text'])
+            self.assertNotIn('آماده ارسال', message['text'])
             self.assertEqual(self.handler.reviews[(*self.key,number)].work_order_type, kind)
             self.result = {'ok':True,'work_order_type':kind,'proposal':{
                 'work_order_type':kind,'items':[],'plan_date':'1405/06/25','cutoff':'test'}}

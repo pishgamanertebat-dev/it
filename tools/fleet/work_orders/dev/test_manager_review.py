@@ -1,3 +1,4 @@
+from types import SimpleNamespace
 from unittest.mock import patch
 from openpyxl import load_workbook
 
@@ -90,6 +91,8 @@ class ManagerDeliveryTests(CreationFlowTests):
             await self.settle()
         self.assertIn("حکم محفوظ است", self.replies[-1])
         self.assertTrue(self.replies[-1].endswith("ارسال مجدد"))
+        self.assertIn("تعداد دستگاه: 6", self.replies[-1])
+        self.assertIn("آماده ارسال", self.replies[-1])
         self.assertEqual(self.requests[-1]["shift"], "صبح-ظهر")
         self.assertNotIn("آیا تأیید می‌کنید", self.replies[-1])
 
@@ -103,6 +106,8 @@ class ManagerDeliveryTests(CreationFlowTests):
         await self.settle()
         self.assertEqual(received, [("455740857", "AF-1405-06-15-001")])
         self.assertIn("تایید یا ویرایش را از دکمه‌های زیر", self.replies[-1])
+        self.assertNotIn("تعداد دستگاه:", self.replies[-1])
+        self.assertNotIn("آماده ارسال", self.replies[-1])
         self.handler.pending.clear()
         async def confirm(request):
             self.requests.append(request)
@@ -113,3 +118,31 @@ class ManagerDeliveryTests(CreationFlowTests):
             await self.settle()
         self.assertEqual(self.requests[-1]["action"], "confirm_review")
         self.assertIn("ثبت شد", self.replies[-1])
+
+    async def test_excel_caption_holds_details_and_followup_stays_short(self):
+        from tools.fleet.work_orders.channels.bale.message_handler import (
+            manager_excel_caption, manager_review_reply, send_manager_excel)
+        path = self.db_path.parent / 'AF-1405-06-15-001.xlsx'
+        path.write_bytes(b'PK\x03\x04test')
+        order = {'work_order_no':'AF-1405-06-15-001', 'label':'هواکش', 'item_count':6,
+                 'file_name':path.name, 'file_path':str(path)}
+        captured = {}
+        async def send_document(**kwargs):
+            captured.update(kwargs)
+        gateway = SimpleNamespace(adapters={'bale': SimpleNamespace(_bot=SimpleNamespace(send_document=send_document))})
+        await send_manager_excel(gateway, '455740857', order)
+        caption = captured['caption']
+        self.assertEqual(caption, manager_excel_caption(order))
+        self.assertIn('حکم هواکش AF-1405-06-15-001', caption)
+        self.assertIn('تعداد دستگاه: 6', caption)
+        self.assertIn('هنوز برای سرویسکار ارسال نشده است', caption)
+        self.assertNotIn('پس از بررسی', caption)
+        oil = {**order, 'work_order_no':'OC-1405-06-18-001', 'label':'تعویض روغن',
+               'item_count':1, 'item_summary':'HD708: HD785-7 — سرویس 400 ساعتی'}
+        self.assertIn('HD708: HD785-7 — سرویس 400 ساعتی', manager_excel_caption(oil))
+        reply = manager_review_reply(order)
+        self.assertIn('حکم AF-1405-06-15-001', reply)
+        self.assertIn('تایید یا ویرایش را از دکمه‌های زیر', reply)
+        self.assertNotIn('تعداد دستگاه', reply)
+        self.assertNotIn('آماده ارسال', reply)
+        self.assertNotIn('نوع:', reply)

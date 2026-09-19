@@ -87,6 +87,47 @@ class FormSession:
     ui_cleanup: bool = False
 
 
+REVIEW_PROMPT = 'پس از بررسی همین فایل، تایید یا ویرایش را از دکمه‌های زیر انتخاب کنید.'
+CAPTION_LIMIT = 1024
+
+
+def manager_excel_caption(order):
+    label = str(order.get('label') or '').strip()
+    number = str(order['work_order_no'])
+    lines = [f'حکم {label} {number}'.replace('  ', ' ').strip()]
+    if order.get('item_count') is not None:
+        lines.append(f"تعداد دستگاه: {order['item_count']}")
+    summary = str(order.get('item_summary') or '').strip()
+    if summary:
+        lines.append(summary)
+    lines.append('هنوز برای سرویسکار ارسال نشده است.')
+    caption = '\n'.join(lines)
+    return caption if len(caption) <= CAPTION_LIMIT else caption[:CAPTION_LIMIT - 1] + '…'
+
+
+def manager_review_reply(order, *, preview=False):
+    number = order['work_order_no']
+    lead = f'فایل حکم {number} برای بررسی مجدد.' if preview else f'حکم {number}'
+    return f'{lead}\n{REVIEW_PROMPT}'
+
+
+def manager_excel_details(order, *, preview=False, independent=False):
+    number = order['work_order_no']
+    if independent:
+        text = f"✅ حکم مستقل {number}\n{order.get('item_summary') or ''}\nحکم هنوز برای سرویسکار ارسال نشده است."
+        return text.replace('\n\n', '\n')
+    text = (
+        ("✅ فایل حکم برای بررسی مجدد\n\n" if preview else "✅ حکم کار ساخته شد\n\n") +
+        f"شماره: {number}\n"
+        f"نوع: {order['label']}\nتعداد دستگاه: {order['item_count']}\n"
+        f"فایل: {order['file_name']}\nوضعیت فایل: آماده ارسال\n\n"
+        "حکم هنوز برای سرویسکار ارسال نشده است."
+    )
+    if order.get('item_summary'):
+        text += '\n' + order['item_summary']
+    return text
+
+
 async def send_manager_excel(gateway, chat_id, order):
     adapter = next((adapter for platform, adapter in gateway.adapters.items()
                     if str(getattr(platform, "value", platform)).lower() == "bale"), None)
@@ -97,7 +138,7 @@ async def send_manager_excel(gateway, chat_id, order):
     with open(order["file_path"], "rb") as document:
         await adapter._bot.send_document(
             chat_id=chat_id, document=document, filename=order["file_name"],
-            caption=f"فایل حکم {order['work_order_no']} برای بررسی شما؛ هنوز برای سرویسکار ارسال نشده است.",
+            caption=manager_excel_caption(order),
         )
 
 
@@ -461,16 +502,17 @@ class WorkOrderMenuHandler:
                 for order in result['orders']:
                     card_key = None
                     number = order['work_order_no']
-                    reply = f"✅ حکم مستقل {number}\n{order['item_summary']}\nحکم هنوز برای سرویسکار ارسال نشده است."
+                    details = manager_excel_details(order, independent=True)
+                    reply = details
                     session.order_no = number
                     try:
                         require_work_order_permission(key[1], db_path=self.db_path)
                         await self.document_sender(gateway, chat_id, order)
                         card_key = self._review_card(key, number)
-                        reply += '\nپس از بررسی همین فایل، تایید یا ویرایش را از دکمه‌های زیر انتخاب کنید.'
+                        reply = manager_review_reply(order)
                     except Exception:
                         logger.exception('Manager oil Excel delivery failed for %s', number)
-                        reply += f"\nارسال فایل ناموفق بود؛ حکم محفوظ است. بنویسید:\nارسال مجدد {number}"
+                        reply = details + f"\nارسال فایل ناموفق بود؛ حکم محفوظ است. بنویسید:\nارسال مجدد {number}"
                     review_context(key[1],chat_id,'manager',number=number,stage='REVIEW' if card_key else 'RESULT',db_path=self.db_path)
                     delivery = self._send_reply(gateway,chat_id,reply,send,key=card_key)
                     if delivery:
@@ -488,25 +530,19 @@ class WorkOrderMenuHandler:
                 session.order_no = order["work_order_no"]
                 session.stage = "RESULT"
                 review_context(key[1], chat_id, 'manager', number=session.order_no, stage='RESULT', db_path=self.db_path)
-                reply = (
-                    ("✅ فایل حکم برای بررسی مجدد\n\n" if request['action'] in {'preview', 'preview_latest'} else "✅ حکم کار ساخته شد\n\n") +
-                    f"شماره: {order['work_order_no']}\n"
-                    f"نوع: {order['label']}\nتعداد دستگاه: {order['item_count']}\n"
-                    f"فایل: {order['file_name']}\nوضعیت فایل: آماده ارسال\n\n"
-                    "حکم هنوز برای سرویسکار ارسال نشده است."
-                )
-                if order.get('item_summary'):
-                    reply += '\n' + order['item_summary']
+                preview = request['action'] in {'preview', 'preview_latest'}
+                details = manager_excel_details(order, preview=preview)
+                reply = details
                 try:
                     require_work_order_permission(key[1], db_path=self.db_path)
                     await self.document_sender(gateway, chat_id, order)
                     session.stage = "REVIEW"
                     review_context(key[1], chat_id, 'manager', number=session.order_no, stage='REVIEW', db_path=self.db_path)
                     reply_key = self._review_card(key, session.order_no, session.work_order_type)
-                    reply += '\n\nپس از بررسی همین فایل، تایید یا ویرایش را از دکمه‌های زیر انتخاب کنید.'
+                    reply = manager_review_reply(order, preview=preview)
                 except Exception:
                     logger.exception("Manager Excel delivery failed")
-                    reply += "\n\nارسال فایل ناموفق بود؛ حکم محفوظ است. برای تلاش دوباره بنویسید:\nارسال مجدد"
+                    reply = details + "\n\nارسال فایل ناموفق بود؛ حکم محفوظ است. برای تلاش دوباره بنویسید:\nارسال مجدد"
                 session.result = reply
             session.expires = self.clock() + 600
         except Exception:

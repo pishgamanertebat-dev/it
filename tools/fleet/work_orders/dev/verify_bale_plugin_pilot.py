@@ -42,9 +42,11 @@ async def verify(root: Path) -> None:
         return {"ok": True}
 
     documents = []
+    captions = []
 
     async def send_document(**kwargs):
         documents.append((kwargs["chat_id"], kwargs["document"].read()))
+        captions.append(kwargs.get("caption"))
         return SimpleNamespace(message_id="test-document")
 
     async def send_message(**kwargs):
@@ -137,7 +139,11 @@ async def verify(root: Path) -> None:
     assert (await event("صبح"))["reason"] == "work-order-creating"
     await asyncio.gather(*list(handler_module._handler.tasks))
     await asyncio.sleep(0)
-    assert "✅ حکم کار ساخته شد" in replies[-1][1]
+    assert "تایید یا ویرایش را از دکمه‌های زیر" in replies[-1][1]
+    assert "تعداد دستگاه:" not in replies[-1][1]
+    assert "آماده ارسال" not in replies[-1][1]
+    assert "حکم هواکش AF-1405-06-16-001" in captions[0]
+    assert "تعداد دستگاه:" in captions[0]
     assert len(list((root / "orders").rglob("*.xlsx"))) == 1
     assert len(documents) == 1 and documents[0][0] == "455740857"
     assert documents[0][1].startswith(b"PK")

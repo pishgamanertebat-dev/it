@@ -68,9 +68,11 @@ class CreationFlowTests(PermissionDatabaseTestCase, unittest.IsolatedAsyncioTest
         self.assertEqual(request["machine_codes"], ["465","710","711","712","713","714"])
         self.assertEqual(request["jalali_date"], "1405/06/15")
         self.assertEqual(request["shift"], "صبح")
-        self.assertIn("✅ حکم کار ساخته شد", self.replies[-1])
-        self.assertIn("تعداد دستگاه: 6", self.replies[-1])
-        self.assertIn("آماده ارسال", self.replies[-1])
+        self.assertIn("AF-1405-06-15-001", self.replies[-1])
+        self.assertIn("تایید یا ویرایش را از دکمه‌های زیر", self.replies[-1])
+        self.assertNotIn("تعداد دستگاه:", self.replies[-1])
+        self.assertNotIn("آماده ارسال", self.replies[-1])
+        self.assertNotIn("نوع:", self.replies[-1])
 
     async def test_invalid_date_does_not_advance_or_create(self):
         self.start_manual(); self.message("714")
