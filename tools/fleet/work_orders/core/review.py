@@ -12,9 +12,9 @@ from tools.fleet.work_orders.core.db import connect_db
 
 def normalize_shift(value: str) -> str:
     parts = re.split(r"[\s,،\-–—]+", str(value).strip())
-    parts = ["ظهر" if part == "عصر" else part for part in parts if part]
-    if not parts or any(part not in {"صبح", "ظهر", "شب"} for part in parts):
-        raise ValueError("شیفت را از صبح، ظهر و شب وارد کنید؛ مانند صبح ظهر.")
+    parts = [part for part in parts if part]
+    if not parts or any(part not in {"صبح", "ظهر", "عصر", "شب"} for part in parts):
+        raise ValueError("شیفت را از صبح، ظهر، عصر و شب انتخاب کنید؛ مانند صبح-ظهر.")
     return "-".join(dict.fromkeys(parts))
 
 

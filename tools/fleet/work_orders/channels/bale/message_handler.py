@@ -13,7 +13,7 @@ from copy import copy
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from tools.bale_ui import StateStore, KeyboardLifecycle, MultiSelect
-from tools.fleet.work_orders.channels.bale.keyboards import keyboard_for, command_for
+from tools.fleet.work_orders.channels.bale.keyboards import keyboard_for, command_for, SHIFT_PROMPT
 
 from tools.fleet.work_orders.core.permissions import (
     WorkOrderPermissionDenied,
@@ -606,7 +606,7 @@ class WorkOrderMenuHandler:
                             reason = 'work-order-creating'
                         else:
                             session.stage = 'SHIFT'
-                            reply = 'شیفت را وارد کنید: صبح، ظهر یا شب؛ مانند صبح ظهر.'
+                            reply = SHIFT_PROMPT
                     else:
                         reply = 'از دکمه‌های زیر انتخاب کنید.'
                 elif session.stage == 'REMOVE':
@@ -666,8 +666,17 @@ class WorkOrderMenuHandler:
             elif session.stage == "DATE":
                 session.jalali_date = validate_jalali_date(normalize_digits(text).replace("-", "/"))
                 session.stage = "SHIFT"
-                reply = "شیفت را وارد کنید: صبح، ظهر یا شب. می‌توانید چند شیفت بنویسید؛ مثلاً «صبح ظهر» به صورت «صبح-ظهر» ثبت می‌شود. پس از این مرحله حکم ساخته می‌شود."
+                reply = SHIFT_PROMPT
                 reason = "work-order-awaiting-shift"
+            elif session.stage == 'SHIFT' and text in {'برگشت', 'بازگشت'}:
+                if session.proposal is not None:
+                    from tools.fleet.work_orders.channels.bale.proposal_form import render
+                    session.stage = 'PROPOSAL'
+                    reply = render(session.proposal)
+                else:
+                    session.stage = 'DATE'
+                    reply = 'تاریخ حکم را وارد کنید؛ مانند 1405/06/15.'
+                reason = 'work-order-back-from-shift'
             elif session.stage == "SHIFT":
                 text = normalize_shift(text)
                 if not text or len(text) > 40 or text.startswith("/"):

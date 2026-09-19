@@ -70,6 +70,52 @@ class InlineMenusTests(PermissionDatabaseTestCase, unittest.IsolatedAsyncioTestC
         await self.handler._run_request(self.key, session, {'action':'create'}, self.gateway, lambda *a:None)
         await self.settle()
 
+    async def shift_step(self):
+        proposal = {'work_order_type':'AIR_FILTER', 'plan_date':'1405/06/16',
+                    'cutoff':'test', 'source_sha256':'test', 'warnings':[], 'review':[],
+                    'items':[{'machine_code':'714', 'action_code':'AIR_FILTER_OUTER',
+                              'action_text':'تعویض هواکش بیرونی'}]}
+        self.handler.pending[self.key] = FormSession(expires=self.handler.clock()+600,
+            stage='PROPOSAL', work_order_type='AIR_FILTER', jalali_date='1405/06/16',
+            proposal=proposal)
+        self.message('تایید')
+        await self.settle()
+        return proposal, self.sent[-1], len(self.sent)
+
+    async def test_shift_choices_create_once_and_retire_keyboard(self):
+        for action, shift in [('shift_morning','صبح'), ('shift_noon','ظهر'),
+                              ('shift_morning_noon','صبح-ظهر'), ('shift_evening','عصر'),
+                              ('shift_night','شب')]:
+            proposal, message, origin = await self.shift_step()
+            self.assertEqual([b['text'] for row in message['reply_markup']['inline_keyboard']
+                              for b in row], ['صبح','ظهر','صبح-ظهر','عصر','شب','بازگشت'])
+            data = self.button(message, action)
+            before = len(self.requests)
+            self.message('', data=data, origin=origin)
+            self.message('', data=data, origin=origin)
+            await self.settle()
+            self.assertEqual(len(self.requests), before+1)
+            self.assertEqual(self.requests[-1]['shift'], shift)
+            self.assertEqual(self.requests[-1]['machine_codes'], ['714'])
+            self.assertIn(origin, self.removed)
+            self.message('', data=data, origin=origin)
+            await self.settle()
+            self.assertEqual(len(self.requests), before+1)
+
+    async def test_shift_back_restores_proposal_after_restart_and_rejects_old_buttons(self):
+        proposal, message, origin = await self.shift_step()
+        self.handler = self.new_handler()
+        self.message('', data=self.button(message, 'shift_back'), origin=origin)
+        await self.settle()
+        self.assertEqual(self.handler.pending[self.key].stage, 'PROPOSAL')
+        self.assertEqual(self.handler.pending[self.key].proposal, proposal)
+        self.assertTrue(self.button(self.sent[-1], 'confirm'))
+        self.assertIn(origin, self.removed)
+        self.assertEqual(self.message('', data=self.button(message, 'shift_morning'),
+                                     origin=origin)['reason'], 'inline-rejected')
+        await self.settle()
+        self.assertFalse(self.requests)
+
     async def test_entry_four_buttons_and_all_type_callbacks(self):
         for action, work_type in [('oil','OIL_CHANGE'), ('greasing','GREASING'), ('air_filter','AIR_FILTER')]:
             self.message('حکم کار')

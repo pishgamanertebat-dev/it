@@ -16,6 +16,15 @@ proposal_keyboard = InlineKeyboardBuilder('work_order', (
 COMMANDS = {'add': 'اضافه', 'remove': 'حذف', 'confirm': 'تایید', 'cancel': 'انصراف'}
 
 MENU_TYPES = {'oil': 'OIL_CHANGE', 'greasing': 'GREASING', 'air_filter': 'AIR_FILTER'}
+SHIFT_COMMANDS = {'shift_morning': 'صبح', 'shift_noon': 'ظهر',
+                  'shift_morning_noon': 'صبح-ظهر', 'shift_evening': 'عصر',
+                  'shift_night': 'شب', 'shift_back': 'برگشت'}
+SHIFT_PROMPT = 'شیفت را از دکمه‌های زیر انتخاب کنید. پس از انتخاب، حکم ساخته می‌شود.'
+shift_keyboard = InlineKeyboardBuilder('work_order', (
+    (action('shift_morning', 'صبح', 'SHIFT'), action('shift_noon', 'ظهر', 'SHIFT')),
+    (action('shift_morning_noon', 'صبح-ظهر', 'SHIFT'), action('shift_evening', 'عصر', 'SHIFT')),
+    (action('shift_night', 'شب', 'SHIFT'), action('shift_back', 'بازگشت', 'SHIFT')),
+))
 
 
 def entry_keyboard():
@@ -42,6 +51,8 @@ def staff_keyboard(options):
 
 
 def keyboard_for(session, *, review=False):
+    if session.stage == 'SHIFT':
+        return shift_keyboard
     if session.stage == 'REMOVE' and session.removal_selection is not None:
         return MultiSelect(**session.removal_selection).keyboard('work_order',
             permission='work_order.manage', stage='REMOVE', roles=_ROLES,
@@ -58,6 +69,8 @@ def keyboard_for(session, *, review=False):
 
 
 def command_for(action_name, *, order_no=''):
+    if action_name in SHIFT_COMMANDS:
+        return SHIFT_COMMANDS[action_name]
     if action_name == 'select_confirm':
         return 'تایید حذف'
     if action_name == 'select_back':

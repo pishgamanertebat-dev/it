@@ -20,7 +20,7 @@ class ManagerReviewTests(WorkOrderCreateTests):
         self.assertEqual(result['order']['work_order_no'], owned['work_order_no'])
 
     def test_shift_and_persistent_review_preserve_workflow(self):
-        self.assertEqual(normalize_shift("صبح عصر"), "صبح-ظهر")
+        self.assertEqual(normalize_shift("صبح عصر"), "صبح-عصر")
         self.assertEqual(normalize_shift("صبح-ظهر شب"), "صبح-ظهر-شب")
         with self.assertRaises(ValueError):
             normalize_shift("نامعتبر")
