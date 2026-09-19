@@ -201,7 +201,234 @@ class InlineMenusTests(PermissionDatabaseTestCase, unittest.IsolatedAsyncioTestC
         await self.settle()
         self.assertFalse(self.handler.pending)
         self.assertEqual(self.removed, [1])
+        self.assertEqual(self.deleted, [1])
+        self.assertEqual(len(self.sent), 1)
         self.assertFalse(self.requests)
+
+    def _proposal(self, work_type='GREASING'):
+        return {'work_order_type': work_type, 'plan_date': '1405/06/16', 'cutoff': 'test',
+                'source_sha256': 'test', 'warnings': [], 'review': [],
+                'items': [{'machine_code': '714', 'action_code': 'GREASING_FULL',
+                           'action_text': 'گریسکاری کامل'}]}
+
+    def _assert_silent_cancel(self, message_id, *, origin_count=None):
+        self.assertFalse(self.handler.pending)
+        self.assertEqual(self.deleted, [message_id])
+        self.assertFalse(self.requests)
+        self.assertFalse(self.document_sender.called)
+        texts = [message['text'] for message in self.sent[origin_count or 0:]]
+        self.assertFalse(any('لغو شد' in text or 'منصرف' in text for text in texts))
+
+    async def test_typed_cancel_from_menu_deletes_menu_message(self):
+        self.message('حکم کار')
+        await self.settle()
+        menu_id = len(self.sent)
+        before = len(self.sent)
+        self.message('انصراف')
+        await self.settle()
+        self._assert_silent_cancel(menu_id)
+        self.assertEqual(len(self.sent), before)
+
+    async def test_inline_and_typed_cancel_from_proposal_delete_proposal_only(self):
+        for work_type, cancel in (
+            ('OIL_CHANGE', 'inline'), ('GREASING', 'typed'), ('AIR_FILTER', 'inline'),
+        ):
+            self.sent.clear()
+            self.deleted.clear()
+            self.removed.clear()
+            self.requests.clear()
+            self.handler.pending[self.key] = FormSession(
+                expires=self.handler.clock() + 600, stage='PROPOSAL',
+                work_order_type=work_type, jalali_date='1405/06/16',
+                proposal=self._proposal(work_type))
+            self.handler._send_reply(self.gateway, self.key[2], 'پیشنهاد حکم آزمایشی',
+                                     lambda *a: None, key=self.key)
+            await self.settle()
+            proposal_id = int(self.handler.pending[self.key].keyboard_message_id)
+            if cancel == 'inline':
+                self.message('', data=self.button(self.sent[-1], 'cancel'), origin=proposal_id)
+            else:
+                self.message('انصراف')
+            await self.settle()
+            self._assert_silent_cancel(proposal_id)
+
+    async def test_cancel_from_remove_deletes_selection_and_keeps_draft(self):
+        items = [{'machine_code': '714', 'action_code': 'GREASING_FULL',
+                  'action_text': 'گریسکاری کامل'}]
+        proposal = {**self._proposal(), 'items': items}
+        self.handler.pending[self.key] = FormSession(
+            expires=self.handler.clock() + 600, stage='PROPOSAL',
+            work_order_type='GREASING', jalali_date='1405/06/16', proposal=proposal)
+        self.message('حذف')
+        await self.settle()
+        self.assertEqual(self.handler.pending[self.key].stage, 'REMOVE')
+        selection_id = int(self.handler.pending[self.key].keyboard_message_id)
+        self.message('انصراف')
+        await self.settle()
+        self._assert_silent_cancel(selection_id)
+        self.assertEqual(proposal['items'], items)
+
+    async def test_typed_cancel_from_add_codes_add_action_and_shift(self):
+        proposal = self._proposal('AIR_FILTER')
+        self.handler.pending[self.key] = FormSession(
+            expires=self.handler.clock() + 600, stage='PROPOSAL',
+            work_order_type='AIR_FILTER', jalali_date='1405/06/16', proposal=proposal)
+        self.message('اضافه')
+        await self.settle()
+        self.assertEqual(self.handler.pending[self.key].stage, 'ADD_CODES')
+        add_codes_id = int(self.handler.pending[self.key].keyboard_message_id)
+        self.message('انصراف')
+        await self.settle()
+        self._assert_silent_cancel(add_codes_id)
+
+        self.sent.clear()
+        self.deleted.clear()
+        self.requests.clear()
+        self.document_sender.reset_mock()
+        self.result = {'ok': True, 'items': [{'machine_code': '714', 'machine_name': 'آزمایشی'}]}
+        self.handler.pending[self.key] = FormSession(
+            expires=self.handler.clock() + 600, stage='ADD_CODES',
+            work_order_type='AIR_FILTER', jalali_date='1405/06/16', proposal=proposal)
+        self.message('714')
+        await self.settle()
+        self.assertEqual(self.handler.pending[self.key].stage, 'ADD_ACTION')
+        add_action_id = int(self.handler.pending[self.key].keyboard_message_id)
+        self.requests.clear()
+        self.document_sender.reset_mock()
+        self.message('انصراف')
+        await self.settle()
+        self._assert_silent_cancel(add_action_id)
+
+        self.sent.clear()
+        self.deleted.clear()
+        self.requests.clear()
+        self.document_sender.reset_mock()
+        await self.shift_step()
+        self.assertEqual(self.handler.pending[self.key].stage, 'SHIFT')
+        shift_id = int(self.handler.pending[self.key].keyboard_message_id)
+        self.requests.clear()
+        self.message('انصراف')
+        await self.settle()
+        self._assert_silent_cancel(shift_id)
+
+    async def test_duplicate_cancel_does_not_repeat_delete_or_worker(self):
+        self.message('حکم کار')
+        await self.settle()
+        menu_id = len(self.sent)
+        self.message('انصراف')
+        await self.settle()
+        self.assertEqual(self.deleted, [menu_id])
+        self.assertFalse(self.handler.pending)
+        self.message('انصراف')
+        await self.settle()
+        self.assertEqual(self.deleted, [menu_id])
+        self.assertFalse(self.requests)
+
+    async def test_cancel_keeps_message_id_when_delete_fails_then_retries(self):
+        self.message('حکم کار')
+        await self.settle()
+        menu_id = len(self.sent)
+        bot = self.gateway.adapters['bale']._bot
+
+        async def fail(**kwargs):
+            raise TimeoutError('bale down')
+
+        bot.delete_message = fail
+        with patch('tools.bale_ui.lifecycle.asyncio.sleep', new=AsyncMock()), \
+             self.assertLogs('tools.fleet.work_orders.channels.bale.message_handler', level='WARNING'):
+            self.message('انصراف')
+            await self.settle()
+        session = self.handler.pending[self.key]
+        self.assertTrue(session.ui_cleanup)
+        self.assertEqual(session.keyboard_message_id, str(menu_id))
+        self.assertEqual(session.keyboard_stage, 'MENU')
+        self.assertEqual(session.stage, 'MENU')
+        self.assertFalse(session.keyboard_revision)
+        self.assertFalse(self.requests)
+        retried = []
+
+        async def succeed(**kwargs):
+            retried.append(kwargs['message_id'])
+
+        bot.delete_message = succeed
+        self.message('انصراف')
+        await self.settle()
+        self.assertEqual(retried, [menu_id])
+        self.assertFalse(self.handler.pending)
+
+    async def test_cancel_does_not_delete_message_owned_by_another_stage(self):
+        proposal = self._proposal()
+        self.handler.pending[self.key] = FormSession(
+            expires=self.handler.clock() + 600, stage='ADD_CODES',
+            work_order_type='GREASING', proposal=proposal,
+            keyboard_message_id='99', keyboard_stage='PROPOSAL',
+            keyboard_message_ids=['98', '99'])
+        self.message('انصراف')
+        await self.settle()
+        self.assertFalse(self.handler.pending)
+        self.assertFalse(self.deleted)
+        self.assertEqual(proposal['items'][0]['machine_code'], '714')
+
+    async def test_cancel_deletes_every_chunk_of_a_proposal_stage(self):
+        self.handler.pending[self.key] = FormSession(
+            expires=self.handler.clock() + 600, stage='PROPOSAL',
+            work_order_type='GREASING', jalali_date='1405/06/16',
+            proposal=self._proposal())
+        self.handler._send_reply(self.gateway, self.key[2], ('دستگاه\n' * 1000),
+                                 lambda *a: None, key=self.key)
+        await self.settle()
+        ids = [int(i) for i in self.handler.pending[self.key].keyboard_message_ids]
+        self.assertGreater(len(ids), 1)
+        self.assertEqual(len(self.sent), len(ids))
+        self.assertEqual(ids[-1], int(self.handler.pending[self.key].keyboard_message_id))
+        self.assertTrue(all('reply_markup' not in message for message in self.sent[:-1]))
+        self.message('انصراف')
+        await self.settle()
+        self.assertFalse(self.handler.pending)
+        self.assertEqual(self.deleted, ids)
+        self.assertFalse(self.requests)
+        self.assertFalse(self.document_sender.called)
+        self.assertFalse(any('لغو شد' in message['text'] for message in self.sent))
+
+    async def test_chunked_cancel_keeps_remaining_ids_when_one_delete_fails(self):
+        self.handler.pending[self.key] = FormSession(
+            expires=self.handler.clock() + 600, stage='PROPOSAL',
+            work_order_type='GREASING', jalali_date='1405/06/16',
+            proposal=self._proposal())
+        self.handler._send_reply(self.gateway, self.key[2], ('دستگاه\n' * 1000),
+                                 lambda *a: None, key=self.key)
+        await self.settle()
+        ids = [int(i) for i in self.handler.pending[self.key].keyboard_message_ids]
+        self.assertGreater(len(ids), 1)
+        bot = self.gateway.adapters['bale']._bot
+        deleted = []
+
+        async def flaky(**kwargs):
+            if kwargs['message_id'] == ids[0]:
+                raise TimeoutError('bale down')
+            deleted.append(kwargs['message_id'])
+
+        bot.delete_message = flaky
+        with patch('tools.bale_ui.lifecycle.asyncio.sleep', new=AsyncMock()), \
+             self.assertLogs('tools.fleet.work_orders.channels.bale.message_handler', level='WARNING'):
+            self.message('انصراف')
+            await self.settle()
+        session = self.handler.pending[self.key]
+        self.assertTrue(session.ui_cleanup)
+        self.assertEqual(session.keyboard_message_ids, [str(ids[0])])
+        self.assertEqual(session.keyboard_stage, 'PROPOSAL')
+        self.assertEqual(deleted, ids[1:])
+        self.assertFalse(self.requests)
+        retried = []
+
+        async def succeed(**kwargs):
+            retried.append(kwargs['message_id'])
+
+        bot.delete_message = succeed
+        self.message('انصراف')
+        await self.settle()
+        self.assertEqual(retried, [ids[0]])
+        self.assertFalse(self.handler.pending)
 
     async def test_batch_cards_are_independent_and_confirmation_targets_first_order(self):
         numbers = ['OC-1405-06-25-003', 'OC-1405-06-25-004']

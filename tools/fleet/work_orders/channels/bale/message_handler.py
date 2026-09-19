@@ -12,7 +12,7 @@ import secrets
 from copy import copy
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from tools.bale_ui import StateStore, KeyboardLifecycle, MultiSelect
+from tools.bale_ui import StateStore, KeyboardLifecycle, KeyboardPolicy, MultiSelect
 from tools.fleet.work_orders.channels.bale.keyboards import keyboard_for, command_for, SHIFT_PROMPT
 
 from tools.fleet.work_orders.core.permissions import (
@@ -33,6 +33,10 @@ from tools.fleet.work_orders.channels.bale.work_order_menu import (
 
 
 logger = logging.getLogger(__name__)
+
+TRANSIENT_WORK_ORDER_STAGES = frozenset({
+    'MENU', 'PROPOSAL', 'REMOVE', 'ADD_CODES', 'ADD_ACTION', 'SHIFT',
+})
 
 
 def normalize_text(text: str) -> str:
@@ -76,8 +80,11 @@ class FormSession:
     additions: list = field(default_factory=list)
     keyboard_revision: str = ''
     keyboard_message_id: str = ''
+    keyboard_stage: str = ''
+    keyboard_message_ids: list[str] = field(default_factory=list)
     loading_message_id: str = ''
     removal_selection: dict | None = None
+    ui_cleanup: bool = False
 
 
 async def send_manager_excel(gateway, chat_id, order):
@@ -108,6 +115,7 @@ class WorkOrderMenuHandler:
         self.lifecycle = KeyboardLifecycle()
         self._lifecycle_restored = False
         self._expired_keyboards = []
+        self._expired_ui_deletes = []
         if state_store:
             try:
                 for key, value in state_store.load():
@@ -120,6 +128,12 @@ class WorkOrderMenuHandler:
                     if session.expires > self.clock():
                         target = self.reviews if len(key) == 4 else self.pending
                         target[tuple(key)] = session
+                    elif session.ui_cleanup:
+                        ids = [str(i) for i in session.keyboard_message_ids if i]
+                        if session.keyboard_message_id and session.keyboard_message_id not in ids:
+                            ids.append(session.keyboard_message_id)
+                        self._expired_ui_deletes.append(
+                            (tuple(key), ids, session.loading_message_id))
                     elif session.keyboard_message_id:
                         self._expired_keyboards.append((tuple(key), session.keyboard_message_id))
             except (ValueError, TypeError, OSError):
@@ -200,6 +214,10 @@ class WorkOrderMenuHandler:
                             self.lifecycle.bind(key, gateway, chat_id, edit_message_id,
                                 ttl=max(0, session.expires-self.clock()), policy=builder.policy)
                             session.keyboard_message_id = str(edit_message_id)
+                            session.keyboard_stage = render_stage
+                            if str(edit_message_id) not in session.keyboard_message_ids:
+                                session.keyboard_message_ids = [
+                                    *session.keyboard_message_ids, str(edit_message_id)]
                             self._persist()
                             return
                         except Exception:
@@ -208,22 +226,36 @@ class WorkOrderMenuHandler:
                             await self.lifecycle.remove(gateway, chat_id, edit_message_id)
                     if key:
                         await self.lifecycle.retire(key, gateway)
+                    sent_ids = []
                     for index, part in enumerate(chunks):
                         if bot is not None:
                             options = {}
-                            if (markup and index == len(chunks) - 1 and
+                            last = index == len(chunks) - 1
+                            if (markup and last and
                                     session.keyboard_revision == render_revision and session.stage == render_stage):
                                 from telegram import InlineKeyboardMarkup
                                 options['reply_markup'] = InlineKeyboardMarkup.de_json(markup, bot)
                             message = await bot.send_message(chat_id=str(chat_id), text=part, parse_mode=None, **options)
-                            if options:
-                                message_id = getattr(message, 'message_id', None)
-                                if session.keyboard_revision != render_revision or session.stage != render_stage:
+                            if session is None:
+                                continue
+                            message_id = getattr(message, 'message_id', None)
+                            if session.stage != render_stage or (
+                                    options and session.keyboard_revision != render_revision):
+                                if options:
                                     await self.lifecycle.remove(gateway, chat_id, message_id)
-                                    continue
+                                continue
+                            if render_stage in TRANSIENT_WORK_ORDER_STAGES and message_id:
+                                sent_ids.append(str(message_id))
+                            if not last:
+                                continue
+                            if options or render_stage in TRANSIENT_WORK_ORDER_STAGES:
+                                policy = builder.policy if options else KeyboardPolicy.ONE_SHOT
                                 self.lifecycle.bind(key, gateway, chat_id, message_id,
-                                    ttl=max(0, session.expires - self.clock()), policy=builder.policy)
-                                session.keyboard_message_id = str(message_id or '')
+                                    ttl=max(0, session.expires - self.clock()), policy=policy)
+                                session.keyboard_message_id = str(message_id or (sent_ids[-1] if sent_ids else ''))
+                                session.keyboard_stage = render_stage
+                                if render_stage in TRANSIENT_WORK_ORDER_STAGES:
+                                    session.keyboard_message_ids = sent_ids
                                 self._persist()
                         else:
                             await adapter.send(str(chat_id), part)
@@ -245,6 +277,87 @@ class WorkOrderMenuHandler:
             await self.lifecycle.delete(gateway, chat_id, message_id)
         except Exception:
             logger.warning('Could not delete work-order prompt', exc_info=True)
+
+    def _owned_stage_message_ids(self, session):
+        if not (session.keyboard_stage and session.keyboard_stage == session.stage
+                and session.keyboard_stage in TRANSIENT_WORK_ORDER_STAGES):
+            return []
+        ids = [str(i) for i in session.keyboard_message_ids if i]
+        last = str(session.keyboard_message_id or '')
+        if last and last not in ids:
+            ids.append(last)
+        return ids
+
+    def _close_cancelled_form(self, key, session):
+        if session.ui_cleanup:
+            return session
+        owned_ids = self._owned_stage_message_ids(session)
+        loading = session.loading_message_id
+        if not owned_ids and not loading:
+            self.pending.pop(key, None)
+            self._persist()
+            return None
+        stub = FormSession(
+            expires=self.clock() + 600,
+            stage=session.stage,
+            keyboard_message_id=owned_ids[-1] if owned_ids else '',
+            keyboard_stage=session.keyboard_stage if owned_ids else '',
+            keyboard_message_ids=list(owned_ids),
+            loading_message_id=loading,
+            ui_cleanup=True,
+        )
+        self.pending[key] = stub
+        self._persist()
+        return stub
+
+    def _cancel_transient_form(self, key, session, gateway):
+        stub = self._close_cancelled_form(key, session)
+        if stub is None:
+            return
+        self._delete_cancelled_messages(key, stub, gateway)
+
+    def _delete_cancelled_messages(self, key, session, gateway):
+        owned_ids = self._owned_stage_message_ids(session)
+        loading = session.loading_message_id
+        if not owned_ids and not loading:
+            if session.ui_cleanup and self.pending.get(key) is session:
+                self.pending.pop(key, None)
+                self._persist()
+            return
+        if gateway is None or self.lifecycle.bot(gateway) is None:
+            return
+        async def cleanup():
+            bound = str(session.keyboard_message_id or '')
+            keep_ids = []
+            keep_loading = loading
+            for message_id in owned_ids:
+                try:
+                    await self.lifecycle.delete(gateway, key[2], message_id)
+                    if message_id == bound:
+                        self.lifecycle.forget(key, (str(key[2]), str(message_id)))
+                except Exception:
+                    logger.warning('Could not delete work-order prompt', exc_info=True)
+                    keep_ids.append(message_id)
+            if loading:
+                try:
+                    await self.lifecycle.delete(gateway, key[2], loading)
+                    keep_loading = ''
+                except Exception:
+                    logger.warning('Could not delete work-order prompt', exc_info=True)
+            current = self.pending.get(key)
+            if current is not session:
+                return
+            current.keyboard_message_ids = keep_ids
+            current.keyboard_message_id = keep_ids[-1] if keep_ids else ''
+            current.loading_message_id = keep_loading
+            if not keep_ids:
+                current.keyboard_stage = ''
+            if not keep_ids and not keep_loading:
+                self.pending.pop(key, None)
+            self._persist()
+        task = asyncio.get_running_loop().create_task(cleanup())
+        self.tasks.add(task)
+        task.add_done_callback(self.tasks.discard)
 
     async def _send_notice(self, gateway, chat_id, text, send):
         bot = self.lifecycle.bot(gateway)
@@ -444,8 +557,18 @@ class WorkOrderMenuHandler:
             for saved_key, message_id in self._expired_keyboards:
                 self.lifecycle.bind(saved_key, gateway, saved_key[2], message_id, ttl=0)
             self._expired_keyboards.clear()
+            for saved_key, message_ids, loading_id in self._expired_ui_deletes:
+                for message_id in message_ids:
+                    if message_id:
+                        self.lifecycle.spawn(self._discard_message(gateway, saved_key[2], message_id))
+                if loading_id:
+                    self.lifecycle.spawn(self._discard_message(gateway, saved_key[2], loading_id))
+            self._expired_ui_deletes.clear()
             stale_loading = False
             for saved_key, saved in (*self.pending.items(), *self.reviews.items()):
+                if saved.ui_cleanup:
+                    self._delete_cancelled_messages(saved_key, saved, gateway)
+                    continue
                 self.lifecycle.bind(saved_key, gateway, saved_key[2], saved.keyboard_message_id,
                     ttl=max(0, saved.expires - now) if saved.keyboard_revision else 0)
                 if saved.loading_message_id:
@@ -544,6 +667,10 @@ class WorkOrderMenuHandler:
                     return {'action': 'skip', 'reason': 'work-order-review'}
             require_work_order_permission(user_id, db_path=self.db_path)
             session = self.pending.get(key)
+            if (session and session.ui_cleanup and not is_entry
+                    and text not in {"انصراف", "لغو", "/cancel"}):
+                self._delete_cancelled_messages(key, session, gateway)
+                return None
             if session and session.stage == "BUSY":
                 reply = "در حال انجام درخواست قبلی هستم؛ لطفاً منتظر نتیجه بمانید."
                 reason = "work-order-busy"
@@ -564,11 +691,17 @@ class WorkOrderMenuHandler:
                 reply = {"preview": "در حال ارسال فایل…", "edit": "در حال باز کردن فرم اصلاح…", "confirm_review": "در حال ثبت تأیید بررسی فایل…"}[action]
                 reason = "work-order-review"
             elif is_entry:
+                if session and session.ui_cleanup:
+                    self._delete_cancelled_messages(key, session, gateway)
                 reply = build_work_order_menu(bale_id=user_id, db_path=self.db_path, inline=True)
                 self.pending[key] = FormSession(expires=now + 600)
             elif text in {"انصراف", "لغو", "/cancel"}:
-                self.pending.pop(key, None)
-                reply = "انتخاب حکم کار لغو شد."
+                if session and (session.ui_cleanup or session.stage in TRANSIENT_WORK_ORDER_STAGES):
+                    self._cancel_transient_form(key, session, gateway)
+                    reply = ''
+                else:
+                    self.pending.pop(key, None)
+                    reply = "انتخاب حکم کار لغو شد."
                 reason = "work-order-menu-cancelled"
             elif session.stage == "MENU" and text.isdecimal():
                 item = resolve_work_order_selection(text, bale_id=user_id, db_path=self.db_path)

@@ -179,21 +179,29 @@ class WorkOrderLifecycleTests(test_inline.InlineFlowTests):
         self.assertIn('اجازه', self.replies[-1])
         self.assertNotIn('منقضی', self.replies[-1])
 
-    async def test_text_cancel_retires_old_keyboard_before_reply(self):
+    async def test_text_cancel_deletes_owned_stage_message_without_reply(self):
         order = []
         async def edit(**kwargs):
             order.append('remove')
         async def send_message(**kwargs):
             order.append('reply')
+        async def delete_message(**kwargs):
+            order.append(('delete', kwargs['message_id']))
         gateway = SimpleNamespace(adapters={'bale':SimpleNamespace(
-            _bot=SimpleNamespace(edit_message_reply_markup=edit, send_message=send_message))})
+            _bot=SimpleNamespace(edit_message_reply_markup=edit, send_message=send_message,
+                                 delete_message=delete_message))})
+        self.session.keyboard_message_id = '77'
+        self.session.keyboard_stage = 'PROPOSAL'
         self.handler.lifecycle.bind(self.key, gateway, self.key[2], '77', ttl=600)
         event = SimpleNamespace(text='انصراف', source=SimpleNamespace(
             platform='bale',chat_type='dm',user_id=self.key[1],chat_id=self.key[2]))
         self.handler.handle(event, gateway, send=lambda *a:None)
-        await asyncio.gather(*list(self.handler.tasks))
-        self.assertEqual(order, ['remove', 'reply'])
+        if self.handler.tasks:
+            await asyncio.gather(*list(self.handler.tasks))
+        self.assertEqual(order, [('delete', 77)])
         self.assertFalse(self.handler.lifecycle.messages)
+        self.assertFalse(self.handler.pending)
+        self.assertFalse(self.replies)
 
     async def test_expired_saved_keyboard_is_cleaned_on_gateway_restore(self):
         self.session.keyboard_message_id = '77'
