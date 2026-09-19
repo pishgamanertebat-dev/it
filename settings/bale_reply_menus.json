@@ -3,7 +3,7 @@
   "menus": [
     {
       "menu_id": "maintenance_manager",
-      "users": ["641220453", "455740857"],
+      "users": ["641220453", "455740857", "1294822197"],
       "roles": [],
       "resize_keyboard": true,
       "persistent": true,
