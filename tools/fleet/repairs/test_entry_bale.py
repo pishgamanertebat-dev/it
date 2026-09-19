@@ -25,7 +25,12 @@ class EntryBaleTests(unittest.IsolatedAsyncioTestCase):
         async def send_message(**kwargs):
             self.messages.append(kwargs)
             return SimpleNamespace(message_id=len(self.messages))
-        self.bot = SimpleNamespace(send_message=AsyncMock(side_effect=send_message), edit_message_reply_markup=AsyncMock())
+        async def delete_message(**kwargs):
+            self.deleted.append(kwargs['message_id'])
+        self.deleted = []
+        self.bot = SimpleNamespace(send_message=AsyncMock(side_effect=send_message),
+                                   edit_message_reply_markup=AsyncMock(),
+                                   delete_message=AsyncMock(side_effect=delete_message))
         self.gateway = SimpleNamespace(adapters={'bale': SimpleNamespace(_bot=self.bot)})
         telegram = SimpleNamespace(InlineKeyboardMarkup=SimpleNamespace(de_json=lambda value, bot: value))
         self.patcher = patch.dict('sys.modules', {'telegram': telegram})
@@ -87,6 +92,30 @@ class EntryBaleTests(unittest.IsolatedAsyncioTestCase):
         await self.deliver(self.action_event('metalwork'))
         await self.deliver(self.event('710'))
         self.assertEqual(self.calls[-1]['section'], 'metalwork')
+
+    async def test_finish_button_is_cancel_and_prompts_are_deleted(self):
+        await self.deliver(self.event('شرح خرابی'))
+        section_id = len(self.messages)
+        labels = [button['text'] for row in self.messages[-1]['reply_markup']['inline_keyboard'] for button in row]
+        self.assertIn('انصراف', labels)
+        self.assertNotIn('پایان', labels)
+        self.assertIn('کدام بخش', self.messages[-1]['text'])
+        await self.deliver(self.action_event('mechanical'))
+        self.assertIn(section_id, self.deleted)
+        code_id = len(self.messages)
+        self.assertIn('شرح معایب مکانیکی', self.messages[-1]['text'])
+        self.assertIn('کد دستگاه را وارد کنید', self.messages[-1]['text'])
+        await self.deliver(self.event('710'))
+        self.assertIn(code_id, self.deleted)
+        self.assertIn('شرح فعلی', self.messages[-1]['text'])
+        await self.deliver(self.event('شرح خرابی'))
+        section_id = len(self.messages)
+        await self.deliver(self.action_event('metalwork'))
+        self.assertIn(section_id, self.deleted)
+        code_id = len(self.messages)
+        self.assertIn('شرح معایب آهنگری', self.messages[-1]['text'])
+        await self.deliver(self.event('710'))
+        self.assertIn(code_id, self.deleted)
 
     async def test_denied_group_and_forged_identity_never_run_worker(self):
         await self.deliver(self.event('شرح خرابی', actor='654806764'))

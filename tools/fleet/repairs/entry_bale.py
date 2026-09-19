@@ -40,7 +40,7 @@ def keyboard(stage):
         rows = [(button('clear', 'پاک‌کردن شرح این بخش'),)]
     else:
         rows = [(button('sections', 'انتخاب بخش دیگر'),)]
-    rows.append((button('finish', 'پایان'),))
+    rows.append((button('finish', 'انصراف'),))
     return InlineKeyboardBuilder('repairs_entry', rows)
 
 
@@ -121,10 +121,21 @@ class RepairsEntryHandler:
         session = self.sessions.get(key)
         return key in self.busy or bool(session and session.get('expires', 0) > self.clock())
 
-    async def reply(self, key, gateway, send, text):
+    async def reply(self, key, gateway, send, text, *, replace=False):
         session = self.sessions.get(key)
         bot = self.lifecycle.bot(gateway)
-        await self.lifecycle.retire(key, gateway)
+        previous = session.get('message_id') if session else None
+        if replace and previous:
+            try:
+                await self.lifecycle.delete(gateway, key[1], previous)
+            except Exception:
+                logger.warning('Could not delete repairs prompt', exc_info=True)
+                await self.lifecycle.retire(key, gateway)
+            self.lifecycle.forget(key, (str(key[1]), str(previous)))
+            if session.get('message_id') == previous:
+                session['message_id'] = ''
+        else:
+            await self.lifecycle.retire(key, gateway)
         if bot is None:
             send(gateway, key[1], text)
             return
@@ -189,7 +200,7 @@ class RepairsEntryHandler:
                 return
             session.update(stage='CODE', section=command)
             self.persist()
-            await self.reply(key, gateway, send, LABELS[command] + '\nکد دستگاه را وارد کنید.\nبرای ویرایش، کد همان دستگاه را دوباره وارد کنید.')
+            await self.reply(key, gateway, send, LABELS[command] + '\nکد دستگاه را وارد کنید.\nبرای ویرایش، کد همان دستگاه را دوباره وارد کنید.', replace=True)
         elif session['stage'] == 'CODE':
             session['stage'] = 'BUSY'
             self.persist()
@@ -207,7 +218,7 @@ class RepairsEntryHandler:
             else:
                 message = result['message']
             self.persist()
-            await self.reply(key, gateway, send, message)
+            await self.reply(key, gateway, send, message, replace=True)
         elif session['stage'] == 'DESCRIPTION':
             description = '' if command == 'clear' else text.strip()
             if (not description and command != 'clear') or len(description) > 1800 or '\x00' in description:
@@ -242,7 +253,7 @@ class RepairsEntryHandler:
                 self.persist()
                 await self.reply(key, gateway, send, message)
             else:
-                await self.reply(key, gateway, send, 'برای ذخیره، تأیید را بزنید؛ یا ویرایش متن / پایان را انتخاب کنید.')
+                await self.reply(key, gateway, send, 'برای ذخیره، تأیید را بزنید؛ یا ویرایش متن / انصراف را انتخاب کنید.')
 
     def handle(self, event, gateway, *, send):
         source = event.source

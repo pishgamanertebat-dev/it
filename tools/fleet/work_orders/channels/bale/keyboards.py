@@ -10,7 +10,7 @@ def action(name, label, stage='PROPOSAL'):
 
 proposal_keyboard = InlineKeyboardBuilder('work_order', (
     (action('add', '➕ افزودن دستگاه'), action('remove', '❌ حذف دستگاه')),
-    (action('confirm', '✅ تایید و ساخت اکسل'), action('cancel', '🚪 انصراف')),
+    (action('confirm', '✅ تایید و ساخت اکسل'), action('cancel', 'انصراف')),
 ))
 
 COMMANDS = {'add': 'اضافه', 'remove': 'حذف', 'confirm': 'تایید', 'cancel': 'انصراف'}
@@ -24,7 +24,7 @@ def entry_keyboard():
     buttons = [action(name, label, 'MENU') for name, label in (
         ('oil', 'تعویض روغن'), ('greasing', 'گریس کاری'), ('air_filter', 'هواکش'))
         if MENU_TYPES[name] in enabled]
-    buttons.append(action('cancel', '🚪 انصراف', 'MENU'))
+    buttons.append(action('cancel', 'انصراف', 'MENU'))
     return InlineKeyboardBuilder('work_order', (buttons[:2], buttons[2:]))
 
 

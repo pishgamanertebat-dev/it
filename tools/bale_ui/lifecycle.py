@@ -58,17 +58,48 @@ class KeyboardLifecycle:
                     raise
                 await asyncio.sleep(0.2 * (attempt + 1))
 
-    async def retire(self, scope, gateway):
+    async def delete(self, gateway, chat_id, message_id):
+        if not message_id:
+            return
+        bot = self.bot(gateway)
+        if bot is None:
+            raise RuntimeError('Bale keyboard transport unavailable')
+        method = getattr(bot, 'delete_message', None)
+        if method is not None:
+            for attempt in range(3):
+                try:
+                    await method(chat_id=str(chat_id), message_id=int(message_id))
+                    return
+                except Exception as exc:
+                    message = str(exc).lower()
+                    if 'not found' in message:
+                        return
+                    if "can't be deleted" in message or 'cannot be deleted' in message:
+                        break
+                    if attempt == 2:
+                        raise
+                    await asyncio.sleep(0.2 * (attempt + 1))
+        await self.remove(gateway, chat_id, message_id)
+
+    def forget(self, scope, expected=None):
+        reference = self.messages.get(scope)
+        if reference is None or (expected is not None and reference != expected):
+            return
+        self.messages.pop(scope, None)
+        self.bindings.pop(scope, None)
+        timer = self.timers.pop(scope, None)
+        if timer:
+            timer.cancel()
+
+    async def retire(self, scope, gateway, *, delete=False):
         reference = self.messages.get(scope)
         if reference is None:
             return
-        await self.remove(gateway, *reference)
-        if self.messages.get(scope) == reference:
-            self.messages.pop(scope, None)
-            self.bindings.pop(scope, None)
-            timer = self.timers.pop(scope, None)
-            if timer:
-                timer.cancel()
+        if delete:
+            await self.delete(gateway, *reference)
+        else:
+            await self.remove(gateway, *reference)
+        self.forget(scope, reference)
 
     async def update_message(self, gateway, chat_id, message_id, text, markup):
         """Refresh a stateful selection in place; caller persists the revision first."""
@@ -150,12 +181,7 @@ class KeyboardLifecycle:
             try:
                 if builder.policy is KeyboardPolicy.ONE_SHOT and not builder.actions[action].refresh:
                     await self.remove(gateway, event.source.chat_id, origin)
-                    if self.messages.get(scope) == (str(event.source.chat_id), str(origin)):
-                        self.messages.pop(scope, None)
-                        self.bindings.pop(scope, None)
-                        timer = self.timers.pop(scope, None)
-                        if timer:
-                            timer.cancel()
+                    self.forget(scope, (str(event.source.chat_id), str(origin)))
                 result = execute(action)
                 if inspect.isawaitable(result):
                     await result

@@ -98,6 +98,49 @@ class LifecycleTests(unittest.IsolatedAsyncioTestCase):
         self.assertFalse(self.lifecycle.messages)
         self.assertFalse(self.events)
 
+    async def test_delete_removes_message_and_treats_missing_as_success(self):
+        deleted = []
+        async def delete_message(**kwargs):
+            deleted.append(kwargs['message_id'])
+        self.bot.delete_message = AsyncMock(side_effect=delete_message)
+        self.lifecycle.bind('scope', self.gateway, '42', '77', ttl=600)
+        await self.lifecycle.retire('scope', self.gateway, delete=True)
+        self.assertEqual(deleted, [77])
+        self.bot.edit_message_reply_markup.assert_not_called()
+        self.assertFalse(self.lifecycle.messages)
+        self.bot.delete_message.side_effect = RuntimeError('Message to delete not found')
+        await self.lifecycle.delete(self.gateway, '42', '88')
+        self.bot.edit_message_reply_markup.assert_not_called()
+
+    async def test_delete_unsupported_removes_markup_and_forgets_after_success(self):
+        self.lifecycle.bind('scope', self.gateway, '42', '77', ttl=600)
+        await self.lifecycle.retire('scope', self.gateway, delete=True)
+        self.bot.edit_message_reply_markup.assert_awaited_once_with(
+            chat_id='42', message_id=77, reply_markup=None)
+        self.assertFalse(self.lifecycle.messages)
+        self.lifecycle.bind('scope', self.gateway, '42', '78', ttl=600)
+        self.bot.edit_message_reply_markup.side_effect = TimeoutError()
+        with patch('tools.bale_ui.lifecycle.asyncio.sleep', new=AsyncMock()), self.assertRaises(TimeoutError):
+            await self.lifecycle.retire('scope', self.gateway, delete=True)
+        self.assertEqual(self.lifecycle.messages['scope'], ('42', '78'))
+
+    async def test_delete_cannot_be_deleted_falls_back_to_remove(self):
+        self.bot.delete_message = AsyncMock(side_effect=RuntimeError("Bad Request: message can't be deleted"))
+        self.lifecycle.bind('scope', self.gateway, '42', '77', ttl=600)
+        await self.lifecycle.retire('scope', self.gateway, delete=True)
+        self.bot.delete_message.assert_awaited_once_with(chat_id='42', message_id=77)
+        self.bot.edit_message_reply_markup.assert_awaited_once_with(
+            chat_id='42', message_id=77, reply_markup=None)
+        self.assertFalse(self.lifecycle.messages)
+
+    async def test_delete_not_found_succeeds_without_remove(self):
+        self.bot.delete_message = AsyncMock(side_effect=RuntimeError('Message to delete not found'))
+        self.lifecycle.bind('scope', self.gateway, '42', '77', ttl=600)
+        await self.lifecycle.retire('scope', self.gateway, delete=True)
+        self.bot.delete_message.assert_awaited_once()
+        self.bot.edit_message_reply_markup.assert_not_called()
+        self.assertFalse(self.lifecycle.messages)
+
     async def test_replacement_cancels_old_timer_and_reusable_has_no_timer(self):
         self.lifecycle.bind('scope', self.gateway, '42', '77', ttl=0)
         await self.lifecycle.retire('scope', self.gateway)

@@ -76,6 +76,7 @@ class FormSession:
     additions: list = field(default_factory=list)
     keyboard_revision: str = ''
     keyboard_message_id: str = ''
+    loading_message_id: str = ''
     removal_selection: dict | None = None
 
 
@@ -237,10 +238,45 @@ class WorkOrderMenuHandler:
             logger.exception("Could not schedule work-order reply")
             return None
 
-    async def _run_request(self, key, session, request, gateway, send):
+    async def _discard_message(self, gateway, chat_id, message_id):
+        if not message_id:
+            return
+        try:
+            await self.lifecycle.delete(gateway, chat_id, message_id)
+        except Exception:
+            logger.warning('Could not delete work-order prompt', exc_info=True)
+
+    async def _send_notice(self, gateway, chat_id, text, send):
+        bot = self.lifecycle.bot(gateway)
+        if bot is None:
+            send(gateway, chat_id, text)
+            return None
+        try:
+            message = await bot.send_message(chat_id=str(chat_id), text=text, parse_mode=None)
+            return getattr(message, 'message_id', None)
+        except Exception:
+            logger.exception('Could not send work-order notice')
+            send(gateway, chat_id, text)
+            return None
+
+    async def _run_request(self, key, session, request, gateway, send, *, notice='', discard_prompt=False):
         chat_id = key[2]
         reply_key = key
+        loading_id = None
         try:
+            if discard_prompt:
+                prompt_id = session.keyboard_message_id
+                session.keyboard_message_id = ''
+                if prompt_id:
+                    try:
+                        await self.lifecycle.delete(gateway, chat_id, prompt_id)
+                        self.lifecycle.forget(key, (str(chat_id), str(prompt_id)))
+                    except Exception:
+                        logger.warning('Could not delete work-order menu', exc_info=True)
+            if notice:
+                loading_id = await self._send_notice(gateway, chat_id, notice, send)
+                session.loading_message_id = str(loading_id or '')
+                self._persist()
             if request['action'] in {'confirm_review', 'edit', 'preview'}:
                 await self.lifecycle.retire((*key, request['work_order_no']), gateway)
             if request['action'] == 'dispatch':
@@ -365,11 +401,16 @@ class WorkOrderMenuHandler:
             session.stage = "RESULT"
             reply = "عملیات با خطا روبه‌رو شد. پیش از ساخت دوباره، وضعیت حکم باید بررسی شود."
             session.result = reply
+        if loading_id:
+            await self._discard_message(gateway, chat_id, loading_id)
+            if session.loading_message_id == str(loading_id):
+                session.loading_message_id = ''
+                self._persist()
         delivery = self._send_reply(gateway, chat_id, reply, send, key=reply_key)
         if delivery:
             await delivery
 
-    def _start_request(self, key, session, request, gateway, send):
+    def _start_request(self, key, session, request, gateway, send, **options):
         loop = asyncio.get_running_loop()
         session.stage = "BUSY"
         session.keyboard_revision = ''
@@ -378,7 +419,7 @@ class WorkOrderMenuHandler:
             if card:
                 card.keyboard_revision = ''
         self._persist()
-        task = loop.create_task(self._run_request(key, session, request, gateway, send))
+        task = loop.create_task(self._run_request(key, session, request, gateway, send, **options))
         self.tasks.add(task)
         task.add_done_callback(self.tasks.discard)
 
@@ -403,9 +444,17 @@ class WorkOrderMenuHandler:
             for saved_key, message_id in self._expired_keyboards:
                 self.lifecycle.bind(saved_key, gateway, saved_key[2], message_id, ttl=0)
             self._expired_keyboards.clear()
+            stale_loading = False
             for saved_key, saved in (*self.pending.items(), *self.reviews.items()):
                 self.lifecycle.bind(saved_key, gateway, saved_key[2], saved.keyboard_message_id,
                     ttl=max(0, saved.expires - now) if saved.keyboard_revision else 0)
+                if saved.loading_message_id:
+                    loading_id = saved.loading_message_id
+                    saved.loading_message_id = ''
+                    stale_loading = True
+                    self.lifecycle.spawn(self._discard_message(gateway, saved_key[2], loading_id))
+            if stale_loading:
+                self._persist()
             self._lifecycle_restored = True
         if any(scope[:3] == key for scope in self.lifecycle.pending) and not _accepted:
             # Concurrent taps/text must not race the asynchronous markup edit.
@@ -452,7 +501,6 @@ class WorkOrderMenuHandler:
                     forwarded = copy(event)
                     forwarded.text = command_for(action, order_no=session.order_no)
                     forwarded.raw_message = None
-                    session.keyboard_message_id = ''
                     return self.handle(forwarded, gateway, send=send, _accepted=True)
 
                 return self.lifecycle.accept(builder, raw.get('data', ''), session.keyboard_revision,
@@ -525,8 +573,8 @@ class WorkOrderMenuHandler:
             elif session.stage == "MENU" and text.isdecimal():
                 item = resolve_work_order_selection(text, bale_id=user_id, db_path=self.db_path)
                 session.work_order_type = item["key"]
-                self._start_request(key, session, {'action':'propose','bale_id':user_id,'work_order_type':item['key']}, gateway, send)
-                # Keep state persistence and keyboard retirement, without a waiting message.
+                self._start_request(key, session, {'action':'propose','bale_id':user_id,'work_order_type':item['key']},
+                    gateway, send, notice='در حال ساخت حکم کار', discard_prompt=True)
                 reply = ''
                 reason = "work-order-type-selected"
             elif session.proposal is not None and session.stage in {'PROPOSAL','REMOVE','ADD_CODES','ADD_ACTION'}:
@@ -661,7 +709,10 @@ class WorkOrderMenuHandler:
             session.expires = now + 600
         if message_key:
             self.processed[message_key] = now + 600
-        self._send_reply(gateway, chat_id, reply, send, key=key)
+        if reply:
+            self._send_reply(gateway, chat_id, reply, send, key=key)
+        else:
+            self._persist()
         # Handled requests must never fall through to the AI agent, including
         # permission denial and failures.
         return {"action": "skip", "reason": reason}

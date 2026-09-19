@@ -51,7 +51,12 @@ async def verify(root: Path) -> None:
         replies.append((kwargs['chat_id'], kwargs['text']))
         return SimpleNamespace(message_id='test-text')
 
-    gateway = SimpleNamespace(adapters={"bale": SimpleNamespace(send=send, _bot=SimpleNamespace(send_document=send_document, send_message=send_message))})
+    async def delete_message(**kwargs):
+        return True
+
+    gateway = SimpleNamespace(adapters={"bale": SimpleNamespace(send=send, _bot=SimpleNamespace(
+        send_document=send_document, send_message=send_message, delete_message=delete_message,
+        edit_message_reply_markup=delete_message))})
 
     async def event(text, user="455740857", platform="bale", chat_type="dm"):
         source = SimpleNamespace(platform=platform, user_id=user, chat_id=user, chat_type=chat_type, user_name="TEST")

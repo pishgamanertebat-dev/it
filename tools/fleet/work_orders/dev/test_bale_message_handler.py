@@ -12,7 +12,7 @@ class BaleMessageHandlerTests(PermissionDatabaseTestCase):
         super().setUp()
         self.now = 1000.0
         self.handler = WorkOrderMenuHandler(db_path=self.db_path, clock=lambda: self.now)
-        def start(key, session, request, gateway, send):
+        def start(key, session, request, gateway, send, **options):
             self.assertEqual(request['action'], 'propose')
             session.stage = 'BUSY'
         self.handler._start_request = start

@@ -13,7 +13,7 @@ class InlineMenusTests(PermissionDatabaseTestCase, unittest.IsolatedAsyncioTestC
         super().setUp()
         self.key = ('bale', '455740857', '455740857')
         self.store = StateStore(self.db_path.parent / 'ui.json')
-        self.sent, self.requests, self.removed = [], [], []
+        self.sent, self.requests, self.removed, self.deleted = [], [], [], []
         self.sequence = 0
         self.result = {'ok':False, 'message':'test worker'}
 
@@ -28,11 +28,14 @@ class InlineMenusTests(PermissionDatabaseTestCase, unittest.IsolatedAsyncioTestC
         async def edit(**kwargs):
             self.removed.append(kwargs['message_id'])
 
+        async def delete_message(**kwargs):
+            self.deleted.append(kwargs['message_id'])
+
         self.worker = worker
         self.document_sender = AsyncMock()
         self.handler = self.new_handler()
         self.gateway = SimpleNamespace(adapters={'bale':SimpleNamespace(_bot=SimpleNamespace(
-            send_message=send_message, edit_message_reply_markup=edit))})
+            send_message=send_message, edit_message_reply_markup=edit, delete_message=delete_message))})
         for patcher in (
             patch.dict('sys.modules', {'telegram':SimpleNamespace(InlineKeyboardMarkup=SimpleNamespace(de_json=lambda m,b:m))}),
             patch('tools.fleet.work_orders.channels.bale.message_handler.review_context', return_value=None),
@@ -73,13 +76,77 @@ class InlineMenusTests(PermissionDatabaseTestCase, unittest.IsolatedAsyncioTestC
             await self.settle()
             entry = self.sent[-1]
             labels = [b['text'] for row in entry['reply_markup']['inline_keyboard'] for b in row]
-            self.assertEqual(labels, ['تعویض روغن','گریس کاری','هواکش','🚪 انصراف'])
+            self.assertEqual(labels, ['تعویض روغن','گریس کاری','هواکش','انصراف'])
             self.assertNotIn('شماره', entry['text'])
             self.message('', data=self.button(entry, action), origin=len(self.sent))
             await self.settle()
             self.assertEqual(self.requests[-1]['work_order_type'], work_type)
             self.assertEqual(self.requests[-1]['action'], 'propose')
         self.assertEqual(len(self.removed), 3)
+
+    async def test_type_selection_replaces_menu_with_loading_then_deletes_it(self):
+        proposal = {'work_order_type':'GREASING','plan_date':'1405/06/16','cutoff':'test',
+                    'items':[], 'warnings':[], 'review':[]}
+        for action in ('oil', 'greasing', 'air_filter'):
+            self.sent.clear()
+            self.deleted.clear()
+            self.removed.clear()
+            self.result = {'ok':True, 'proposal':{**proposal, 'work_order_type':
+                {'oil':'OIL_CHANGE','greasing':'GREASING','air_filter':'AIR_FILTER'}[action]}}
+            self.message('حکم کار')
+            await self.settle()
+            menu_id = len(self.sent)
+            self.assertIn('نوع حکم مورد نظر را از دکمه‌های زیر انتخاب کنید', self.sent[-1]['text'])
+            self.message('', data=self.button(self.sent[-1], action), origin=menu_id)
+            await self.settle()
+            texts = [message['text'] for message in self.sent]
+            self.assertIn('در حال ساخت حکم کار', texts)
+            self.assertTrue(any('پیشنهاد حکم' in text for text in texts))
+            self.assertIn(menu_id, self.deleted)
+            loading_id = next(index for index, message in enumerate(self.sent, 1)
+                              if message['text'] == 'در حال ساخت حکم کار')
+            self.assertIn(loading_id, self.deleted)
+            self.assertIn('پیشنهاد حکم', self.sent[-1]['text'])
+            self.assertNotIn('نوع حکم مورد نظر', self.sent[-1]['text'])
+            self.assertNotEqual(self.sent[-1]['text'], 'در حال ساخت حکم کار')
+
+    async def test_typed_type_selection_deletes_original_menu_once(self):
+        self.result = {'ok':True, 'proposal':{'work_order_type':'AIR_FILTER','plan_date':'1405/06/16',
+            'cutoff':'test', 'items':[], 'warnings':[], 'review':[]}}
+        self.message('حکم کار')
+        await self.settle()
+        menu_id = len(self.sent)
+        self.message('1')
+        await self.settle()
+        self.assertEqual(self.deleted.count(menu_id), 1)
+        self.assertEqual(self.requests[-1]['action'], 'propose')
+
+    async def test_inline_type_selection_deletes_original_menu_once(self):
+        self.result = {'ok':True, 'proposal':{'work_order_type':'OIL_CHANGE','plan_date':'1405/06/16',
+            'cutoff':'test', 'items':[], 'warnings':[], 'review':[]}}
+        self.message('حکم کار')
+        await self.settle()
+        menu_id = len(self.sent)
+        self.message('', data=self.button(self.sent[-1], 'oil'), origin=menu_id)
+        await self.settle()
+        self.assertEqual(self.deleted.count(menu_id), 1)
+        self.assertEqual(self.requests[-1]['action'], 'propose')
+
+    async def test_restart_deletes_saved_loading_message_once(self):
+        self.handler.pending[self.key] = FormSession(expires=self.handler.clock()+600, stage='BUSY',
+            loading_message_id='55')
+        self.handler._persist()
+        self.handler = self.new_handler()
+        self.assertEqual(self.handler.pending[self.key].stage, 'RESULT')
+        self.assertEqual(self.handler.pending[self.key].loading_message_id, '55')
+        self.message('سلام')
+        await self.settle()
+        self.assertEqual(self.deleted, [55])
+        self.assertEqual(self.handler.pending[self.key].loading_message_id, '')
+        self.assertFalse(self.requests)
+        self.message('سلام')
+        await self.settle()
+        self.assertEqual(self.deleted, [55])
 
     async def test_entry_cancel_is_consumed_and_removed(self):
         self.message('حکم کار')
