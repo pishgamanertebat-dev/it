@@ -131,6 +131,66 @@ class BridgeTests(unittest.IsolatedAsyncioTestCase):
 NEW_CHAT_LABEL = "🔄 شروع گفتگوی جدید"
 
 
+class ApprovedMenuRenderingTests(unittest.TestCase):
+    _load_registry_plugin = BridgeTests._load_registry_plugin
+
+    def test_registration_gate_composes_common_button_with_existing_menu(self):
+        from tools.bale_ui import runtime
+        from tools.fleet.work_orders.channels.bale import message_handler
+        from tools.fleet.work_orders.core.permissions import MAINTENANCE_MANAGER
+
+        plugin = self._load_registry_plugin()
+        user_id = '641220453'  # Existing configured specialized menu audience.
+        conn = plugin._connect()
+        conn.execute(
+            """INSERT INTO channel_users
+               (platform, user_id, chat_id, display_name, verified_name,
+                registration_status, first_seen_at, updated_at)
+               VALUES ('bale', ?, ?, 'n', 'n', 'approved', 't', 't')""",
+            (user_id, user_id))
+        conn.commit()
+        original = runtime.reply_menus.menu_for(user_id)
+        try:
+            for status, role, expected in (
+                ('approved', MAINTENANCE_MANAGER,
+                 [['📋 حکم کار', '🛠 شرح خرابی'], [NEW_CHAT_LABEL]]),
+                ('approved', None, [[NEW_CHAT_LABEL]]),
+                ('revoked', MAINTENANCE_MANAGER, None),
+                ('rejected', None, None),
+                ('pending', None, None),
+            ):
+                with self.subTest(status=status, role=role):
+                    conn.execute('UPDATE channel_users SET registration_status=?', (status,))
+                    conn.commit()
+                    event = SimpleNamespace(text='سلام', raw_message=None,
+                        source=SimpleNamespace(platform='bale', chat_type='dm',
+                                               user_id=user_id, chat_id=user_id))
+                    with patch.object(plugin, '_handle_overflow_report', return_value=None), \
+                         patch.object(plugin, '_admin_ids', return_value=set()), \
+                         patch.object(plugin, '_send'), \
+                         patch.object(runtime, '_reply_menu_role', return_value=role), \
+                         patch.object(runtime.reply_presenter, 'present') as present, \
+                         patch.object(runtime, 'revoke_reply_menu'), \
+                         patch.object(runtime.router, 'dispatch', return_value=None), \
+                         patch.object(message_handler, 'handle_work_order_message', return_value=None):
+                        plugin._handle_bale(event, None)
+                    if expected is None:
+                        present.assert_not_called()
+                    else:
+                        present.assert_called_once()
+                        menu = present.call_args.args[3]
+                        self.assertEqual([[b.text for b in row] for row in menu.rows], expected)
+                        self.assertEqual(menu.command_for(NEW_CHAT_LABEL), '/new')
+                        if role:
+                            self.assertEqual(menu.rows[:-1], original.rows)
+                            self.assertEqual(menu.roles, original.roles)
+                            self.assertEqual(menu.users, original.users)
+                            self.assertEqual(menu.menu_id, original.menu_id)
+                    self.assertIs(runtime.reply_menus.menu_for(user_id), original)
+        finally:
+            conn.close()
+
+
 class NewChatButtonTests(unittest.TestCase):
     """The «new chat» reply button becomes the native /new in pre_gateway_dispatch.
 

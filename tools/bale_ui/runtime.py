@@ -1,8 +1,9 @@
 """Application composition root. Register additional domains here."""
+from dataclasses import replace
 from pathlib import Path
 
 from .core import Router, StateStore
-from .reply_keyboard import ReplyMenuPresenter, load_registry, normalize
+from .reply_keyboard import ReplyButton, ReplyMenu, ReplyMenuPresenter, load_registry, normalize
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -28,7 +29,7 @@ def revoke_reply_menu(gateway, chat_id, user_id, *, send, text):
     return reply_presenter.remove(gateway, chat_id, user_id, text=text, send=send)
 
 
-def reply_menu_step(event, gateway, *, send):
+def reply_menu_step(event, gateway, *, send, bale_approved=False):
     """Translate a tapped label into its command and keep the menu available.
 
     No business rule, permission decision or flow state belongs here: every
@@ -51,6 +52,12 @@ def reply_menu_step(event, gateway, *, send):
     # Authorization, not the config users list, decides whether the operational
     # menu may stay on the client.
     menu = reply_menus.menu_for(user_id, role) if role else None
+    # Approval is supplied by the Bale registration gate, never inferred from
+    # an operational role. Compose after lookup so specialized menus win.
+    if bale_approved:
+        common_row = (ReplyButton('🔄 شروع گفتگوی جدید', '/new'),)
+        menu = (replace(menu, rows=menu.rows + (common_row,)) if menu else
+                ReplyMenu('new_chat', (common_row,)))
     key = (user_id, chat_id)
     if menu is None:
         if (key in reply_presenter.delivered or key in reply_presenter.pending
@@ -67,7 +74,7 @@ def reply_menu_step(event, gateway, *, send):
     return None
 
 
-def dispatch(event, gateway, *, send):
+def dispatch(event, gateway, *, send, bale_approved=False):
     from tools.fleet.work_orders.channels.bale.message_handler import _handler as work_order
     from tools.fleet.repairs.entry_bale import _handler as repairs_entry
     from tools.fleet.repairs.maintenance_bale import _handler as maintenance_entry
@@ -75,7 +82,7 @@ def dispatch(event, gateway, *, send):
         router.register('repairs_entry', repairs_entry.handle)
     if 'maintenance_entry' not in router.handlers:
         router.register('maintenance_entry', maintenance_entry.handle)
-    result = reply_menu_step(event, gateway, send=send)
+    result = reply_menu_step(event, gateway, send=send, bale_approved=bale_approved)
     if result is not None:
         return result
     raw = getattr(event, 'raw_message', None)
