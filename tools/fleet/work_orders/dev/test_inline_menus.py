@@ -28,6 +28,14 @@ class InlineMenusTests(PermissionDatabaseTestCase, unittest.IsolatedAsyncioTestC
         async def edit(**kwargs):
             self.removed.append(kwargs['message_id'])
 
+        async def edit_message_text(**kwargs):
+            mid = int(kwargs['message_id'])
+            if 1 <= mid <= len(self.sent):
+                self.sent[mid - 1]['text'] = kwargs['text']
+                if kwargs.get('reply_markup') is not None:
+                    self.sent[mid - 1]['reply_markup'] = kwargs['reply_markup']
+            return SimpleNamespace(message_id=mid)
+
         async def delete_message(**kwargs):
             self.deleted.append(kwargs['message_id'])
 
@@ -35,7 +43,8 @@ class InlineMenusTests(PermissionDatabaseTestCase, unittest.IsolatedAsyncioTestC
         self.document_sender = AsyncMock()
         self.handler = self.new_handler()
         self.gateway = SimpleNamespace(adapters={'bale':SimpleNamespace(_bot=SimpleNamespace(
-            send_message=send_message, edit_message_reply_markup=edit, delete_message=delete_message))})
+            send_message=send_message, edit_message_reply_markup=edit,
+            edit_message_text=edit_message_text, delete_message=delete_message))})
         for patcher in (
             patch.dict('sys.modules', {'telegram':SimpleNamespace(InlineKeyboardMarkup=SimpleNamespace(de_json=lambda m,b:m))}),
             patch('tools.fleet.work_orders.channels.bale.message_handler.review_context', return_value=None),
@@ -669,3 +678,265 @@ class InlineMenusTests(PermissionDatabaseTestCase, unittest.IsolatedAsyncioTestC
         buttons = [b for row in self.sent[-1]['reply_markup']['inline_keyboard'] for b in row]
         self.assertEqual([b['text'] for b in buttons], ['↩️ بازگشت'])
         self.assertIn('سرویسکار فعالی موجود نیست', self.sent[-1]['text'])
+
+
+CREATE_LOADING = 'در حال ساخت حکم کار و فایل اکسل…'
+BACK_LOADING = 'در حال بازگشت به بررسی همین حکم…'
+DISPATCH_LOADING = 'در حال ارسال حکم برای سرویسکار…'
+STAFF_PROMPT = 'سرویسکار را از دکمه‌های زیر انتخاب کنید'
+DISPATCH_FAIL = (
+    'ارسال با خطا مواجه شد؛ حکم محفوظ است. اتصال یا شروع گفتگو با ربات توسط '
+    'سرویسکار را بررسی کنید؛ برای تلاش دوباره همان شمارهٔ گزینه را بفرستید.'
+)
+
+
+class TransientWorkOrderUiTests(InlineMenusTests):
+    def _order(self, work_type, number):
+        return {'work_order_no': number, 'work_order_type': work_type,
+                'label': work_type, 'item_count': 1, 'file_name': number + '.xlsx'}
+
+    def _id_for(self, text):
+        return next(index for index, message in reversed(list(enumerate(self.sent, 1)))
+                    if message.get('text') == text)
+
+    async def create_excel(self, work_type, number):
+        self.result = {'ok': True, 'order': self._order(work_type, number)}
+        if work_type == 'AIR_FILTER':
+            await self.shift_step()
+            origin = len(self.sent)
+            self.message('', data=self.button(self.sent[-1], 'shift_morning'), origin=origin)
+        else:
+            self.handler.pending[self.key] = FormSession(
+                expires=self.handler.clock() + 600, stage='PROPOSAL',
+                work_order_type=work_type, jalali_date='1405/06/16',
+                proposal=self._proposal(work_type))
+            self.message('تایید')
+        await self.settle()
+
+    async def test_create_loading_deleted_after_review_for_all_types(self):
+        for work_type, number in (
+            ('AIR_FILTER', 'AF-1405-06-25-003'),
+            ('GREASING', 'GR-1405-06-25-003'),
+            ('OIL_CHANGE', 'OC-1405-06-25-003'),
+        ):
+            self.sent.clear()
+            self.deleted.clear()
+            self.removed.clear()
+            self.requests.clear()
+            self.document_sender.reset_mock()
+            await self.create_excel(work_type, number)
+            loading_id = self._id_for(CREATE_LOADING)
+            self.assertIn(loading_id, self.deleted)
+            self.assertIn('تایید یا ویرایش را از دکمه‌های زیر', self.sent[-1]['text'])
+            self.assertNotEqual(self.sent[-1]['text'], CREATE_LOADING)
+            self.assertEqual(self.handler.pending[self.key].loading_message_id, '')
+            self.assertEqual(self.requests[-1]['action'], 'create')
+            self.document_sender.assert_awaited()
+            self.assertEqual(self.deleted.count(loading_id), 1)
+
+    async def test_create_failure_drops_loading_but_keeps_error(self):
+        self.result = {'ok': False, 'message': 'ساخت ناموفق؛ وضعیت حکم را بررسی کنید.'}
+        self.handler.pending[self.key] = FormSession(
+            expires=self.handler.clock() + 600, stage='PROPOSAL',
+            work_order_type='GREASING', jalali_date='1405/06/16',
+            proposal=self._proposal())
+        self.message('تایید')
+        await self.settle()
+        loading_id = self._id_for(CREATE_LOADING)
+        self.assertIn(loading_id, self.deleted)
+        self.assertIn('ساخت ناموفق', self.sent[-1]['text'])
+        self.assertNotEqual(self.sent[-1]['text'], CREATE_LOADING)
+        self.assertFalse(self.document_sender.called)
+        self.assertEqual(self.handler.pending[self.key].stage, 'RESULT')
+
+    async def test_document_send_failure_drops_loading_and_keeps_retry(self):
+        self.document_sender.side_effect = RuntimeError('upload failed')
+        with self.assertLogs('tools.fleet.work_orders.channels.bale.message_handler', level='ERROR'):
+            await self.create_excel('OIL_CHANGE', 'OC-1405-06-25-009')
+        loading_id = self._id_for(CREATE_LOADING)
+        self.assertIn(loading_id, self.deleted)
+        self.assertIn('حکم محفوظ است', self.sent[-1]['text'])
+        self.assertTrue(self.sent[-1]['text'].endswith('ارسال مجدد'))
+        self.assertNotEqual(self.sent[-1]['text'], CREATE_LOADING)
+
+    async def test_back_to_review_deletes_loading_after_review_ui(self):
+        for kind, number in (('AIR_FILTER', 'AF-1405-06-25-003'),
+                             ('GREASING', 'GR-1405-06-25-003'),
+                             ('OIL_CHANGE', 'OC-1405-06-25-003')):
+            order, _options = await self.staff_step(kind, number)
+            staff_id = len(self.sent)
+            self.assertIn(STAFF_PROMPT, self.sent[-1]['text'])
+            self.result = {'ok': True, 'order': order}
+            before = len(self.requests)
+            self.message('', data=self.button(self.sent[-1], 'staff_back'), origin=staff_id)
+            await self.settle()
+            loading_id = self._id_for(BACK_LOADING)
+            self.assertIn(loading_id, self.deleted)
+            self.assertIn(staff_id, self.deleted)
+            self.assertIn('تایید یا ویرایش را از دکمه‌های زیر', self.sent[-1]['text'])
+            self.assertNotEqual(self.sent[-1]['text'], BACK_LOADING)
+            self.assertEqual(self.requests[before:], [
+                {'action': 'preview', 'bale_id': self.key[1], 'work_order_no': number}])
+            self.assertEqual(self.handler.pending[self.key].stage, 'REVIEW')
+
+    async def test_staff_prompt_stays_until_successful_dispatch(self):
+        await self.staff_step('GREASING', 'GR-1405-06-25-003')
+        staff_id = len(self.sent)
+        self.assertIn(STAFF_PROMPT, self.sent[staff_id - 1]['text'])
+        self.assertNotIn(staff_id, self.deleted)
+        self.assertEqual(self.handler.pending[self.key].stage, 'STAFF')
+        self.assertEqual(self.handler.pending[self.key].keyboard_stage, 'STAFF')
+        self.assertEqual(self.handler.pending[self.key].keyboard_message_id, str(staff_id))
+
+    async def test_successful_staff_choice_deletes_staff_keeps_result(self):
+        _order, options = await self.staff_step('AIR_FILTER', 'AF-1405-06-25-003')
+        origin = len(self.sent)
+        dispatch = AsyncMock(return_value='✅ حکم برای محسن غضنفری ارسال شد؛ منتظر تایید دریافت هستیم.')
+        with patch('tools.fleet.work_orders.channels.bale.staff_flow.dispatch', dispatch):
+            self.message('', data=self.button(self.sent[-1], 'staff_1'), origin=origin)
+            await self.settle()
+        dispatch.assert_awaited_once()
+        self.assertIn(origin, self.deleted)
+        loading_id = self._id_for(DISPATCH_LOADING)
+        self.assertIn(loading_id, self.deleted)
+        self.assertIn('برای محسن غضنفری ارسال شد', self.sent[-1]['text'])
+        self.assertNotIn(STAFF_PROMPT, self.sent[-1]['text'])
+        self.assertEqual(self.handler.pending[self.key].stage, 'RESULT')
+        self.assertFalse(self.handler.pending[self.key].pending_delete_ids)
+        self.document_sender.assert_awaited()
+
+    async def test_dispatch_failure_keeps_staff_retry_ui(self):
+        _order, options = await self.staff_step('OIL_CHANGE', 'OC-1405-06-25-003')
+        origin = len(self.sent)
+        old_data = self.button(self.sent[-1], 'staff_1')
+        old_revision = self.handler.pending[self.key].keyboard_revision
+        documents_before = self.document_sender.await_count
+        dispatch = AsyncMock(side_effect=[DISPATCH_FAIL, 'ارسال آزمایشی موفق'])
+        with patch('tools.fleet.work_orders.channels.bale.staff_flow.dispatch', dispatch):
+            self.message('', data=old_data, origin=origin)
+            await self.settle()
+            session = self.handler.pending[self.key]
+            self.assertEqual(session.stage, 'STAFF')
+            self.assertTrue(session.keyboard_revision)
+            self.assertNotEqual(session.keyboard_revision, old_revision)
+            self.assertEqual(session.keyboard_message_id, str(origin))
+            self.assertNotIn(origin, self.deleted)
+            staff_message = self.sent[origin - 1]
+            self.assertIn(DISPATCH_FAIL, staff_message['text'])
+            self.assertIn(STAFF_PROMPT, staff_message['text'])
+            buttons = [b for row in staff_message['reply_markup']['inline_keyboard'] for b in row]
+            self.assertEqual([b['text'] for b in buttons],
+                             [s['display_name'] for s in options] + ['↩️ بازگشت'])
+            new_data = self.button(staff_message, 'staff_1')
+            self.assertNotEqual(new_data, old_data)
+            self.assertEqual(self.message('', data=old_data, origin=origin)['reason'], 'inline-rejected')
+            await self.settle()
+            self.assertEqual(dispatch.await_count, 1)
+            self.message('', data=new_data, origin=origin)
+            await self.settle()
+            self.assertEqual(dispatch.await_count, 2)
+            dispatch.assert_awaited_with(
+                self.gateway, 'OC-1405-06-25-003', self.key[1], self.key[2],
+                options[0]['id'], options[0]['roster_id'])
+            self.assertEqual(self.deleted.count(origin), 1)
+            self.assertEqual(self.handler.pending[self.key].stage, 'RESULT')
+            self.assertIn('ارسال آزمایشی موفق', self.sent[-1]['text'])
+        self.assertEqual(self.document_sender.await_count, documents_before)
+
+    async def test_duplicate_staff_callback_does_not_resend_or_replay_cleanup(self):
+        await self.staff_step('GREASING', 'GR-1405-06-25-003')
+        origin = len(self.sent)
+        dispatch = AsyncMock(return_value='ارسال آزمایشی موفق')
+        data = self.button(self.sent[-1], 'staff_1')
+        with patch('tools.fleet.work_orders.channels.bale.staff_flow.dispatch', dispatch):
+            self.message('', data=data, origin=origin)
+            self.message('', data=data, origin=origin)
+            await self.settle()
+            dispatch.assert_awaited_once()
+            self.message('', data=data, origin=origin)
+            await self.settle()
+            self.assertEqual(dispatch.await_count, 1)
+        self.assertEqual(self.deleted.count(origin), 1)
+        self.assertEqual(self.document_sender.await_count, 1)
+
+    async def test_delete_failure_keeps_loading_reference_for_retry(self):
+        bot = self.gateway.adapters['bale']._bot
+
+        async def fail_then_ok(**kwargs):
+            raise TimeoutError('bale down')
+
+        bot.delete_message = fail_then_ok
+        with patch('tools.bale_ui.lifecycle.asyncio.sleep', new=AsyncMock()), \
+             self.assertLogs('tools.fleet.work_orders.channels.bale.message_handler', level='WARNING'):
+            await self.create_excel('GREASING', 'GR-1405-06-25-008')
+        loading_id = self._id_for(CREATE_LOADING)
+        self.assertEqual(self.handler.pending[self.key].loading_message_id, str(loading_id))
+        self.assertIn('تایید یا ویرایش را از دکمه‌های زیر', self.sent[-1]['text'])
+        retried = []
+
+        async def succeed(**kwargs):
+            retried.append(kwargs['message_id'])
+
+        bot.delete_message = succeed
+        self.message('وضعیت حکم')
+        await self.settle()
+        self.assertEqual(retried, [loading_id])
+        self.assertEqual(self.handler.pending[self.key].loading_message_id, '')
+        self.assertEqual(self.requests[-1]['action'], 'create')
+
+    async def test_other_session_staff_message_is_never_deleted(self):
+        other = ('bale', '1004', '1004')
+        self.handler.pending[other] = FormSession(
+            expires=self.handler.clock() + 600, stage='STAFF',
+            work_order_type='GREASING', order_no='GR-1405-06-25-099',
+            keyboard_message_id='99', keyboard_stage='STAFF',
+            keyboard_message_ids=['99'])
+        await self.create_excel('AIR_FILTER', 'AF-1405-06-25-003')
+        self.assertNotIn(99, self.deleted)
+        self.assertEqual(self.handler.pending[other].keyboard_message_id, '99')
+        self.assertEqual(self.handler.pending[other].keyboard_stage, 'STAFF')
+
+    async def test_restart_after_create_success_retries_only_loading_cleanup(self):
+        self.handler.pending[self.key] = FormSession(
+            expires=self.handler.clock() + 600, stage='BUSY', work_order_type='AIR_FILTER',
+            order_no='AF-1405-06-25-003', loading_message_id='55')
+        self.handler._persist()
+        self.handler = self.new_handler()
+        self.assertEqual(self.handler.pending[self.key].stage, 'RESULT')
+        self.assertEqual(self.handler.pending[self.key].loading_message_id, '55')
+        self.message('سلام')
+        await self.settle()
+        self.assertEqual(self.deleted, [55])
+        self.assertFalse(self.requests)
+        self.document_sender.assert_not_called()
+        self.assertEqual(self.handler.pending[self.key].loading_message_id, '')
+        self.message('سلام')
+        await self.settle()
+        self.assertEqual(self.deleted, [55])
+
+    async def test_restart_after_dispatch_success_retries_only_staff_cleanup(self):
+        self.handler.pending[self.key] = FormSession(
+            expires=self.handler.clock() + 600, stage='RESULT', work_order_type='GREASING',
+            order_no='GR-1405-06-25-003', result='ارسال آزمایشی موفق',
+            keyboard_stage='STAFF', keyboard_message_id='77',
+            keyboard_message_ids=['77'], pending_delete_ids=['77'])
+        self.handler._persist()
+        self.handler = self.new_handler()
+        with patch('tools.fleet.work_orders.channels.bale.staff_flow.dispatch', new=AsyncMock()) as dispatch:
+            self.message('سلام')
+            await self.settle()
+            dispatch.assert_not_called()
+        self.assertEqual(self.deleted, [77])
+        self.assertFalse(self.handler.pending[self.key].pending_delete_ids)
+        self.assertEqual(self.handler.pending[self.key].keyboard_stage, '')
+        self.document_sender.assert_not_called()
+
+    async def test_excel_document_and_reply_keyboard_are_not_deleted(self):
+        await self.create_excel('GREASING', 'GR-1405-06-25-003')
+        loading_id = self._id_for(CREATE_LOADING)
+        self.assertEqual(self.deleted, [loading_id])
+        self.document_sender.assert_awaited()
+        self.assertEqual(self.sent[loading_id - 1]['text'], CREATE_LOADING)
+        self.assertTrue(all('document' not in message for message in self.sent))
+        self.assertIn('تایید یا ویرایش را از دکمه‌های زیر', self.sent[-1]['text'])
+

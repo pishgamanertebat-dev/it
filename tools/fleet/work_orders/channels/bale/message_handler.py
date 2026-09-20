@@ -83,6 +83,7 @@ class FormSession:
     keyboard_stage: str = ''
     keyboard_message_ids: list[str] = field(default_factory=list)
     loading_message_id: str = ''
+    pending_delete_ids: list[str] = field(default_factory=list)
     removal_selection: dict | None = None
     ui_cleanup: bool = False
 
@@ -175,6 +176,10 @@ class WorkOrderMenuHandler:
                             ids.append(session.keyboard_message_id)
                         self._expired_ui_deletes.append(
                             (tuple(key), ids, session.loading_message_id))
+                    elif session.pending_delete_ids or session.loading_message_id:
+                        self._expired_ui_deletes.append(
+                            (tuple(key), [str(i) for i in session.pending_delete_ids if i],
+                             session.loading_message_id))
                     elif session.keyboard_message_id:
                         self._expired_keyboards.append((tuple(key), session.keyboard_message_id))
             except (ValueError, TypeError, OSError):
@@ -297,6 +302,8 @@ class WorkOrderMenuHandler:
                                 session.keyboard_stage = render_stage
                                 if render_stage in TRANSIENT_WORK_ORDER_STAGES:
                                     session.keyboard_message_ids = sent_ids
+                                elif render_stage == 'STAFF' and message_id:
+                                    session.keyboard_message_ids = [str(message_id)]
                                 self._persist()
                         else:
                             await adapter.send(str(chat_id), part)
@@ -413,10 +420,88 @@ class WorkOrderMenuHandler:
             send(gateway, chat_id, text)
             return None
 
+    def _staff_owned_ids(self, session):
+        if session.keyboard_stage != 'STAFF':
+            return []
+        ids = [str(i) for i in session.keyboard_message_ids if i]
+        last = str(session.keyboard_message_id or '')
+        if last and last not in ids:
+            ids.append(last)
+        return ids
+
+    @staticmethod
+    def _needs_staff_retry(reply):
+        return 'همان شمارهٔ گزینه را' in (reply or '')
+
+    async def _delete_owned_ids(self, gateway, chat_id, scope, message_ids):
+        remaining = []
+        if gateway is None or self.lifecycle.bot(gateway) is None:
+            return [str(i) for i in message_ids if i]
+        for message_id in message_ids:
+            if not message_id:
+                continue
+            try:
+                await self.lifecycle.delete(gateway, chat_id, message_id)
+                if scope is not None:
+                    self.lifecycle.forget(scope, (str(chat_id), str(message_id)))
+            except Exception:
+                logger.warning('Could not delete work-order prompt', exc_info=True)
+                remaining.append(str(message_id))
+        return remaining
+
+    def _queue_staff_retire(self, session, staff_ids):
+        merged = [str(i) for i in session.pending_delete_ids if i]
+        for message_id in staff_ids:
+            item = str(message_id)
+            if item and item not in merged:
+                merged.append(item)
+        session.pending_delete_ids = merged
+        self._persist()
+
+    async def _flush_ui_deletes(self, key, session, gateway, loading_id=None):
+        current = (self.reviews if len(key) == 4 else self.pending).get(key)
+        if current is not session:
+            return
+        chat_id = key[2]
+        if loading_id:
+            remaining = await self._delete_owned_ids(gateway, chat_id, None, [str(loading_id)])
+            if session.loading_message_id == str(loading_id):
+                session.loading_message_id = remaining[0] if remaining else ''
+        pending = [str(i) for i in session.pending_delete_ids if i]
+        if pending:
+            remaining = await self._delete_owned_ids(gateway, chat_id, key, pending)
+            if (self.reviews if len(key) == 4 else self.pending).get(key) is session:
+                session.pending_delete_ids = remaining
+                if session.keyboard_stage == 'STAFF':
+                    keep = [i for i in self._staff_owned_ids(session) if i in remaining]
+                    session.keyboard_message_ids = keep
+                    session.keyboard_message_id = keep[-1] if keep else ''
+                    if not keep:
+                        session.keyboard_stage = ''
+        self._persist()
+
+    def _resume_transient_cleanup(self, key, session, gateway):
+        if session.stage == 'BUSY' or session.ui_cleanup:
+            return
+        if not session.loading_message_id and not session.pending_delete_ids:
+            return
+        if gateway is None or self.lifecycle.bot(gateway) is None:
+            return
+
+        async def cleanup():
+            await self._flush_ui_deletes(key, session, gateway, session.loading_message_id or None)
+
+        task = asyncio.get_running_loop().create_task(cleanup())
+        self.tasks.add(task)
+        task.add_done_callback(self.tasks.discard)
+
     async def _run_request(self, key, session, request, gateway, send, *, notice='', discard_prompt=False):
         chat_id = key[2]
         reply_key = key
         loading_id = None
+        staff_ids = self._staff_owned_ids(session)
+        leave_staff = False
+        dispatch_finished = False
         try:
             if discard_prompt:
                 prompt_id = session.keyboard_message_id
@@ -433,131 +518,148 @@ class WorkOrderMenuHandler:
                 self._persist()
             if request['action'] in {'confirm_review', 'edit', 'preview'}:
                 await self.lifecycle.retire((*key, request['work_order_no']), gateway)
+            if request['action'] in {'create', 'preview', 'preview_latest', 'dispatch'}:
+                await self.lifecycle.retire(key, gateway)
             if request['action'] == 'dispatch':
                 from tools.fleet.work_orders.channels.bale.staff_flow import dispatch
                 reply = await dispatch(gateway, session.order_no, key[1], chat_id, request['staff_id'], request.get('roster_id'))
-                session.stage = 'STAFF'
+                leave_staff = not self._needs_staff_retry(reply)
+                dispatch_finished = True
                 session.result = reply
                 session.expires = self.clock() + 600
-                delivery = self._send_reply(gateway, chat_id, reply, send)
-                if delivery:
-                    await delivery
-                return
-            result = await self.worker(request)
-            if not result.get("ok"):
-                if result.get('error') == 'INVALID_INPUT' and request['action'] == 'validate_add':
-                    session.stage = 'ADD_CODES'
-                    reply = result['message'] + '\nکدها را اصلاح کنید یا بنویسید: برگشت'
-                elif result.get("error") == "INVALID_INPUT" and request["action"] == "validate_machines":
-                    session.stage = "MACHINES"
-                    reply = result["message"] + "\nکد دستگاه‌ها را اصلاح و دوباره ارسال کنید."
+                if leave_staff:
+                    reply_key = None
                 else:
-                    session.stage = "RESULT"
-                    reply = result.get("message", "عملیات با خطا روبه‌رو شد؛ وضعیت حکم باید بررسی شود.")
+                    session.stage = 'STAFF'
+                    reply_key = key
+                    reply = (
+                        f"{reply}\nسرویسکار را از دکمه‌های زیر انتخاب کنید."
+                        "\nبرای بررسی یا ویرایش همین حکم، «بازگشت» را بزنید."
+                    )
                     session.result = reply
-            elif request['action'] == 'propose':
-                from tools.fleet.work_orders.channels.bale.proposal_form import render
-                session.proposal = result['proposal']
-                session.stage = 'PROPOSAL'
-                session.jalali_date = session.proposal['plan_date']
-                reply = render(session.proposal)
-            elif request['action'] == 'validate_add':
-                session.additions = result['items']
-                if session.work_order_type in {'GREASING', 'OIL_CHANGE'}:
-                    from tools.fleet.work_orders.channels.bale.proposal_form import add_items, render
-                    add_items(session.proposal, session.additions, 'GREASING_FULL')
+            else:
+                result = await self.worker(request)
+                if not result.get("ok"):
+                    if result.get('error') == 'INVALID_INPUT' and request['action'] == 'validate_add':
+                        session.stage = 'ADD_CODES'
+                        reply = result['message'] + '\nکدها را اصلاح کنید یا بنویسید: برگشت'
+                    elif result.get("error") == "INVALID_INPUT" and request["action"] == "validate_machines":
+                        session.stage = "MACHINES"
+                        reply = result["message"] + "\nکد دستگاه‌ها را اصلاح و دوباره ارسال کنید."
+                    else:
+                        session.stage = "RESULT"
+                        reply = result.get("message", "عملیات با خطا روبه‌رو شد؛ وضعیت حکم باید بررسی شود.")
+                        session.result = reply
+                elif request['action'] == 'propose':
+                    from tools.fleet.work_orders.channels.bale.proposal_form import render
+                    session.proposal = result['proposal']
                     session.stage = 'PROPOSAL'
+                    session.jalali_date = session.proposal['plan_date']
                     reply = render(session.proposal)
+                elif request['action'] == 'validate_add':
+                    session.additions = result['items']
+                    if session.work_order_type in {'GREASING', 'OIL_CHANGE'}:
+                        from tools.fleet.work_orders.channels.bale.proposal_form import add_items, render
+                        add_items(session.proposal, session.additions, 'GREASING_FULL')
+                        session.stage = 'PROPOSAL'
+                        reply = render(session.proposal)
+                    else:
+                        session.stage = 'ADD_ACTION'
+                        reply = 'نوع تعویض دستگاه‌های اضافه‌شده را انتخاب کنید:\n1) بیرونی\n2) داخلی و بیرونی\nبرای بازگشت بنویسید: برگشت'
+                elif request["action"] == "validate_machines":
+                    session.machine_codes = result["machine_codes"]
+                    session.stage = "DATE"
+                    reply = f"تعداد دستگاه: {len(session.machine_codes)}\nتاریخ حکم را وارد کنید؛ مانند 1405/06/15."
+                elif request["action"] == "confirm_review":
+                    from tools.fleet.work_orders.core.staff_dispatch import staff_menu
+                    session.work_order_type = result.get('work_order_type', session.work_order_type)
+                    _menu, session.staff_options = staff_menu(session.work_order_type)
+                    session.stage = "STAFF"
+                    reply = f"✅ تایید بررسی فایل حکم {session.order_no} ثبت شد.\nسرویسکار را از دکمه‌های زیر انتخاب کنید.\nبرای بررسی یا ویرایش همین حکم، «بازگشت» را بزنید."
+                    if not session.staff_options:
+                        reply = f"✅ تایید بررسی فایل حکم {session.order_no} ثبت شد.\nسرویسکار فعالی موجود نیست؛ برای بررسی همین حکم «بازگشت» را بزنید."
+                    session.result = reply
+                elif request["action"] == "edit":
+                    from tools.fleet.work_orders.channels.bale.proposal_form import render
+                    session.stage = "PROPOSAL"
+                    session.work_order_type = result["work_order_type"]
+                    session.machine_codes = []
+                    session.jalali_date = ""
+                    session.order_no = ""
+                    session.result = ""
+                    review_context(key[1], chat_id, 'manager', number='', stage='EDIT', db_path=self.db_path)
+                    session.proposal = result['proposal']
+                    session.jalali_date = session.proposal['plan_date']
+                    reply = 'خروجی اصلاح‌شده شمارهٔ جدید می‌گیرد؛ حکم قبلی محفوظ می‌ماند.\n' + render(session.proposal)
+                elif result.get('orders'):
+                    session.work_order_type = 'OIL_CHANGE'
+                    summaries = []
+                    for order in result['orders']:
+                        card_key = None
+                        number = order['work_order_no']
+                        details = manager_excel_details(order, independent=True)
+                        reply = details
+                        session.order_no = number
+                        try:
+                            require_work_order_permission(key[1], db_path=self.db_path)
+                            await self.document_sender(gateway, chat_id, order)
+                            card_key = self._review_card(key, number)
+                            reply = manager_review_reply(order)
+                        except Exception:
+                            logger.exception('Manager oil Excel delivery failed for %s', number)
+                            reply = details + f"\nارسال فایل ناموفق بود؛ حکم محفوظ است. بنویسید:\nارسال مجدد {number}"
+                        review_context(key[1],chat_id,'manager',number=number,stage='REVIEW' if card_key else 'RESULT',db_path=self.db_path)
+                        delivery = self._send_reply(gateway,chat_id,reply,send,key=card_key)
+                        if delivery:
+                            await delivery
+                        summaries.append(number + ': ' + order['item_summary'])
+                    session.stage = 'REVIEW' if card_key else 'RESULT'
+                    reply = 'حکم‌های مستقل ساخته‌شده:\n' + '\n'.join(summaries)
+                    reply += '\nبرای هر حکم، تأیید و انتخاب سرویسکار جداگانه انجام می‌شود.'
+                    if result.get('batch_error'):
+                        reply += '\n⚠️ ' + result['batch_error']
+                    session.result = reply
                 else:
-                    session.stage = 'ADD_ACTION'
-                    reply = 'نوع تعویض دستگاه‌های اضافه‌شده را انتخاب کنید:\n1) بیرونی\n2) داخلی و بیرونی\nبرای بازگشت بنویسید: برگشت'
-            elif request["action"] == "validate_machines":
-                session.machine_codes = result["machine_codes"]
-                session.stage = "DATE"
-                reply = f"تعداد دستگاه: {len(session.machine_codes)}\nتاریخ حکم را وارد کنید؛ مانند 1405/06/15."
-            elif request["action"] == "confirm_review":
-                from tools.fleet.work_orders.core.staff_dispatch import staff_menu
-                session.work_order_type = result.get('work_order_type', session.work_order_type)
-                _menu, session.staff_options = staff_menu(session.work_order_type)
-                session.stage = "STAFF"
-                reply = f"✅ تایید بررسی فایل حکم {session.order_no} ثبت شد.\nسرویسکار را از دکمه‌های زیر انتخاب کنید.\nبرای بررسی یا ویرایش همین حکم، «بازگشت» را بزنید."
-                if not session.staff_options:
-                    reply = f"✅ تایید بررسی فایل حکم {session.order_no} ثبت شد.\nسرویسکار فعالی موجود نیست؛ برای بررسی همین حکم «بازگشت» را بزنید."
-                session.result = reply
-            elif request["action"] == "edit":
-                from tools.fleet.work_orders.channels.bale.proposal_form import render
-                session.stage = "PROPOSAL"
-                session.work_order_type = result["work_order_type"]
-                session.machine_codes = []
-                session.jalali_date = ""
-                session.order_no = ""
-                session.result = ""
-                review_context(key[1], chat_id, 'manager', number='', stage='EDIT', db_path=self.db_path)
-                session.proposal = result['proposal']
-                session.jalali_date = session.proposal['plan_date']
-                reply = 'خروجی اصلاح‌شده شمارهٔ جدید می‌گیرد؛ حکم قبلی محفوظ می‌ماند.\n' + render(session.proposal)
-            elif result.get('orders'):
-                session.work_order_type = 'OIL_CHANGE'
-                summaries = []
-                for order in result['orders']:
-                    card_key = None
-                    number = order['work_order_no']
-                    details = manager_excel_details(order, independent=True)
+                    order = result["order"]
+                    session.work_order_type = order.get('work_order_type', session.work_order_type)
+                    session.order_no = order["work_order_no"]
+                    session.stage = "RESULT"
+                    review_context(key[1], chat_id, 'manager', number=session.order_no, stage='RESULT', db_path=self.db_path)
+                    preview = request['action'] in {'preview', 'preview_latest'}
+                    details = manager_excel_details(order, preview=preview)
                     reply = details
-                    session.order_no = number
                     try:
                         require_work_order_permission(key[1], db_path=self.db_path)
                         await self.document_sender(gateway, chat_id, order)
-                        card_key = self._review_card(key, number)
-                        reply = manager_review_reply(order)
+                        session.stage = "REVIEW"
+                        review_context(key[1], chat_id, 'manager', number=session.order_no, stage='REVIEW', db_path=self.db_path)
+                        reply_key = self._review_card(key, session.order_no, session.work_order_type)
+                        reply = manager_review_reply(order, preview=preview)
+                        if preview and staff_ids:
+                            leave_staff = True
                     except Exception:
-                        logger.exception('Manager oil Excel delivery failed for %s', number)
-                        reply = details + f"\nارسال فایل ناموفق بود؛ حکم محفوظ است. بنویسید:\nارسال مجدد {number}"
-                    review_context(key[1],chat_id,'manager',number=number,stage='REVIEW' if card_key else 'RESULT',db_path=self.db_path)
-                    delivery = self._send_reply(gateway,chat_id,reply,send,key=card_key)
-                    if delivery:
-                        await delivery
-                    summaries.append(number + ': ' + order['item_summary'])
-                session.stage = 'REVIEW' if card_key else 'RESULT'
-                reply = 'حکم‌های مستقل ساخته‌شده:\n' + '\n'.join(summaries)
-                reply += '\nبرای هر حکم، تأیید و انتخاب سرویسکار جداگانه انجام می‌شود.'
-                if result.get('batch_error'):
-                    reply += '\n⚠️ ' + result['batch_error']
-                session.result = reply
-            else:
-                order = result["order"]
-                session.work_order_type = order.get('work_order_type', session.work_order_type)
-                session.order_no = order["work_order_no"]
-                session.stage = "RESULT"
-                review_context(key[1], chat_id, 'manager', number=session.order_no, stage='RESULT', db_path=self.db_path)
-                preview = request['action'] in {'preview', 'preview_latest'}
-                details = manager_excel_details(order, preview=preview)
-                reply = details
-                try:
-                    require_work_order_permission(key[1], db_path=self.db_path)
-                    await self.document_sender(gateway, chat_id, order)
-                    session.stage = "REVIEW"
-                    review_context(key[1], chat_id, 'manager', number=session.order_no, stage='REVIEW', db_path=self.db_path)
-                    reply_key = self._review_card(key, session.order_no, session.work_order_type)
-                    reply = manager_review_reply(order, preview=preview)
-                except Exception:
-                    logger.exception("Manager Excel delivery failed")
-                    reply = details + "\n\nارسال فایل ناموفق بود؛ حکم محفوظ است. برای تلاش دوباره بنویسید:\nارسال مجدد"
-                session.result = reply
+                        logger.exception("Manager Excel delivery failed")
+                        reply = details + "\n\nارسال فایل ناموفق بود؛ حکم محفوظ است. برای تلاش دوباره بنویسید:\nارسال مجدد"
+                    session.result = reply
             session.expires = self.clock() + 600
         except Exception:
             logger.exception("Work-order request failed")
             session.stage = "RESULT"
             reply = "عملیات با خطا روبه‌رو شد. پیش از ساخت دوباره، وضعیت حکم باید بررسی شود."
             session.result = reply
-        if loading_id:
-            await self._discard_message(gateway, chat_id, loading_id)
-            if session.loading_message_id == str(loading_id):
-                session.loading_message_id = ''
-                self._persist()
-        delivery = self._send_reply(gateway, chat_id, reply, send, key=reply_key)
+            leave_staff = False
+        retry_staff_id = staff_ids[-1] if dispatch_finished and not leave_staff and staff_ids else None
+        delivery = self._send_reply(gateway, chat_id, reply, send, key=reply_key,
+                                    edit_message_id=retry_staff_id)
         if delivery:
             await delivery
+        if dispatch_finished:
+            session.stage = 'RESULT' if leave_staff else 'STAFF'
+            session.expires = self.clock() + 600
+            self._persist()
+        if leave_staff and staff_ids:
+            self._queue_staff_retire(session, staff_ids)
+        await self._flush_ui_deletes(key, session, gateway, str(loading_id) if loading_id else None)
 
     def _start_request(self, key, session, request, gateway, send, **options):
         loop = asyncio.get_running_loop()
@@ -600,21 +702,16 @@ class WorkOrderMenuHandler:
                 if loading_id:
                     self.lifecycle.spawn(self._discard_message(gateway, saved_key[2], loading_id))
             self._expired_ui_deletes.clear()
-            stale_loading = False
             for saved_key, saved in (*self.pending.items(), *self.reviews.items()):
                 if saved.ui_cleanup:
                     self._delete_cancelled_messages(saved_key, saved, gateway)
                     continue
                 self.lifecycle.bind(saved_key, gateway, saved_key[2], saved.keyboard_message_id,
                     ttl=max(0, saved.expires - now) if saved.keyboard_revision else 0)
-                if saved.loading_message_id:
-                    loading_id = saved.loading_message_id
-                    saved.loading_message_id = ''
-                    stale_loading = True
-                    self.lifecycle.spawn(self._discard_message(gateway, saved_key[2], loading_id))
-            if stale_loading:
-                self._persist()
+                self._resume_transient_cleanup(saved_key, saved, gateway)
             self._lifecycle_restored = True
+        elif (live := self.pending.get(key)):
+            self._resume_transient_cleanup(key, live, gateway)
         if any(scope[:3] == key for scope in self.lifecycle.pending) and not _accepted:
             # Concurrent taps/text must not race the asynchronous markup edit.
             return {'action': 'skip', 'reason': 'inline-transition-pending'}
@@ -770,8 +867,9 @@ class WorkOrderMenuHandler:
                                        "jalali_date": session.jalali_date, "shift": "روزانه",
                                        "item_actions": {i['machine_code']:i['action_code'] for i in session.proposal['items']},
                                        "proposal": {k:session.proposal[k] for k in ('cutoff','plan_date','source_sha256')}}
-                            self._start_request(key, session, request, gateway, send)
-                            reply = 'در حال ساخت حکم کار و فایل اکسل…'
+                            self._start_request(key, session, request, gateway, send,
+                                notice='در حال ساخت حکم کار و فایل اکسل…')
+                            reply = ''
                             reason = 'work-order-creating'
                         else:
                             session.stage = 'SHIFT'
@@ -814,16 +912,18 @@ class WorkOrderMenuHandler:
             elif session.stage == 'STAFF' and text == 'برگشت':
                 session.staff_options = []
                 self._start_request(key, session, {'action':'preview', 'bale_id':user_id,
-                    'work_order_no':session.order_no}, gateway, send)
-                reply = 'در حال بازگشت به بررسی همین حکم…'
+                    'work_order_no':session.order_no}, gateway, send,
+                    notice='در حال بازگشت به بررسی همین حکم…')
+                reply = ''
                 reason = 'work-order-back-to-review'
             elif session.stage == 'STAFF' and text.isdecimal():
                 choice = int(normalize_digits(text))
                 if not 1 <= choice <= len(session.staff_options):
                     raise ValueError('این گزینه هنوز تعریف نشده است؛ سرویسکار فعال را انتخاب کنید.')
                 staff = session.staff_options[choice - 1]
-                self._start_request(key, session, {'action': 'dispatch', 'staff_id': staff['id'], 'roster_id':staff.get('roster_id')}, gateway, send)
-                reply = 'در حال ارسال حکم برای سرویسکار…'
+                self._start_request(key, session, {'action': 'dispatch', 'staff_id': staff['id'], 'roster_id':staff.get('roster_id')}, gateway, send,
+                    notice='در حال ارسال حکم برای سرویسکار…')
+                reply = ''
                 reason = 'work-order-dispatch'
             elif session.stage == "MACHINES":
                 codes = [code for code in re.split(r"[\s,،;؛]+", normalize_digits(text).upper()) if code]
@@ -855,8 +955,9 @@ class WorkOrderMenuHandler:
                     request['machine_codes'] = [i['machine_code'] for i in session.proposal['items']]
                     request['item_actions'] = {i['machine_code']:i['action_code'] for i in session.proposal['items']}
                     request['proposal'] = {k:session.proposal[k] for k in ('cutoff','plan_date','source_sha256')}
-                self._start_request(key, session, request, gateway, send)
-                reply = "در حال ساخت حکم کار و فایل اکسل…"
+                self._start_request(key, session, request, gateway, send,
+                    notice="در حال ساخت حکم کار و فایل اکسل…")
+                reply = ''
                 reason = "work-order-creating"
             elif session.stage in {"RESULT", "REVIEW"} and text in {"وضعیت حکم", "نتیجه"}:
                 reply = session.result
