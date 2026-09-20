@@ -126,3 +126,127 @@ class BridgeTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result['reason'], 'bale-registration-revoked-blocked')
         revoke.assert_called_once()
         self.assertEqual(revoke.call_args.args[:3], (None, '42', '42'))
+
+
+NEW_CHAT_LABEL = "🔄 شروع گفتگوی جدید"
+
+
+class NewChatButtonTests(unittest.TestCase):
+    """The «new chat» reply button becomes the native /new in pre_gateway_dispatch.
+
+    pre_gateway_dispatch fires before auth, session setup and the gateway's
+    active-session/busy guard, so rewriting event.text here guarantees Hermes
+    sees /new before any busy routing — idle or busy. No /new logic is copied.
+    """
+
+    def _load(self):
+        spec = importlib.util.spec_from_file_location(
+            'new_chat_button_registry', PLUGIN_ROOT / 'komatso-bale-registry/__init__.py')
+        plugin = importlib.util.module_from_spec(spec)
+        with patch.dict('sys.modules', {'gateway.pairing': SimpleNamespace(PairingStore=Mock())}):
+            spec.loader.exec_module(plugin)
+        folder = TemporaryDirectory()
+        self.addCleanup(folder.cleanup)
+        plugin.DB_PATH = Path(folder.name) / 'users.db'
+        return plugin
+
+    def _approve(self, plugin, user_id='42', chat_id='42'):
+        conn = plugin._connect()
+        try:
+            conn.execute(
+                """INSERT INTO channel_users
+                   (platform, user_id, chat_id, display_name, verified_name,
+                    registration_status, first_seen_at, updated_at)
+                   VALUES ('bale', ?, ?, 'n', 'n', 'approved', 't', 't')""",
+                (user_id, chat_id))
+            conn.commit()
+        finally:
+            conn.close()
+
+    def _event(self, text, user_id='42', chat_id='42'):
+        return SimpleNamespace(text=text, raw_message=None,
+            source=SimpleNamespace(platform='bale', chat_type='dm',
+                                   user_id=user_id, chat_id=chat_id))
+
+    def test_approved_user_tap_is_rewritten_to_new_before_any_routing(self):
+        plugin = self._load()
+        self._approve(plugin)
+        event = self._event(NEW_CHAT_LABEL)
+        with patch.object(plugin, '_handle_overflow_report', return_value=None), \
+             patch.object(plugin, '_admin_ids', return_value=set()), \
+             patch.object(plugin, '_handle_work_order_menu') as work_order, \
+             patch('tools.bale_ui.runtime.dispatch') as dispatch, \
+             patch.object(plugin, '_send') as send:
+            result = plugin._handle_bale(event, None)
+        # None => dispatch proceeds normally with the rewritten text.
+        self.assertIsNone(result)
+        self.assertEqual(event.text, '/new')
+        # The Persian label never enters the work-order menu, dispatch or LLM.
+        work_order.assert_not_called()
+        dispatch.assert_not_called()
+        send.assert_not_called()
+
+    def test_admin_tap_is_rewritten_to_new(self):
+        plugin = self._load()
+        event = self._event(NEW_CHAT_LABEL, user_id='9', chat_id='9')
+        with patch.object(plugin, '_handle_overflow_report', return_value=None), \
+             patch.object(plugin, '_admin_ids', return_value={'9'}), \
+             patch.object(plugin, '_handle_admin_command') as admin, \
+             patch.object(plugin, '_handle_work_order_menu') as work_order:
+            result = plugin._handle_bale(event, None)
+        self.assertIsNone(result)
+        self.assertEqual(event.text, '/new')
+        admin.assert_not_called()
+        work_order.assert_not_called()
+
+    def test_busy_or_idle_both_see_new_because_rewrite_precedes_busy_guard(self):
+        # The rewrite happens in pre_gateway_dispatch, which the gateway runs
+        # before its busy guard; the bridge itself never inspects busy state.
+        plugin = self._load()
+        self._approve(plugin)
+        for _ in range(2):  # idempotent regardless of any downstream busy state
+            event = self._event(NEW_CHAT_LABEL)
+            with patch.object(plugin, '_handle_overflow_report', return_value=None), \
+                 patch.object(plugin, '_admin_ids', return_value=set()), \
+                 patch.object(plugin, '_handle_work_order_menu') as work_order, \
+                 patch('tools.bale_ui.runtime.dispatch') as dispatch:
+                result = plugin._handle_bale(event, None)
+            self.assertIsNone(result)
+            self.assertEqual(event.text, '/new')
+            work_order.assert_not_called()
+            dispatch.assert_not_called()
+
+    def test_similar_question_is_left_untouched(self):
+        plugin = self._load()
+        self._approve(plugin)
+        event = self._event('شروع گفتگوی جدید یعنی چی؟')
+        with patch.object(plugin, '_handle_overflow_report', return_value=None), \
+             patch.object(plugin, '_admin_ids', return_value=set()), \
+             patch.object(plugin, '_handle_work_order_menu', return_value=None) as work_order:
+            plugin._handle_bale(event, None)
+        # Not an exact match: text unchanged and normal routing runs.
+        self.assertEqual(event.text, 'شروع گفتگوی جدید یعنی چی؟')
+        work_order.assert_called_once()
+
+    def test_unauthorized_user_gets_no_new_bypass(self):
+        plugin = self._load()  # user 42 has no row => status 'none'
+        event = self._event(NEW_CHAT_LABEL)
+        with patch.object(plugin, '_handle_overflow_report', return_value=None), \
+             patch.object(plugin, '_admin_ids', return_value=set()), \
+             patch.object(plugin, '_handle_work_order_menu') as work_order, \
+             patch('tools.bale_ui.runtime.dispatch') as dispatch, \
+             patch.object(plugin, '_send'):
+            result = plugin._handle_bale(event, None)
+        # Registration flow starts; text is NOT rewritten to /new.
+        self.assertEqual(event.text, NEW_CHAT_LABEL)
+        self.assertEqual(result['reason'], 'bale-registration-started')
+        work_order.assert_not_called()
+        dispatch.assert_not_called()
+
+    def test_exact_match_helper_is_whitespace_and_arabic_tolerant(self):
+        plugin = self._load()
+        self.assertTrue(plugin._is_new_chat_button(NEW_CHAT_LABEL))
+        self.assertTrue(plugin._is_new_chat_button("🔄  شروع  گفتگوی  جدید"))
+        self.assertTrue(plugin._is_new_chat_button("🔄 شروع گفتگوي جديد"))  # Arabic ي/ي
+        self.assertFalse(plugin._is_new_chat_button("شروع گفتگوی جدید"))
+        self.assertFalse(plugin._is_new_chat_button("شروع گفتگوی جدید یعنی چی؟"))
