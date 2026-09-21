@@ -1,4 +1,4 @@
-"""Exercise installed adapter/registry code without network or live databases."""
+"""Exercise canonical adapter/installed registry without network or live databases."""
 import ast
 import importlib.util
 import logging
@@ -13,7 +13,7 @@ PLUGIN_ROOT = Path('C:/Users/win-10/AppData/Local/hermes/plugins')
 
 class BridgeTests(unittest.IsolatedAsyncioTestCase):
     async def test_adapter_preserves_sender_identity_and_existing_callbacks(self):
-        path = PLUGIN_ROOT / 'bale/adapter.py'
+        path = Path(__file__).resolve().parents[2] / 'integrations/hermes/plugins/bale/adapter.py'
         tree = ast.parse(path.read_text(encoding='utf-8-sig'))
         original = next(n for n in tree.body if isinstance(n, ast.ClassDef) and n.name == 'BaleAdapter')
         method = next(n for n in original.body if isinstance(n, ast.AsyncFunctionDef) and n.name == '_handle_callback_query')
