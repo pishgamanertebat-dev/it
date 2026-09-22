@@ -1,0 +1,5 @@
+name: komatso-session-namer
+description: Rename Bale and Telegram sessions using verified KomatsoAI user names
+events:
+  - agent:start
+  - agent:end
