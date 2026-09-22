@@ -1,0 +1,46 @@
+Hermes v0.21.4 compatibility review
+=================================
+
+Scope: komatso-bale-registry, komatso-user-registry, komatso-session-namer.
+No production source or manifest changes are required.
+
+Both v1 plugin.yaml files parse with the target manifest parser. The target
+directory loader imports their __init__.py and register(ctx) functions.
+PluginContext.register_hook("pre_gateway_dispatch", callback) remains valid.
+The callbacks accept additive keyword arguments, run on the caller thread,
+and may mutate MessageEvent.text/channel_prompt or return {"action": "skip"}.
+The target invokes this hook before authorization. Its turn path still passes
+event.channel_prompt onward. No developer grants or permissions were broadened.
+
+PairingStore is_approved/list_pending/approve_request/generate_code/approve_code
+and revoke retain the signatures used here. Tests exercise real target pairing
+storage in a temporary directory, including failed-approval behavior in the
+registration DB. The canonical production DB paths are unchanged.
+
+HOOK.yaml and async handle(event_type, context) match gateway.hooks. The target
+agent:start and agent:end payloads retain platform (string), user_id and
+session_id. SessionDB accepts db_path and retains get_session_title and
+set_session_title. Tests verify Bale/Telegram titles, duplicate-title suffixes,
+repeat events and the existing revoked-Bale-user naming restriction.
+
+Offline validation
+------------------
+test_v0214_compat.py: 10 tests passed on the target checkout with Python 3.11.
+The tests use target loader, event, pairing and SessionDB APIs. No gateway is
+constructed. Sends and operational menu/report handlers are mocked. Socket
+connections and DNS are blocked after Windows event-loop construction. All
+test identities are synthetic; all registration/pairing/session state is
+redirected to a temporary directory beneath KomatsoAI/runtime and cleaned up.
+
+Reproduce from E:\KomatsoAI, using already available dependencies (read-only):
+
+  $env:KOMATSO_TEST_HERMES_ROOT='E:\HermesUpgrade\hermes-agent-v0.21.4'
+  $env:HERMES_HOME='E:\KomatsoAI\runtime\registry-v0214-tests'
+  $env:PYTHONDONTWRITEBYTECODE='1'
+  .\.venv\Scripts\python.exe -B -c "import sys,runpy; sys.path.append(r'C:\Users\win-10\AppData\Local\hermes\hermes-agent\venv\Lib\site-packages'); runpy.run_path('integrations/hermes/plugins/komatso-bale-registry/test_v0214_compat.py',run_name='__main__')"
+
+No install, deploy, restart, live DB access, real messaging, gateway run or full
+regression is part of this validation. Live dispatch/configuration, filesystem
+ACLs and concurrent production DB use remain untested. Existing permissions
+and behavior are deliberately retained rather than refactored. No core patch
+is required. Recheck the private loader helpers on subsequent Hermes upgrades.
