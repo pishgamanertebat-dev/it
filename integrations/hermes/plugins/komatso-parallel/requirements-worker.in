@@ -1,0 +1,2 @@
+# Install ONLY in the dedicated worker venv, never in the Hermes environment.
+parallel-web==1.3.2

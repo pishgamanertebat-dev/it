@@ -1,0 +1,12 @@
+# Example only. Merge into the TARGET profile during a separately authorized
+# activation; retain its existing plugins.enabled entries and other web keys.
+# Add komatso-parallel to plugins.enabled after placing this plugin in that
+# profile's plugin directory. Do not rename/overwrite web/parallel or web/tavily.
+web:
+  search_backend: komatso-parallel
+  extract_backend: komatso-parallel
+
+# Environment settings (not config.yaml keys):
+# KOMATSO_PARALLEL_PYTHON = absolute Python executable in a dedicated worker venv
+# PARALLEL_API_KEY = existing credential, supplied through the profile environment
+# PARALLEL_SEARCH_MODE = advanced

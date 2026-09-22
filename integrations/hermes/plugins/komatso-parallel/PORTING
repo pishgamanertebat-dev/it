@@ -1,0 +1,87 @@
+Komatso Parallel for Hermes v0.21.4
+==================================
+
+Observed production configuration (read-only review)
+---------------------------------------------------
+The current AppData Hermes config.yaml sets both web.search_backend and
+web.extract_backend to parallel. Both web/parallel and web/tavily are enabled
+and both API-key variables are populated, but enabled/keyed is not the same as
+selected. PARALLEL_SEARCH_MODE is advanced. Installed SDK metadata is 1.3.2.
+The old web_tools selection code uses the explicit capability backend when
+available; with the Parallel key present it does not choose Tavily. Therefore
+no komatso-tavily provider is created. This is a configuration/source review,
+not a claim that live process state or historical API traffic was inspected.
+
+Preserved provider behavior
+---------------------------
+The old customized provider calls Parallel.search (not beta.search) with
+search_queries, objective, mode and advanced_settings.max_results, capped at 20.
+Supported modes are turbo, fast, basic and advanced; unset/invalid mode defaults
+to advanced. Extraction calls AsyncParallel.extract with
+advanced_settings.full_content=True. Search positions, joined excerpts,
+extraction content/raw_content/metadata, excerpt fallback and per-URL errors
+retain the old shapes. Both entrypoints check the Hermes interrupt flag first.
+
+Isolation strategy
+------------------
+Hermes v0.21.4 pins parallel-web==0.4.2 in pyproject.toml and tools/lazy_deps.py.
+Both SDK versions use the same import name, parallel; installing 1.3.2 in that
+environment would replace 0.4.2 and jeopardize the built-in beta API calls.
+
+The custom provider registers ONLY komatso-parallel. Its Hermes-side bridge has
+no parallel import, dependency installer, sys.path modification or access to
+the built-in tools.web_tools SDK cache slots. plugin.yaml deliberately declares
+no pip/python dependency that Hermes could install into its own environment.
+
+worker.py runs under KOMATSO_PARALLEL_PYTHON, an explicitly selected absolute
+path to Python in a separate venv. requirements-worker.in pins parallel-web to
+1.3.2 ONLY for that venv. Transitive SDK requirements are confined to that venv;
+they are not a fully resolved transitive lock. Worker startup rejects a shared
+Hermes prefix, a non-venv interpreter, system-site-package inheritance and any
+other SDK version. -I ignores PYTHONPATH and the user site; -B avoids bytecode
+writes. The SDK is never imported in the Hermes process. This leaves the
+built-in 0.4.2 dependency and both built-in provider registrations untouched.
+
+Each request sends JSON over stdin and receives JSON over stdout. Credentials
+are not command-line arguments; worker stderr and exception details are not
+returned to users. Windows worker windows are hidden. Each process closes its
+SDK client. The parent bounds worker lifetime to 180 seconds and terminates an
+async extraction worker on timeout/cancellation. These are intentional bridge
+differences from the former cached in-process SDK clients.
+
+Prepared, not activated
+-----------------------
+No environment was created, no packages installed, no config changed, and no
+deployment/restart performed. Future activation requires a separately prepared
+worker venv with requirements-worker.in, the worker Python environment setting,
+plugin enablement and explicit komatso-parallel selection for both capabilities.
+config.example.yaml is a merge example, not a replacement production config.
+Until that happens, the prepared provider is not active; the current runtime
+continues to use its existing Parallel configuration. No core patch or old
+provider.py/lazy_deps.py patch is needed.
+
+Offline validation
+------------------
+8 targeted tests passed against the v0.21.4 source and real SDK 1.3.2, using
+httpx.MockTransport and synthetic credentials. They cover registration beside
+the built-in provider, explicit selection, mode/limit parity, real SDK wire
+serialization, result normalization, interruption, dependency rejection,
+process arguments/credential transport, timeout shape and cancellation cleanup.
+Subprocess launch is mocked in bridge tests; no external API, gateway or full
+regression is run. Network sockets/DNS are blocked inside the test process.
+
+Reproduce from E:\KomatsoAI using existing dependencies read-only:
+
+  $env:KOMATSO_TEST_HERMES_ROOT='E:\HermesUpgrade\hermes-agent-v0.21.4'
+  $env:HERMES_HOME='E:\KomatsoAI\runtime\parallel-v0214-tests'
+  $env:PYTHONDONTWRITEBYTECODE='1'
+  .\.venv\Scripts\python.exe -B -c "import sys,runpy; sys.path.append(r'C:\Users\win-10\AppData\Local\hermes\hermes-agent\venv\Lib\site-packages'); runpy.run_path('integrations/hermes/plugins/komatso-parallel/test_offline.py',run_name='__main__')"
+
+Remaining risks
+---------------
+The future isolated venv has not been provisioned or exercised end-to-end.
+Live API behavior, gateway dispatch and production credentials remain untested.
+Per-request process startup adds latency and loses in-process connection reuse;
+requests taking over 180 seconds now return a timeout. Worker SDK retries can
+occur within that deadline. Error details are intentionally less verbose.
+Future Hermes/SDK upgrades require rerunning these contract tests.
