@@ -1356,22 +1356,15 @@ def _handle_overflow_report(event, gateway):
         return None
 
 
-DEVELOPER_CONVERSATION_POLICY = """[Komatso developer conversation policy]
-For this request only, the authenticated Bale sender is an approved project
-developer. Override only the topic restrictions in the workspace AGENTS.md:
-general questions, programming, debugging and development are allowed.
-For non-machine questions, do not require a machine model or apply the
-machine-manual research/answer workflow. For machine questions, retain that
-workflow. All other instructions remain in force. This grants no additional
-Work Order, Repairs, Admin, database, filesystem or tool permissions.
-[/Komatso developer conversation policy]"""
+DEVELOPER_CONVERSATION_POLICY = "KOMATSO_DEVELOPER_ACCESS"
 
 
 def _apply_developer_conversation_policy(event):
     """Request-local policy; no role changes, approval writes or cached grants.
 
     BALE_DEVELOPER_IDS is a comma-separated local environment allowlist.
-    Registration approval is required even for administrators.
+    Existing admins without an onboarding row are already approved by the
+    registration dispatcher. Explicit non-approved rows always deny bypass.
     """
     prompt = getattr(event, "channel_prompt", None)
     if prompt and DEVELOPER_CONVERSATION_POLICY in prompt:
@@ -1389,7 +1382,11 @@ def _apply_developer_conversation_policy(event):
         # Read-only: missing DB/schema or lookup errors must never grant bypass.
         conn = sqlite3.connect(DB_PATH.resolve().as_uri() + "?mode=ro", uri=True)
         try:
-            approved = _user_status(conn, user_id) == "approved"
+            row = conn.execute(
+                "SELECT registration_status FROM channel_users "
+                "WHERE platform = 'bale' AND user_id = ?", (user_id,),
+            ).fetchone()
+            approved = (row[0] == "approved") if row is not None else user_id in _admin_ids()
         finally:
             conn.close()
     except sqlite3.Error:
