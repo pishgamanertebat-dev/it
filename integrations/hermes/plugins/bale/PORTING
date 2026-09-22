@@ -1,0 +1,39 @@
+# Hermes v0.21.4
+
+Bale overrides the zero-argument async `_build_ptb_requests()` hook. The old
+local-core `_build_http_requests()` hook is no longer needed. The plugin keeps
+the upstream timeout environment variables, 60-second media write budget,
+shared keepalive settings, zero polling keepalive connections, and inherited
+polling instrumentation. Both HTTPX clients save `trust_env=False` and
+`proxy=None`, including when PTB rebuilds them. No Telegram proxy or fallback-IP
+discovery is invoked.
+
+The existing `ik:` authorization/dispatch, endpoints, Markdown de-escaping and
+Persian reset translation are retained. Persian provider rate-limit translation
+previously inherited from the customized runtime Telegram core now lives in
+Bale's `send()`. The v1 `plugin.yaml` and relative `register` export in
+`__init__.py` are accepted by the v0.21.4 loader without edits.
+
+## Targeted offline tests
+
+Run from KomatsoAI with an existing Python environment containing pytest, PTB,
+httpx and Hermes dependencies. Do not install or launch the gateway:
+
+```powershell
+$env:BALE_TEST_HERMES_ROOT = 'E:\HermesUpgrade\hermes-agent-v0.21.4'
+$env:PYTHONPATH = $env:BALE_TEST_HERMES_ROOT
+$env:HERMES_HOME = 'E:\KomatsoAI\runtime\bale-v0214-tests'
+$env:PYTHONDONTWRITEBYTECODE = '1'
+$env:PYTEST_DISABLE_PLUGIN_AUTOLOAD = '1'
+python -B -m pytest integrations/hermes/plugins/bale -q -p no:cacheprovider
+```
+
+The test fixture blocks socket connections and DNS. On Windows the event loop's
+internal socketpair is created before that guard. Tests use the target source,
+not the running Hermes source. Upload/download responses are simulated.
+
+The private upstream builder's budgets are intentionally mirrored because its
+routing logic is Telegram-specific. Parity tests compare both default and
+environment-overridden budgets against the target implementation. Recheck this
+contract on future upgrades. Live Bale API compatibility and complete gateway
+startup/reconnect behavior are outside these offline tests.

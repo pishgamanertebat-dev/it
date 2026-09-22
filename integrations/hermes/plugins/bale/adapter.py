@@ -128,6 +128,12 @@ class BaleAdapter(TelegramAdapter):
         reply_to: Optional[str] = None,
         metadata: Optional[dict[str, Any]] = None,
     ):
+        # Previously inherited from the local Telegram core customization.
+        if content in {
+            "The model provider is rate-limiting requests. Please wait a moment and try again.",
+            "⏱️ The model provider is rate-limiting requests. Please wait a moment and try again.",
+        }:
+            content = "درحال حاضر سرویس قادر به پاسخگویی نمی باشد، دقایقی دیگر مجدد تلاش کنید"
         # Localize the complete reset banner before any rich/plain-text
         # delivery path, so model details and random tips cannot leak through.
         header = content.partition("\n")[0] if content else ""
@@ -210,21 +216,47 @@ class BaleAdapter(TelegramAdapter):
         raw = _bale_allowed_users()
         return {u.strip() for u in raw.split(",") if u.strip()}
 
-    async def _build_http_requests(self, request_kwargs: dict, _pool_limits):
-        """Keep Bale API, uploads/downloads and polling independent of all proxies."""
+    async def _build_ptb_requests(self) -> tuple:
+        """v0.21.4 request contract, with Bale's unconditional direct routing.
+
+        Keep the upstream budgets and separate polling limits here; calling the
+        Telegram builder would also perform Telegram proxy/IP discovery.
+        """
+        import httpx
         from telegram.request import HTTPXRequest
+        from gateway.platforms._http_client_limits import platform_httpx_limits
+        from utils import env_float, env_int
+
+        request_kwargs = {
+            "connection_pool_size": env_int("HERMES_TELEGRAM_HTTP_POOL_SIZE", 512),
+            "pool_timeout": env_float("HERMES_TELEGRAM_HTTP_POOL_TIMEOUT", 8.0),
+            "connect_timeout": env_float("HERMES_TELEGRAM_HTTP_CONNECT_TIMEOUT", 10.0),
+            "read_timeout": env_float("HERMES_TELEGRAM_HTTP_READ_TIMEOUT", 20.0),
+            "write_timeout": env_float("HERMES_TELEGRAM_HTTP_WRITE_TIMEOUT", 20.0),
+            "media_write_timeout": 60.0,
+        }
+        base_limits = platform_httpx_limits()
 
         # proxy=None alone still lets HTTPX discover environment/system proxies.
         # Keep this policy in the clients' saved kwargs so pool rebuilds and
         # reconnects also stay direct. Never consult Telegram fallback discovery.
-        httpx_kwargs = {"trust_env": False}
-        if _pool_limits is not None:
-            httpx_kwargs["limits"] = _pool_limits
+        general_httpx = {"trust_env": False}
+        updates_httpx = {"trust_env": False}
+        if base_limits is not None:
+            general_httpx["limits"] = httpx.Limits(
+                max_connections=request_kwargs["connection_pool_size"],
+                max_keepalive_connections=base_limits.max_keepalive_connections,
+                keepalive_expiry=base_limits.keepalive_expiry,
+            )
+            updates_httpx["limits"] = httpx.Limits(
+                max_connections=request_kwargs["connection_pool_size"],
+                max_keepalive_connections=0,
+                keepalive_expiry=base_limits.keepalive_expiry,
+            )
         logger.info("[Bale] Using direct transport (proxy and fallback discovery disabled)")
-        return (
-            HTTPXRequest(**request_kwargs, proxy=None, httpx_kwargs=dict(httpx_kwargs)),
-            HTTPXRequest(**request_kwargs, proxy=None, httpx_kwargs=dict(httpx_kwargs)),
-        )
+        request = HTTPXRequest(**request_kwargs, proxy=None, httpx_kwargs=general_httpx)
+        updates = HTTPXRequest(**request_kwargs, proxy=None, httpx_kwargs=updates_httpx)
+        return request, self._instrument_polling_request(updates)
 
 
 

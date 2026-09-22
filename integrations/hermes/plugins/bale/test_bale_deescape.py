@@ -9,8 +9,8 @@ while preserving legitimate backslashes (Windows paths, code, escapes).
 These tests pin the end-to-end format_message() behavior for Bale. They do NOT
 send any real Bale message and require no network.
 
-Run:
-    venv\\Scripts\\python.exe -m pytest plugins/bale/test_bale_deescape.py -q
+Run with BALE_TEST_HERMES_ROOT and PYTHONPATH pointing to the target checkout.
+See PORTING for the isolated offline test command.
 """
 
 import os
@@ -18,7 +18,7 @@ import re
 import sys
 
 # Make the Hermes agent importable (plugins.platforms.telegram, gateway.*).
-_HERMES = os.path.join(os.environ.get("LOCALAPPDATA", ""), "hermes", "hermes-agent")
+_HERMES = os.environ["BALE_TEST_HERMES_ROOT"]
 if os.path.isdir(_HERMES) and _HERMES not in sys.path:
     sys.path.insert(0, _HERMES)
 # The bale plugin package lives under .../hermes/plugins; add its parent so
