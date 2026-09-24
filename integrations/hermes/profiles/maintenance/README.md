@@ -26,6 +26,7 @@ platform_toolsets:
     - browser
     - code_execution
     - connections
+    - delegation
     - file
     - skills
     - terminal
@@ -33,3 +34,15 @@ platform_toolsets:
 ```
 
 This is a tool configuration for the routed agent, not a bot credential or a second Bale Gateway. Keep sender routes and real user IDs in the default Gateway's local runtime configuration, outside Git.
+
+## Two-stream delegation
+
+The maintenance Bale `delegation` toolset adds only `delegate_task` to the
+existing tool surface. Set `delegation.max_concurrent_children: 2` and
+`delegation.independent_completions: false` in the maintenance runtime config.
+Keep `delegation.model` and `delegation.provider` unset so both workers inherit
+the parent route. Keep the default one-level delegation depth. Install the
+canonical `skills/maintenance-two-stream-evidence/SKILL.md` in the maintenance
+profile's `skills/` directory. The short SOUL pointer directs the parent to that skill only
+when a specific-unit repair question benefits from both evidence streams.
+Ensure maintenance agent.disabled_toolsets excludes delegation; leave the CLI toolset list unchanged.
