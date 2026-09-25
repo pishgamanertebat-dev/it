@@ -34,33 +34,45 @@ manual and that unit's fleet/history evidence are both relevant, use this exact
 path. Do not apply it to greetings, missing identity, simple specifications, or
 one-source questions.
 
-1. In the first tool round, run machine_context.py <UNIT> --json using the
-   approved project Python. This is required by the root AGENTS.md. Use its
-   verified canonical code and model; if the unit is invalid or its model cannot
-   be verified, ask for the missing identity instead of choosing a manual.
+1. In the first tool round, run machine_context.py for the named unit with the
+   approved project Python. Use the drive path with forward slashes so the
+   Bash terminal preserves it:
+   E:/KomatsoAI/.venv/Scripts/python.exe E:/KomatsoAI/tools/fleet/machine_context.py UNIT --json
+   Replace UNIT with the named fleet code. This is required by root AGENTS.md. Use its verified code and model; if the
+   unit or model cannot be verified, ask for the missing identity.
 2. On the very next model response, call delegate_task ONCE with exactly two
    tasks in one batch. Pass the user's exact question, canonical unit code,
    verified model, pertinent latest raw report and codes, and source freshness
-   to both tasks. Never include a template placeholder such as
-   `<HERMES_SESSION_ID>` in a task goal or context; the child can read its
-   actual session ID inside an already needed terminal call. Do not first
+   to both tasks. Never include any session ID or angle-bracket placeholder in a task goal or
+   context. The renderer gets the session ID from its environment. Do not first
    investigate the manual, timeline, or maintenance history yourself. Do not call skill_view for this workflow; the complete
-   orchestration rule is here.
+   orchestration rule is here. In the Technical task text, explicitly require
+   the device AGENTS read followed by the single indexed probe, and say not to
+   call skill_view.
 3. Technical/Manual task: read the selected device AGENTS.md before any device
-   search or diagnosis. Follow its section routing and use the approved project
-   Python and PyMuPDF. If a manual_sections.json exists, use
-   E:\KomatsoAI\tools\manual_evidence_probe.py with a small relevant section
-   and symptom terms. Pass leaf section keys or slash-qualified keys from the
-   map. Use its defaults; do not call --help or list known files first. The
-   probe returns a ranked page index and bounded page
-   text. Verify pertinent complete pages or cross-references as needed; extend
-   to another section only when justified. Return documented causes, safe
-   diagnostic tests and any supported values, with exact PDF page references.
-   An incomplete raw fault code is not enough to select code-specific pages;
-   request the full displayed code instead of searching every code section.
-   Keep source facts separate from inference. Use approved web search only
-   where the device AGENTS requires it; if the configured backend fails, report
-   that once and continue with the Shop Manual.
+   search or diagnosis. The complete two-stream workflow is here: do not call
+   skill_view. After the device rules are loaded, make one terminal invocation:
+   E:/KomatsoAI/.venv/Scripts/python.exe E:/KomatsoAI/tools/manual_evidence_probe.py
+   --model <VERIFIED_MODEL> --problem <EXACT_USER_QUESTION>
+   Add --fault-code only for a complete displayed code, and --component when
+   known. The probe resolves the correct Shop Manual and manual_sections.json,
+   chooses relevant ranges, searches them in a batch, and returns bounded PDF
+   excerpts with page numbers. Do not separately read the map or run a whole-PDF
+   search first. The index is routing metadata, never technical evidence.
+   Examine the returned section coverage and page index. Verify complete PDF
+   pages and diagram/table columns before using exact values, pins or procedures.
+   For full-page checks, use one bounded follow-up invocation of the same probe:
+   --model <VERIFIED_MODEL> --pages <PAGE...> [--render]. It reads at most four
+   pages and can render them in the same call with the approved renderer. Do
+   not print whole PDF pages with ad hoc Python; that inflates context. Use
+   another targeted or fallback search only when the first result is materially
+   insufficient. Render the smallest necessary pages. Return
+   documented causes, safe diagnostic tests, supported values and exact PDF
+   page references. An incomplete raw fault code is not enough to select
+   code-specific pages; request the full displayed code instead of searching
+   every code section. Keep source facts separate from inference. Use approved
+   web search only where device AGENTS requires it; if its backend fails,
+   report that once and continue with the Shop Manual.
 4. Fleet/History task: use the passed machine_context result as the starting
    evidence; do not fetch it again. Run relevant machine_timeline.py and
    maintenance_history.py in the same terminal turn when useful. Use only the

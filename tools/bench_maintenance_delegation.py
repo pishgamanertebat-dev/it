@@ -49,13 +49,24 @@ def main():
         skip_background_review=True,
     )
 
+    task_contracts = []
+
     # Join the real delegate_task batch inline: this harness has no Gateway
     # adapter to deliver the detached result to a subsequent parent turn.
     def join_delegate(function_args):
+        tasks = _strip_model_hidden_task_fields(function_args.get("tasks"))
+        for task in tasks or []:
+            body = json.dumps(task, ensure_ascii=False, default=str)
+            task_contracts.append({
+                "mentions_probe": "manual_evidence_probe.py" in body,
+                "mentions_no_skill_view": "skill_view" in body,
+                "mentions_device_agents": "AGENTS.md" in body,
+                "chars": len(body),
+            })
         return delegate_task(
             goal=function_args.get("goal"),
             context=function_args.get("context"),
-            tasks=_strip_model_hidden_task_fields(function_args.get("tasks")),
+            tasks=tasks,
             role=function_args.get("role"),
             background=False,
             images=function_args.get("images"),
@@ -85,6 +96,7 @@ def main():
             "platform": agent.platform,
             "tool_count": len(names),
             "api_calls": result.get("api_calls"),
+            "task_contracts": task_contracts,
             "answer_chars": len(answer),
             "media_count": len(media_paths),
             "media_files_exist": all(Path(path).is_file() for path in media_paths),

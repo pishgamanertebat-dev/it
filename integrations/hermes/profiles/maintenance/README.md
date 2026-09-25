@@ -56,3 +56,21 @@ Hermes source. It uses the real model, Bale platform prompt, and the configured
 the same turn because this local harness has no Gateway to deliver detached
 results. Use 	ools/analyze_maintenance_bench.py <parent-session-id> for timing
 from the local agent log. Keep benchmark questions, IDs, answers, and logs outside Git.
+## Indexed manual evidence
+
+After loading the selected device AGENTS.md, the Technical worker calls the
+canonical read-only probe once with the verified model and the exact symptom:
+
+```powershell
+E:\KomatsoAI\.venv\Scripts\python.exe E:\KomatsoAI\tools\manual_evidence_probe.py --model HD785-7 --problem "retarder not working"
+```
+
+Pass `--fault-code CODE` only for a complete displayed code. The probe reads
+that model's `manual_sections.json`, validates the Shop Manual PDF and page
+count, searches several candidate ranges in one pass, and returns bounded PDF
+excerpts, page references and diagram ranges. A sparse or unresolved index
+triggers a full-manual fallback. The index itself is never technical evidence;
+complete PDF pages and diagrams must still be checked for exact values or
+procedures. For that follow-up, use `--model MODEL --pages PAGE... --render` to
+read at most four bounded pages and batch the approved renderer in one call. The older positional `MAP TERMS SECTIONS...` interface remains
+available for targeted follow-up searches.
