@@ -1,0 +1,81 @@
+﻿"""Aggregate real Hermes Maintenance benchmark timing without printing source records."""
+from __future__ import annotations
+
+import argparse
+import json
+import re
+from datetime import datetime
+from pathlib import Path
+
+STAMP = "%Y-%m-%d %H:%M:%S,%f"
+SESSION = re.compile(r"\[([0-9]{8}_[0-9]{6}_[0-9a-f]+)\]")
+API = re.compile(r"API call #(\d+): .*? in=(\d+) out=(\d+).*?latency=([0-9.]+)s")
+TOOLS = re.compile(r"agent.tool_executor: tool ([a-z_]+) completed \(([0-9.]+)s")
+ROUNDS = re.compile(r"tool_turns=(\d+)")
+APPROX_CONTEXT = re.compile(r"context=~([0-9,]+) tokens")
+
+def stamp(line):
+    return datetime.strptime(line[:23], STAMP)
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("parent_session")
+    ap.add_argument("--log", type=Path, default=Path.home() / "AppData/Local/hermes/profiles/maintenance/logs/agent.log")
+    args = ap.parse_args()
+    rows = []
+    for line in args.log.read_text(encoding="utf-8", errors="replace").splitlines():
+        sid_match = SESSION.search(line)
+        if sid_match:
+            rows.append((stamp(line), sid_match.group(1), line))
+    parent = [row for row in rows if row[1] == args.parent_session]
+    if not parent:
+        raise SystemExit("Parent session not found")
+    start = next(t for t, _, s in parent if "conversation turn:" in s)
+    end = next(t for t, _, s in reversed(parent) if "Turn ended:" in s)
+    child_ids = []
+    for t, sid, s in rows:
+        if start <= t <= end and sid != args.parent_session and "platform=subagent" in s and sid not in child_ids:
+            child_ids.append(sid)
+    if len(child_ids) != 2:
+        raise SystemExit(f"Expected two subagents; found {len(child_ids)}")
+
+    def metrics(sid):
+        subset = [row for row in rows if row[1] == sid]
+        api = [m for _, _, s in subset if (m := API.search(s))]
+        tool = [m for _, _, s in subset if (m := TOOLS.search(s))]
+        first = next(t for t, _, s in subset if "conversation turn:" in s)
+        last = next(t for t, _, s in reversed(subset) if "Turn ended:" in s)
+        rounds_line = next(s for _, _, s in reversed(subset) if "Turn ended:" in s)
+        context = [int(m.group(1).replace(",", "")) for _, _, s in subset if (m := APPROX_CONTEXT.search(s))]
+        return {
+            "start": first.isoformat(timespec="milliseconds"),
+            "end": last.isoformat(timespec="milliseconds"),
+            "duration_seconds": round((last - first).total_seconds(), 2),
+            "api_calls": len(api),
+            "model_seconds_sum": round(sum(float(m.group(4)) for m in api), 2),
+            "model_seconds_each": [float(m.group(4)) for m in api],
+            "first_input_tokens": int(api[0].group(2)) if api else None,
+            "last_input_tokens": int(api[-1].group(2)) if api else None,
+            "initial_context_approx_tokens": context[0] if context else None,
+            "last_context_approx_tokens": context[-1] if context else None,
+            "tool_calls": len(tool),
+            "tool_seconds_sum": round(sum(float(m.group(2)) for m in tool), 2),
+            "tool_names": [m.group(1) for m in tool],
+            "tool_rounds": int(ROUNDS.search(rounds_line).group(1)),
+            "final_model_seconds": float(api[-1].group(4)) if api else None,
+        }
+
+    children = [metrics(sid) for sid in child_ids]
+    child_start = [datetime.fromisoformat(c["start"]) for c in children]
+    child_end = [datetime.fromisoformat(c["end"]) for c in children]
+    overlap = max(0.0, (min(child_end) - max(child_start)).total_seconds())
+    print(json.dumps({
+        "parent_session": args.parent_session,
+        "wall_seconds": round((end - start).total_seconds(), 2),
+        "parent": metrics(args.parent_session),
+        "children": children,
+        "child_overlap_seconds": round(overlap, 2),
+    }, ensure_ascii=False, indent=2))
+
+if __name__ == "__main__":
+    main()

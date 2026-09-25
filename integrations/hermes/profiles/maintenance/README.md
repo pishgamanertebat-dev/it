@@ -41,8 +41,18 @@ The maintenance Bale `delegation` toolset adds only `delegate_task` to the
 existing tool surface. Set `delegation.max_concurrent_children: 2` and
 `delegation.independent_completions: false` in the maintenance runtime config.
 Keep `delegation.model` and `delegation.provider` unset so both workers inherit
-the parent route. Keep the default one-level delegation depth. Install the
-canonical `skills/maintenance-two-stream-evidence/SKILL.md` in the maintenance
-profile's `skills/` directory. The short SOUL pointer directs the parent to that skill only
-when a specific-unit repair question benefits from both evidence streams.
+the parent route. Keep the default one-level delegation depth. The canonical `SOUL.md` contains the complete two-stream trigger and worker contract.
+Keep it synchronized with the maintenance runtime SOUL. The existing
+`maintenance-two-stream-evidence` skill remains installed for compatibility,
+but this path does not require a separate `skill_view` call.
 Ensure maintenance agent.disabled_toolsets excludes delegation; leave the CLI toolset list unchanged.
+
+## Local live benchmark
+
+Use 	ools/bench_maintenance_delegation.py --question-file <private UTF-8 file> with
+HERMES_HOME set to the Maintenance profile and PYTHONPATH set to the installed
+Hermes source. It uses the real model, Bale platform prompt, and the configured
+21 Bale tools without a messaging adapter. It joins the real two-child batch in
+the same turn because this local harness has no Gateway to deliver detached
+results. Use 	ools/analyze_maintenance_bench.py <parent-session-id> for timing
+from the local agent log. Keep benchmark questions, IDs, answers, and logs outside Git.
