@@ -112,6 +112,7 @@ cache/
 !integrations/hermes/profiles/maintenance/SOUL.md
 !integrations/hermes/profiles/maintenance/MANUAL_OPTIMIZATION.md
 !integrations/hermes/plugins/komatso-maintenance-manual/MANUAL_WORKER.md
+!integrations/hermes/patches/windows-gateway-supervisor-v0.21.4.md
 !tools/fleet/repairs/ENTRY_README.md
 !tools/fleet/repairs/MAINTENANCE_README.md
 tools/fix_hermes_web_search.ps1
