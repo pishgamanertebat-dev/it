@@ -41,10 +41,13 @@ The maintenance Bale `delegation` toolset adds only `delegate_task` to the
 existing tool surface. Set `delegation.max_concurrent_children: 2` and
 `delegation.independent_completions: false` in the maintenance runtime config.
 Keep `delegation.model` and `delegation.provider` unset so both workers inherit
-the parent route. Keep the default one-level delegation depth. The canonical `SOUL.md` contains the complete two-stream trigger and worker contract.
+the parent route. Keep the default one-level delegation depth. The canonical `SOUL.md` contains the two-stream trigger; the scoped plugin owns the compact Technical contract.
 Keep it synchronized with the maintenance runtime SOUL. The existing
-`maintenance-two-stream-evidence` skill remains installed for compatibility,
-but this path does not require a separate `skill_view` call.
+`maintenance-two-stream-evidence` skill remains installed. The preparation hook
+reads it and the selected device AGENTS in full, then injects only applicable
+unique device policy and the Technical scope. Root/project paragraphs and the
+original question are deduplicated. A native system section attests instruction
+loading only for the prepared Technical session; Fleet receives no such section.
 Ensure maintenance agent.disabled_toolsets excludes delegation; leave the CLI toolset list unchanged.
 
 ## Local live benchmark
@@ -56,21 +59,100 @@ Hermes source. It uses the real model, Bale platform prompt, and the configured
 the same turn because this local harness has no Gateway to deliver detached
 results. Use 	ools/analyze_maintenance_bench.py <parent-session-id> for timing
 from the local agent log. Keep benchmark questions, IDs, answers, and logs outside Git.
-## Indexed manual evidence
+## Maintenance Technical preparation
 
-After loading the selected device AGENTS.md, the Technical worker calls the
-canonical read-only probe once with the verified model and the exact symptom:
+Copy `integrations/hermes/plugins/komatso-maintenance-manual` into the
+Maintenance home's `plugins/komatso-maintenance-manual`, including
+`MANUAL_WORKER.md`, and add `komatso-maintenance-manual` to that profile's
+`plugins.enabled`. Keep its `SOUL.md` synchronized with the canonical source.
+Do not enable this plugin in default or other profiles. The hook also checks
+that its home is `profiles/maintenance`; unmarked calls and Fleet tasks remain
+untouched. Preparation failure blocks the marked delegation with an explanation.
 
-```powershell
-E:\KomatsoAI\.venv\Scripts\python.exe E:\KomatsoAI\tools\manual_evidence_probe.py --model HD785-7 --problem "retarder not working"
+The parent places verified model and the exact question once in a first-line
+`KOMATSO_MANUAL_TASK_V3` JSON object. The native `pre_tool_call` hook replaces
+that metadata with selected device rules, the compact workflow, background
+machine facts and a private runtime request path. Technical's goal follows the
+original question; incidental fleet codes do not create extra diagnostic goals.
+Complete displayed failure codes can be routed; incomplete action codes remain
+uncertainty. No device/manual/index/source data is changed.
+
+A one-use internal receipt binds the native system section to this Technical
+child; it is absent from Fleet, Parent, unprepared children and other profiles.
+No Hermes core modification, tool override or model change is used. Reload the
+Maintenance plugin manager through the native Gateway control socket for new
+sessions; a default Gateway restart is unnecessary.
+
+Normal Technical path:
+
+```text
+prepared device policy + original question
+    -> retrieve batch: indexed PDF packet || existing native web_search
+    -> Technical judgment: needed gaps, images and relevant URL
+    -> finish batch: bounded text || approved render + PNG validation || native web_extract
+    -> sourced Technical summary
 ```
 
-Pass `--fault-code CODE` only for a complete displayed code. The probe reads
-that model's `manual_sections.json`, validates the Shop Manual PDF and page
-count, searches several candidate ranges in one pass, and returns bounded PDF
-excerpts, page references and diagram ranges. A sparse or unresolved index
-triggers a full-manual fallback. The index itself is never technical evidence;
-complete PDF pages and diagrams must still be checked for exact values or
-procedures. For that follow-up, use `--model MODEL --pages PAGE... --render` to
-read at most four bounded pages and batch the approved renderer in one call. The older positional `MAP TERMS SECTIONS...` interface remains
-available for targeted follow-up searches.
+The two CLI calls are:
+
+```powershell
+E:/KomatsoAI/.venv/Scripts/python.exe E:/KomatsoAI/tools/manual_worker_batch.py retrieve --request-file REQUEST_FILE
+E:/KomatsoAI/.venv/Scripts/python.exe E:/KomatsoAI/tools/manual_worker_batch.py finish --request-file REQUEST_FILE --render-pages IMAGE_PAGES --read-pages MISSING_TEXT_PAGES --web-url 'RELEVANT_URL'
+```
+
+Omit unused finish options. Retrieve optionally accepts `--component` and a
+complete `--fault-code`. The model selects the URL from actual search results;
+the batch does not choose a source by guessed relevance. Native web tooling
+retains its configured provider, URL validation and extraction limits. Web
+failure remains explicit and does not invalidate local PDF evidence. The
+prepared profile home is passed to the isolated web process so multiplex
+execution cannot use the default profile's configuration.
+
+These are two model-issued tool calls, containing four backend operations
+(packet, web search, render/validate, extraction), or five with needed text.
+`batch_metrics` reports every operation and concurrent wall time. Additional
+batches remain allowed for material missing evidence. Source data is read-only;
+private requests, web result metadata and rendered artifacts are local runtime.
+
+## Indexed manual evidence
+
+After loading the selected device AGENTS.md, retrieve one bounded packet:
+
+```powershell
+E:\KomatsoAI\.venv\Scripts\python.exe E:\KomatsoAI\tools\manual_evidence_probe.py --model MODEL --problem "QUESTION" --packet
+```
+
+Pass `--fault-code CODE` only for a complete displayed code, and `--component`
+when known. The probe resolves the model's Shop Manual through its index,
+validates page count and folder, and searches indexed ranges in one batch.
+Chapter intent keeps troubleshooting, tests and system descriptions together.
+A multipart index with no leaf descriptions uses its indexed parent range.
+An unresolved index retains a full-manual fallback.
+
+The packet includes actual PDF page text, page/form references, graphics flags
+and candidate continuation groups identified by PDF headings, font hierarchy,
+form numbers and index boundaries. It uses no benchmark page or fault rules.
+Complete text is capped at 22K characters; `text_truncated` and
+`continuation_limited` identify missing coverage. A continuation group is a
+routing aid, not proof that every page in it supports the user's diagnosis.
+Follow a limit only when that topic is needed. The index itself is never
+technical evidence. Verify ambiguous table columns and diagram labels before
+claiming exact values or pins.
+
+Select the smallest necessary images after reading the packet:
+
+```powershell
+E:\KomatsoAI\.venv\Scripts\python.exe E:\KomatsoAI\tools\manual_evidence_probe.py --model MODEL --pages SELECTED_PAGES --render-only
+```
+
+This batches the approved renderer and validates PNG decoding, dimensions and
+file size, without duplicating page text. Up to 8 explicit pages are accepted;
+space and comma lists both work. For a material gap, `--pages PAGE...` returns
+up to 20K characters in one follow-up. The older positional `MAP TERMS SECTIONS...`
+interface remains available for targeted searches.
+
+Batch a required web_search with retrieval, and the best relevant web_extract
+with rendering (`char_limit: 4000`). Web failure is reported once and does not
+invalidate confirmed Manual evidence. No model switch is part of this work.
+
+Detailed trace, regression checks and measurements: [MANUAL_OPTIMIZATION.md](MANUAL_OPTIMIZATION.md).

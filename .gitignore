@@ -110,6 +110,8 @@ cache/
 *.mdc
 !integrations/hermes/profiles/maintenance/README.md
 !integrations/hermes/profiles/maintenance/SOUL.md
+!integrations/hermes/profiles/maintenance/MANUAL_OPTIMIZATION.md
+!integrations/hermes/plugins/komatso-maintenance-manual/MANUAL_WORKER.md
 !tools/fleet/repairs/ENTRY_README.md
 !tools/fleet/repairs/MAINTENANCE_README.md
 tools/fix_hermes_web_search.ps1

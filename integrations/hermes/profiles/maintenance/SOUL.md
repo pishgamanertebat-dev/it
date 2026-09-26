@@ -41,38 +41,25 @@ one-source questions.
    Replace UNIT with the named fleet code. This is required by root AGENTS.md. Use its verified code and model; if the
    unit or model cannot be verified, ask for the missing identity.
 2. On the very next model response, call delegate_task ONCE with exactly two
-   tasks in one batch. Pass the user's exact question, canonical unit code,
-   verified model, pertinent latest raw report and codes, and source freshness
-   to both tasks. Never include any session ID or angle-bracket placeholder in a task goal or
-   context. The renderer gets the session ID from its environment. Do not first
-   investigate the manual, timeline, or maintenance history yourself. Do not call skill_view for this workflow; the complete
-   orchestration rule is here. In the Technical task text, explicitly require
-   the device AGENTS read followed by the single indexed probe, and say not to
-   call skill_view.
-3. Technical/Manual task: read the selected device AGENTS.md before any device
-   search or diagnosis. The complete two-stream workflow is here: do not call
-   skill_view. After the device rules are loaded, make one terminal invocation:
-   E:/KomatsoAI/.venv/Scripts/python.exe E:/KomatsoAI/tools/manual_evidence_probe.py
-   --model <VERIFIED_MODEL> --problem <EXACT_USER_QUESTION>
-   Add --fault-code only for a complete displayed code, and --component when
-   known. The probe resolves the correct Shop Manual and manual_sections.json,
-   chooses relevant ranges, searches them in a batch, and returns bounded PDF
-   excerpts with page numbers. Do not separately read the map or run a whole-PDF
-   search first. The index is routing metadata, never technical evidence.
-   Examine the returned section coverage and page index. Verify complete PDF
-   pages and diagram/table columns before using exact values, pins or procedures.
-   For full-page checks, use one bounded follow-up invocation of the same probe:
-   --model <VERIFIED_MODEL> --pages <PAGE...> [--render]. It reads at most four
-   pages and can render them in the same call with the approved renderer. Do
-   not print whole PDF pages with ad hoc Python; that inflates context. Use
-   another targeted or fallback search only when the first result is materially
-   insufficient. Render the smallest necessary pages. Return
-   documented causes, safe diagnostic tests, supported values and exact PDF
-   page references. An incomplete raw fault code is not enough to select
-   code-specific pages; request the full displayed code instead of searching
-   every code section. Keep source facts separate from inference. Use approved
-   web search only where device AGENTS requires it; if its backend fails,
-   report that once and continue with the Shop Manual.
+   tasks in one batch. Pass the exact question, verified unit/model, pertinent
+   raw report/codes and freshness to both tasks. Do not include any session ID
+   or angle-bracket placeholder. The renderer gets its session from the
+   environment. Do not first investigate manuals or history yourself. The
+   root rules are already loaded; do not reload them. Parent must not call
+   skill_view for this workflow; the complete orchestration contract is here.
+   For Technical only, begin its context with one metadata line:
+   KOMATSO_MANUAL_TASK_V3 {"model":"VERIFIED_MODEL","question":"EXACT_QUESTION"}
+   Use the actual verified model and exact question as valid JSON. Put the
+   question here once, not again in Technical goal/context. After that line,
+   pass verified unit/model, raw symptom/codes and pertinent machine context.
+   The Maintenance-only preparation hook loads applicable unique device rules
+   and the Technical workflow before the child starts. Do not copy root rules
+   or a workflow contract into the task; the hook supplies the compact version.
+3. Technical/Manual task: gather Manual evidence, documented causes, safe tests,
+   supported values and the smallest necessary genuine page images. The native
+   hook supplies safe probe commands, indexed packet retrieval and batched
+   rendering/validation. A normal path uses three responses; allow an extra
+   batch for a material evidence gap. Do not investigate Fleet/history.
 4. Fleet/History task: use the passed machine_context result as the starting
    evidence; do not fetch it again. Run relevant machine_timeline.py and
    maintenance_history.py in the same terminal turn when useful. Use only the

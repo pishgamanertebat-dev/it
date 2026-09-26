@@ -11,6 +11,7 @@ STAMP = "%Y-%m-%d %H:%M:%S,%f"
 SESSION = re.compile(r"\[([0-9]{8}_[0-9]{6}_[0-9a-f]+)\]")
 API = re.compile(r"API call #(\d+): .*? in=(\d+) out=(\d+).*?latency=([0-9.]+)s")
 TOOLS = re.compile(r"agent.tool_executor: tool ([a-z_]+) completed \(([0-9.]+)s")
+ERROR_TOOLS = re.compile(r"Tool ([a-z_]+) returned error \(([0-9.]+)s")
 ROUNDS = re.compile(r"tool_turns=(\d+)")
 APPROX_CONTEXT = re.compile(r"context=~([0-9,]+) tokens")
 
@@ -21,6 +22,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("parent_session")
     ap.add_argument("--log", type=Path, default=Path.home() / "AppData/Local/hermes/profiles/maintenance/logs/agent.log")
+    ap.add_argument("--transcripts-dir", type=Path,
+                    help="Private benchmark JSON transcripts, needed for untagged parallel-tool logs")
     args = ap.parse_args()
     rows = []
     for line in args.log.read_text(encoding="utf-8", errors="replace").splitlines():
@@ -43,11 +46,22 @@ def main():
         subset = [row for row in rows if row[1] == sid]
         api = [m for _, _, s in subset if (m := API.search(s))]
         tool = [m for _, _, s in subset if (m := TOOLS.search(s))]
+        failed_tools = [m for _, _, s in subset if (m := ERROR_TOOLS.search(s))]
         first = next(t for t, _, s in subset if "conversation turn:" in s)
         last = next(t for t, _, s in reversed(subset) if "Turn ended:" in s)
         rounds_line = next(s for _, _, s in reversed(subset) if "Turn ended:" in s)
         context = [int(m.group(1).replace(",", "")) for _, _, s in subset if (m := APPROX_CONTEXT.search(s))]
+        transcript_names = None
+        if args.transcripts_dir:
+            transcript = args.transcripts_dir / f"{sid}.json"
+            if transcript.is_file():
+                payload = json.loads(transcript.read_text(encoding="utf-8"))
+                transcript_names = [call.get("function", {}).get("name", "unknown")
+                                    for message in payload.get("messages") or []
+                                    for call in message.get("tool_calls") or []]
+        attempts = len(transcript_names) if transcript_names is not None else len(tool) + len(failed_tools)
         return {
+            "session_id": sid,
             "start": first.isoformat(timespec="milliseconds"),
             "end": last.isoformat(timespec="milliseconds"),
             "duration_seconds": round((last - first).total_seconds(), 2),
@@ -58,9 +72,13 @@ def main():
             "last_input_tokens": int(api[-1].group(2)) if api else None,
             "initial_context_approx_tokens": context[0] if context else None,
             "last_context_approx_tokens": context[-1] if context else None,
-            "tool_calls": len(tool),
+            "tool_calls": attempts - len(failed_tools),
+            "tool_count_source": "transcript" if transcript_names is not None else "session-tagged log",
+            "failed_tool_calls": len(failed_tools),
+            "tool_attempts": attempts,
+            "failed_tool_seconds_sum": round(sum(float(m.group(2)) for m in failed_tools), 2),
             "tool_seconds_sum": round(sum(float(m.group(2)) for m in tool), 2),
-            "tool_names": [m.group(1) for m in tool],
+            "tool_names": transcript_names if transcript_names is not None else [m.group(1) for m in tool],
             "tool_rounds": int(ROUNDS.search(rounds_line).group(1)),
             "final_model_seconds": float(api[-1].group(4)) if api else None,
         }

@@ -1,5 +1,9 @@
 """Regression checks for indexed, bounded manual retrieval."""
+import argparse
 import json
+import re
+import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -70,6 +74,77 @@ class ManualEvidenceProbeTests(unittest.TestCase):
             self.assertEqual(result["searched_pages"], 3)
             self.assertEqual(result["evidence"][0]["pdf_page"], 2)
             self.assertIn("12 MPa", result["evidence"][0]["excerpt"])
+
+
+    def packet(self, model, question):
+        section_map = probe.ROOT / probe.MODELS[model] / "manual_sections.json"
+        metadata = json.loads(section_map.read_text(encoding="utf-8"))
+        terms = probe.search_terms(question)
+        chosen = probe.route(metadata["sections"], terms, question)
+        result = probe.evidence_packet(section_map, metadata,
+                                      probe.probe(section_map, metadata, chosen, terms, top=6))
+        self.assertFalse(result["full_manual_fallback"])
+        self.assertLessEqual(result["text_chars"], 22000)
+        self.assertEqual(len(result["evidence"]), len({v["pdf_page"] for v in result["evidence"]}))
+        self.assertEqual(Path(result["manual"]).parent, section_map.parent)
+        return {item["pdf_page"]: item for item in result["evidence"]}
+
+    def test_retarder_packet_with_model_in_question_keeps_diagnostic_topic(self):
+        pages = self.packet("HD785-7", "HD785-7 ریتاردر عمل نمی‌کند؛ علت و تست ایمن چیست؟")
+        self.assertIn(1165, pages)
+        self.assertFalse(pages[1165]["text_truncated"])
+        self.assertIn("H-11 Rear brake is ineffective", pages[1165]["heading"])
+
+    def test_regression_hd785_heavy_steering_preserves_conditions_and_value(self):
+        pages = self.packet("HD785-7", "steering wheel is heavy")
+        diagnosis = pages[1166]
+        self.assertFalse(diagnosis["text_truncated"])
+        self.assertIn("H-12 Steering wheel is heavy", diagnosis["heading"])
+        self.assertIn("high idle", diagnosis["text"])
+        self.assertIn("20.6 (+0.98/0) MPa", diagnosis["text"])
+
+    def test_regression_pc800_no_start_preserves_all_three_branches(self):
+        pages = self.packet("PC800-8R", "engine does not start")
+        for number in (792, 793, 794):
+            self.assertIn(number, pages)
+            self.assertFalse(pages[number]["text_truncated"])
+        self.assertIn("Engine does not turn", pages[792]["text"])
+        self.assertIn("Engine turns but no exhaust smoke", pages[793]["text"])
+        self.assertIn("Exhaust smoke comes out but engine does not start", pages[794]["text"])
+        self.assertIn("CA559", pages[793]["text"])
+
+    def test_regression_pc800_slow_boom_preserves_normal_and_heavy_lift_tests(self):
+        pages = self.packet("PC800-8R", "boom is slow hydraulic pressure test")
+        for number in (760, 761):
+            self.assertIn(number, pages)
+            self.assertFalse(pages[number]["text_truncated"])
+        normal = re.sub(r"\s+", " ", pages[760]["text"])
+        heavy = re.sub(r"\s+", " ", pages[761]["text"])
+        self.assertIn("H-5 Boom speed or power is low", normal)
+        self.assertIn("P-mode", normal)
+        self.assertIn("2.9 MPa", normal)
+        self.assertIn("engine stopped for the preparations", normal)
+        self.assertIn("heavy lift mode", heavy)
+
+    def test_topic_continuation_stops_at_new_heading_and_reports_limit(self):
+        with pymupdf.open() as doc:
+            for title, size in (("Testing pump pressure", 14), ("Continue test", 10), ("Different test", 14)):
+                page = doc.new_page()
+                page.insert_text((45, 45), "SEN99999-01", fontsize=10, fontname="hebo")
+                page.insert_text((45, 85), title, fontsize=size, fontname="hebo")
+            metadata = {"sections": {"testing": {"pdf_start": 1, "pdf_end": 3}}}
+            self.assertEqual(probe.topic_pages(doc, metadata, 2), ([1, 2], False))
+            self.assertEqual(probe.topic_pages(doc, metadata, 1, max_pages=1), ([1], True))
+
+    def test_cli_comma_page_list_avoids_retry_and_preserves_references(self):
+        result = subprocess.run([sys.executable, str(probe.ROOT / "tools/manual_evidence_probe.py"),
+                                 "--model", "HD785-7", "--pages", "1165,363"],
+                                capture_output=True, text=True, check=True)
+        pages = json.loads(result.stdout)["pages"]
+        self.assertEqual([item["pdf_page"] for item in pages], [1165, 363])
+        self.assertEqual(probe.page_numbers("12,13"), [12, 13])
+        with self.assertRaises(argparse.ArgumentTypeError):
+            probe.page_numbers("12,,13")
 
 
 if __name__ == "__main__":
