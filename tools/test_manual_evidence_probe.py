@@ -76,10 +76,10 @@ class ManualEvidenceProbeTests(unittest.TestCase):
             self.assertIn("12 MPa", result["evidence"][0]["excerpt"])
 
 
-    def packet(self, model, question):
+    def packet(self, model, question, keywords=""):
         section_map = probe.ROOT / probe.MODELS[model] / "manual_sections.json"
         metadata = json.loads(section_map.read_text(encoding="utf-8"))
-        terms = probe.search_terms(question)
+        terms = probe.search_terms(question, keywords)
         chosen = probe.route(metadata["sections"], terms, question)
         result = probe.evidence_packet(section_map, metadata,
                                       probe.probe(section_map, metadata, chosen, terms, top=6))
@@ -125,6 +125,50 @@ class ManualEvidenceProbeTests(unittest.TestCase):
         self.assertIn("2.9 MPa", normal)
         self.assertIn("engine stopped for the preparations", normal)
         self.assertIn("heavy lift mode", heavy)
+
+    def prepared_cli(self, model, question, *options):
+        with tempfile.TemporaryDirectory(dir=probe.ROOT / "runtime") as folder:
+            request = Path(folder) / "request.json"
+            request.write_text(json.dumps({"model": model, "question": question}, ensure_ascii=False), encoding="utf-8")
+            result = subprocess.run([sys.executable, str(probe.ROOT / "tools/manual_evidence_probe.py"),
+                                     "--request-file", str(request), "--packet", *options],
+                                    capture_output=True, text=True, encoding="utf-8")
+        return result
+
+    def test_regression_exact_bale_retarder_question_uses_indexed_packet_with_normalized_keywords(self):
+        question = "ریتارد کار نمیکنه ضعیفه هر جفتش، واسه دستگاه 465 چه کنم ؟"
+        self.assertEqual(probe.search_terms(question), [])
+        self.assertIn("No useful search terms", self.prepared_cli("HD465-7R", question).stderr)
+        result = self.prepared_cli("HD465-7R", question, "--component", "retarder weak braking")
+        packet = json.loads(result.stdout)
+        pages = {item["pdf_page"]: item for item in packet["evidence"]}
+        self.assertFalse(packet["full_manual_fallback"])
+        self.assertLessEqual(packet["text_chars"], 22000)
+        self.assertEqual(packet["searched_sections"][0]["key"], "troubleshooting/hydraulic_mechanical_h_mode")
+        self.assertIn("H-11 Rear brake is ineffective", pages[1322]["heading"])
+        self.assertFalse(pages[1322]["text_truncated"])
+        self.assertIn("Retarder control", pages[327]["heading"])
+
+    def test_regression_pc800_oil_change_problem_routes_to_oil_pressure_diagnosis_and_test(self):
+        pages = self.packet("PC800-8R", "مشکل در تعویض روغن موتور، بعد از تعویض روغن فشار روغن پایین است",
+                            "engine oil change low oil pressure")
+        self.assertIn("S-12", pages[804]["heading"])
+        self.assertIn("Oil pressure drops", pages[804]["heading"])
+        self.assertIn("Measuring engine oil pressure", pages[330]["heading"])
+
+    def test_regression_incomplete_index_evidence_uses_explicit_bounded_broad_fallback(self):
+        question = "during engine oil change the oil filter leaks"
+        indexed = json.loads(self.prepared_cli("HD785-7", question, "--component", "engine oil filter leak").stdout)
+        self.assertFalse(indexed["full_manual_fallback"])
+        self.assertFalse(any("oil filter" in (item["heading"] or "").casefold() for item in indexed["evidence"]))
+        broad = json.loads(self.prepared_cli("HD785-7", question, "--component", "engine oil filter leak", "--broad").stdout)
+        self.assertTrue(broad["full_manual_fallback"])
+        self.assertEqual(broad["searched_sections"], [])
+        self.assertEqual(broad["searched_pages"], 1336)
+        self.assertLessEqual(broad["text_chars"], 22000)
+        self.assertTrue(any("oil filter" in (item["heading"] or "").casefold() for item in broad["evidence"]))
+        conflict = self.prepared_cli("HD785-7", question, "--component", "oil filter", "--broad", "--no-fallback")
+        self.assertNotEqual(conflict.returncode, 0)
 
     def test_topic_continuation_stops_at_new_heading_and_reports_limit(self):
         with pymupdf.open() as doc:

@@ -7,6 +7,8 @@ from pathlib import Path
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--question-file", type=Path, required=True)
+    parser.add_argument("--transcripts-dir", type=Path,
+                        help="Private directory for the run transcript, e.g. runtime/bench/transcripts")
     args = parser.parse_args()
     question = args.question_file.read_text(encoding="utf-8").strip()
     from hermes_cli.config import load_config
@@ -27,7 +29,7 @@ def main():
     toolsets = sorted(_get_platform_tools(cfg, "bale"))
     expected = {
         "browser", "code_execution", "connections", "delegation", "file",
-        "skills", "terminal", "web",
+        "komatso_maintenance", "skills", "terminal", "web",
     }
     if set(toolsets) != expected:
         raise RuntimeError(f"Bale toolsets changed: {toolsets}")
@@ -80,13 +82,18 @@ def main():
     names = sorted(
         t.get("function", {}).get("name", t.get("name", "")) for t in agent.tools
     )
-    if len(names) != 21 or "delegate_task" not in names:
+    if (len(names) != 20 or not {"delegate_task", "maintenance_manual_evidence"} <= set(names)
+            or "tool_search" in names):
         raise RuntimeError(f"Unexpected Bale tool surface: {len(names)} tools")
     started = time.perf_counter()
     try:
         result = agent.run_conversation(question)
         elapsed = time.perf_counter() - started
         answer = result.get("final_response") or ""
+        if args.transcripts_dir:
+            args.transcripts_dir.mkdir(parents=True, exist_ok=True)
+            (args.transcripts_dir / f"{agent.session_id}.json").write_text(json.dumps(
+                {"messages": result.get("messages") or []}, ensure_ascii=False, default=str), encoding="utf-8")
         media_paths = [line[6:].strip() for line in answer.splitlines() if line.startswith("MEDIA:")]
         print(json.dumps({
             "elapsed_seconds": round(elapsed, 2),

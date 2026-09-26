@@ -415,6 +415,7 @@ def main():
     ap.add_argument("--page-chars", type=int, default=2500)
     ap.add_argument("--max-sections", type=int, default=4)
     ap.add_argument("--no-fallback", action="store_true")
+    ap.add_argument("--broad", action="store_true", help="Skip index routing and scan the whole manual")
     ap.add_argument("--pages", nargs="+", type=page_numbers)
     ap.add_argument("--render", action="store_true")
     ap.add_argument("--full-page-chars", type=int, default=5000)
@@ -472,6 +473,10 @@ def main():
             chosen.append((key, item))
     if not terms:
         ap.error("No useful search terms; provide a component or fault code")
+    if args.broad:
+        if args.no_fallback:
+            ap.error("--broad is the whole-manual fallback")
+        chosen = []
     result = probe(section_map, metadata, chosen, terms,
                    min(max(args.top, 1), 10), min(max(args.page_chars, 500), 4000),
                    not args.no_fallback, args.fault_code)

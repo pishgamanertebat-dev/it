@@ -35,6 +35,41 @@ platform_toolsets:
 
 This is a tool configuration for the routed agent, not a bot credential or a second Bale Gateway. Keep sender routes and real user IDs in the default Gateway's local runtime configuration, outside Git.
 
+## Technical routing and Parent fast path
+
+`SOUL.md` routes each request: greetings, clarification and trivial answers
+go to the Parent directly; a technical/manual question about a supported
+model uses the Parent fast path; a specific fleet unit's fault, or technical
+plus fleet/history evidence, uses two-stream delegation below. A pure
+technical question does not run fleet tools or delegate.
+
+The Maintenance plugin registers `maintenance_manual_evidence` in the
+`komatso_maintenance` plugin toolset. Plugin toolsets are enabled on a
+platform unless listed in that platform's `known_plugin_toolsets`, so keep
+`komatso_maintenance` out of `known_plugin_toolsets.bale`. Set
+`tools.tool_search.enabled: off` in the Maintenance runtime config only
+(`hermes -p maintenance config set tools.tool_search.enabled off`): Hermes
+defers every plugin tool behind `tool_search`/`tool_describe`/`tool_call`
+otherwise, adding a discovery round trip. On this surface the only other
+deferred tool is `process_manage`, and the three bridge schemas disappear.
+
+```text
+retrieve: read device AGENTS.md in full -> applicable policy (presentation kept)
+          + private request -> manual_worker_batch retrieve
+          (indexed packet || native web_search)
+finish:   manual_worker_batch finish (render + PNG validation || bounded text || web_extract)
+Parent:   one final answer with the returned MEDIA paths
+```
+
+The tool reuses the same `select_rules`, request files and batch CLI as the
+Technical child; nothing is reimplemented. The model supplies English Shop
+Manual `keywords` that normalize colloquial or misspelled wording; without
+them a colloquial Persian question can produce no search terms. Retrieval is
+bounded to three per question; `broad=true` scans the whole manual (10-30 s)
+after an indexed miss. `finish` accepts only a `request_id` created by the
+same session's retrieve, and URLs from that retrieve's search results. The
+handler refuses delegated child sessions, so the child contracts are unchanged.
+
 ## Two-stream delegation
 
 The maintenance Bale `delegation` toolset adds only `delegate_task` to the
@@ -55,10 +90,13 @@ Ensure maintenance agent.disabled_toolsets excludes delegation; leave the CLI to
 Use 	ools/bench_maintenance_delegation.py --question-file <private UTF-8 file> with
 HERMES_HOME set to the Maintenance profile and PYTHONPATH set to the installed
 Hermes source. It uses the real model, Bale platform prompt, and the configured
-21 Bale tools without a messaging adapter. It joins the real two-child batch in
+20 Bale tools without a messaging adapter. It joins the real two-child batch in
 the same turn because this local harness has no Gateway to deliver detached
-results. Use 	ools/analyze_maintenance_bench.py <parent-session-id> for timing
-from the local agent log. Keep benchmark questions, IDs, answers, and logs outside Git.
+results. Use `tools/analyze_maintenance_bench.py <session-id>` for timing
+from the local agent log; it reports `parent-direct` or `two-stream` and the
+fast-path phases/components. Gateway sessions are read from `state.db`; for
+harness runs pass the same `--transcripts-dir` to both scripts. Keep benchmark
+questions, IDs, answers, and logs outside Git.
 ## Maintenance Technical preparation
 
 Copy `integrations/hermes/plugins/komatso-maintenance-manual` into the

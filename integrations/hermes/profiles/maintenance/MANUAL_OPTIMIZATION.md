@@ -1,5 +1,50 @@
 # Technical worker optimization, September 2026
 
+## Production routing gap and Parent fast path
+
+The optimized machinery below was reachable only through the prepared
+Technical child. The `pre_tool_call` hook acted only on a `delegate_task`
+with exactly two tasks, one carrying `KOMATSO_MANUAL_TASK_V3`; the system
+section attested only a receipt-bound `subagent` session; and `SOUL.md`
+prescribed that delegation only for a specific fleet unit's fault with
+fleet history. A pure model question therefore followed root AGENTS.md in
+the Parent: `read_file` device AGENTS, `skill_view pdf`, ad hoc PyMuPDF
+sweeps and separate web/render calls. Real Bale baseline for the colloquial
+HD465 retarder question: 144.644 s, 8 API calls, 7 tool turns, 9 tools,
+17,010 -> 71,842 input tokens, no delegation.
+
+Two further blockers existed even on a correct route. The exact colloquial
+wording produced no probe search terms, so indexed retrieval would stop with
+"No useful search terms". Hermes Tool Search also defers every plugin tool
+behind `tool_search`/`tool_describe`/`tool_call`.
+
+Parent-direct was chosen over one Technical child: the child adds a child
+start and a second synthesis (about 25 s measured) on top of the Parent's.
+`maintenance_manual_evidence` reuses the same rule selection, request files
+and batch CLI. The Parent supplies normalized English Shop Manual keywords,
+keeps presentation rules because it writes the answer, and may use a bounded
+refined or `broad` retrieve. Two-stream remains for fleet-unit questions.
+
+Local Bale-surface harness, same gpt-6-sol/openai-codex, single runs:
+
+| Question | Route | APIs | Tools | Wall | Input tokens |
+|---|---|---:|---:|---:|---:|
+| HD465 retarder, exact Bale text, run 1 | Parent-direct | 4 | 3 (extra retrieve) | 88.3 s | 17,400 -> 41,561 |
+| HD465 retarder, run 2 | Parent-direct | 3 | 2 | 48.6 s | 17,400 -> 34,118 |
+| HD465 retarder, run 3 | Parent-direct | 3 | 2 | 57.6 s | 17,400 -> 33,866 |
+| HD785 heavy steering | Parent-direct | 3 | 2 | 45.1 s | 17,396 -> 30,845 |
+| PC800 cranks, no start | Parent-direct | 3 | 2 | 88.9 s (web_extract 33.9 s) | 17,393 -> 30,504 |
+| PC800 slow boom / pressure | Parent-direct | 3 | 2 | 56.6 s | 17,397 -> 33,163 |
+| PC800 low oil pressure after oil change | Parent-direct | 3 | 2 | 62.4 s | 17,404 -> 30,806 |
+| HD785 filter leak during oil change | Parent-direct, refined + broad | 5 | 4 | 110.1 s | 17,406 -> 48,773 |
+| Greeting | Direct | 1 | 0 | 5.4 s | 17,383 |
+| HD714 fleet unit + HD785-7 fault | Two-stream | Parent 3 | prepared child 3 | 129.7 s | - |
+
+HD465 values in the answer were checked against PDF text (H-11 charge valve
+17.6 ± 1.2 / 20.6 (+0.98/0) MPa, actuating 9.8 ± 0.69 / 8.7 ± 0.64 MPa, 39.2 MPa
+gauge, monitoring codes 35500/35501). The oil-filter case found no documented
+fitting procedure or torque; the answer said so and asked one clarification.
+
 ## Eight-call trace from the preceding pass
 
 This is an observable decision trace from tool requests/results, not a claim

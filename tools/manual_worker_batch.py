@@ -74,6 +74,7 @@ def main():
     ap.add_argument("--read-pages",nargs="+",type=probe.page_numbers)
     ap.add_argument("--fault-code",default="",help="Complete displayed failure code only")
     ap.add_argument("--component",default="",help="Known relevant component, when useful")
+    ap.add_argument("--broad",action="store_true",help="Fallback after an indexed miss: scan the whole manual")
     ap.add_argument("--web-url",help="One model-selected directly relevant URL from the retrieval results")
     args=ap.parse_args()
     request=prepared_request(args.request_file)
@@ -87,6 +88,7 @@ def main():
         terms=probe.search_terms(request["question"],args.component,args.fault_code)
         query=request["model"]+" "+" ".join(terms[:3])+" shop manual troubleshooting"
         probe_args=["--request-file",args.request_file,"--packet"]
+        if args.broad:probe_args.append("--broad")
         if args.fault_code:probe_args += ["--fault-code",args.fault_code]
         if args.component:probe_args += ["--component",args.component]
         operations=[("manual_packet",lambda:run_probe(*probe_args)),

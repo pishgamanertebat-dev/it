@@ -27,6 +27,44 @@
 آن دستورالعمل‌ها را به‌عنوان مرجع اجرایی پروژه دنبال کن و آنها را در این
 فایل تکرار نکن.
 
+## Technical routing
+
+Choose one route per request:
+
+A. Greeting, clarification, model selection or a trivial known answer:
+   answer directly without manual tools.
+B. Technical/manual question about a supported model (fault, symptom, test,
+   procedure, specification needing the manual) with no specific fleet unit
+   or history requested: use the fast Technical path below. Do not run fleet
+   tools or delegate merely to reach manual evidence.
+C. A specific fleet unit's technical fault, or technical plus fleet/history
+   evidence: use Two-stream repair orchestration.
+
+Fast Technical path (route B):
+
+1. Identify the model from the message or session. If it cannot be safely
+   inferred, ask the root AGENTS.md model question. Otherwise the FIRST tool
+   call is maintenance_manual_evidence with phase=retrieve, the model, the
+   exact question and English Shop Manual keywords for the affected
+   system/component and symptom. Normalize colloquial, abbreviated or
+   misspelled wording into manual terminology; add a complete displayed
+   failure code only when one was given. The tool reads the device AGENTS.md
+   in full before any source access and returns its applicable policy; this
+   is the required machine-specific rules load. Do not read_file that
+   AGENTS.md, skill_view pdf or other skills, list manuals, inspect
+   manual_sections.json, run PDF scripts or call web_search separately.
+2. Follow the returned device policy. Evaluate the packet once, then call
+   phase=finish once with the smallest sufficient render_pages, read_pages
+   only for material text gaps or needed cross-references, and web_url only
+   when retrieve web_search returned a directly relevant URL.
+3. Answer from actual PDF text; the index is routing only. Deliver the
+   returned MEDIA paths per root AGENTS.md without re-rendering.
+
+Fallback: if the packet lacks the relevant topic, retrieve again with refined
+keywords, then with broad=true. If evidence is still insufficient, use
+permitted web evidence clearly labelled, state the missing manual evidence or
+ask for the one detail needed. Never fill gaps by guesswork.
+
 ## Two-stream repair orchestration
 
 For a question about a specific fleet unit's technical fault where the correct

@@ -1,16 +1,20 @@
 """Scope, deduplication and source-policy checks for the native preparation hook."""
 import importlib.util
 import json
+import sys
 import tempfile
+import types
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 spec = importlib.util.spec_from_file_location("manual_preparation", ROOT / "integrations/hermes/plugins/komatso-maintenance-manual/__init__.py")
 hook = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(hook)
+BALE_RETARDER = "ریتارد کار نمیکنه ضعیفه هر جفتش، واسه دستگاه 465 چه کنم ؟"
 
-class PreparationTests(unittest.TestCase):
+class FakeRootTest(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory(dir=ROOT / "runtime")
         self.original_root = hook.ROOT
@@ -30,6 +34,8 @@ class PreparationTests(unittest.TestCase):
     def tearDown(self):
         hook.ROOT = self.original_root
         self.tmp.cleanup()
+
+class PreparationTests(FakeRootTest):
     def test_prepares_only_technical_preserves_question_once_and_safety(self):
         result = hook.prepare_args(self.args,self.home,"session")
         context = result["tasks"][0]["context"]
@@ -69,5 +75,100 @@ class PreparationTests(unittest.TestCase):
         text = "# Device\n\nScope.\n\n### تست فشار\n\nGauge rating.\n\n### تست برقی\n\nProbe position."
         self.assertIn("Gauge rating",hook.select_rules(text,"","pressure test")[0])
         self.assertNotIn("Gauge rating",hook.select_rules(text,"","serial range")[0])
+
+
+class ParentFastPathTests(FakeRootTest):
+    def setUp(self):
+        super().setUp()
+        self.calls = []
+        def fake_batch(command, session_id):
+            self.calls.append(([str(part) for part in command], session_id))
+            return {"manual_packet": {"evidence": []}, "web_search": {"success": True}}
+        patcher = patch.object(hook, "run_batch", side_effect=fake_batch)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        constants = types.ModuleType("hermes_constants")
+        constants.get_hermes_home = lambda: self.home
+        modules = patch.dict(sys.modules, {"hermes_constants": constants})
+        modules.start()
+        self.addCleanup(modules.stop)
+        hook._requests.clear(); hook._retrieves.clear(); hook._child_sessions.clear()
+    def call(self, session="parent", **args):
+        return json.loads(hook.manual_evidence(args, session_id=session))
+    def retrieve(self, session="parent", **extra):
+        return self.call(session, phase="retrieve", model="HD785-7", question=self.question,
+                         keywords="steering heavy", **extra)
+
+    def test_retrieve_reads_device_rules_keeps_presentation_and_runs_one_batch(self):
+        result = self.retrieve()
+        policy = result["prepared"]["applicable_device_policy"]
+        self.assertIn("Release stored pressure", policy)
+        self.assertIn("Duplicate presentation", policy)
+        self.assertNotIn("Shared root rule", policy)
+        self.assertTrue(result["prepared"]["device_agents_read_in_full"].endswith("AGENTS.md"))
+        (command, session), = self.calls
+        self.assertEqual(session, "parent")
+        self.assertEqual(command[0], "retrieve")
+        self.assertEqual(command[command.index("--component") + 1], "steering heavy")
+        self.assertNotIn("--broad", command)
+        request = json.loads(Path(command[command.index("--request-file") + 1]).read_text(encoding="utf-8"))
+        self.assertEqual((request["model"], request["question"]), ("HD785-7", self.question))
+        self.assertEqual(request["profile_home"], str(self.home))
+
+    def test_exact_bale_question_requires_normalized_manual_keywords(self):
+        self.question = BALE_RETARDER
+        missing = self.call(phase="retrieve", model="HD785-7", question=BALE_RETARDER)
+        self.assertFalse(missing["success"])
+        self.assertIn("keywords", missing["error"])
+        self.assertEqual(self.calls, [])
+        self.assertIn("prepared", self.retrieve())
+
+    def test_finish_is_bound_to_retrieving_session_and_batches_follow_ups(self):
+        request_id = self.retrieve()["prepared"]["request_id"]
+        self.assertFalse(self.call("other", phase="finish", request_id=request_id, render_pages=[3])["success"])
+        self.call(phase="finish", request_id=request_id, render_pages=[3, 4], read_pages=[5], web_url="https://example.test/a")
+        command = self.calls[-1][0]
+        self.assertEqual(command[0], "finish")
+        self.assertEqual(command[command.index("--render-pages") + 1:command.index("--read-pages")], ["3", "4"])
+        self.assertEqual(command[command.index("--web-url") + 1], "https://example.test/a")
+        self.assertFalse(self.call(phase="finish", request_id=request_id)["success"])
+
+    def test_fallback_is_explicit_and_retrieval_is_bounded(self):
+        self.retrieve(broad=True)
+        self.assertIn("--broad", self.calls[-1][0])
+        for _ in range(hook.MAX_RETRIEVES - 1):
+            self.retrieve()
+        limited = self.retrieve()
+        self.assertFalse(limited["success"])
+        self.assertIn("missing evidence", limited["error"])
+
+    def test_delegated_workers_and_other_profiles_cannot_use_parent_tool(self):
+        hook.subagent_start(child_session_id="fleet-child", child_goal="Fleet history")
+        self.assertFalse(self.retrieve("fleet-child")["success"])
+        hook.subagent_stop(child_session_id="fleet-child")
+        self.home = self.home.parent / "default"
+        self.assertIn("Maintenance", self.retrieve()["error"])
+        self.assertEqual(self.calls, [])
+
+    def test_schema_exposes_verified_models_and_bounded_pages(self):
+        schema = hook.tool_schema({"HD785-7": "truck"})["parameters"]
+        self.assertEqual(schema["required"], ["phase"])
+        self.assertEqual(schema["properties"]["model"]["enum"], ["HD785-7"])
+        self.assertEqual(schema["properties"]["render_pages"]["maxItems"], 8)
+
+
+class RealDevicePolicyTests(unittest.TestCase):
+    def test_exact_bale_retarder_policy_keeps_safety_tests_and_answer_rules(self):
+        device = (ROOT / "HD465-7R_HD605-7R/AGENTS.md").read_text(encoding="utf-8")
+        root = (ROOT / "AGENTS.md").read_text(encoding="utf-8")
+        rules, headings = hook.select_rules(device, root, BALE_RETARDER, presentation=True)
+        joined = " ".join(headings)
+        for heading in ("ایمنی", "تست فشار", "قالب پاسخ", "IMAGE DELIVERY", "مدل و سریال"):
+            self.assertIn(heading, joined)
+        for heading in ("FAST ", "MINIMIZE TOOL", "WINDOWS EXECUTION", "Part Number"):
+            self.assertNotIn(heading, joined)
+        self.assertLess(len(rules), len(device))
+        child, _ = hook.select_rules(device, root, BALE_RETARDER)
+        self.assertNotIn("IMAGE DELIVERY", child)
 
 if __name__ == "__main__": unittest.main()
