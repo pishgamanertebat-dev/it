@@ -22,6 +22,8 @@ from tools.fleet.work_orders.core.permissions import (
 )
 from tools.fleet.work_orders.core.paths import PROJECT_ROOT
 from tools.fleet.work_orders.core.service import validate_jalali_date
+from tools.fleet.work_orders.core.pdf_document import export_staff_pdf
+from tools.fleet.work_orders.core.delivery import store_manager_pdf
 from tools.fleet.work_orders.core.review import normalize_shift
 from tools.fleet.work_orders.core.conversation import review_context
 from tools.fleet.work_orders.channels.bale.work_order_menu import (
@@ -134,13 +136,19 @@ async def send_manager_excel(gateway, chat_id, order):
                     if str(getattr(platform, "value", platform)).lower() == "bale"), None)
     if adapter is None or not getattr(adapter, "_bot", None):
         raise RuntimeError("Bale document transport unavailable")
+    # The manager reviews the same PDF the service technician will receive.
+    # Excel stays the workbook used to render that PDF and the daily archive.
+    source = Path(order["file_path"])
+    pdf_path = source if source.suffix.lower() == ".pdf" else await asyncio.to_thread(export_staff_pdf, source)
     # Use the existing configured bot. The adapter's generic send_document can
     # report success for a text fallback even when the attachment upload failed.
-    with open(order["file_path"], "rb") as document:
+    with pdf_path.open("rb") as document:
         await adapter._bot.send_document(
-            chat_id=chat_id, document=document, filename=order["file_name"],
+            chat_id=chat_id, document=document, filename=pdf_path.name,
             caption=manager_excel_caption(order),
         )
+    if order.get("work_order_no"):
+        await asyncio.to_thread(store_manager_pdf, order["work_order_no"], pdf_path)
 
 
 class WorkOrderMenuHandler:

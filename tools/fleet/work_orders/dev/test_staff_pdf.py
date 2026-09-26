@@ -1,4 +1,6 @@
+import asyncio
 from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
 from tools.fleet.work_orders.dev.test_staff_dispatch import StaffDispatchTests
@@ -37,6 +39,39 @@ class StaffPdfTests(StaffDispatchTests):
                 with test_database(self.db_path) as con:
                     row = con.execute('SELECT status,pdf_path,excel_path FROM service_work_orders WHERE work_order_no=?', (number,)).fetchone()
                 self.assertEqual(tuple(row), ('SENT', str(pdf), str(excel)))
+
+    def test_staff_receives_the_exact_pdf_sent_to_the_manager(self):
+        from tools.fleet.work_orders.channels.bale.message_handler import send_manager_excel
+        order = self.create()
+        number = order['work_order_no']
+        excel = Path(order['excel_path'])
+        pdf = excel.with_suffix('.pdf')
+        pdf.write_bytes(b'%PDF-1.7\nMANAGER COPY')
+        preview = {'work_order_no': number, 'label': 'هواکش', 'item_count': len(order['items']),
+                   'file_name': excel.name, 'file_path': str(excel)}
+        captured = {}
+
+        async def send_document(**kwargs):
+            captured['filename'] = kwargs['filename']
+            captured['body'] = kwargs['document'].read()
+
+        gateway = SimpleNamespace(adapters={'bale': SimpleNamespace(_bot=SimpleNamespace(send_document=send_document))})
+        with patch('tools.fleet.work_orders.channels.bale.message_handler.export_staff_pdf', return_value=pdf) as export:
+            asyncio.run(send_manager_excel(gateway, '455740857', preview))
+            export.assert_called_once_with(excel)
+        self.assertEqual(captured['filename'], pdf.name)
+        self.assertEqual(captured['body'], b'%PDF-1.7\nMANAGER COPY')
+        with test_database(self.db_path) as con:
+            stored = con.execute('SELECT pdf_path FROM service_work_orders WHERE work_order_no=?', (number,)).fetchone()[0]
+        self.assertEqual(stored, str(pdf))
+        confirm_document_review(number, '455740857')
+        core.prepare_dispatch(number, '455740857', '455740857', core.staff_options()[0]['id'])
+        sender = Mock()
+        with patch('tools.fleet.work_orders.core.delivery.export_staff_pdf', side_effect=AssertionError('staff send must reuse the manager PDF')):
+            send_work_order(work_order_no=number, sender=sender)
+        self.assertEqual(sender.send_document.call_args.kwargs['file_path'], str(pdf))
+        self.assertEqual(sender.send_document.call_args.kwargs['file_name'], pdf.name)
+        self.assertEqual(pdf.read_bytes(), b'%PDF-1.7\nMANAGER COPY')
 
     def test_export_failure_does_not_send_excel_or_mark_sent(self):
         order = self.prepared_order()

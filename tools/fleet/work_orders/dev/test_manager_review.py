@@ -124,13 +124,20 @@ class ManagerDeliveryTests(CreationFlowTests):
             manager_excel_caption, manager_review_reply, send_manager_excel)
         path = self.db_path.parent / 'AF-1405-06-15-001.xlsx'
         path.write_bytes(b'PK\x03\x04test')
+        pdf = path.with_suffix('.pdf')
+        pdf.write_bytes(b'%PDF-1.7\nTEST')
         order = {'work_order_no':'AF-1405-06-15-001', 'label':'هواکش', 'item_count':6,
                  'file_name':path.name, 'file_path':str(path)}
         captured = {}
         async def send_document(**kwargs):
             captured.update(kwargs)
+            captured['body'] = kwargs['document'].read()
         gateway = SimpleNamespace(adapters={'bale': SimpleNamespace(_bot=SimpleNamespace(send_document=send_document))})
-        await send_manager_excel(gateway, '455740857', order)
+        with patch('tools.fleet.work_orders.channels.bale.message_handler.export_staff_pdf', return_value=pdf), \
+             patch('tools.fleet.work_orders.channels.bale.message_handler.store_manager_pdf'):
+            await send_manager_excel(gateway, '455740857', order)
+        self.assertEqual(captured['filename'], pdf.name)
+        self.assertTrue(captured['body'].startswith(b'%PDF-'))
         caption = captured['caption']
         self.assertEqual(caption, manager_excel_caption(order))
         self.assertIn('حکم هواکش AF-1405-06-15-001', caption)

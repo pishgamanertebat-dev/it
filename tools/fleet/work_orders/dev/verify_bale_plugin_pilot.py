@@ -146,7 +146,7 @@ async def verify(root: Path) -> None:
     assert "تعداد دستگاه:" in captions[0]
     assert len(list((root / "orders").rglob("*.xlsx"))) == 1
     assert len(documents) == 1 and documents[0][0] == "455740857"
-    assert documents[0][1].startswith(b"PK")
+    assert documents[0][1].startswith(b"%PDF-")
     handler_module._handler.pending.clear()
     assert (await event("ثبت تأیید AF-1405-06-16-001"))["reason"] == "work-order-review"
     await asyncio.gather(*list(handler_module._handler.tasks))
@@ -291,7 +291,7 @@ async def verify(root: Path) -> None:
     print("PASS: pilot menu, disabled type, selection, approved manager, cancellation")
     print("PASS: full Bale form -> real project worker -> FILE_READY order and Excel")
     print("PASS: manager document upload, persisted confirmation, edit after session loss, combined shifts, owner check")
-    print('PASS: staff selection, disabled placeholders, identical Excel dispatch, acknowledgement, manager notification, no repeated dispatch or notification')
+    print('PASS: staff selection, disabled placeholders, identical PDF dispatch, acknowledgement, manager notification, no repeated dispatch or notification')
     print('PASS: greasing real-source proposal, remove/add without action choice, case-sensitive s1, fixed Excel, edit after session loss, dispatch and receipt')
     print("PASS: permission denial, rejected registration, new-user onboarding")
     print("PASS: Telegram, group messages and ordinary chat are unchanged")

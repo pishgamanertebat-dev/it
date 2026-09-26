@@ -7,6 +7,33 @@ from tools.fleet.work_orders.core.pdf_document import export_staff_pdf
 from tools.fleet.work_orders.core.daily_archive import archive_delivered_order
 
 
+def reviewed_staff_pdf(stored_path, excel_path: Path) -> Path:
+    """Send the PDF the manager already reviewed; render it only if that copy is missing."""
+    pdf_path = Path(stored_path) if stored_path else None
+    if pdf_path and pdf_path.is_file():
+        with pdf_path.open("rb") as document:
+            if document.read(5) == b"%PDF-":
+                return pdf_path
+    return export_staff_pdf(excel_path)
+
+
+def store_manager_pdf(work_order_no: str, pdf_path: Path) -> None:
+    """Remember the exact PDF delivered to the manager so staff dispatch reuses it."""
+    con = connect_db()
+    try:
+        con.execute(
+            """
+            UPDATE service_work_orders
+            SET pdf_path=?, updated_at=CURRENT_TIMESTAMP
+            WHERE work_order_no=? AND status!='SENT'
+            """,
+            (str(pdf_path), work_order_no),
+        )
+        con.commit()
+    finally:
+        con.close()
+
+
 def send_work_order(
     *,
     work_order_no: str,
@@ -35,6 +62,7 @@ def send_work_order(
                 wo.work_order_type,
                 wo.status,
                 wo.excel_path,
+                wo.pdf_path,
                 wo.send_attempts,
                 s.display_name,
                 s.bale_id
@@ -80,19 +108,19 @@ def send_work_order(
             )
 
 
-        file_path = Path(
+        excel_path = Path(
             order["excel_path"]
         )
 
 
-        if not file_path.exists():
+        if not excel_path.exists():
 
             raise RuntimeError(
                 "WORK ORDER FILE NOT FOUND"
             )
 
 
-        file_path = export_staff_pdf(file_path)
+        file_path = reviewed_staff_pdf(order["pdf_path"], excel_path)
 
         result = sender.send_document(
             chat_id=order["bale_id"],
