@@ -1,0 +1,287 @@
+diff --git a/gateway/run.py b/gateway/run.py
+index 7d1f33e617..04449160cc 100644
+--- a/gateway/run.py
++++ b/gateway/run.py
+@@ -5854,6 +5854,16 @@ async def start_gateway(config: Optional[GatewayConfig] = None, replace: bool =
+ 
+     # PID file BEFORE adapters: of two concurrent `run --replace`, only the O_EXCL winner opens sockets.
+     if not _start_gateway_claim_pid_file(force=force or replace):
++        # The Windows supervisor treats exit 0 as a planned stop. A second task child that lost
++        # the runtime lock must take that path: exit 1 is a fast crash, and five of those park
++        # the supervisor only after several loser respawns. Foreground `gateway run` (no
++        # HERMES_SUPERVISED_CHILD) still returns False and exits 1.
++        if sys.platform == "win32" and os.environ.get("HERMES_SUPERVISED_CHILD"):
++            logger.warning(
++                "Supervised Windows gateway lost the runtime lock to a live peer; "
++                "exiting 0 so the task supervisor does not restart-loop."
++            )
++            raise SystemExit(0)
+         return False
+ 
+     # Right after the PID claim (which makes us authoritative); non-fatal — consumers fall back to scan.
+diff --git a/hermes_cli/gateway_windows.py b/hermes_cli/gateway_windows.py
+index 8f9ed2a8ea..5a0f2fe85f 100644
+--- a/hermes_cli/gateway_windows.py
++++ b/hermes_cli/gateway_windows.py
+@@ -1,8 +1,10 @@
+ """Windows gateway service backend (Scheduled Task + Startup-folder fallback).
+ 
+ Mirrors the ``launchd_*`` / ``systemd_*`` contract. ``schtasks /Create ... /RL LIMITED`` runs at the
+-CURRENT USER's next logon without elevation. Manual starts and ``install --start-now`` use the direct
+-hidden-console launcher instead of ``schtasks /Run`` so start/restart behavior is consistent.
++CURRENT USER's next logon without elevation. When ``Hermes_Gateway`` is registered, manual starts and
++``install --start-now`` use ``schtasks /Run`` so the process is a child of the hidden wscript
++supervisor. That supervisor waits on the gateway and starts it again after a crash (including the
++liveness-watchdog exit 75). A direct hidden-console spawn remains the fallback when no task exists.
+ """
+ 
+ from __future__ import annotations
+@@ -57,6 +59,18 @@ _TASK_DESCRIPTION = "Hermes Agent Gateway - Messaging Platform Integration"
+ _TASK_LOGON_DELAY = "PT30S"
+ _TASK_RESTART_INTERVAL = "PT1M"
+ _TASK_RESTART_COUNT = 999
++# Short pause after a restartable child exit. Exit 75 (liveness watchdog) and any child that
++# stayed up at least ``_VBS_STABLE_RUN_S`` use only this delay.
++# A child that dies faster than that, with any other code, is a fast crash. Those count toward
++# ``gateway.respawn_storm``'s max_starts (5). The in-process breaker
++# (``record_start_and_check_storm``) only runs once Python reaches ``_respawn_storm_backoff``,
++# so a crash that never gets that far would otherwise respawn every 15s forever. This launcher
++# applies the same cap and the same 300s backoff ceiling, then parks (exit 0) so Task Scheduler
++# RestartOnFailure does not start another copy. ``hermes gateway start`` begins a fresh supervisor.
++_VBS_RESTART_BACKOFF_MS = 15000
++_VBS_STABLE_RUN_S = 60
++_VBS_FAST_FAILS_BEFORE_PARK = 5
++_VBS_BACKOFF_CAP_MS = 300000
+ 
+ _GATEWAY_ENV = (("PYTHONIOENCODING", "utf-8"), ("HERMES_GATEWAY_DETACHED", "1"), ("HERMES_SUPERVISED_CHILD", "1"))
+ 
+@@ -422,7 +436,7 @@ def _build_gateway_vbs_script(python_path: str, working_dir: str, hermes_home: s
+     lines = [
+         f"' {_TASK_DESCRIPTION}",
+         "Option Explicit",
+-        "Dim sh, env, existing_pp",
++        "Dim sh, env, existing_pp, exitCode, startedAt, elapsedSec, fastFails, delayMs",
+         'Set sh = CreateObject("WScript.Shell")',
+         'Set env = sh.Environment("PROCESS")',
+         f"env.Item({q('HERMES_HOME')}) = {q(hermes_home)}",
+@@ -436,8 +450,33 @@ def _build_gateway_vbs_script(python_path: str, working_dir: str, hermes_home: s
+         f"  env.Item({q('PYTHONPATH')}) = {q(static_pythonpath)}",
+         "End If",
+         f"sh.CurrentDirectory = {q(working_dir)}",
+-        # Window style 0 = hidden; bWaitOnReturn False = detached/async.
+-        f"sh.Run {q(command_line)}, 0, False",
++        # Window style 0 = hidden. bWaitOnReturn True keeps wscript alive for the life of python.exe.
++        # False used to detach and let wscript exit 0, so the task went Ready and RestartOnFailure
++        # never observed the gateway's exit 75 (#86098 / #87001). The loop is the supervisor: it
++        # restarts only after the child has actually exited. 0 is a planned stop. 78 is the permanent
++        # config refusal (GATEWAY_FATAL_CONFIG_EXIT_CODE); quitting 0 parks the task instead of
++        # respawning a refusal forever. Exit 75 always uses the short delay. Five consecutive
++        # fast non-75 crashes park the supervisor (see ``_VBS_FAST_FAILS_BEFORE_PARK``).
++        # wscript still has no console, so logon CTRL_CLOSE does not land on the launcher (#45599).
++        "' Supervisor loop: wait for the gateway, then restart only after a real child exit.",
++        "fastFails = 0",
++        "Do",
++        "  startedAt = Now",
++        f"  exitCode = sh.Run({q(command_line)}, 0, True)",
++        "  If exitCode = 0 Or exitCode = 78 Then Exit Do",
++        '  elapsedSec = DateDiff("s", startedAt, Now)',
++        f"  If exitCode = 75 Or elapsedSec >= {_VBS_STABLE_RUN_S} Then",
++        "    fastFails = 0",
++        f"    WScript.Sleep {_VBS_RESTART_BACKOFF_MS}",
++        "  Else",
++        "    fastFails = fastFails + 1",
++        f"    If fastFails >= {_VBS_FAST_FAILS_BEFORE_PARK} Then WScript.Quit 0",
++        f"    delayMs = {_VBS_RESTART_BACKOFF_MS} * (2 ^ (fastFails - 1))",
++        f"    If delayMs > {_VBS_BACKOFF_CAP_MS} Then delayMs = {_VBS_BACKOFF_CAP_MS}",
++        "    WScript.Sleep delayMs",
++        "  End If",
++        "Loop",
++        "WScript.Quit 0",
+     ]
+     return "\r\n".join(lines) + "\r\n"
+ 
+@@ -799,14 +838,13 @@ def _report_already_running(running_pids: list[int]) -> None:
+ 
+ 
+ def _start_or_report_running(running_pids: list[int] | None = None) -> None:
+-    """Spawn the gateway unless one is already running for this profile."""
++    """Start the gateway unless one is already running for this profile."""
+     if running_pids is None:
+         running_pids = _gateway_pids()
+     if running_pids:
+         _report_already_running(running_pids)
+     else:
+-        pid = _spawn_detached()
+-        _report_gateway_start("direct spawn")
++        _launch_gateway_process()
+ 
+ 
+ def _install_startup_fallback(script_path: Path, start_now: bool, detail: str) -> None:
+@@ -1575,7 +1613,7 @@ def status(deep: bool = False) -> None:
+ 
+ 
+ def start() -> None:
+-    """Start the gateway using the canonical detached Windows launch path."""
++    """Start the gateway under the Scheduled Task supervisor, or detached if no task exists."""
+     _assert_windows()
+     _print_start_attestation_warning()   # once: the LAST start's ✓ turned out to be false
+     running_pids = _gateway_pids()
+@@ -1607,9 +1645,30 @@ def start() -> None:
+     elif is_task_registered():
+         reconcile_scheduled_task(get_task_name())   # like systemd's regenerate-on-stale before a start
+ 
+-    # Manual starts use the same console-less direct spawn as restart() and install --start-now;
+-    # Scheduled Task / Startup entries are only login persistence.
+-    pid = _spawn_detached()
++    _launch_gateway_process()
++
++
++def _launch_gateway_process() -> None:
++    """Start one gateway under the Scheduled Task supervisor when that task exists.
++
++    ``schtasks /Run`` launches the hidden wscript supervisor, which owns the python process.
++    A direct spawn is only the fallback for a missing task or a /Run that did not start: an
++    extra detached process would not be restarted after exit 75. "Already running" is not a
++    fallback — IgnoreNew means the supervisor is alive and a second python would duplicate it.
++    """
++    if is_task_registered():
++        code, out, err = _exec_schtasks(["/Run", "/TN", get_task_name()])
++        detail = (err or out or "").strip()
++        if code == 0:
++            _report_gateway_start("Scheduled Task")
++            return
++        if "already running" in detail.lower():
++            print("ℹ Scheduled Task supervisor is already running; not spawning a second gateway.")
++            _report_gateway_start("Scheduled Task")
++            return
++        print(f"⚠ schtasks /Run failed (code {code}): {detail}")
++        print("  Falling back to a direct hidden spawn. That process is not supervised by the task.")
++    _spawn_detached()
+     _report_gateway_start("direct spawn")
+ 
+ 
+diff --git a/tests/hermes_cli/test_gateway_windows.py b/tests/hermes_cli/test_gateway_windows.py
+index aa525058e4..8e67be2464 100644
+--- a/tests/hermes_cli/test_gateway_windows.py
++++ b/tests/hermes_cli/test_gateway_windows.py
+@@ -333,14 +333,18 @@ def test_install_scheduled_task_recreates_instead_of_change(monkeypatch, tmp_pat
+     assert "cmd.exe" not in xml_seen["text"]
+ 
+ 
+-def test_gateway_vbs_script_is_console_less(monkeypatch):
+-    """The .vbs launcher must avoid cmd.exe entirely and Run pythonw hidden
+-    (issue #45599 fix A: no console -> no logon CTRL_CLOSE_EVENT / 0xC000013A)."""
+-    monkeypatch.setattr(
+-        gateway_windows,
+-        "_resolve_detached_python",
+-        lambda exe: (r"C:\venv\Scripts\pythonw.exe", Path(r"C:\venv"), []),
+-    )
++def test_gateway_vbs_script_supervises_console_python():
++    """The scheduled-task launcher hides console python.exe and waits on it.
++
++    wscript has no console, so logon CTRL_CLOSE does not kill the launcher
++    (#45599). The real resolver returns console python.exe, not pythonw.exe:
++    a console-less interpreter makes every descendant flash a window
++    (#54220/#56747). This test must not stub that resolver to pythonw.
++
++    Exit 75 and any run that lasted at least the stable-run threshold recover
++    after the short delay. Five consecutive faster non-75 exits park the
++    supervisor instead of respawning every 15s forever.
++    """
+     content = gateway_windows._build_gateway_vbs_script(
+         r"C:\venv\Scripts\python.exe",
+         r"C:\Hermes",
+@@ -349,16 +353,46 @@ def test_gateway_vbs_script_is_console_less(monkeypatch):
+     )
+     assert "cmd.exe" not in content.lower()
+     assert 'CreateObject("WScript.Shell")' in content
+-    assert "pythonw.exe" in content
++    assert r"C:\venv\Scripts\python.exe" in content
++    assert "pythonw.exe" not in content.lower()
+     assert "hermes_cli.main" in content
+     assert "gateway run" in content
+-    assert ", 0, False" in content  # hidden window, detached/async
++    assert ", 0, True)" in content
++    assert "If exitCode = 0 Or exitCode = 78 Then Exit Do" in content
++    assert "If exitCode = 75 Or elapsedSec >= 60 Then" in content
++    assert "WScript.Sleep 15000" in content
++    assert "If fastFails >= 5 Then WScript.Quit 0" in content
++    assert "delayMs = 15000 * (2 ^ (fastFails - 1))" in content
++    assert "If delayMs > 300000 Then delayMs = 300000" in content
++    assert ", 0, False" not in content
+     for var in ("HERMES_HOME", "PYTHONIOENCODING", "HERMES_GATEWAY_DETACHED", "VIRTUAL_ENV", "PYTHONPATH"):
+         assert var in content
+     assert "--profile" in content and "work" in content
+     assert content.endswith("\r\n")
+ 
+ 
++def test_gateway_vbs_rewrites_pythonw_to_console_python(tmp_path):
++    """A stale pythonw.exe argv must not be copied into the launcher.
++
++    ``_resolve_detached_python`` swaps in the sibling console python.exe when
++    it exists. The generated script has to show that swap, because a test
++    double that returns pythonw.exe would hide a regression back to the
++    console-less daemon.
++    """
++    scripts = tmp_path / "Scripts"
++    scripts.mkdir()
++    (scripts / "python.exe").write_text("", encoding="utf-8")
++    (scripts / "pythonw.exe").write_text("", encoding="utf-8")
++    content = gateway_windows._build_gateway_vbs_script(
++        str(scripts / "pythonw.exe"),
++        str(tmp_path),
++        str(tmp_path),
++        "",
++    )
++    assert str(scripts / "python.exe") in content
++    assert "pythonw.exe" not in content.lower()
++
++
+ def test_atomic_write_leaves_no_staging_file_when_swap_fails(monkeypatch, tmp_path):
+     """The Startup folder is the staging dir: a leftover .tmp there is opened by Windows at every login."""
+     startup = tmp_path / "Startup"
+@@ -657,6 +691,44 @@ def test_start_on_tty_hands_both_answers_to_install_and_honours_the_env_opt_out(
+     assert installs == [] and spawns == [1]
+ 
+ 
++def test_start_with_registered_task_runs_the_task_and_does_not_detach(monkeypatch):
++    """A registered Hermes_Gateway task is the supervisor. start() must /Run it,
++    not spawn an unsupervised python that exit 75 cannot bring back."""
++    calls = []
++    monkeypatch.setattr(gateway_windows, "_assert_windows", lambda: None)
++    monkeypatch.setattr(gateway_windows, "_print_start_attestation_warning", lambda: None)
++    monkeypatch.setattr(gateway_windows, "_gateway_pids", lambda: [])
++    monkeypatch.setattr(gateway_windows, "is_task_registered", lambda: True)
++    monkeypatch.setattr(gateway_windows, "get_task_name", lambda: "Hermes_Gateway")
++    monkeypatch.setattr(gateway_windows, "reconcile_scheduled_task", lambda name: False)
++    monkeypatch.setattr(gateway_windows, "_spawn_detached", lambda: pytest.fail("detached spawn bypasses the supervisor"))
++    monkeypatch.setattr(gateway_windows, "_report_gateway_start", lambda via: calls.append(("report", via)))
++
++    def fake_schtasks(args):
++        calls.append(tuple(args))
++        return (0, "SUCCESS", "")
++
++    monkeypatch.setattr(gateway_windows, "_exec_schtasks", fake_schtasks)
++    gateway_windows.start()
++    assert calls[0] == ("/Run", "/TN", "Hermes_Gateway")
++    assert ("report", "Scheduled Task") in calls
++
++
++def test_launch_does_not_detach_when_the_supervisor_is_already_running(monkeypatch, capsys):
++    """IgnoreNew reports the task as already running. That is the live supervisor,
++    including its post-crash backoff, so a second python must not be spawned."""
++    monkeypatch.setattr(gateway_windows, "is_task_registered", lambda: True)
++    monkeypatch.setattr(gateway_windows, "get_task_name", lambda: "Hermes_Gateway")
++    monkeypatch.setattr(gateway_windows, "_spawn_detached", lambda: pytest.fail("must not detach beside a live supervisor"))
++    monkeypatch.setattr(gateway_windows, "_report_gateway_start", lambda via: None)
++    monkeypatch.setattr(
++        gateway_windows, "_exec_schtasks",
++        lambda args: (1, "", "ERROR: The task is already running."),
++    )
++    gateway_windows._launch_gateway_process()
++    assert "already running" in capsys.readouterr().out.lower()
++
++
+ 
+ 
+ 
