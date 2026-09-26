@@ -30,6 +30,22 @@ ALIASES = {
 STOP = {"the", "and", "for", "with", "from", "does", "not", "work", "working",
         "failure", "fault", "problem", "system", "machine", "check", "کار", "نمی",
         "کند", "مشکل", "دستگاه", "خراب", "است", "را", "در", "به", "از", "با", "و"}
+# Modifiers describe a symptom. Background words occur throughout a shop manual and
+# do not by themselves name the component the question is about.
+COVERAGE_MODIFIERS = {
+    "during", "after", "before", "into", "over", "under", "low", "high", "weak",
+    "heavy", "slow", "fast", "poor", "normal", "abnormal", "both", "left", "right",
+    "front", "rear", "upper", "lower", "operation", "operating", "test", "testing",
+    "check", "checking", "change", "speed", "power", "line", "work", "leak", "leaks",
+    "leakage", "leaking", "ineffective", "insufficient", "braking", "working",
+    "starting", "code", "mode", "item", "troubleshooting", "adjusting",
+    "maintenance", "procedure", "specification",
+}
+COVERAGE_BACKGROUND = {
+    "oil", "engine", "fuel", "pressure", "hydraulic", "temperature", "valve", "pump",
+    "sensor", "switch", "lever", "pedal", "circuit", "control", "brake", "wheel",
+    "water", "air", "gas", "level", "electrical", "mechanical",
+}
 
 def nodes(sections, prefix=""):
     for key, value in sections.items():
@@ -221,6 +237,7 @@ def probe(section_map, metadata, chosen, terms, top=5, page_chars=2400,
                                 if k not in ("excerpt", "excerpt_truncated")}
                                for hit in hits[:12]],
             "evidence": selected[:top],
+            "search_terms": list(terms),
             "note": "Excerpts may omit table columns or diagrams. Verify complete PDF pages before using exact values, pins or procedures.",
         }
 
@@ -295,6 +312,156 @@ def topic_pages(doc, metadata, seed, max_pages=4):
     return selected, limited
 
 
+def _flat(value):
+    return re.sub(r"\s+", " ", (value or "").casefold())
+
+
+def _contains_term(text, term):
+    """Match a manual term without letting a shorter word hide inside a longer one."""
+    if " " in term:
+        return term in text
+    return re.search(r"(?<![a-z0-9])" + re.escape(term) + r"(?![a-z0-9])", text) is not None
+
+
+def _family(term):
+    folded = term.casefold()
+    members = {folded}
+    for trigger, synonyms in ALIASES.items():
+        group = {trigger.casefold(), *(item.casefold() for item in synonyms)}
+        if folded in group:
+            members |= group
+    return members
+
+
+def _distinctive(term):
+    folded = term.casefold()
+    if folded in COVERAGE_MODIFIERS:
+        return False
+    if " " in folded:
+        return True
+    return folded not in COVERAGE_BACKGROUND
+
+
+def _diagnostic(section):
+    return section.split("/")[0] in {"troubleshooting", "testing_adjusting", "full_manual_fallback"}
+
+
+def evidence_coverage(result):
+    """Say whether the packet already contains the documented topic.
+
+    A component is covered only when a troubleshooting or test heading names it,
+    or names another term from the same manual alias family. A passing mention in
+    an unrelated fault is not coverage. No machine, page, or benchmark question
+    is special-cased.
+    """
+    terms = [term.casefold() for term in result.get("search_terms") or []]
+    evidence = result.get("evidence") or []
+    groups = result.get("topic_groups") or []
+    by_page = {item["pdf_page"]: item for item in evidence}
+    if result.get("exact_fault_code_found") is False:
+        return {
+            "status": "incomplete", "action": "refined_retrieve",
+            "reason": "The requested failure code was not found in the searched pages.",
+            "missing_component_terms": [term for term in terms if any(ch.isdigit() for ch in term)],
+            "matched_topics": [], "resume_at_pdf_pages": [],
+        }
+    alias_families, loose, seen = [], [], set()
+    for term in terms:
+        if not _distinctive(term) or any(ch.isdigit() for ch in term):
+            continue
+        members = _family(term)
+        key = tuple(sorted(members))
+        if key in seen:
+            continue
+        seen.add(key)
+        # Alias families are manual vocabulary. Extra words the model adds, such as
+        # "force" or "service", do not create another required topic once that
+        # family is named by a heading. A word with no alias, such as a component
+        # the index never grouped, still has to appear in a heading.
+        (alias_families if len(members) > 1 else loose).append((term, members))
+    families = alias_families or loose
+
+    def heading_text(group):
+        pages = [by_page[number] for number in group["pages"] if number in by_page]
+        return _flat(" ".join(item.get("heading") or "" for item in pages))
+
+    def complete(group):
+        if group.get("continuation_limited"):
+            return False
+        return not any(by_page[number].get("text_truncated") for number in group["pages"] if number in by_page)
+
+    def covers(group, members):
+        if not _diagnostic(group.get("section") or ""):
+            return False
+        heading = heading_text(group)
+        return any(_distinctive(member) and _contains_term(heading, member) for member in members)
+
+    missing, truncated, matched = [], [], []
+    for term, members in families:
+        covering = [group for group in groups if covers(group, members)]
+        done = [group for group in covering if complete(group)]
+        chosen = done or covering
+        if not chosen:
+            missing.append(term)
+            continue
+        group = chosen[0]
+        pages = [by_page[number] for number in group["pages"] if number in by_page]
+        heading = next((item.get("heading") for item in pages if item.get("heading")), None)
+        matched.append({
+            "heading": heading, "section": group.get("section"),
+            "pdf_pages": list(group["pages"]), "complete": bool(done),
+        })
+        if not done:
+            truncated.append(max(group["pages"]) + 1)
+    if not families:
+        substantive = [term for term in terms if term not in COVERAGE_MODIFIERS]
+        diagnostic = [group for group in groups if _diagnostic(group.get("section") or "")]
+        done = [group for group in diagnostic if complete(group)
+                and any(_contains_term(heading_text(group), term) for term in substantive)]
+        partial = [group for group in diagnostic if not complete(group)
+                   and any(_contains_term(heading_text(group), term) for term in substantive)]
+        if done:
+            group = done[0]
+            pages = [by_page[number] for number in group["pages"] if number in by_page]
+            matched.append({
+                "heading": next((item.get("heading") for item in pages if item.get("heading")), None),
+                "section": group.get("section"), "pdf_pages": list(group["pages"]), "complete": True,
+            })
+        elif partial:
+            truncated.append(max(partial[0]["pages"]) + 1)
+        elif substantive:
+            missing.extend(substantive[:4])
+    if missing:
+        shown = ", ".join(missing)
+        return {
+            "status": "incomplete", "action": "refined_retrieve",
+            "reason": "No troubleshooting or test heading covers: " + shown + ". "
+                      "Mentions inside unrelated faults are not that topic.",
+            "missing_component_terms": missing, "matched_topics": matched,
+            "resume_at_pdf_pages": [],
+        }
+    if any(not item["complete"] for item in matched) or (truncated and not matched):
+        return {
+            "status": "truncated", "action": "finish_read_pages",
+            "reason": "The matching topic is in this packet, but the page limit cut it off.",
+            "missing_component_terms": [], "matched_topics": matched,
+            "resume_at_pdf_pages": truncated,
+        }
+    if matched:
+        return {
+            "status": "complete", "action": "finish",
+            "reason": "A troubleshooting or test topic already names the requested component and its text is complete. "
+                      "Other index hits are different topics, not missing pages of this one.",
+            "missing_component_terms": [], "matched_topics": matched,
+            "resume_at_pdf_pages": [],
+        }
+    return {
+        "status": "incomplete", "action": "refined_retrieve",
+        "reason": "The search returned no documented pages.",
+        "missing_component_terms": [], "matched_topics": [], "resume_at_pdf_pages": [],
+    }
+
+
 def evidence_packet(section_map, metadata, result, text_budget=22000):
     """Replace snippets with deduplicated topic pages and bounded full text."""
     groups, requested, limited_seeds = [], [], []
@@ -339,10 +506,39 @@ def evidence_packet(section_map, metadata, result, text_budget=22000):
     result["needs_more_text_pages"] = [item["pdf_page"] for item in evidence
                                         if item["text_truncated"]]
     result["continuation_limited_seeds"] = limited_seeds
-    result["note"] = ("Actual PDF text, not index evidence. Select the smallest necessary images from these pages. "
-                      "Full page text is included unless text_truncated; inspect genuine images for diagram labels "
-                      "and ambiguous table columns. Fetch more text only for a material gap or explicit cross-reference.")
-    return result
+    coverage = evidence_coverage(result)
+    if coverage["status"] == "complete":
+        matched_pages = {page for topic in coverage["matched_topics"] for page in topic["pdf_pages"]}
+        evidence_pages = {item["pdf_page"] for item in evidence}
+        outside = [hit for hit in result.get("top_page_index") or [] if hit["pdf_page"] not in evidence_pages]
+        related = [hit["pdf_page"] for hit in outside
+                   if (hit.get("section") or "").split("/")[0] == "testing_adjusting"][:4]
+        coverage["related_read_pages"] = related
+        result["continuation_limited_seeds"] = [seed for seed in limited_seeds if seed in matched_pages]
+        result["other_index_hits"] = {
+            "count": len(outside),
+            "related_read_pages": related,
+            "note": "Different indexed topics. Not missing text. Do not retrieve again. "
+                    "related_read_pages may be passed to finish read_pages when the complete topic names a test whose steps are not already in the text.",
+        }
+        result["top_page_index"] = []
+        note = ("Actual PDF text. evidence_coverage.status is complete: the documented topic is already here. "
+                "Do not retrieve again. Select the smallest necessary images. "
+                "related_read_pages, if any, are optional finish reads, not another retrieve.")
+    elif coverage["status"] == "truncated":
+        note = ("Actual PDF text. evidence_coverage.status is truncated: the matching topic was cut off by the page "
+                "limit. Do not retrieve again. Read evidence_coverage.resume_at_pdf_pages with the finish call.")
+    else:
+        note = ("Actual PDF text. evidence_coverage.status is incomplete: no returned troubleshooting or test heading "
+                "covers the missing component terms. Retrieve with refined keywords for those terms, then broad=true "
+                "if that packet is still incomplete. A mention inside an unrelated fault is not the procedure.")
+    result["evidence_coverage"] = coverage
+    result["note"] = note
+    ordered = {}
+    for key in ("evidence_coverage", "note"):
+        ordered[key] = result.pop(key)
+    ordered.update(result)
+    return ordered
 
 def batch_pages(section_map, metadata, pages, page_chars=5000, render=False,
                 render_only=False):

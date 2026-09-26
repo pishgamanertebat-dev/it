@@ -87,6 +87,7 @@ class ManualEvidenceProbeTests(unittest.TestCase):
         self.assertLessEqual(result["text_chars"], 22000)
         self.assertEqual(len(result["evidence"]), len({v["pdf_page"] for v in result["evidence"]}))
         self.assertEqual(Path(result["manual"]).parent, section_map.parent)
+        self.coverage = result["evidence_coverage"]
         return {item["pdf_page"]: item for item in result["evidence"]}
 
     def test_retarder_packet_with_model_in_question_keeps_diagnostic_topic(self):
@@ -102,6 +103,7 @@ class ManualEvidenceProbeTests(unittest.TestCase):
         self.assertIn("H-12 Steering wheel is heavy", diagnosis["heading"])
         self.assertIn("high idle", diagnosis["text"])
         self.assertIn("20.6 (+0.98/0) MPa", diagnosis["text"])
+        self.assertEqual(self.coverage["status"], "complete")
 
     def test_regression_pc800_no_start_preserves_all_three_branches(self):
         pages = self.packet("PC800-8R", "engine does not start")
@@ -112,6 +114,7 @@ class ManualEvidenceProbeTests(unittest.TestCase):
         self.assertIn("Engine turns but no exhaust smoke", pages[793]["text"])
         self.assertIn("Exhaust smoke comes out but engine does not start", pages[794]["text"])
         self.assertIn("CA559", pages[793]["text"])
+        self.assertEqual(self.coverage["status"], "complete")
 
     def test_regression_pc800_slow_boom_preserves_normal_and_heavy_lift_tests(self):
         pages = self.packet("PC800-8R", "boom is slow hydraulic pressure test")
@@ -125,6 +128,7 @@ class ManualEvidenceProbeTests(unittest.TestCase):
         self.assertIn("2.9 MPa", normal)
         self.assertIn("engine stopped for the preparations", normal)
         self.assertIn("heavy lift mode", heavy)
+        self.assertEqual(self.coverage["status"], "complete")
 
     def prepared_cli(self, model, question, *options):
         with tempfile.TemporaryDirectory(dir=probe.ROOT / "runtime") as folder:
@@ -148,6 +152,11 @@ class ManualEvidenceProbeTests(unittest.TestCase):
         self.assertIn("H-11 Rear brake is ineffective", pages[1322]["heading"])
         self.assertFalse(pages[1322]["text_truncated"])
         self.assertIn("Retarder control", pages[327]["heading"])
+        self.assertEqual(packet["evidence_coverage"]["status"], "complete")
+        self.assertEqual(packet["evidence_coverage"]["action"], "finish")
+        self.assertEqual(packet["evidence_coverage"]["missing_component_terms"], [])
+        self.assertEqual(packet["top_page_index"], [])
+        self.assertIn("Do not retrieve again", packet["note"])
 
     def test_regression_pc800_oil_change_problem_routes_to_oil_pressure_diagnosis_and_test(self):
         pages = self.packet("PC800-8R", "مشکل در تعویض روغن موتور، بعد از تعویض روغن فشار روغن پایین است",
@@ -155,20 +164,62 @@ class ManualEvidenceProbeTests(unittest.TestCase):
         self.assertIn("S-12", pages[804]["heading"])
         self.assertIn("Oil pressure drops", pages[804]["heading"])
         self.assertIn("Measuring engine oil pressure", pages[330]["heading"])
+        self.assertEqual(self.coverage["status"], "complete")
 
     def test_regression_incomplete_index_evidence_uses_explicit_bounded_broad_fallback(self):
         question = "during engine oil change the oil filter leaks"
         indexed = json.loads(self.prepared_cli("HD785-7", question, "--component", "engine oil filter leak").stdout)
         self.assertFalse(indexed["full_manual_fallback"])
         self.assertFalse(any("oil filter" in (item["heading"] or "").casefold() for item in indexed["evidence"]))
+        self.assertEqual(indexed["evidence_coverage"]["status"], "incomplete")
+        self.assertEqual(indexed["evidence_coverage"]["action"], "refined_retrieve")
+        self.assertIn("filter", indexed["evidence_coverage"]["missing_component_terms"])
         broad = json.loads(self.prepared_cli("HD785-7", question, "--component", "engine oil filter leak", "--broad").stdout)
         self.assertTrue(broad["full_manual_fallback"])
+        self.assertEqual(broad["evidence_coverage"]["status"], "complete")
         self.assertEqual(broad["searched_sections"], [])
         self.assertEqual(broad["searched_pages"], 1336)
         self.assertLessEqual(broad["text_chars"], 22000)
         self.assertTrue(any("oil filter" in (item["heading"] or "").casefold() for item in broad["evidence"]))
         conflict = self.prepared_cli("HD785-7", question, "--component", "oil filter", "--broad", "--no-fallback")
         self.assertNotEqual(conflict.returncode, 0)
+
+    def test_coverage_uses_headings_not_unrelated_mentions(self):
+        def packet(heading, section, limited=False, terms=("alternator",), code_found=None, text="alternator"):
+            return probe.evidence_coverage({
+                "search_terms": list(terms), "exact_fault_code_found": code_found,
+                "evidence": [{"pdf_page": 2, "heading": heading, "text": text, "text_truncated": False}],
+                "topic_groups": [{"seed": 2, "section": section, "pages": [2], "continuation_limited": limited}],
+            })
+        covered = packet("Alternator does not charge", "troubleshooting/electrical")
+        self.assertEqual(covered["status"], "complete")
+        self.assertEqual(covered["action"], "finish")
+        mentioned = packet("Engine does not start", "troubleshooting/engine", text="also check the alternator")
+        self.assertEqual(mentioned["status"], "incomplete")
+        self.assertIn("alternator", mentioned["missing_component_terms"])
+        structure = packet("Alternator controller", "structure_function/electrical")
+        self.assertEqual(structure["status"], "incomplete")
+        cut = packet("Alternator does not charge", "testing_adjusting/electrical", limited=True)
+        self.assertEqual(cut["status"], "truncated")
+        self.assertEqual(cut["action"], "finish_read_pages")
+        self.assertEqual(cut["resume_at_pdf_pages"], [3])
+        generic = packet("Oil pressure drops", "troubleshooting/engine", terms=("oil", "pressure", "low"))
+        self.assertEqual(generic["status"], "complete")
+        # An alias heading covers the component. Extra model words are not a second topic.
+        boom = packet("Boom speed is low", "troubleshooting/hydraulic",
+                      terms=("boom", "work equipment", "service", "force", "effective"),
+                      text="inspect the boom circuit")
+        self.assertEqual(boom["status"], "complete")
+        self.assertEqual(boom["missing_component_terms"], [])
+        # A component with no alias is missing when only an unrelated fault mentions it.
+        unnamed = packet("Engine stops during operations", "troubleshooting/engine",
+                         terms=("engine", "oil", "filter", "leak"), text="clogged oil filter")
+        self.assertEqual(unnamed["status"], "incomplete")
+        self.assertEqual(unnamed["missing_component_terms"], ["filter"])
+        missing_code = packet("Alternator does not charge", "troubleshooting/electrical",
+                              terms=("alternator", "ab12"), code_found=False)
+        self.assertEqual(missing_code["status"], "incomplete")
+        self.assertIn("ab12", missing_code["missing_component_terms"])
 
     def test_topic_continuation_stops_at_new_heading_and_reports_limit(self):
         with pymupdf.open() as doc:

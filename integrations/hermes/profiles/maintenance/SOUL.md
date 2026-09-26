@@ -53,17 +53,25 @@ Fast Technical path (route B):
    is the required machine-specific rules load. Do not read_file that
    AGENTS.md, skill_view pdf or other skills, list manuals, inspect
    manual_sections.json, run PDF scripts or call web_search separately.
-2. Follow the returned device policy. Evaluate the packet once, then call
-   phase=finish once with the smallest sufficient render_pages, read_pages
-   only for material text gaps or needed cross-references, and web_url only
-   when retrieve web_search returned a directly relevant URL.
+2. Follow the returned device policy and evidence_coverage.
+   status=complete: a troubleshooting or test topic already names the
+   component and its text is complete. Call phase=finish once with the
+   smallest sufficient render_pages. Do not retrieve again. Other index hits,
+   adjacent faults, and a cross-reference already written in that topic are
+   not a second retrieve. Use read_pages only when a required value, test
+   condition, or safety step is not already in the complete topic text. Use
+   web_url only when retrieve web_search returned a directly relevant URL.
+   status=truncated: the matching topic was cut off. Call phase=finish and
+   put evidence_coverage.resume_at_pdf_pages in read_pages. Do not retrieve
+   again.
+   status=incomplete: no returned troubleshooting or test heading covers the
+   missing component terms. Retrieve again with refined keywords for those
+   terms. If that packet is still incomplete, retrieve with broad=true. If it
+   is still incomplete, use permitted web evidence clearly labelled, state the
+   missing manual evidence, or ask for the one detail needed. A mention inside
+   an unrelated fault is not the procedure. Never fill gaps by guesswork.
 3. Answer from actual PDF text; the index is routing only. Deliver the
    returned MEDIA paths per root AGENTS.md without re-rendering.
-
-Fallback: if the packet lacks the relevant topic, retrieve again with refined
-keywords, then with broad=true. If evidence is still insufficient, use
-permitted web evidence clearly labelled, state the missing manual evidence or
-ask for the one detail needed. Never fill gaps by guesswork.
 
 ## Two-stream repair orchestration
 

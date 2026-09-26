@@ -150,6 +150,33 @@ class ParentFastPathTests(FakeRootTest):
         self.assertIn("Maintenance", self.retrieve()["error"])
         self.assertEqual(self.calls, [])
 
+    def test_coverage_decides_whether_another_retrieve_is_allowed(self):
+        def batch(_command, _session):
+            return {"manual_packet": {"evidence_coverage": self.coverage}, "web_search": {"success": True}}
+        original = hook.run_batch.side_effect
+        hook.run_batch.side_effect = batch
+        self.addCleanup(setattr, hook.run_batch, "side_effect", original)
+        self.coverage = {"status": "complete", "reason": "topic complete", "missing_component_terms": []}
+        hook._retrieves.clear()
+        ready = self.retrieve()
+        self.assertEqual(ready["evidence_coverage"]["status"], "complete")
+        self.assertIn("Do not retrieve again", ready["next"])
+        self.assertTrue(ready["next"].startswith("evidence_coverage.status is complete"))
+        self.coverage = {"status": "incomplete", "reason": "heading missing", "missing_component_terms": ["widget"]}
+        hook._retrieves.clear()
+        refine = self.retrieve()
+        self.assertIn("widget", refine["next"])
+        self.assertIn("broad=true", refine["next"])
+        self.assertNotIn("Do not retrieve again", refine["next"])
+        hook._retrieves.clear()
+        exhausted = self.retrieve(broad=True)
+        self.assertIn("Do not retrieve again", exhausted["next"])
+        self.coverage = {"status": "truncated", "reason": "page limit", "resume_at_pdf_pages": [4]}
+        hook._retrieves.clear()
+        cut = self.retrieve()
+        self.assertIn("read_pages", cut["next"])
+        self.assertIn("Do not retrieve again", cut["next"])
+
     def test_schema_exposes_verified_models_and_bounded_pages(self):
         schema = hook.tool_schema({"HD785-7": "truck"})["parameters"]
         self.assertEqual(schema["required"], ["phase"])

@@ -208,8 +208,10 @@ TOOL_DESCRIPTION = (
     "actual Shop Manual topic text; the index is routing only, never evidence) and the configured web_search. "
     "phase=finish concurrently renders and validates the chosen genuine pages, reads bounded missing page "
     "text and web_extracts one URL taken from the retrieve results; it returns MEDIA paths for delivery. "
-    "Normal path: retrieve, one evaluation, finish, answer. Do not call web_search, web_extract, PDF scripts "
-    "or render_page separately for this question. Not for delegated workers."
+    "Normal path: retrieve, one evaluation, finish, answer. Read evidence_coverage.status on the result. "
+    "complete: finish and do not retrieve again. truncated: finish with read_pages for the listed resume pages, "
+    "do not retrieve again. incomplete: retrieve again with refined keywords, then broad=true if still incomplete. "
+    "Do not call web_search, web_extract, PDF scripts or render_page separately for this question. Not for delegated workers."
 )
 
 
@@ -249,6 +251,47 @@ def run_batch(arguments, session_id):
     return json.loads(completed.stdout)
 
 
+def evidence_followup(coverage, broad=False):
+    """Tell the parent the next tool call. A complete topic is not a second retrieve."""
+    status = (coverage or {}).get("status")
+    reason = (coverage or {}).get("reason") or ""
+    if status == "complete":
+        return (
+            "evidence_coverage.status is complete. A documented troubleshooting or test topic in this packet "
+            "already names the requested component and its text is complete. Call phase=finish with this "
+            "request_id and the smallest sufficient render_pages. Do not retrieve again. Other index hits, "
+            "adjacent faults, and a cross-reference already written in that topic are not missing evidence. "
+            "Use read_pages only when a required value, test condition, or safety step is not already in the "
+            "complete topic. If that text does not contain the specific procedure, say it is not documented; "
+            "do not guess. " + reason
+        )
+    if status == "truncated":
+        return (
+            "evidence_coverage.status is truncated. The matching topic is already in this packet but the page "
+            "limit cut it off. Do not retrieve again. Call phase=finish and pass read_pages for "
+            "evidence_coverage.resume_at_pdf_pages. " + reason
+        )
+    if status == "incomplete" and broad:
+        return (
+            "evidence_coverage.status is incomplete after a whole-manual search. Do not retrieve again. "
+            "Answer from the relevant pages only, and state what the manual does not document. "
+            "Never invent values, procedures, or safety conditions. " + reason
+        )
+    if status == "incomplete":
+        missing = ", ".join((coverage or {}).get("missing_component_terms") or []) or "the requested component"
+        return (
+            "evidence_coverage.status is incomplete. No complete troubleshooting or test topic covers: "
+            + missing + ". Retrieve again with refined English Shop Manual keywords for those missing terms. "
+            "If that packet is still incomplete, retrieve with broad=true. Do not finish as if the missing "
+            "procedure were documented. " + reason
+        )
+    return (
+        "Evaluate once, then call phase=finish with this request_id and every needed follow-up together. "
+        "If the packet lacks the relevant topic, retrieve again with refined keywords, then broad=true. "
+        "If evidence is still missing, state the gap or ask for the missing detail; never fill it by guesswork."
+    )
+
+
 def retrieve(args, home, session_id):
     model, question = args.get("model"), args.get("question")
     device = verified_device(model, question)
@@ -272,16 +315,17 @@ def retrieve(args, home, session_id):
         command += ["--fault-code", fault_code]
     if args.get("broad"):
         command.append("--broad")
+    retrieval = run_batch(command, session_id)
+    coverage = (retrieval.get("manual_packet") or {}).get("evidence_coverage")
     return {
+        "evidence_coverage": coverage or {"status": "unknown", "action": "judge"},
+        "next": evidence_followup(coverage, broad=bool(args.get("broad"))),
         "prepared": {
             "model": model, "request_id": request_id,
             "device_agents_read_in_full": str(device),
             "applicable_device_policy": rules or "No unique device policy beyond the loaded root rules.",
         },
-        "retrieval": run_batch(command, session_id),
-        "next": ("Evaluate once, then call phase=finish with this request_id and every needed follow-up together. "
-                 "If the packet lacks the relevant topic, retrieve again with refined keywords, then broad=true. "
-                 "If evidence is still missing, state the gap or ask for the missing detail; never fill it by guesswork."),
+        "retrieval": retrieval,
     }
 
 
