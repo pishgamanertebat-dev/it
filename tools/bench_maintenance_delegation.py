@@ -94,14 +94,26 @@ def main():
         answer = result.get("final_response") or ""
         tool_sequence = []
         part_candidates = []
+        part_enrichments = []
+        enrichment_metrics = []
+        manual_calls = []
         for message in result.get("messages") or []:
             for call in message.get("tool_calls") or []:
-                tool_sequence.append(call.get("function", call).get("name"))
+                function = call.get("function", call)
+                tool_sequence.append(function.get("name"))
+                if function.get("name") == "maintenance_manual_evidence":
+                    arguments = function.get("arguments") or "{}"
+                    arguments = json.loads(arguments) if isinstance(arguments, str) else arguments
+                    manual_calls.append({key: arguments.get(key) for key in ("phase", "keywords", "part_query")})
             if message.get("role") == "tool":
                 try:
                     packet = json.loads(message.get("content") or "{}")
                 except (ValueError, TypeError):
                     continue
+                if packet.get("part_enrichment") is not None:
+                    part_enrichments.append(packet["part_enrichment"])
+                if packet.get("enrichment_metrics") is not None:
+                    enrichment_metrics.append(packet["enrichment_metrics"])
                 for candidate in packet.get("candidates", []):
                     part_candidates.append({key: candidate.get(key) for key in
                                             ("part_number", "figure", "item", "description", "quantity", "pdf_verification")})
@@ -110,7 +122,7 @@ def main():
             (args.transcripts_dir / f"{agent.session_id}.json").write_text(json.dumps(
                 {"messages": result.get("messages") or []}, ensure_ascii=False, default=str), encoding="utf-8")
         media_paths = [line[6:].strip() for line in answer.splitlines() if line.startswith("MEDIA:")]
-        print(json.dumps({
+        report = {
             "elapsed_seconds": round(elapsed, 2),
             "session_id": agent.session_id,
             "model": model,
@@ -119,6 +131,9 @@ def main():
             "tool_count": len(names),
             "tool_sequence": tool_sequence,
             "part_candidates": part_candidates,
+            "manual_calls": manual_calls,
+            "part_enrichments": part_enrichments,
+            "enrichment_metrics": enrichment_metrics,
             "source_priority_in_prompt": "Determine SOURCE INTENT" in (agent._cached_system_prompt or ""),
             "api_calls": result.get("api_calls"),
             "task_contracts": task_contracts,
@@ -126,7 +141,11 @@ def main():
             "media_count": len(media_paths),
             "media_files_exist": all(Path(path).is_file() for path in media_paths),
             "has_as_document": "[[as_document]]" in answer,
-        }, ensure_ascii=False))
+        }
+        if args.transcripts_dir:
+            (args.transcripts_dir / f"{agent.session_id}.summary.json").write_text(
+                json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
+        print(json.dumps(report, ensure_ascii=False))
     finally:
         agent.close()
 

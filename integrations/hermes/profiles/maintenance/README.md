@@ -274,3 +274,186 @@ Reproduce using the existing benchmark with Maintenance `HERMES_HOME` and
 installed Hermes `PYTHONPATH`; `--history-file` accepts a private JSON message
 history for model identity. Output includes tool sequence, verified candidates
 and whether source priority was present in the actual assembled prompt.
+
+
+## Optional technical Part Book enrichment (2026-09-27)
+
+Integration point: the existing Maintenance plugin `retrieve()` calls
+`run_retrieval()` after reading full device rules. Parent produces both existing
+English Shop Manual `keywords` and optional `part_query` in its existing tool
+invocation. When enrichment is applicable, rule selection retains the actual
+device Part Book policy alongside technical policy; it must not strip source
+authority merely because the original question is diagnostic. Source intent is unchanged: Part-only still uses the direct Part
+tool, Mixed retains both sources, and Technical keeps Manual primary. This
+optional enrichment is in the Parent fast path; existing delegated-worker CLI
+contracts and the two-stream fleet architecture are unchanged.
+
+The Manual batch still uses `manual_worker_batch.py`'s two concurrent branches
+(real PDF packet and configured web). A daemon thread beside that existing
+batch runs one targeted local `partbook_lookup.py --model MODEL --query NAME
+--verify --limit 4`, with a one-second subprocess timeout. It never renders.
+No new model/subagent call, tool roundtrip, profile, Gateway route, Hermes core
+change, AGENTS edit, MD ignore change or B2 OCR was introduced.
+
+The existing batch executor joins all its futures, so adding an unbounded
+Part operation to that executor would risk the critical path. Instead the
+plugin snapshots a publication event at Manual completion without waiting or
+joining. The compact result is retained for the existing `finish` call, which reuses it
+without another lookup or wait, bound to the same request/session; it also
+collects a result that became ready after retrieve. Pending state expires. The daemon's
+`subprocess.run` kills/reaps an over-budget child. Failed/malformed/timeout/miss/
+unusable results never replace Manual evidence or cause enrichment retries.
+Unindexed models and absent/invalid queries skip before any lookup subprocess.
+The model-specific production gate remains `INDEXED_PART_MODELS`; other
+indexes can be enabled after their own data/coverage validation. The lookup
+coverage note is model-aware; future models use their actual book/serial
+metadata instead of inheriting the HD785-7 pilot coverage text.
+
+Only VERIFIED named rows with a description anchored to the final component
+noun of the parent's short English query are exposed. Incidental figure rows
+such as a brake oil line in a filter search are omitted. Compact candidates
+contain figure/title, item, PN, description, quantity, applicability and
+verification, alongside coverage status. PDF row verification does not prove
+machine fit, a root cause, or which assembly variant the user owns. Parent
+adds at most one useful identification line, preserves variants/applicability,
+and can omit irrelevant or unusable results. No forced PN list or guessed PN.
+An index miss never proves nonexistence. Exploded views remain explicit via
+the direct tool when actually requested/needed.
+
+### Measurements
+
+`tools/bench_maintenance_part_enrichment.py` performs alternating-order paired
+baseline/enriched measurements for three technical questions (boom-foot pin
+play, steering-pump pressure and brake-filter restriction), three repetitions
+per question in both cold and warm conditions: 18 pairs / 36 tool retrievals
+per experiment. Cold means a fresh harness interpreter, not an evicted OS
+file cache. Warm repeats the same harness process; the production Part CLI
+still starts normally each time. The benchmark makes no LLM calls and measures
+complete tool retrieval, including rules/request preparation and Manual batch;
+it does not measure the entire final-answer conversation or outbound Bale
+message delivery. Every pair stores `overhead_ms = enriched_total - baseline_total`,
+Manual PDF and batch duration, Part duration and start/end/overlap metrics.
+
+Two separate experiments were run: the full live configured Manual+web path,
+and real PDF/index work with a constant unavailable-web response as a
+network-free control. The latter is benchmark-only; production web behavior
+was not changed. Tables below show medians; their delta column is the difference
+of the displayed total medians, while raw paired deltas remain in private JSON.
+Negative differences reflect normal timing/cache variance, not a claim that
+Part work accelerates Manual retrieval.
+
+#### Real PDF / constant-web control
+
+| Mode / question | Manual PDF baseline/enriched (s) | Part process (ms) | Total baseline/enriched (s) | Delta of medians (ms) | Max paired overhead (ms) |
+| --- | --- | --- | --- | --- | --- |
+| cold / pin | 5.553 / 4.563 | 360.59 | 5.847 / 4.869 | -977.35 | -531.73 |
+| cold / pump | 7.507 / 7.780 | 765.14 | 7.783 / 8.071 | 288.10 | 288.10 |
+| cold / filter | 6.163 / 6.531 | 706.81 | 6.461 / 6.832 | 370.22 | 370.22 |
+| warm / pin | 4.792 / 3.936 | 347.08 | 4.806 / 3.952 | -854.37 | 44.50 |
+| warm / pump | 6.605 / 7.133 | 776.66 | 6.621 / 7.149 | 528.41 | 999.21 |
+| warm / filter | 6.308 / 5.814 | 767.06 | 6.322 / 5.829 | -493.64 | -301.35 |
+
+All 18 enriched runs published a result while Manual was running; waiting_ms=0.
+
+#### Full live configured web
+
+| Mode / question | Manual PDF baseline/enriched (s) | Part process (ms) | Total baseline/enriched (s) | Delta of medians (ms) | Max paired overhead (ms) |
+| --- | --- | --- | --- | --- | --- |
+| cold / pin | 4.886 / 4.890 | 363.76 | 5.579 / 5.594 | 14.45 | 530.07 |
+| cold / pump | 7.107 / 7.551 | 827.50 | 7.804 / 8.270 | 465.90 | 517.46 |
+| cold / filter | 7.535 / 7.295 | 809.46 | 8.302 / 8.024 | -278.23 | 8479.90 |
+| warm / pin | 5.548 / 5.044 | 353.52 | 6.237 / 5.722 | -515.33 | 384.64 |
+| warm / pump | 8.886 / 7.755 | 704.04 | 9.546 / 8.415 | -1130.67 | -343.21 |
+| warm / filter | 7.997 / 8.714 | 675.98 | 8.664 / 9.440 | 776.27 | 1498.78 |
+
+All 18 enriched runs published a result while Manual was running; waiting_ms=0.
+
+In the constant-web control, the largest positive paired overhead was 999.21 ms;
+all 18 pairs met the <=1-second target. Added orchestration time after accounting
+for measured Manual-batch variation was at most 4.1 ms. Actual Part process
+windows were 325.11-804.86 ms; all pump/filter runs had VERIFIED rows and pin
+queries missed safely. The full live-web experiment had Part windows of
+352.54-880.77 ms, but some raw total differences exceeded one second: the worst
+was +8479.9 ms with +8482.31 ms in the Manual/web batch. That sample's web time
+changed from 6171 to 16074 ms while Part had already finished at 695.73 ms.
+These live-network totals do NOT support a universal <=1s end-to-end guarantee.
+The nonwaiting implementation, overlap timings and controlled measurements
+support accepting the local concurrency mechanism; external web/PDF/LLM timing
+remains variable and is not hidden as enrichment overhead.
+
+### Real Maintenance Bale surface
+
+Runtime plugin/SOUL were copied from canonical project files with backups,
+and native scoped plugin reload returned reloaded=true. Fresh real-model
+`platform=bale` agents saw the actual Maintenance toolsets, direct schemas,
+and source-priority/enrichment contract; no messaging adapter was used to send
+messages. Old conversations should use `/new` for their frozen prompt/schema.
+
+- Steering pump: Parent supplied `steering pump` in its same manual retrieve.
+  VERIFIED main/shared steering-hoist pump alternatives and the separately
+  identified emergency pump were ready in 502.21 ms inside a 16394.81-ms Manual
+  batch (501.88-ms overlap), then the existing finish call ran: two tool calls,
+  three model calls. A repeat took 773.15 ms inside an 8823.45-ms Manual batch.
+  Parent may omit PN alternatives when they do not help the immediate test;
+  readiness is not a requirement to clutter every diagnosis.
+  Final-code repeat: 776.99-ms Part process inside an 8477.81-ms Manual
+  batch, 776.47-ms overlap, still retrieve/finish and three model calls. With
+  applicable Part policy retained, the final answer added a useful compact
+  distinction between the main steering/hoist pump and emergency steering
+  pump, noting two main assembly alternatives and fit checks; it did not
+  clutter the diagnosis with an unrequested PN list.
+- Generic overheating: absent part_query on both technical retrieves; no Part
+  subprocess. The second Manual retrieve followed incomplete technical evidence.
+- Part-only regression: one direct Part tool, two model calls, 17.31 seconds,
+  both original FILTER rows VERIFIED; no Manual/web call.
+- Mixed retarder test + PN: direct Part route first, then Manual technical
+  evidence. Missing valve identity remained uncertainty; plate PNs were not
+  asserted as valve PNs. Optional enrichment did not erase requested Part
+  fallback behavior.
+- Exact HD785-7 boom-foot wording: the live Parent requested clarification
+  because HD785-7 is a dump truck, not a boom-equipped machine. No wrong-model
+  evidence or PN was invented. Supplying the explicit query to the real tool
+  in the paired benchmark exercises concurrent Manual retrieval and safe Part
+  miss; that capability passes even though this user wording needs clarification.
+
+Validation: 12 new enrichment tests, 11 Part-routing regressions, 33 existing
+Manual tests and the existing Part Book validation set. Tests include actual
+slow-child timeout/kill, simultaneous branch barriers, return-before-Part-done,
+late finish collection and session isolation, optional query/skip/no borrowed
+model, VERIFIED-only and incidental-row filtering, and no default render.
+Private transcripts/metrics/questions are under runtime/part-enrichment-bench.
+
+
+#### Final-code control repeat
+
+After retaining applicable Part rules and making compact metadata reusable at
+finish, the full 18-pair control was repeated with the final code. Each table
+row again summarizes three pairs; delta is enriched median minus baseline
+median (raw paired overheads are recorded separately).
+
+| Mode / question | Manual PDF baseline/enriched (s) | Part process (ms) | Total baseline/enriched (s) | Delta of medians (ms) | Median paired overhead (ms) | Max paired overhead (ms) |
+| --- | --- | --- | --- | --- | --- | --- |
+| cold / pin | 5.443 / 5.087 | 362.28 | 5.734 / 5.503 | -231.75 | 761.15 | 894.87 |
+| cold / pump | 7.322 / 7.191 | 765.21 | 7.615 / 7.489 | -125.67 | -125.67 | 943.09 |
+| cold / filter | 8.155 / 8.028 | 777.27 | 8.449 / 8.332 | -116.47 | -520.96 | 3198.78 |
+| warm / pin | 5.891 / 5.911 | 350.46 | 6.079 / 5.927 | -151.86 | -151.86 | 748.37 |
+| warm / pump | 9.510 / 9.056 | 778.76 | 9.526 / 9.072 | -453.51 | -486.69 | 375.81 |
+| warm / filter | 7.337 / 7.771 | 800.31 | 7.351 / 7.786 | 434.84 | 463.38 | 1155.80 |
+
+All 18 Part branches overlapped the Manual branch, with zero added wait;
+Part process duration was 341.67-857.52 ms. All six groups' median paired
+overhead was below one second; 16/18 individual pairs were <=1 second.
+The largest raw outlier was +3198.78 ms, with +3196.78 ms measured inside the
+Manual PDF batch while Part was finished at 597.39 ms. The other over-target
+pair was +1155.8 ms. The largest orchestration delta was 164.17 ms (a cold
+sample); all other groups' maxima were <=5.27 ms. These measurements support
+nonblocking overlap and the typical overhead target, but not a hard universal
+wall-clock guarantee; even the network-free control has PDF/OS scheduling
+variation. Across the live-web/control/final-control experiments there were
+54 pairs / 108 real tool retrievals. None is represented as a guarantee.
+
+Final tests passed: 12 enrichment + 11 routing + 33 Manual + 24 Part Book
+checks (80 unique tests). Runtime canonical/plugin and SOUL hashes match.
+The production pilot remains HD785-7 B1 only. Expansion is architecturally
+ready: enable a model in INDEXED_PART_MODELS only after its own index and
+source/coverage validation. No other model index was created by this change.

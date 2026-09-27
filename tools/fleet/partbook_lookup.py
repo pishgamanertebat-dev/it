@@ -68,6 +68,21 @@ def coverage(con, model):
     return books
 
 
+def coverage_note(model, books):
+    if model == "HD785-7":
+        return ("Index covers only HD785-7 B1 (N10001-N10560). B2 (N8173 and up) is scanned and "
+                "not indexed. A miss does NOT mean the part does not exist. Index is a router; "
+                "the PDF page is the evidence.")
+    summaries = []
+    for book in books:
+        prefix = book.get("machine_serial_prefix") or ""
+        start, end = book.get("machine_serial_from"), book.get("machine_serial_to")
+        serial = f"{prefix}{start}-{prefix}{end if end is not None else 'UP'}" if start is not None else "serial coverage unknown"
+        summaries.append(f"{book['book_id']}: {book['index_status']}, {serial}")
+    return (f"Index coverage for {model}: " + ("; ".join(summaries) or "no indexed books")
+            + ". Coverage is incomplete. A miss is NOT evidence of absence; verify actual PDF rows and applicability.")
+
+
 def applicability(con, occ_ids):
     out = {}
     if not occ_ids:
@@ -272,9 +287,7 @@ def main(argv=None):
     result = {
         "model": a.model, "found": len(cands),
         "coverage_complete": False,
-        "coverage_note": ("Index covers only HD785-7 B1 (N10001-N10560). B2 (N8173 and up) is scanned and "
-                          "not indexed. A miss does NOT mean the part does not exist. Index is a router; "
-                          "the PDF page is the evidence."),
+        "coverage_note": coverage_note(a.model, books),
         "notes": notes,
         "candidates": cands,
         "timing_ms": {"lookup": round(t_lookup * 1000, 1),

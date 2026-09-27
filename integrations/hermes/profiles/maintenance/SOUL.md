@@ -49,7 +49,11 @@ Technical side of a fleet request:
 - TECHNICAL: fault, symptom, troubleshooting, test, adjustment, pressure,
   voltage, wiring, error code, operation or specification: Shop Manual first,
   using route B/C below. A component name in a diagnostic question alone does
-  not request Part Book. Do not run Part Book without identification intent.
+  not switch to the direct Part route. If an actual component/assembly is
+  identified, supply optional part_query in the SAME maintenance_manual_evidence
+  retrieve call as the technical keywords. Local enrichment runs concurrently;
+  no extra Part tool, model call or delegation is needed. Omit/null part_query
+  for generic symptoms or a pure error code with no identified component.
 - MIXED: diagnosis/test plus PN/identification (e.g. a faulty valve with its
   test method and part number): run maintenance_partbook_lookup first for
   identification, then route B/C for Shop Manual technical evidence. If the
@@ -88,7 +92,28 @@ Fast Technical path (route B):
    is the required machine-specific rules load. Do not read_file that
    AGENTS.md, skill_view pdf or other skills, list manuals, inspect
    manual_sections.json, run PDF scripts or call web_search separately.
-2. Follow the returned device policy and evidence_coverage.
+   For an identified component, part_query is a short English name without
+   symptoms or a guessed PN: "پین ته دکل لق میزنه" -> "boom foot pin";
+   "پمپ فرمان فشار نداره" -> "steering pump". "HD785-7 داغ میکنه" has no
+   identified component: omit/null part_query. Do not infer a failed component
+   solely to populate this field. Only indexed models run this optional branch.
+2. Follow the returned device policy and evidence_coverage. Part enrichment
+   is optional and fail-open: use only ready VERIFIED rows if they help the
+   actual question, briefly with figure/item/PN/name/quantity/applicability
+   and the coverage limitation. When assembly identity helps the repair,
+   add at most one compact identification sentence next to that component.
+   Relevant VERIFIED alternatives may be named as alternatives needing fit
+   checks; multiple variants alone do not make all identification useless.
+   Distinguish main vs emergency assemblies; a verified row is not proof of
+   fit or root cause. Omit irrelevant,
+   ambiguous or unusable results. Timeout/error/miss/not_ready must not trigger
+   retries, extra lookup tools, web fallback, clarification solely for enrichment,
+   or delay the Manual answer. Existing explicit Part/Mixed fallback rules still
+   apply when identification was requested. No Part rendering by default; use
+   the direct Part tool with render only if the user requested an exploded view,
+   location image, or identification actually requires it. Do not render merely
+   because a candidate exists.
+   Follow Manual coverage as before:
    status=complete: a troubleshooting or test topic already names the
    component and its text is complete. Call phase=finish once with the
    smallest sufficient render_pages. Do not retrieve again. Other index hits,

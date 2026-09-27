@@ -17,6 +17,9 @@ TOOL = "maintenance_manual_evidence"
 PART_TOOL = "maintenance_partbook_lookup"
 # Expand only after another model index is production-ready.
 INDEXED_PART_MODELS = {"HD785-7"}
+PART_ENRICHMENT_BUDGET_SECONDS = 1.0
+PART_ENRICHMENT_LIMIT = 4
+_request_enrichments = {}
 _registry_lock = threading.Lock()
 _pending = {}
 _prepared_sessions = set()
@@ -46,7 +49,7 @@ def source_intent(question):
     return "mixed" if part and technical else "part" if part else "technical"
 
 
-def select_rules(device_text, existing, question, presentation=False):
+def select_rules(device_text, existing, question, presentation=False, part_enrichment=False):
     """Select policy sections by general request intent, never manual pages/faults.
 
     Read the entire source. Keep model/source/variant/safety constraints and the
@@ -56,7 +59,7 @@ def select_rules(device_text, existing, question, presentation=False):
     """
     sections = re.split(r"(?m)(?=^#{2,3} )", device_text)
     diagnostic = bool(re.search(r"test|fault|fail|symptom|pressure|heavy|weak|slow|start|leak|\bnot\b|تست|خراب|خطا|نمی|علت|فشار|سنگینی|ضعف|ضعیف|کند|استارت|نشتی", question, re.I))
-    parts = source_intent(question) in {"part", "mixed"} or bool(re.search(r"order|سفارش", question, re.I))
+    parts = part_enrichment or source_intent(question) in {"part", "mixed"} or bool(re.search(r"order|سفارش", question, re.I))
     code = bool(re.search(r"code|کد|خطا", question, re.I))
     mechanics = ("FAST ", "MINIMIZE TOOL", "WINDOWS EXECUTION", "WEB SEARCH PERFORMANCE", "انتخاب سریع منبع")
     answer = ("سبک پاسخ", "قالب پاسخ", "تصویر و نقشه", "کامل بودن", "IMAGE DELIVERY")
@@ -230,6 +233,14 @@ TOOL_DESCRIPTION = (
     "this satisfies the root requirement to load machine-specific rules before source access, so do not "
     "read that file again. It then concurrently runs the manual_sections-routed evidence packet (bounded "
     "actual Shop Manual topic text; the index is routing only, never evidence) and the configured web_search. "
+    "Optional part_query: short English component/assembly explicitly identified in the request, "
+    "supplied with these keywords in this SAME retrieve call (e.g. steering pump). No guessed PN, "
+    "separate model call or separate Part tool for technical enrichment. Omit/null for generic symptoms "
+    "or a pure error code without an identified component. Local verified Part Book enrichment runs "
+    "concurrently for indexed models, with a 1s budget and NO wait after manual retrieval. Only include "
+    "ready VERIFIED candidates that help the question; candidates are alternatives, not a diagnosis "
+    "or guaranteed fit. Skip failures/misses/ambiguity silently for optional enrichment; do not retry "
+    "or delay the technical answer. No enrichment rendering by default. "
     "phase=finish concurrently renders and validates the chosen genuine pages, reads bounded missing page "
     "text and web_extracts one URL taken from the retrieve results; it returns MEDIA paths for delivery. "
     "Normal path: retrieve, one evaluation, finish, answer. Read evidence_coverage.status on the result. "
@@ -250,6 +261,10 @@ def tool_schema(models):
             "keywords": {"type": "string", "description": (
                 "retrieve: English Shop Manual terms for the affected system/component and symptom, "
                 "normalizing colloquial, abbreviated or misspelled user wording. Do not add guessed causes.")},
+            "part_query": {"type": ["string", "null"], "maxLength": 80, "description": (
+                "retrieve: optional short English component/assembly from the request, e.g. boom foot pin "
+                "or steering pump, produced with keywords in this same call. Omit/null when no component "
+                "is identified (generic overheating or error code alone). Never guess a PN or cause.")},
             "fault_code": {"type": "string", "description": "retrieve: complete displayed failure code only; never an incomplete action code"},
             "broad": {"type": "boolean", "description": (
                 "retrieve fallback only: scan the whole Shop Manual (10-30 s) after an indexed packet "
@@ -316,6 +331,118 @@ def evidence_followup(coverage, broad=False):
     )
 
 
+def valid_part_query(query):
+    """Accept a bounded English name, not a symptom dump, PN or invented model."""
+    return (isinstance(query, str) and 0 < len(query.strip()) <= 80
+            and len(query.split()) <= 8
+            and bool(re.fullmatch(r"[A-Za-z][A-Za-z0-9 '/().-]*", query.strip()))
+            and not re.search(r"[0-9A-Za-z]{3,5}-[0-9A-Za-z]{2,3}-[0-9A-Za-z]{4,5}", query))
+
+
+def enrichment_lookup(model, query, session_id):
+    """One isolated read-only CLI; no Hermes context/model call or rendering."""
+    env = dict(os.environ, PYTHONIOENCODING="utf-8")
+    if session_id:
+        env["HERMES_SESSION_ID"] = session_id
+    completed = subprocess.run(
+        [str(ROOT / ".venv/Scripts/python.exe"), str(ROOT / "tools/fleet/partbook_lookup.py"),
+         "--model", model, "--query", query.strip(), "--verify", "--limit", str(PART_ENRICHMENT_LIMIT)],
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=PART_ENRICHMENT_BUDGET_SECONDS,
+        cwd=str(ROOT), env=env, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+    if completed.returncode:
+        raise ValueError("Optional Part Book lookup failed")
+    return json.loads(completed.stdout)
+
+
+def compact_enrichment(packet, query):
+    """Only verified, named rows anchored to the component query are exposed.
+
+    The final noun in the short English query must anchor the row description.
+    A figure hit on incidental piping/bolts is not identification of its filter.
+    Parent still checks requested context and distinguishes variants/assemblies.
+    """
+    terms = re.findall(r"[a-z]+", query.casefold())
+    candidates = []
+    for row in packet.get("candidates") or []:
+        description = row.get("description") or ""
+        words = re.findall(r"[a-z]+", description.casefold())
+        if ((row.get("pdf_verification") or {}).get("status") != "VERIFIED"
+                or not row.get("part_number") or not words
+                or not terms or not any(word.startswith(terms[-1]) for word in words)):
+            continue
+        candidates.append({key: row.get(key) for key in (
+            "figure", "figure_title", "item", "part_number", "description", "quantity", "applicability")}
+                          | {"verification": "VERIFIED"})
+    return {"status": "verified" if candidates else "miss" if not packet.get("found") else "unusable",
+            "query": query, "candidates": candidates[:PART_ENRICHMENT_LIMIT],
+            "coverage_complete": bool(packet.get("coverage_complete")),
+            "coverage_note": packet.get("coverage_note", "Coverage unknown; index miss is not evidence of absence."),
+            "lookup_timing_ms": packet.get("timing_ms"),
+            "use": "Optional identification only if useful to this question. Rows may be different assemblies/variants; "
+                   "VERIFIED means PDF row verified, not confirmed fit or fault. Preserve applicability and partial "
+                   "coverage. Do not retry optional enrichment, guess a PN, or render by default. Miss is not absence."}
+
+
+def run_retrieval(command, session_id, model, part_query=None, request_id=""):
+    """Manual/web batch is authoritative; optional daemon work never joins it.
+
+    subprocess.run kills/reaps an over-budget child in the worker. At the manual
+    completion boundary only an already published result is read: no future wait,
+    executor shutdown/join, model round trip, or late result after final delivery.
+    """
+    origin = time.perf_counter()
+    ready = threading.Event()
+    slot = {}
+    reason = ("unindexed_model" if model not in INDEXED_PART_MODELS else
+              "no_query" if part_query is None or part_query == "" else
+              "invalid_query" if not valid_part_query(part_query) else "")
+    enrichment = {"status": "skipped", "reason": reason, "candidates": []}
+    if not reason:
+        def work():
+            started = time.perf_counter()
+            try:
+                result = compact_enrichment(enrichment_lookup(model, part_query, session_id), part_query)
+            except subprocess.TimeoutExpired:
+                result = {"status": "timeout", "candidates": []}
+            except Exception:
+                # Fail-open includes malformed JSON/data. Never expose provider/path details.
+                result = {"status": "error", "candidates": []}
+            slot.update(result=result, started=started, finished=time.perf_counter())
+            ready.set()
+        try:
+            threading.Thread(target=work, name="maintenance-part-enrichment", daemon=True).start()
+        except RuntimeError:
+            enrichment = {"status": "error", "candidates": []}
+            reason = "worker_unavailable"
+    manual_started = time.perf_counter()
+    retrieval = run_batch(command, session_id)
+    manual_finished = time.perf_counter()
+    # Event publication makes the snapshot atomic; it is never waited on.
+    part_ready = ready.is_set()
+    if part_ready:
+        enrichment = slot["result"]
+    elif not reason:
+        enrichment = {"status": "not_ready", "candidates": []}
+    # Keep the compact result available at the existing final-evidence boundary.
+    if not reason and request_id:
+        with _registry_lock:
+            for stale in [key for key, job in _request_enrichments.items() if time.monotonic() - job[3] > 300]:
+                _request_enrichments.pop(stale, None)
+            _request_enrichments[request_id] = (session_id, ready, slot, time.monotonic())
+    finished = time.perf_counter()
+    metrics = {"manual_batch_ms": round((manual_finished - manual_started) * 1000, 2),
+               "wall_ms": round((finished - origin) * 1000, 2),
+               "budget_ms": PART_ENRICHMENT_BUDGET_SECONDS * 1000, "waiting_ms": 0,
+               "part_launched": not bool(reason)}
+    if part_ready:
+        metrics.update(part_duration_ms=round((slot["finished"] - slot["started"]) * 1000, 2),
+                       part_started_ms=round((slot["started"] - origin) * 1000, 2),
+                       part_finished_ms=round((slot["finished"] - origin) * 1000, 2),
+                       overlap_ms=round(max(0, min(manual_finished, slot["finished"])
+                                           - max(manual_started, slot["started"])) * 1000, 2))
+    return retrieval, enrichment, metrics
+
+
 def retrieve(args, home, session_id):
     model, question = args.get("model"), args.get("question")
     device = verified_device(model, question)
@@ -331,7 +458,8 @@ def retrieve(args, home, session_id):
             raise ValueError("Retrieval limit reached; answer from the evidence found, state the missing evidence or ask for clarification")
         _retrieves[count_key] = _retrieves.get(count_key, 0) + 1
     root_rules = (ROOT / "AGENTS.md").read_text(encoding="utf-8")
-    rules, _ = select_rules(device.read_text(encoding="utf-8"), root_rules, question, presentation=True)
+    rules, _ = select_rules(device.read_text(encoding="utf-8"), root_rules, question, presentation=True,
+                            part_enrichment=model in INDEXED_PART_MODELS and valid_part_query(args.get("part_query")))
     fault_code = str(args.get("fault_code") or "").strip()
     seed = "|".join((session_id, question, keywords, fault_code, str(bool(args.get("broad"))), str(time.time_ns())))
     request_id, request_file = write_request(home, seed, model, question)
@@ -342,17 +470,24 @@ def retrieve(args, home, session_id):
         command += ["--fault-code", fault_code]
     if args.get("broad"):
         command.append("--broad")
-    retrieval = run_batch(command, session_id)
+    retrieval, enrichment, metrics = run_retrieval(command, session_id, model, args.get("part_query"), request_id)
     coverage = (retrieval.get("manual_packet") or {}).get("evidence_coverage")
     return {
         "evidence_coverage": coverage or {"status": "unknown", "action": "judge"},
-        "next": evidence_followup(coverage, broad=bool(args.get("broad"))),
+        "next": evidence_followup(coverage, broad=bool(args.get("broad"))) + (
+            " Ready VERIFIED Part Book rows are in part_enrichment. If their assembly identity helps this "
+            "repair, include one compact identification line with applicability/coverage in the same final "
+            "answer; do not omit useful identification solely because no PN was explicitly requested. "
+            "Different assembly variants remain alternatives, not confirmed fit. No extra lookup or render."
+            if enrichment.get("status") == "verified" else ""),
         "prepared": {
             "model": model, "request_id": request_id,
             "device_agents_read_in_full": str(device),
             "applicable_device_policy": rules or "No unique device policy beyond the loaded root rules.",
         },
         "retrieval": retrieval,
+        "part_enrichment": enrichment,
+        "enrichment_metrics": metrics,
     }
 
 
@@ -371,7 +506,12 @@ def finish(args, session_id):
         command += ["--web-url", args["web_url"]]
     if len(command) == 3:
         raise ValueError("Select image pages, needed text pages or a relevant URL")
-    return run_batch(command, session_id)
+    result = run_batch(command, session_id)
+    with _registry_lock:
+        enrichment = _request_enrichments.pop(request_id, None)
+    if enrichment and enrichment[0] == session_id:
+        result["part_enrichment"] = enrichment[2]["result"] if enrichment[1].is_set() else {"status": "not_ready", "candidates": []}
+    return result
 
 
 def manual_evidence(args, session_id="", **kwargs):
