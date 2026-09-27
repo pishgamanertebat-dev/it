@@ -9,6 +9,7 @@ def main():
     parser.add_argument("--question-file", type=Path, required=True)
     parser.add_argument("--transcripts-dir", type=Path,
                         help="Private directory for the run transcript, e.g. runtime/bench/transcripts")
+    parser.add_argument("--history-file", type=Path, help="Private conversation history for session model identity")
     args = parser.parse_args()
     question = args.question_file.read_text(encoding="utf-8").strip()
     from hermes_cli.config import load_config
@@ -82,14 +83,28 @@ def main():
     names = sorted(
         t.get("function", {}).get("name", t.get("name", "")) for t in agent.tools
     )
-    if (len(names) != 20 or not {"delegate_task", "maintenance_manual_evidence"} <= set(names)
+    if (len(names) != 21 or not {"delegate_task", "maintenance_manual_evidence", "maintenance_partbook_lookup"} <= set(names)
             or "tool_search" in names):
         raise RuntimeError(f"Unexpected Bale tool surface: {len(names)} tools")
     started = time.perf_counter()
     try:
-        result = agent.run_conversation(question)
+        history = json.loads(args.history_file.read_text(encoding="utf-8")) if args.history_file else None
+        result = agent.run_conversation(question, conversation_history=history)
         elapsed = time.perf_counter() - started
         answer = result.get("final_response") or ""
+        tool_sequence = []
+        part_candidates = []
+        for message in result.get("messages") or []:
+            for call in message.get("tool_calls") or []:
+                tool_sequence.append(call.get("function", call).get("name"))
+            if message.get("role") == "tool":
+                try:
+                    packet = json.loads(message.get("content") or "{}")
+                except (ValueError, TypeError):
+                    continue
+                for candidate in packet.get("candidates", []):
+                    part_candidates.append({key: candidate.get(key) for key in
+                                            ("part_number", "figure", "item", "description", "quantity", "pdf_verification")})
         if args.transcripts_dir:
             args.transcripts_dir.mkdir(parents=True, exist_ok=True)
             (args.transcripts_dir / f"{agent.session_id}.json").write_text(json.dumps(
@@ -102,6 +117,9 @@ def main():
             "provider": provider,
             "platform": agent.platform,
             "tool_count": len(names),
+            "tool_sequence": tool_sequence,
+            "part_candidates": part_candidates,
+            "source_priority_in_prompt": "Determine SOURCE INTENT" in (agent._cached_system_prompt or ""),
             "api_calls": result.get("api_calls"),
             "task_contracts": task_contracts,
             "answer_chars": len(answer),

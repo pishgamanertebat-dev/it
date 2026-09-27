@@ -37,7 +37,18 @@ This is a tool configuration for the routed agent, not a bot credential or a sec
 
 ## Technical routing and Parent fast path
 
-`SOUL.md` routes each request: greetings, clarification and trivial answers
+`SOUL.md` determines source intent before the generic technical route.
+Part Number, Parts Book identification and Figure/Item requests start with
+`maintenance_partbook_lookup`; mixed requests use it first and retain Shop
+Manual evidence for diagnosis. Simple VERIFIED local identification needs no
+manual/web lookup. HD785-7 B1 remains the only indexed production pilot;
+misses and coverage gaps permit fallback and never prove nonexistence.
+The Part tool reads full device rules, then calls the existing
+`tools/fleet/partbook_lookup.py --verify` once. The manual dispatch guard stops
+Part-only requests before any Shop Manual/web batch. Both tools use the
+existing `komatso_maintenance` toolset and direct schemas.
+
+`SOUL.md` routes technical requests: greetings, clarification and trivial answers
 go to the Parent directly; a technical/manual question about a supported
 model uses the Parent fast path; a specific fleet unit's fault, or technical
 plus fleet/history evidence, uses two-stream delegation below. A pure
@@ -90,7 +101,7 @@ Ensure maintenance agent.disabled_toolsets excludes delegation; leave the CLI to
 Use 	ools/bench_maintenance_delegation.py --question-file <private UTF-8 file> with
 HERMES_HOME set to the Maintenance profile and PYTHONPATH set to the installed
 Hermes source. It uses the real model, Bale platform prompt, and the configured
-20 Bale tools without a messaging adapter. It joins the real two-child batch in
+21 Bale tools without a messaging adapter. It joins the real two-child batch in
 the same turn because this local harness has no Gateway to deliver detached
 results. Use `tools/analyze_maintenance_bench.py <session-id>` for timing
 from the local agent log; it reports `parent-direct` or `two-stream` and the
@@ -194,3 +205,72 @@ with rendering (`char_limit: 4000`). Web failure is reported once and does not
 invalidate confirmed Manual evidence. No model switch is part of this work.
 
 Detailed trace, regression checks and measurements: [MANUAL_OPTIMIZATION.md](MANUAL_OPTIMIZATION.md).
+
+
+## Part source regression verification (2026-09-27)
+
+The actual Bale session `20260927_131135_8d6dd05f` took 82.5 seconds:
+five `maintenance_manual_evidence` calls, including three retrievals, an
+English-keyword error and an empty-finish error. It never invoked Part Book.
+Its persisted tool results omit both `PARTBOOK_RULES_V1` and
+`partbook_lookup.py` from `applicable_device_policy`.
+
+The ingress profile scope is established by native Gateway
+`GatewayAdapterLifecycleMixin._make_default_profile_message_handler`, then its turn
+runner builds/caches an `AIAgent` from the routed Maintenance configuration.
+`agent.system_prompt` loads the profile SOUL and project context;
+`agent.prompt_builder.load_agents_md` loads the directory chain from git root
+to `terminal.cwd=E:/KomatsoAI`, not the child machine folder. The selected
+device rules are read later by the plugin's `retrieve`, after the model has
+already selected the tool. There was no deterministic upstream Part/technical
+classifier: Maintenance SOUL's Technical routing told the parent that its
+FIRST call must be `maintenance_manual_evidence`, whose description offered
+only Shop Manual + web retrieval. `select_rules` then matched Part intent with
+`part|order|شماره.*قطعه|پارت|سفارش`; it did not match `شماره فنی` or bare PNs,
+so it removed the Part heading and part-order paragraphs. Replaying the
+previous implementation against the current device file reproduces this.
+The historical session has no stored full system-prompt snapshot; the trace
+uses its actual logs/tool results plus the installed prompt/config and native
+prompt construction code, rather than claiming a missing snapshot exists.
+
+Current HD785-7 AGENTS contains `PARTBOOK_RULES_V1`, Part Book-first lookup,
+and the verified-local exception to mandatory Shop Manual/web research.
+No legacy "No Parts Book exists" or Shop-Manual-only PN instruction remains.
+Generic Shop Manual-first sentences remain scoped by the explicit PN rules.
+This file and the MD ignore policy were not changed or tracked by this fix.
+
+Runtime plugin and SOUL were synchronized from the canonical project files,
+with backups under the Maintenance profile. Native scoped control-socket
+reload returned `reloaded=true`. Fresh live-model agents loaded the actual
+Maintenance Bale toolsets (21 tools, including both direct evidence tools;
+no `tool_search` bridge) and the source-priority prompt. These tests do not
+send messages or deliver artifacts through the Bale messaging adapter.
+Use a fresh Bale conversation (`/new`) when validating an existing user chat:
+Hermes freezes prompts/tool schemas per session. No Gateway restart or
+profile routing change is needed.
+
+| Case | Live Bale-surface tool sequence | Time | Result |
+| --- | --- | --- | --- |
+| A: شماره فنی 581-91-19110 دستگاه 785-7 | partbook lookup | 17.81 s | PASS; VERIFIED H3410-03A0/item 10 and H3410-03B0/item 5, FILTER, quantity 2 |
+| B: شماره فنی قطعه 6218-11-5830 برای HD785-7 | partbook lookup | 19.22 s | PASS; VERIFIED GASKET candidates |
+| C: HD785-7 ریتاردر ضعیف شده علت چیست؟ | manual retrieve, finish | 48.18 s | PASS; no Part Book call |
+| D: شیر ریتاردر مشکل دارد، روش تست و شماره فنی آن را بده | partbook lookup, manual retrieve, refined partbook lookup, manual finish | 67.99 s | PASS; session history identifies HD785-7; ambiguous valve PN is not replaced with a plate PN |
+| E: missing PN 99999-99-99999 | partbook lookup, two targeted web searches | 32.35 s | PASS; incomplete coverage, no false absence claim |
+
+A used two model calls and one tool call. Its targeted index/PDF verification
+took 350.2 ms inside the lookup; no Manual/web operation ran. Compared with
+the original 82.5-second Gateway turn, the fresh local Bale-surface turn was
+64.69 seconds faster (~78%). This is a single-run comparison, not a latency
+distribution or a measurement of outbound Bale delivery.
+
+Validation: 11 source-routing tests, 33 existing manual tests and 24 existing
+Part Book tests passed. The new routing tests exercise category-level
+Persian/English/bare/alphanumeric PN intents, actual VERIFIED PDF lookup,
+manual dispatch prevention, technical/mixed paths, misses, serial coverage,
+registration and unindexed-model isolation. Live transcripts and questions
+are private under `runtime/part-routing-regression` and remain outside Git.
+
+Reproduce using the existing benchmark with Maintenance `HERMES_HOME` and
+installed Hermes `PYTHONPATH`; `--history-file` accepts a private JSON message
+history for model identity. Output includes tool sequence, verified candidates
+and whether source priority was present in the actual assembled prompt.

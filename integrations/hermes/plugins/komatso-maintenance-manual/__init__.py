@@ -14,6 +14,9 @@ ROOT = Path("E:/KomatsoAI")
 MARKER = "KOMATSO_MANUAL_TASK_V3 "
 PREPARED = "KOMATSO_MANUAL_PREPARED_V3"
 TOOL = "maintenance_manual_evidence"
+PART_TOOL = "maintenance_partbook_lookup"
+# Expand only after another model index is production-ready.
+INDEXED_PART_MODELS = {"HD785-7"}
 _registry_lock = threading.Lock()
 _pending = {}
 _prepared_sessions = set()
@@ -23,6 +26,24 @@ _child_sessions = set()
 
 def normalized(value):
     return re.sub(r"\s+", " ", value).strip().casefold()
+
+
+def source_intent(question):
+    """Source priority for dispatch and rule filtering; no model/PN special cases.
+
+    Parent follows the semantic source contract for component-name requests.
+    """
+    text = normalized(str(question)).replace("\u200c", " ")
+    part = bool(re.search(
+        r"شماره\s*(?:فنی|قطعه)|پارت\s*(?:نامبر|بوک)|part\s*(?:number|no\b|book)|"
+        r"parts\s*book|\bpn\b|\bfigure\b|\bitem\b|exploded\s*view|نمای\s*انفجاری|"
+        r"\b[0-9A-Za-z]{3,5}-[0-9A-Za-z]{2,3}-[0-9A-Za-z]{4,5}\b", text, re.I))
+    technical = bool(re.search(
+        r"\b(?:fault|symptom|troubleshoot\w*|test\w*|adjust\w*|pressure|voltage|wiring|"
+        r"error\s*code|operation|specification\w*|diagnos\w*|fail\w*|weak|leak\w*)\b|"
+        r"خراب|عیب|مشکل|علت|تست|آزمایش|تنظیم|فشار|ولتاژ|سیم\s*کشی|خطا|ضعیف|ضعف|نشتی|"
+        r"نمی|نقشه\s*برق|نحوه\s*کار|مشخصات\s*فنی", text, re.I))
+    return "mixed" if part and technical else "part" if part else "technical"
 
 
 def select_rules(device_text, existing, question, presentation=False):
@@ -35,7 +56,7 @@ def select_rules(device_text, existing, question, presentation=False):
     """
     sections = re.split(r"(?m)(?=^#{2,3} )", device_text)
     diagnostic = bool(re.search(r"test|fault|fail|symptom|pressure|heavy|weak|slow|start|leak|\bnot\b|تست|خراب|خطا|نمی|علت|فشار|سنگینی|ضعف|ضعیف|کند|استارت|نشتی", question, re.I))
-    parts = bool(re.search(r"part|order|شماره.*قطعه|پارت|سفارش", question, re.I))
+    parts = source_intent(question) in {"part", "mixed"} or bool(re.search(r"order|سفارش", question, re.I))
     code = bool(re.search(r"code|کد|خطا", question, re.I))
     mechanics = ("FAST ", "MINIMIZE TOOL", "WINDOWS EXECUTION", "WEB SEARCH PERFORMANCE", "انتخاب سریع منبع")
     answer = ("سبک پاسخ", "قالب پاسخ", "تصویر و نقشه", "کامل بودن", "IMAGE DELIVERY")
@@ -201,7 +222,10 @@ _requests = {}
 _retrieves = {}
 
 TOOL_DESCRIPTION = (
-    "Maintenance Parent fast Technical path for a technical/manual question about a supported model. "
+    "Maintenance Parent fast Shop Manual path for diagnosis, tests, adjustments or specifications. "
+    "Determine source intent first: Part Number/Parts Book/figure/item/identification requests use "
+    "maintenance_partbook_lookup FIRST. Verified Part-only needs no Shop Manual/web. Mixed requests "
+    "use Part Book identification plus this tool for technical evidence. "
     "phase=retrieve first reads the selected device AGENTS.md IN FULL and returns its applicable policy; "
     "this satisfies the root requirement to load machine-specific rules before source access, so do not "
     "read that file again. It then concurrently runs the manual_sections-routed evidence packet (bounded "
@@ -295,6 +319,9 @@ def evidence_followup(coverage, broad=False):
 def retrieve(args, home, session_id):
     model, question = args.get("model"), args.get("question")
     device = verified_device(model, question)
+    if source_intent(question) == "part":
+        raise ValueError("Part Book intent: call maintenance_partbook_lookup first; no Shop Manual/web search was run. "
+                         "For a coverage miss use Part Book fallback; never infer absence from a Shop Manual miss.")
     keywords = str(args.get("keywords") or "").strip()
     if not re.search(r"[A-Za-z]{3}", keywords):
         raise ValueError("English Shop Manual keywords for the system/component and symptom are required")
@@ -369,6 +396,86 @@ def manual_evidence(args, session_id="", **kwargs):
     return json.dumps(result, ensure_ascii=False)
 
 
+PART_DESCRIPTION = (
+    "FIRST tool for Part Number / شماره فنی / شماره قطعه / پارت نامبر, bare PN with model, "
+    "Parts Book component identification, Figure/Item or exploded view. Reads device AGENTS.md IN FULL "
+    "before one targeted partbook_lookup.py --verify; verifies actual PDF rows. Use part_number for "
+    "a supplied PN, query for English component name, or figure/item. HD785-7 B1 is the only indexed "
+    "production pilot. Confirm only VERIFIED candidates with quantity and applicability. Simple verified "
+    "local lookup needs no Shop Manual/web. Mixed diagnosis + PN needs this FIRST plus "
+    "maintenance_manual_evidence. Miss, incomplete coverage, serial outside coverage, ambiguity, "
+    "supersession or unavailable/replacement permit fallback; index miss NEVER proves nonexistence."
+)
+
+
+def part_schema(models):
+    return {"name": PART_TOOL, "description": PART_DESCRIPTION, "parameters": {
+        "type": "object", "required": ["model", "question"], "properties": {
+            "model": {"type": "string", "enum": sorted(models)},
+            "question": {"type": "string", "description": "Exact original question; model may come from session"},
+            "part_number": {"type": "string", "description": "Exact user PN; never guess"},
+            "query": {"type": "string", "description": "English Part Book component name; no guessed PN"},
+            "figure": {"type": "string"}, "item": {"type": "integer", "minimum": 0},
+            "serial": {"type": "string", "description": "Machine serial only if supplied/verified"},
+            "render": {"type": "boolean", "description": "Only when an exploded view is requested"},
+        }}}
+
+
+def part_lookup(args, session_id="", **kwargs):
+    from hermes_constants import get_hermes_home
+    try:
+        if not is_maintenance(get_hermes_home().resolve()):
+            raise ValueError("Available only in the Maintenance profile")
+        model, question = args.get("model"), args.get("question")
+        device = verified_device(model, question)
+        # Complete rule load BEFORE lookup, including Part rules for name-only queries.
+        root_rules = (ROOT / "AGENTS.md").read_text(encoding="utf-8")
+        rules, _ = select_rules(device.read_text(encoding="utf-8"), root_rules,
+                                question + " Part Number", presentation=True)
+        prepared = {"model": model, "device_agents_read_in_full": str(device),
+                    "applicable_device_policy": rules}
+        if model not in INDEXED_PART_MODELS:
+            return json.dumps({"prepared": prepared, "coverage_complete": False,
+                               "indexed_lookup_available": False,
+                               "next": "No production Part Book index for this model. Use its permitted local Part Book fallback; do not infer absence or borrow another model PN."}, ensure_ascii=False)
+        pn = str(args.get("part_number") or "").strip()
+        if not pn and not args.get("query") and not args.get("figure"):
+            matches = re.findall(r"\b[0-9A-Za-z]{3,5}-[0-9A-Za-z]{2,3}-[0-9A-Za-z]{4,5}\b", question)
+            if len(matches) == 1:
+                pn = matches[0]
+        if not any((pn, args.get("query"), args.get("figure"))):
+            raise ValueError("Supply user PN, English component query or figure/item; never guess a PN")
+        command = [str(ROOT / ".venv/Scripts/python.exe"),
+                   str(ROOT / "tools/fleet/partbook_lookup.py"), "--model", model, "--verify"]
+        for option, value in (("--part-number", pn), ("--query", args.get("query")),
+                              ("--figure", args.get("figure")), ("--item", args.get("item")),
+                              ("--serial", args.get("serial"))):
+            if value is not None and str(value).strip():
+                command += [option, str(value)]
+        if args.get("render"):
+            command.append("--render")
+        env = dict(os.environ, PYTHONIOENCODING="utf-8")
+        if session_id:
+            env["HERMES_SESSION_ID"] = session_id
+        completed = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                   timeout=60, cwd=str(ROOT), env=env,
+                                   creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+        if completed.returncode:
+            raise ValueError("Part Book lookup failed: " + completed.stderr.decode("utf-8", "replace")[-500:])
+        result = json.loads(completed.stdout)
+        result["prepared"] = prepared
+        result["source_intent"] = source_intent(question)
+        result["next"] = (
+            "Answer identification only from VERIFIED PDF candidates with figure/item/quantity/applicability. "
+            "Simple verified local lookup needs no Shop Manual/web. Mixed intent also needs Shop Manual technical "
+            "evidence. Coverage is partial: miss/MISMATCH/outside serial/ambiguity needs appropriate Part Book "
+            "fallback; supersession/replacement/unavailable permit targeted web. Index miss is NOT evidence "
+            "that the part does not exist.")
+        return json.dumps(result, ensure_ascii=False)
+    except (OSError, ValueError, KeyError, TypeError, subprocess.TimeoutExpired) as exc:
+        return json.dumps({"success": False, "coverage_complete": False, "error": str(exc)}, ensure_ascii=False)
+
+
 def register(ctx):
     ctx.register_hook("pre_tool_call", pre_tool_call)
     ctx.register_hook("subagent_start", subagent_start)
@@ -377,3 +484,6 @@ def register(ctx):
     models = json.loads((ROOT / "tools/manual_models.json").read_text(encoding="utf-8"))
     ctx.register_tool(name=TOOL, toolset="komatso_maintenance", schema=tool_schema(models),
                       handler=manual_evidence, description=TOOL_DESCRIPTION)
+
+    ctx.register_tool(name=PART_TOOL, toolset="komatso_maintenance", schema=part_schema(models),
+                      handler=part_lookup, description=PART_DESCRIPTION)

@@ -29,7 +29,42 @@
 
 ## Technical routing
 
-Choose one route per request:
+Determine SOURCE INTENT before generic technical/manual routing. This source
+priority also applies to model identity remembered in the session and to the
+Technical side of a fleet request:
+
+- PART: شماره فنی، شماره قطعه، Part Number, part no, پارت نامبر, a supplied
+  PN to identify (including a bare Komatsu-like PN with model), Parts Book,
+  Figure/Item, exploded view, or a component name whose goal is PN/parts
+  identification. FIRST call maintenance_partbook_lookup with the verified
+  model and exact question. Supply part_number, an English component query,
+  or figure/item; do not guess a PN. The tool loads device rules before one
+  targeted partbook_lookup.py --verify. HD785-7 B1 is the only indexed
+  production pilot; other models require their own permitted Part Book path.
+  Confirm only VERIFIED PDF candidates; preserve figure, item, quantity and
+  serial applicability. Simple verified local Part-only lookup completes with
+  this one tool and answer: no maintenance_manual_evidence, Shop Manual scan,
+  web, fleet tools or delegation is needed. This is the source-specific
+  exception to the generic technical Manual/web workflow in root AGENTS.md.
+- TECHNICAL: fault, symptom, troubleshooting, test, adjustment, pressure,
+  voltage, wiring, error code, operation or specification: Shop Manual first,
+  using route B/C below. A component name in a diagnostic question alone does
+  not request Part Book. Do not run Part Book without identification intent.
+- MIXED: diagnosis/test plus PN/identification (e.g. a faulty valve with its
+  test method and part number): run maintenance_partbook_lookup first for
+  identification, then route B/C for Shop Manual technical evidence. If the
+  model comes from a fleet code, resolve machine_context first. Preserve both
+  evidence domains: Part Book does not supply diagnostic procedures and Shop
+  Manual does not replace Part Book identification. If part terminology is
+  ambiguous, use an English component query or ask the one necessary detail.
+
+For a Part Book miss, MISMATCH, incomplete coverage, serial outside indexed
+coverage, ambiguity, supersession or unavailable/replacement concern, follow
+the device's permitted Part Book/local PDF/targeted web fallback. Never report
+an index miss as "part does not exist". B2 remains unindexed; do not scan the
+Shop Manual merely to conclude that a PN is absent.
+
+Choose the technical route only after this source decision:
 
 A. Greeting, clarification, model selection or a trivial known answer:
    answer directly without manual tools.
@@ -43,7 +78,7 @@ C. A specific fleet unit's technical fault, or technical plus fleet/history
 Fast Technical path (route B):
 
 1. Identify the model from the message or session. If it cannot be safely
-   inferred, ask the root AGENTS.md model question. Otherwise the FIRST tool
+   inferred, ask the root AGENTS.md model question. For technical-only intent the FIRST tool
    call is maintenance_manual_evidence with phase=retrieve, the model, the
    exact question and English Shop Manual keywords for the affected
    system/component and symptom. Normalize colloquial, abbreviated or
