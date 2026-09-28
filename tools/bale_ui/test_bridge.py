@@ -140,7 +140,7 @@ class ApprovedMenuRenderingTests(unittest.TestCase):
         from tools.fleet.work_orders.core.permissions import MAINTENANCE_MANAGER
 
         plugin = self._load_registry_plugin()
-        user_id = '641220453'  # Existing configured specialized menu audience.
+        user_id = '641220453'  # Approved synthetic registry subject.
         conn = plugin._connect()
         conn.execute(
             """INSERT INTO channel_users
@@ -149,7 +149,7 @@ class ApprovedMenuRenderingTests(unittest.TestCase):
                VALUES ('bale', ?, ?, 'n', 'n', 'approved', 't', 't')""",
             (user_id, user_id))
         conn.commit()
-        original = runtime.reply_menus.menu_for(user_id)
+        original = runtime.reply_menus.get('maintenance_manager')
         try:
             for status, role, expected in (
                 ('approved', MAINTENANCE_MANAGER,
@@ -169,6 +169,7 @@ class ApprovedMenuRenderingTests(unittest.TestCase):
                          patch.object(plugin, '_admin_ids', return_value=set()), \
                          patch.object(plugin, '_send'), \
                          patch.object(runtime, '_reply_menu_role', return_value=role), \
+                         patch('tools.fleet.repairs.entry_bale.permitted', return_value=bool(role)), \
                          patch.object(runtime.reply_presenter, 'present') as present, \
                          patch.object(runtime, 'revoke_reply_menu'), \
                          patch.object(runtime.router, 'dispatch', return_value=None), \
@@ -186,7 +187,7 @@ class ApprovedMenuRenderingTests(unittest.TestCase):
                             self.assertEqual(menu.roles, original.roles)
                             self.assertEqual(menu.users, original.users)
                             self.assertEqual(menu.menu_id, original.menu_id)
-                    self.assertIs(runtime.reply_menus.menu_for(user_id), original)
+                    self.assertIs(runtime.reply_menus.get('maintenance_manager'), original)
         finally:
             conn.close()
 

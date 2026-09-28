@@ -36,47 +36,72 @@ def event(text, user_id=MANAGER, *, chat_id=None, raw=None, chat_type='dm', plat
 
 
 class ConfiguredMenuTests(unittest.TestCase):
-    def test_both_configured_users_get_the_same_two_buttons(self):
-        for user in (MANAGER, ADMIN):
-            menu = runtime.reply_menus.menu_for(user)
-            self.assertIsNotNone(menu, user)
-            self.assertEqual([[button['text'] for button in row] for row in menu.to_markup()['keyboard']],
-                             [[WORK_ORDER_LABEL, REPAIRS_LABEL]])
+    def menu(self, *, work=False, repairs=False, approved=True):
+        role = MAINTENANCE_MANAGER if work else None
+        with patch.object(runtime, '_reply_menu_role', return_value=role), \
+             patch('tools.fleet.repairs.entry_bale.permitted', return_value=repairs):
+            return runtime._main_menu('42', bale_approved=approved)
 
-    def test_unconfigured_user_has_no_operational_menu(self):
-        self.assertIsNone(runtime.reply_menus.menu_for(OUTSIDER))
-        self.assertIsNone(runtime.reply_menus.menu_for(''))
+    def test_layout_has_capabilities_without_a_person_list(self):
+        template = runtime.reply_menus.get('maintenance_manager')
+        self.assertEqual(template.users, frozenset())
+        self.assertEqual(template.roles, frozenset())
+        self.assertEqual([button.capability for button in template.buttons],
+                         ['work_orders.manage', 'repairs.edit'])
+        source = (Path(runtime.ROOT) / 'settings/bale_reply_menus.json').read_text(encoding='utf-8')
+        for user in (MANAGER, ADMIN):
+            self.assertNotIn(user, source)
+
+    def test_each_current_capability_controls_only_its_button(self):
+        for work, repairs, expected in (
+            (True, True, [[WORK_ORDER_LABEL, REPAIRS_LABEL], ['/new']]),
+            (True, False, [[WORK_ORDER_LABEL], ['/new']]),
+            (False, True, [[REPAIRS_LABEL], ['/new']]),
+            (False, False, [['/new']]),
+        ):
+            with self.subTest(work=work, repairs=repairs):
+                menu = self.menu(work=work, repairs=repairs)
+                labels = [[b.text for b in row] for row in menu.rows]
+                self.assertEqual(labels[:-1], expected[:-1])
+                self.assertEqual([b.command for b in menu.rows[-1]], ['/new'])
+        self.assertIsNone(self.menu(work=True, repairs=True, approved=False))
+
+    def test_unknown_capability_is_hidden_by_default(self):
+        template = ReplyMenu('maintenance_manager',
+                             ((ReplyButton('unknown', 'unknown', 'unknown.grant'),),))
+        registry = ReplyMenuRegistry([template])
+        with patch.object(runtime, 'reply_menus', registry), \
+             patch.object(runtime, '_reply_menu_role', return_value=MAINTENANCE_MANAGER), \
+             patch('tools.fleet.repairs.entry_bale.permitted', return_value=True):
+            menu = runtime._main_menu('42', bale_approved=True)
+        self.assertEqual([[b.command for b in row] for row in menu.rows], [['/new']])
 
     def test_markup_is_mobile_sized_persistent_and_free_of_callback_data(self):
-        markup = runtime.reply_menus.menu_for(MANAGER).to_markup()
+        markup = self.menu(work=True, repairs=True).to_markup()
+        self.assertEqual([[b['text'] for b in row] for row in markup['keyboard']][0],
+                         [WORK_ORDER_LABEL, REPAIRS_LABEL])
         self.assertTrue(markup['resize_keyboard'])
         self.assertTrue(markup['is_persistent'])
         self.assertFalse(markup['one_time_keyboard'])
         self.assertNotIn('callback_data', json.dumps(markup, ensure_ascii=False))
         self.assertNotIn('inline_keyboard', markup)
 
-    def test_audience_is_configuration_not_code(self):
-        source = Path(runtime.__file__).with_name('reply_keyboard.py').read_text(encoding='utf-8')
-        for user in (MANAGER, ADMIN):
-            self.assertNotIn(user, source)
-        self.assertNotIn('حکم کار', source)
-
     def test_roles_and_extra_menus_need_no_core_change(self):
         with TemporaryDirectory() as folder:
             path = Path(folder) / 'menus.json'
             path.write_text(json.dumps({'menus': [
                 {'menu_id': 'oil_reporter', 'roles': ['OIL_ANALYST'],
-                 'rows': [[{'text': '🛢 گزارش روغن', 'command': 'گزارش روغن'}]]}]}), encoding='utf-8')
+                 'rows': [[{'text': 'oil', 'command': 'oil'}]]}]}), encoding='utf-8')
             registry = load_registry(path)
             self.assertIsNone(registry.menu_for('42'))
             menu = registry.menu_for('42', 'OIL_ANALYST')
-            self.assertEqual(menu.command_for('🛢 گزارش روغن'), 'گزارش روغن')
+            self.assertEqual(menu.command_for('oil'), 'oil')
 
     def test_invalid_definitions_are_ignored_without_breaking_the_layer(self):
         with TemporaryDirectory() as folder:
             path = Path(folder) / 'menus.json'
             path.write_text(json.dumps({'menus': [{'menu_id': 'Bad Id', 'rows': []},
-                {'menu_id': 'good', 'users': ['7'], 'rows': [[{'text': 'الف', 'command': 'الف'}]]}]}),
+                {'menu_id': 'good', 'users': ['7'], 'rows': [[{'text': 'a', 'command': 'a'}]]}]}),
                 encoding='utf-8')
             with patch.object(reply_keyboard.logger, 'exception'):
                 self.assertEqual(load_registry(path).menu_for('7').menu_id, 'good')
@@ -85,13 +110,19 @@ class ConfiguredMenuTests(unittest.TestCase):
 
 class LabelRoutingTests(unittest.TestCase):
     def setUp(self):
-        patcher = patch.object(runtime, '_reply_menu_role', return_value=MAINTENANCE_MANAGER)
+        patcher = patch.object(runtime, '_reply_menu_role',
+                               side_effect=lambda user: MAINTENANCE_MANAGER if user == MANAGER else None)
         self.addCleanup(patcher.stop)
         patcher.start()
+        repairs = patch('tools.fleet.repairs.entry_bale.permitted',
+                        side_effect=lambda user: user == MANAGER)
+        repairs.start()
+        self.addCleanup(repairs.stop)
 
-    def step(self, message, gateway=None):
+    def step(self, message, gateway=None, *, approved=True):
         with patch.object(runtime.reply_presenter, 'present', return_value=None) as present:
-            result = runtime.reply_menu_step(message, gateway, send=lambda *a: None)
+            result = runtime.reply_menu_step(message, gateway, send=lambda *a: None,
+                                             bale_approved=approved)
         return result, present
 
     def test_tapped_labels_become_the_existing_commands(self):
@@ -108,9 +139,23 @@ class LabelRoutingTests(unittest.TestCase):
 
     def test_unauthorized_user_gets_neither_menu_nor_translation(self):
         message = event(WORK_ORDER_LABEL, OUTSIDER)
+        result, present = self.step(message, approved=False)
+        self.assertIsNone(result)
+        self.assertEqual(message.text, WORK_ORDER_LABEL)
+        present.assert_not_called()
+
+    def test_stale_operational_button_does_not_translate_after_permission_loss(self):
+        message = event(WORK_ORDER_LABEL, OUTSIDER)
         result, present = self.step(message)
         self.assertIsNone(result)
         self.assertEqual(message.text, WORK_ORDER_LABEL)
+        menu = present.call_args.args[3]
+        self.assertEqual([[b.command for b in row] for row in menu.rows], [['/new']])
+
+    def test_missing_authenticated_user_id_is_not_sent_a_menu(self):
+        message = event('hi', user_id='', chat_id='99')
+        result, present = self.step(message)
+        self.assertIsNone(result)
         present.assert_not_called()
 
     def test_inline_callbacks_and_other_surfaces_are_never_intercepted(self):
@@ -135,9 +180,14 @@ class LabelRoutingTests(unittest.TestCase):
 
 class DispatchIntegrationTests(unittest.TestCase):
     def setUp(self):
-        patcher = patch.object(runtime, '_reply_menu_role', return_value=MAINTENANCE_MANAGER)
+        patcher = patch.object(runtime, '_reply_menu_role',
+                               side_effect=lambda user: MAINTENANCE_MANAGER if user == MANAGER else None)
         self.addCleanup(patcher.stop)
         patcher.start()
+        repairs = patch('tools.fleet.repairs.entry_bale.permitted',
+                        side_effect=lambda user: user == MANAGER)
+        repairs.start()
+        self.addCleanup(repairs.stop)
 
     def dispatch(self, message):
         calls = []
@@ -155,7 +205,7 @@ class DispatchIntegrationTests(unittest.TestCase):
              patch.object(message_handler._handler, 'handle', handler('work_order', 'حکم کار')), \
              patch.object(entry_bale._handler, 'handle', handler('repairs_entry', 'شرح خرابی')), \
              patch.object(maintenance_bale._handler, 'handle', handler('maintenance_entry', 'تعمیرات')):
-            result = runtime.dispatch(message, None, send=lambda *a: None)
+            result = runtime.dispatch(message, None, send=lambda *a: None, bale_approved=True)
             if result is None:
                 # Mirror the installed bridge: unrouted text continues to the
                 # work-order handler and only then to the assistant.
@@ -330,7 +380,7 @@ class ClientFallbackTests(unittest.TestCase):
                                ReplyKeyboardRemove=ReplyKeyboardRemove)
 
     def test_persistent_flag_degrades_gracefully_on_an_older_client(self):
-        markup = runtime.reply_menus.menu_for(MANAGER).to_markup()
+        markup = runtime.reply_menus.get('maintenance_manager').to_markup()
         with patch.dict('sys.modules', {'telegram': self.client({'is_persistent'})}):
             self.assertEqual(to_reply_markup(markup).flags, {'is_persistent': True})
         with patch.dict('sys.modules', {'telegram': self.client(set())}):
@@ -354,102 +404,86 @@ class ExistingRoleAndRevokeTests(unittest.IsolatedAsyncioTestCase):
             create_schema(con)
             con.executemany(
                 'INSERT INTO service_work_order_users (bale_id, role, active) VALUES (?, ?, ?)',
-                [
-                    ('42', MAINTENANCE_MANAGER, 1),
-                    ('43', MAINTENANCE_MANAGER, 0),
-                    ('44', 'AIR_FILTER', 1),
-                ],
+                [('42', MAINTENANCE_MANAGER, 1),
+                 ('43', MAINTENANCE_MANAGER, 0),
+                 ('44', 'AIR_FILTER', 1)],
             )
             con.commit()
         finally:
             con.close()
         self.store = StateStore(Path(self.folder.name) / 'reply_menu.json')
         self.bot = FakeBot()
-        markup = patch('tools.bale_ui.reply_keyboard.to_reply_markup', lambda markup, bot=None: markup)
+        markup = patch('tools.bale_ui.reply_keyboard.to_reply_markup', lambda value, bot=None: value)
         markup.start()
         self.addCleanup(markup.stop)
-        self.role_menu = ReplyMenu('by_role', ((ReplyButton(WORK_ORDER_LABEL, 'حکم کار'),),),
-                                   roles=frozenset({MAINTENANCE_MANAGER}))
-        self.registry = ReplyMenuRegistry([self.role_menu])
-        self.db_patch = patch('tools.fleet.work_orders.core.permissions.DB_PATH', self.db_path)
-        self.db_patch.start()
-        self.addCleanup(self.db_patch.stop)
+        db_patch = patch('tools.fleet.work_orders.core.permissions.DB_PATH', self.db_path)
+        db_patch.start()
+        self.addCleanup(db_patch.stop)
 
-    def presenter(self, registry=None):
-        return ReplyMenuPresenter(registry or self.registry, state_store=self.store,
-                                  bot_for=lambda gateway: self.bot, text='منو')
+    def presenter(self):
+        return ReplyMenuPresenter(runtime.reply_menus, state_store=self.store,
+                                  bot_for=lambda gateway: self.bot, text='menu')
 
-    def test_runtime_reuses_work_order_permission_role_without_inventing_one(self):
-        result = check_work_order_permission('42', db_path=self.db_path)
-        self.assertTrue(result.allowed)
-        self.assertEqual(result.role, MAINTENANCE_MANAGER)
-        self.assertEqual(runtime._reply_menu_role('42'), result.role)
+    def test_role_check_reads_existing_permission_store_and_denies_inactive_roles(self):
+        self.assertEqual(runtime._reply_menu_role('42'), MAINTENANCE_MANAGER)
         self.assertIsNone(runtime._reply_menu_role('43'))
         self.assertIsNone(runtime._reply_menu_role('44'))
-        presenter = self.presenter()
-        with patch.object(runtime, 'reply_menus', self.registry), \
-             patch.object(runtime, 'reply_presenter', presenter), \
-             patch.object(presenter, 'present', return_value=None) as present:
-            runtime.reply_menu_step(event('سلام', '42'), None, send=lambda *a: None)
-            present.assert_called_once()
-            self.assertIs(present.call_args.args[3], self.role_menu)
-            present.reset_mock()
-            runtime.reply_menu_step(event('سلام', '43'), None, send=lambda *a: None)
-            present.assert_not_called()
-            runtime.reply_menu_step(event('سلام', '44'), None, send=lambda *a: None)
-            present.assert_not_called()
+        with patch('tools.fleet.repairs.entry_bale.permitted', return_value=False):
+            self.assertEqual([[b.command for b in row]
+                              for row in runtime._main_menu('42', bale_approved=True).rows],
+                             [[runtime.reply_menus.get('maintenance_manager').buttons[0].command], ['/new']])
+            for user in ('43', '44'):
+                self.assertEqual([[b.command for b in row]
+                                  for row in runtime._main_menu(user, bale_approved=True).rows],
+                                 [['/new']])
 
-    def test_users_list_match_is_ignored_when_authorization_denied(self):
-        menu = ReplyMenu('ops', ((ReplyButton(WORK_ORDER_LABEL, 'حکم کار'),),),
-                         users=frozenset({'42', '43'}))
-        registry = ReplyMenuRegistry([menu])
-        presenter = self.presenter(registry)
-        with patch.object(runtime, 'reply_menus', registry), \
-             patch.object(runtime, 'reply_presenter', presenter), \
-             patch.object(presenter, 'present', return_value=None) as present:
-            runtime.reply_menu_step(event('سلام', '43'), None, send=lambda *a: None)
-            present.assert_not_called()
-            runtime.reply_menu_step(event('سلام', '42'), None, send=lambda *a: None)
-            present.assert_called_once()
-            self.assertIs(present.call_args.args[3], menu)
+    def test_repairs_only_uses_existing_repair_permission(self):
+        with patch('tools.fleet.repairs.entry_bale.permitted', return_value=True):
+            menu = runtime._main_menu('44', bale_approved=True)
+        self.assertEqual([[b.command for b in row] for row in menu.rows],
+                         [[runtime.reply_menus.get('maintenance_manager').buttons[1].command], ['/new']])
 
-    async def test_revoked_role_sends_keyboard_remove_and_retries_after_failure(self):
+    async def test_permission_change_refreshes_fingerprint_without_duplicate_loop(self):
         presenter = self.presenter()
-        await presenter.present(None, '42', '42', self.role_menu)
-        fingerprint = self.role_menu.fingerprint()
-        con = sqlite3.connect(self.db_path)
-        try:
-            con.execute("UPDATE service_work_order_users SET active=0 WHERE bale_id='42'")
-            con.commit()
-        finally:
-            con.close()
+        with patch('tools.fleet.repairs.entry_bale.permitted', return_value=False):
+            before = runtime._main_menu('42', bale_approved=True)
+            await presenter.present(None, '42', '42', before)
+            self.assertIsNone(presenter.present(None, '42', '42', before))
+            con = sqlite3.connect(self.db_path)
+            try:
+                con.execute("UPDATE service_work_order_users SET active=0 WHERE bale_id='42'")
+                con.commit()
+            finally:
+                con.close()
+            after = runtime._main_menu('42', bale_approved=True)
+            self.assertNotEqual(before.fingerprint(), after.fingerprint())
+            await presenter.present(None, '42', '42', after)
+        self.assertEqual(self.bot.send_message.await_count, 2)
+        self.assertEqual(len(self.bot.send_message.await_args.kwargs['reply_markup']['keyboard']), 1)
+        self.assertEqual(after.command_for('/new'), '/new')
+
+    async def test_unapproved_event_removes_a_stale_menu(self):
+        presenter = self.presenter()
+        with patch('tools.fleet.repairs.entry_bale.permitted', return_value=False):
+            menu = runtime._main_menu('42', bale_approved=True)
+        await presenter.present(None, '42', '42', menu)
         self.bot.send_message.reset_mock()
-        self.bot.send_message.side_effect = RuntimeError('network down')
-        with patch.object(runtime, 'reply_menus', self.registry), \
-             patch.object(runtime, 'reply_presenter', presenter), \
-             patch.object(reply_keyboard.logger, 'exception'):
-            self.assertIsNone(runtime.reply_menu_step(event('سلام', '42'), None, send=lambda *a: None))
-            await asyncio.gather(*list(presenter.tasks))
-            self.assertEqual(self.bot.send_message.await_args.kwargs['reply_markup'], REMOVE_MARKUP)
-            self.assertEqual(presenter.delivered, {('42', '42'): fingerprint})
-            self.bot.send_message.side_effect = None
-            self.assertIsNone(runtime.reply_menu_step(event('سلام', '42'), None, send=lambda *a: None))
+        with patch.object(runtime, 'reply_presenter', presenter):
+            runtime.reply_menu_step(event('hi', '42'), None,
+                                    send=lambda *args: None, bale_approved=False)
             await asyncio.gather(*list(presenter.tasks))
         self.assertEqual(self.bot.send_message.await_args.kwargs['reply_markup'], REMOVE_MARKUP)
         self.assertEqual(presenter.delivered, {})
 
-    async def test_users_list_revoke_also_sends_keyboard_remove(self):
-        menu = ReplyMenu('ops', ((ReplyButton(WORK_ORDER_LABEL, 'حکم کار'),),), users=frozenset({MANAGER}))
-        presenter = self.presenter(ReplyMenuRegistry([menu]))
-        await presenter.present(None, MANAGER, MANAGER, menu)
-        self.bot.send_message.reset_mock()
-        with patch.object(runtime, 'reply_menus', ReplyMenuRegistry([menu])), \
+    def test_delivery_targets_authenticated_events_chat(self):
+        presenter = self.presenter()
+        with patch('tools.fleet.repairs.entry_bale.permitted', return_value=False), \
              patch.object(runtime, 'reply_presenter', presenter), \
-             patch.object(runtime, '_reply_menu_role', return_value=None):
-            runtime.reply_menu_step(event('سلام'), None, send=lambda *a: None)
-            await asyncio.gather(*list(presenter.tasks))
-        self.assertEqual(self.bot.send_message.await_args.kwargs['reply_markup'], REMOVE_MARKUP)
-        self.assertEqual(presenter.delivered, {})
+             patch.object(presenter, 'present', return_value=None) as present:
+            runtime.reply_menu_step(event('hi', '42', chat_id='99'), None,
+                                    send=lambda *args: None, bale_approved=True)
+        present.assert_called_once()
+        self.assertEqual(present.call_args.args[1:3], ('99', '42'))
 
 
 if __name__ == '__main__':

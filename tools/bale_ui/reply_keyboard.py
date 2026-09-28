@@ -50,10 +50,14 @@ class ReplyButton:
     """Display label and the command text the router must finally see."""
     text: str
     command: str
+    capability: str | None = None
 
     def __post_init__(self):
         if not normalize(self.text) or not normalize(self.command):
             raise ValueError('Reply button needs both a label and a command')
+        if self.capability is not None and (not isinstance(self.capability, str)
+                                            or not self.capability.strip()):
+            raise ValueError('Reply button capability must be a nonempty string')
 
 
 @dataclass(frozen=True)
@@ -144,7 +148,8 @@ def load_registry(path) -> ReplyMenuRegistry:
         try:
             registry.add(ReplyMenu(
                 menu_id=entry['menu_id'],
-                rows=tuple(tuple(ReplyButton(button['text'], button['command']) for button in row)
+                rows=tuple(tuple(ReplyButton(button['text'], button['command'],
+                                             button.get('capability')) for button in row)
                            for row in entry['rows']),
                 users=frozenset(str(user) for user in entry.get('users', ())),
                 roles=frozenset(str(role) for role in entry.get('roles', ())),

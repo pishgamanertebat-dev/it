@@ -9,8 +9,8 @@ ROOT = Path(__file__).resolve().parents[2]
 
 router = Router()
 
-# Reply menus are the persistent bottom-of-chat UI layer. Their audience lives
-# in configuration, and each button only injects an existing command as text.
+# Reply menus are the persistent bottom-of-chat UI layer. Configuration owns
+# layout and labels; existing domain permission checks decide visibility.
 reply_menus = load_registry(ROOT / 'settings/bale_reply_menus.json')
 reply_presenter = ReplyMenuPresenter(reply_menus,
     state_store=StateStore(ROOT / 'runtime/bale_ui/reply_menu.json'),
@@ -22,6 +22,32 @@ def _reply_menu_role(user_id):
     from tools.fleet.work_orders.core.permissions import check_work_order_permission
     result = check_work_order_permission(user_id)
     return result.role if result.allowed else None
+
+
+def _main_menu(user_id, *, bale_approved):
+    """Filter configured buttons through current domain permissions."""
+    if not bale_approved:
+        return None
+    from tools.fleet.repairs.entry_bale import permitted as repairs_permitted
+
+    capabilities = set()
+    if _reply_menu_role(user_id):
+        capabilities.add('work_orders.manage')
+    if repairs_permitted(user_id):
+        capabilities.add('repairs.edit')
+
+    # Retain the menu ID so unchanged keyboards keep their delivery fingerprint.
+    template = reply_menus.get('maintenance_manager')
+    rows = []
+    if template:
+        for row in template.rows:
+            filtered = tuple(button for button in row if button.capability in capabilities)
+            if filtered:
+                rows.append(filtered)
+    common_row = (ReplyButton('🔄 شروع گفتگوی جدید', '/new'),)
+    if rows:
+        return replace(template, rows=tuple(rows) + (common_row,))
+    return ReplyMenu('new_chat', (common_row,))
 
 
 def revoke_reply_menu(gateway, chat_id, user_id, *, send, text):
@@ -42,22 +68,13 @@ def reply_menu_step(event, gateway, *, send, bale_approved=False):
         return None
     user_id = str(getattr(source, 'user_id', '') or '')
     chat_id = str(getattr(source, 'chat_id', '') or '')
-    if not chat_id:
+    if not user_id or not chat_id:
         return None
     raw = getattr(event, 'raw_message', None)
     if isinstance(raw, dict) and raw.get('bale_inline_callback') is True:
         # Inline callbacks keep their own lifecycle; reply menus never own them.
         return None
-    role = _reply_menu_role(user_id)
-    # Authorization, not the config users list, decides whether the operational
-    # menu may stay on the client.
-    menu = reply_menus.menu_for(user_id, role) if role else None
-    # Approval is supplied by the Bale registration gate, never inferred from
-    # an operational role. Compose after lookup so specialized menus win.
-    if bale_approved:
-        common_row = (ReplyButton('🔄 شروع گفتگوی جدید', '/new'),)
-        menu = (replace(menu, rows=menu.rows + (common_row,)) if menu else
-                ReplyMenu('new_chat', (common_row,)))
+    menu = _main_menu(user_id, bale_approved=bale_approved)
     key = (user_id, chat_id)
     if menu is None:
         if (key in reply_presenter.delivered or key in reply_presenter.pending
