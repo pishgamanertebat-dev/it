@@ -180,6 +180,36 @@ def verify_rows(cands, con):
     return len(pages_read)
 
 
+def verified_view_candidates(cands):
+    """At most two distinct verified figures; a SEE FIG row reuses its primary."""
+    if not cands or any(
+        (c.get("pdf_verification") or {}).get("status") != "VERIFIED"
+        or "serial_applicability_unknown" in c.get("flags", ())
+        or any(str(flag).startswith("ambiguous") for flag in c.get("flags", ()))
+        for c in cands
+    ):
+        return []
+    def referenced_figure(candidate):
+        return re.search(r"SEE\s+FIG\.?\s*([A-Z0-9-]+)",
+                         candidate.get("description", "").upper())
+
+    primary = [c for c in cands if not referenced_figure(c)]
+    primary_figures = {c["figure"].upper() for c in primary}
+    selected = list(primary)
+    for candidate in cands:
+        reference = referenced_figure(candidate)
+        if not reference:
+            continue
+        target = reference.group(1)
+        if not any(figure == target or figure.startswith(target + "-")
+                   for figure in primary_figures):
+            selected.append(candidate)
+    figures = {(c["_source_pdf"], c["figure"]) for c in selected}
+    if not selected or len(figures) > 2:
+        return []
+    return selected
+
+
 def render(cands, label):
     out = []
     pages = []
@@ -211,6 +241,7 @@ def main(argv=None):
     ap.add_argument("--limit", type=int, default=10)
     ap.add_argument("--verify", action="store_true", help="re-read candidate rows from the real PDF")
     ap.add_argument("--render", action="store_true", help="render candidate view page(s) (max 3)")
+    ap.add_argument("--auto-render-verified", action="store_true", help="render at most two verified exploded views for direct Part identification")
     ap.add_argument("--label", default="partbook")
     ap.add_argument("--db", default=str(DEFAULT_DB))
     a = ap.parse_args(argv)
@@ -276,7 +307,10 @@ def main(argv=None):
     if a.verify and cands:
         pages_read = verify_rows(cands, con)
     t_verify = time.perf_counter() - t0
-    rendered = render(cands, a.label) if a.render and cands else []
+    if a.auto_render_verified and not a.verify:
+        ap.error("--auto-render-verified requires --verify")
+    render_candidates = verified_view_candidates(cands) if a.auto_render_verified else cands
+    rendered = render(render_candidates, a.label) if (a.render or a.auto_render_verified) and render_candidates else []
     t_total = time.perf_counter() - t0
     for c in cands:
         c.pop("_source_pdf"); c.pop("_row_bbox"); c.pop("serial_raw")

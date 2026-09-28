@@ -40,6 +40,23 @@ class PartbookB1(unittest.TestCase):
                 return c
         self.fail(f"no candidate {kw} in {[(c['figure'], c['item_raw'], c['part_number_raw']) for c in res['candidates']]}")
 
+    def test_verified_view_selection_excludes_mismatch_and_ambiguous_results(self):
+        candidate = {"pdf_verification": {"status": "VERIFIED"}, "flags": [],
+                     "description": "GASKET", "_source_pdf": "book.pdf", "figure": "A",
+                     "view_pages": [31]}
+        mismatch = dict(candidate, pdf_verification={"status": "MISMATCH"})
+        self.assertEqual(L.verified_view_candidates([mismatch]), [])
+        self.assertEqual(L.verified_view_candidates([candidate, mismatch]), [])
+        uncertain = dict(candidate, flags=["serial_applicability_unknown"])
+        self.assertEqual(L.verified_view_candidates([uncertain]), [])
+        alternatives = [dict(candidate, figure=str(i), view_pages=[i])
+                        for i in range(3)]
+        self.assertEqual(L.verified_view_candidates(alternatives), [])
+        duplicate = dict(candidate, figure="B", description="GASKET (SEE FIG.A)")
+        distinct = dict(candidate, figure="B", description="GASKET (SEE FIG.C)")
+        self.assertEqual(L.verified_view_candidates([candidate, duplicate]), [candidate])
+        self.assertEqual(L.verified_view_candidates([candidate, distinct]), [candidate, distinct])
+
     # 1 exact PN (p.31)
     def test_exact_pn(self):
         r = run("--part-number", "6218-11-5830", "--verify")

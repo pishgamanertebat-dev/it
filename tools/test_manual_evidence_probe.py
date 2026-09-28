@@ -105,6 +105,14 @@ class ManualEvidenceProbeTests(unittest.TestCase):
         self.assertIn("20.6 (+0.98/0) MPa", diagnosis["text"])
         self.assertEqual(self.coverage["status"], "complete")
 
+    def test_actual_english_generic_symptom_ignores_request_wording(self):
+        packet = json.loads(self.prepared_cli(
+            "HD785-7", "HD785-7 engine overheating causes and checks",
+            "--component", "engine overheating coolant temperature cooling radiator fan thermostat").stdout)
+        self.assertEqual(packet["evidence_coverage"]["status"], "complete")
+        self.assertEqual(packet["evidence_coverage"]["missing_component_terms"], [])
+        self.assertFalse(packet["full_manual_fallback"])
+
     def test_regression_pc800_no_start_preserves_all_three_branches(self):
         pages = self.packet("PC800-8R", "engine does not start")
         for number in (792, 793, 794):
@@ -115,6 +123,8 @@ class ManualEvidenceProbeTests(unittest.TestCase):
         self.assertIn("Exhaust smoke comes out but engine does not start", pages[794]["text"])
         self.assertIn("CA559", pages[793]["text"])
         self.assertEqual(self.coverage["status"], "complete")
+        self.assertTrue(any("Engine does not start" in (topic["heading"] or "")
+                            for topic in self.coverage["matched_topics"]))
 
     def test_regression_pc800_slow_boom_preserves_normal_and_heavy_lift_tests(self):
         pages = self.packet("PC800-8R", "boom is slow hydraulic pressure test")
@@ -183,6 +193,48 @@ class ManualEvidenceProbeTests(unittest.TestCase):
         self.assertTrue(any("oil filter" in (item["heading"] or "").casefold() for item in broad["evidence"]))
         conflict = self.prepared_cli("HD785-7", question, "--component", "oil filter", "--broad", "--no-fallback")
         self.assertNotEqual(conflict.returncode, 0)
+
+    def test_generic_symptom_uses_complete_diagnostic_topic_without_speculative_components(self):
+        def packet(heading, *, requested, limited=False):
+            return probe.evidence_coverage({
+                "search_terms": ["overheating", "cooling", "radiator", "fan"],
+                "requested_terms": requested,
+                "evidence": [{"pdf_page": 3, "heading": heading, "text": "documented checks",
+                              "text_truncated": False}],
+                "topic_groups": [{"seed": 3, "section": "troubleshooting/engine_s_mode",
+                                  "pages": [3], "continuation_limited": limited}],
+            })
+        generic = packet("Coolant temperature becomes too high (overheating)", requested=[])
+        self.assertEqual(generic["status"], "complete")
+        self.assertEqual(generic["missing_component_terms"], [])
+        engine_generic = packet("Coolant temperature becomes too high (overheating)",
+                                requested=["engine", "overheating"])
+        self.assertEqual(engine_generic["status"], "complete")
+        specific = packet("Coolant temperature becomes too high (overheating)", requested=["radiator"])
+        self.assertEqual(specific["status"], "incomplete")
+        self.assertEqual(specific["missing_component_terms"], ["radiator"])
+        cut = packet("Coolant temperature becomes too high (overheating)", requested=[], limited=True)
+        self.assertEqual(cut["status"], "truncated")
+        unrelated = packet("Engine does not start", requested=[])
+        self.assertEqual(unrelated["status"], "incomplete")
+        preface = probe.evidence_coverage({
+            "search_terms": probe.search_terms("electrical system"), "requested_terms": [],
+            "evidence": [{"pdf_page": 3, "heading": "Before carrying out troubleshooting of electrical system",
+                          "text": "preface", "text_truncated": False}],
+            "topic_groups": [{"seed": 3, "section": "troubleshooting/electrical_e_mode",
+                              "pages": [3], "continuation_limited": False}],
+        })
+        self.assertEqual(preface["status"], "incomplete")
+
+    def test_actual_generic_overheating_packet_finishes_on_first_targeted_retrieve(self):
+        packet = json.loads(self.prepared_cli(
+            "HD785-7", "HD785-7 ??? ??????? ??????? ????? ? ??? ????? ?? ???",
+            "--component", "engine overheating high coolant temperature cooling system radiator fan coolant thermostat water pump").stdout)
+        self.assertFalse(packet["full_manual_fallback"])
+        self.assertEqual(packet["evidence_coverage"]["status"], "complete")
+        self.assertEqual(packet["evidence_coverage"]["missing_component_terms"], [])
+        self.assertTrue(any("overheating" in (topic["heading"] or "").casefold()
+                            for topic in packet["evidence_coverage"]["matched_topics"]))
 
     def test_coverage_uses_headings_not_unrelated_mentions(self):
         def packet(heading, section, limited=False, terms=("alternator",), code_found=None, text="alternator"):

@@ -75,6 +75,7 @@ def main():
     ap.add_argument("--fault-code",default="",help="Complete displayed failure code only")
     ap.add_argument("--component",default="",help="Known relevant component, when useful")
     ap.add_argument("--broad",action="store_true",help="Fallback after an indexed miss: scan the whole manual")
+    ap.add_argument("--skip-web",action="store_true",help="Suppress a repeat after a definitive provider failure in this turn")
     ap.add_argument("--web-url",help="One model-selected directly relevant URL from the retrieval results")
     args=ap.parse_args()
     request=prepared_request(args.request_file)
@@ -92,7 +93,10 @@ def main():
         if args.fault_code:probe_args += ["--fault-code",args.fault_code]
         if args.component:probe_args += ["--component",args.component]
         operations=[("manual_packet",lambda:run_probe(*probe_args)),
-                    ("web_search",lambda:web_operation(home,"search",query=query))]
+                    ("web_search",lambda:(
+                        {"success":False,"suppressed":True,
+                         "error":"Repeated web provider HTTP 403 suppressed for this user turn."}
+                        if args.skip_web else web_operation(home,"search",query=query)))]
     else:
         if args.render_pages:
             pages=[str(page) for group in args.render_pages for page in group]

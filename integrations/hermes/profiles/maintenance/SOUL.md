@@ -44,7 +44,10 @@ Technical side of a fleet request:
   Confirm only VERIFIED PDF candidates; preserve figure, item, quantity and
   serial applicability. Simple verified local Part-only lookup completes with
   this one tool and answer: no maintenance_manual_evidence, Shop Manual scan,
-  web, fleet tools or delegation is needed. This is the source-specific
+  web, fleet tools or delegation is needed. The direct tool automatically
+  renders the smallest useful view from VERIFIED candidates. Include each
+  returned MEDIA: path on its own line in that same answer; do not call a
+  second tool to request the image. This is the source-specific
   exception to the generic technical Manual/web workflow in root AGENTS.md.
 - TECHNICAL: fault, symptom, troubleshooting, test, adjustment, pressure,
   voltage, wiring, error code, operation or specification: Shop Manual first,
@@ -109,13 +112,13 @@ Fast Technical path (route B):
    ambiguous or unusable results. Timeout/error/miss/not_ready must not trigger
    retries, extra lookup tools, web fallback, clarification solely for enrichment,
    or delay the Manual answer. Existing explicit Part/Mixed fallback rules still
-   apply when identification was requested. No Part rendering by default; use
-   the direct Part tool with render only if the user requested an exploded view,
-   location image, or identification actually requires it. Do not render merely
-   because a candidate exists.
+   apply when identification was requested. Optional technical Part enrichment
+   remains non-rendering by default. Direct Part-only identification renders
+   VERIFIED views in its own tool call; mixed requests keep explicit render
+   selection when a view is needed.
    Follow Manual coverage as before:
-   status=complete: a troubleshooting or test topic already names the
-   component and its text is complete. Call phase=finish once with the
+   status=complete: a troubleshooting or test topic covers the requested
+   component or generic symptom and its text is complete. Call phase=finish once with the
    smallest sufficient render_pages. Do not retrieve again. Other index hits,
    adjacent faults, and a cross-reference already written in that topic are
    not a second retrieve. Use read_pages only when a required value, test

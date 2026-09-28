@@ -28,7 +28,13 @@ ALIASES = {
     "ضعف": ("low", "weak"),
 }
 STOP = {"the", "and", "for", "with", "from", "does", "not", "work", "working",
-        "failure", "fault", "problem", "system", "machine", "check", "کار", "نمی",
+        "failure", "fault", "problem", "system", "machine", "check",
+        "checks", "cause", "causes", "reason", "reasons", "likely", "possible",
+        "method", "methods", "inspect", "inspection", "diagnose", "diagnosis",
+        "diagnostic", "how", "why", "what", "tell", "explain",
+        "checks", "cause", "causes", "reason", "reasons", "likely", "possible",
+        "method", "methods", "inspect", "inspection", "diagnose", "diagnosis",
+        "diagnostic", "how", "why", "what", "tell", "explain", "کار", "نمی",
         "کند", "مشکل", "دستگاه", "خراب", "است", "را", "در", "به", "از", "با", "و"}
 # Modifiers describe a symptom. Background words occur throughout a shop manual and
 # do not by themselves name the component the question is about.
@@ -349,12 +355,16 @@ def _diagnostic(section):
 def evidence_coverage(result):
     """Say whether the packet already contains the documented topic.
 
-    A component is covered only when a troubleshooting or test heading names it,
-    or names another term from the same manual alias family. A passing mention in
-    an unrelated fault is not coverage. No machine, page, or benchmark question
-    is special-cased.
+    A user-named component is covered only when a troubleshooting or test
+    heading names it or its manual alias. A generic symptom needs one complete
+    matching diagnostic topic; suggested causes in retrieval keywords do not
+    become mandatory components. Passing mentions in unrelated faults do not
+    establish coverage. No machine, page, or benchmark question is special-cased.
     """
     terms = [term.casefold() for term in result.get("search_terms") or []]
+    # Retrieval keywords may include possible causes. Only components named
+    # by the user are mandatory coverage targets.
+    requested = [term.casefold() for term in result.get("requested_terms") or []]
     evidence = result.get("evidence") or []
     groups = result.get("topic_groups") or []
     by_page = {item["pdf_page"]: item for item in evidence}
@@ -380,6 +390,15 @@ def evidence_coverage(result):
         # the index never grouped, still has to appear in a heading.
         (alias_families if len(members) > 1 else loose).append((term, members))
     families = alias_families or loose
+    requested_families = []
+    for term, members in families:
+        if any(_distinctive(user_term) and not any(ch.isdigit() for ch in user_term)
+               and user_term in members for user_term in requested):
+            requested_families.append((term, members))
+    generic_symptom = "requested_terms" in result and not requested_families
+    if requested_families:
+        families = requested_families
+    requested_anchors = [term for term in requested if term in COVERAGE_BACKGROUND]
 
     def heading_text(group):
         pages = [by_page[number] for number in group["pages"] if number in by_page]
@@ -394,7 +413,40 @@ def evidence_coverage(result):
         if not _diagnostic(group.get("section") or ""):
             return False
         heading = heading_text(group)
-        return any(_distinctive(member) and _contains_term(heading, member) for member in members)
+        section = _flat((group.get("section") or "").replace("_", " ").replace("/", " "))
+        return (any(_distinctive(member) and _contains_term(heading, member) for member in members)
+                and (not requested_anchors or any(
+                    _contains_term(heading, anchor) or _contains_term(section, anchor)
+                    for anchor in requested_anchors)))
+
+    if generic_symptom and not families:
+        return {"status": "incomplete", "action": "refined_retrieve",
+                "reason": "The normalized query has no distinctive symptom or component term; a general diagnostic preface cannot establish coverage.",
+                "missing_component_terms": [], "matched_topics": [],
+                "resume_at_pdf_pages": []}
+    if generic_symptom and families:
+        covering = [(term, group) for term, members in families for group in groups
+                    if covers(group, members)]
+        done = [(term, group) for term, group in covering if complete(group)]
+        chosen = sorted(done or covering, key=lambda pair:
+                        0 if pair[1].get("section", "").startswith("troubleshooting/") else 1)
+        if chosen:
+            term, group = chosen[0]
+            pages = [by_page[number] for number in group["pages"] if number in by_page]
+            matched = [{
+                "heading": next((item.get("heading") for item in pages if item.get("heading")), None),
+                "section": group.get("section"), "pdf_pages": list(group["pages"]),
+                "complete": bool(done),
+            }]
+            if done:
+                return {"status": "complete", "action": "finish",
+                        "reason": "A complete troubleshooting or test topic covers the requested generic symptom. Possible causes in retrieval keywords are not required headings.",
+                        "missing_component_terms": [], "matched_topics": matched,
+                        "resume_at_pdf_pages": []}
+            return {"status": "truncated", "action": "finish_read_pages",
+                    "reason": "The matching generic symptom topic is in this packet, but its pages were cut off.",
+                    "missing_component_terms": [], "matched_topics": matched,
+                    "resume_at_pdf_pages": [max(group["pages"]) + 1]}
 
     missing, truncated, matched = [], [], []
     for term, members in families:
@@ -676,6 +728,7 @@ def main():
     result = probe(section_map, metadata, chosen, terms,
                    min(max(args.top, 1), 10), min(max(args.page_chars, 500), 4000),
                    not args.no_fallback, args.fault_code)
+    result["requested_terms"] = search_terms(args.problem, code=args.fault_code) if args.model else terms
     if args.packet:
         result = evidence_packet(section_map, metadata, result)
     result["search_terms"] = terms

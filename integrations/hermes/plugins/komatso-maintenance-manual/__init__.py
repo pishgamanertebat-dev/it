@@ -222,7 +222,9 @@ def prepared_policy(info):
 
 MAX_RETRIEVES = 3
 _requests = {}
+_request_keys = {}
 _retrieves = {}
+_web_failures = set()
 
 TOOL_DESCRIPTION = (
     "Maintenance Parent fast Shop Manual path for diagnosis, tests, adjustments or specifications. "
@@ -297,7 +299,7 @@ def evidence_followup(coverage, broad=False):
     if status == "complete":
         return (
             "evidence_coverage.status is complete. A documented troubleshooting or test topic in this packet "
-            "already names the requested component and its text is complete. Call phase=finish with this "
+            "already covers the requested component or generic symptom and its text is complete. Call phase=finish with this "
             "request_id and the smallest sufficient render_pages. Do not retrieve again. Other index hits, "
             "adjacent faults, and a cross-reference already written in that topic are not missing evidence. "
             "Use read_pages only when a required value, test condition, or safety step is not already in the "
@@ -465,12 +467,22 @@ def retrieve(args, home, session_id):
     request_id, request_file = write_request(home, seed, model, question)
     with _registry_lock:
         _requests[request_id] = session_id
+        _request_keys[request_id] = count_key
     command = ["retrieve", "--request-file", request_file, "--component", keywords]
     if fault_code:
         command += ["--fault-code", fault_code]
     if args.get("broad"):
         command.append("--broad")
+    with _registry_lock:
+        skip_web = count_key in _web_failures
+    if skip_web:
+        command.append("--skip-web")
     retrieval, enrichment, metrics = run_retrieval(command, session_id, model, args.get("part_query"), request_id)
+    web = retrieval.get("web_search") or {}
+    web_error = str(web.get("backend_error") or web.get("error") or "")
+    if re.search(r"(?<![0-9])403(?![0-9])", web_error):
+        with _registry_lock:
+            _web_failures.add(count_key)
     coverage = (retrieval.get("manual_packet") or {}).get("evidence_coverage")
     return {
         "evidence_coverage": coverage or {"status": "unknown", "action": "judge"},
@@ -508,6 +520,9 @@ def finish(args, session_id):
         raise ValueError("Select image pages, needed text pages or a relevant URL")
     result = run_batch(command, session_id)
     with _registry_lock:
+        count_key = _request_keys.pop(request_id, None)
+        if count_key:
+            _web_failures.discard(count_key)
         enrichment = _request_enrichments.pop(request_id, None)
     if enrichment and enrichment[0] == session_id:
         result["part_enrichment"] = enrichment[2]["result"] if enrichment[1].is_set() else {"status": "not_ready", "candidates": []}
@@ -557,7 +572,7 @@ def part_schema(models):
             "query": {"type": "string", "description": "English Part Book component name; no guessed PN"},
             "figure": {"type": "string"}, "item": {"type": "integer", "minimum": 0},
             "serial": {"type": "string", "description": "Machine serial only if supplied/verified"},
-            "render": {"type": "boolean", "description": "Only when an exploded view is requested"},
+            "render": {"type": "boolean", "description": "Optional explicit render for mixed requests; verified direct Part-only identification renders automatically"},
         }}}
 
 
@@ -592,7 +607,10 @@ def part_lookup(args, session_id="", **kwargs):
                               ("--serial", args.get("serial"))):
             if value is not None and str(value).strip():
                 command += [option, str(value)]
-        if args.get("render"):
+        intent = source_intent(question)
+        if intent == "part":
+            command.append("--auto-render-verified")
+        elif args.get("render"):
             command.append("--render")
         env = dict(os.environ, PYTHONIOENCODING="utf-8")
         if session_id:
@@ -604,13 +622,17 @@ def part_lookup(args, session_id="", **kwargs):
             raise ValueError("Part Book lookup failed: " + completed.stderr.decode("utf-8", "replace")[-500:])
         result = json.loads(completed.stdout)
         result["prepared"] = prepared
-        result["source_intent"] = source_intent(question)
+        result["source_intent"] = intent
+        media = [item["output"] for item in result.get("rendered", [])
+                 if item.get("ok") and str(item.get("output", "")).startswith("MEDIA:")]
+        result["media"] = media
         result["next"] = (
             "Answer identification only from VERIFIED PDF candidates with figure/item/quantity/applicability. "
             "Simple verified local lookup needs no Shop Manual/web. Mixed intent also needs Shop Manual technical "
             "evidence. Coverage is partial: miss/MISMATCH/outside serial/ambiguity needs appropriate Part Book "
             "fallback; supersession/replacement/unavailable permit targeted web. Index miss is NOT evidence "
-            "that the part does not exist.")
+            "that the part does not exist. For direct Part-only identification, include every returned "
+            "MEDIA: path on its own line in the same final response.")
         return json.dumps(result, ensure_ascii=False)
     except (OSError, ValueError, KeyError, TypeError, subprocess.TimeoutExpired) as exc:
         return json.dumps({"success": False, "coverage_complete": False, "error": str(exc)}, ensure_ascii=False)

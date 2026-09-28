@@ -62,6 +62,23 @@ class SourceRoutingTests(unittest.TestCase):
         self.assertIn("6218-11-5830", run.call_args.args[0])
         self.assertEqual(result["source_intent"], "part")
 
+    def test_direct_verified_part_delivers_one_media_page_in_same_tool_result(self):
+        result = json.loads(plugin.part_lookup(
+            dict(model="HD785-7", question="????? ??? ???? 6218-11-5830 ???? HD785-7 ?? ????? ??"),
+            session_id="part-direct-regression"))
+        self.assertEqual(result["source_intent"], "part")
+        self.assertEqual(len(result["media"]), 1)
+        self.assertIn("partbook-p31.png", result["media"][0])
+        self.assertTrue(Path(result["media"][0][6:]).is_file())
+        self.assertEqual([page["pdf_page"] for page in result["rendered"]], [31])
+        self.assertIn("same final response", result["next"])
+
+    def test_direct_part_miss_has_no_media(self):
+        result = self.lookup("HD785-7 Part Number 99999-99-99999")
+        self.assertEqual(result["found"], 0)
+        self.assertEqual(result["media"], [])
+        self.assertNotIn("rendered", result)
+
     def test_part_only_manual_dispatch_stops_before_rules_filter_or_scan(self):
         with patch.object(plugin, "run_batch", side_effect=AssertionError("Manual/web must not run")):
             result = json.loads(plugin.manual_evidence(dict(phase="retrieve", model="HD785-7",
@@ -102,6 +119,34 @@ class SourceRoutingTests(unittest.TestCase):
             rules, _ = plugin.select_rules(device, root, question, presentation=True)
             self.assertIn("PARTBOOK_RULES_V1", rules)
             self.assertIn("partbook_lookup.py", rules)
+
+    def test_parallel_403_suppresses_same_turn_repeat_but_keeps_manual(self):
+        session = "web-403-routing-regression"
+        calls = []
+        def retrieval(command, *_):
+            calls.append(command)
+            return ({"manual_packet": {"evidence_coverage": {"status": "incomplete"}},
+                     "web_search": {"success": True, "backend_error":
+                                    "Parallel search failed: 403 Forbidden /v1beta/search; rescued by free tier"}},
+                    {"status": "skipped"}, {})
+        try:
+            with patch.object(plugin, "run_retrieval", side_effect=retrieval):
+                first = plugin.retrieve(dict(model="HD785-7", question=C, keywords="retarder weak"),
+                                        Path("profiles/maintenance"), session)
+                second = plugin.retrieve(dict(model="HD785-7", question=C, keywords="rear brake ineffective"),
+                                         Path("profiles/maintenance"), session)
+            self.assertNotIn("--skip-web", calls[0])
+            self.assertIn("--skip-web", calls[1])
+            self.assertIn("manual_packet", first["retrieval"])
+            self.assertIn("manual_packet", second["retrieval"])
+        finally:
+            key = (session, C.strip())
+            plugin._web_failures.discard(key)
+            plugin._retrieves.pop(key, None)
+            for request_id, owner_key in list(plugin._request_keys.items()):
+                if owner_key == key:
+                    plugin._request_keys.pop(request_id, None)
+                    plugin._requests.pop(request_id, None)
 
     def test_schema_is_registered_in_existing_maintenance_toolset(self):
         class Context:
