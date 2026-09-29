@@ -77,6 +77,20 @@ PROFILES = {
                      "icon_pn_glyphs": ("j", "i"),
                      "header_without_parts": "section_or_template",
                      "disambiguate_group_prefix": True},
+    # The Reference above each table also labels its top-of-page exploded view.
+    "pc1250_top_view": {"groups": "toc_levels", "columns": "pc1250_headers",
+                        "figure": "table_reference", "view": "raster_above_table",
+                        "header_index_token": "Item", "desc_header_token": "Name",
+                        "qty_header_tokens": ("Qty",), "serial_header_tokens": ("Serial", "Options"),
+                        "quantity_tokens": ("AR",), "item_suffix_letters": True,
+                        "serial_open_trailing_dashes": True,
+                        "applicability_banner": {"engine": "SAA6D170E-5CR-W",
+                                                 "machine": "PC1250SP-8R"},
+                        "allowed_banners": ("SAA6D170E-5CR-W", "PC1250SP-8R"),
+                        "strip_pn_controls": True,
+                        "pn_pattern": r"^[A-Z0-9]{2,9}(?:-[A-Z0-9]{1,8}){1,3}$|^[A-Z0-9]{8,14}$",
+                        "group_item_markers": ("G", "G1", "G2"),
+                        "serial_double_dash_closed": True},
 }
 
 BOOKS = {
@@ -137,6 +151,14 @@ BOOKS = {
         "engine_serial_raw": "610017 and up",
         "text_layer": True,
         "extractor_version": "pb-geom-hd465-1",
+    },
+    "PC1250SP-8R": {
+        "model": "PC1250SP-8R", "profile": "pc1250_top_view",
+        "pdf": "PC1250-8R/PC1250-8R-1 PARTBOOK-pdf.pdf",
+        "title": "PC1250SP-8R Parts Book, serial 35001-UP, W/O EGR, +55C; engine SAA6D170E-5CR-W 610001-UP",
+        "machine_serial_prefix": "", "machine_serial_from": 35001,
+        "machine_serial_to": None, "engine_serial_raw": "SAA6D170E-5CR-W 610001-UP",
+        "text_layer": True, "extractor_version": "pb-geom-pc1250sp-1",
     },
 }
 
@@ -222,7 +244,8 @@ def norm_pn(raw: str) -> tuple[str, list[str]]:
 
 
 def parse_serial(raw: str, book: dict, default_kind: str = "machine", *,
-                  open_bare_engine: bool = False, open_trailing_dashes: bool = False) -> list[dict]:
+                  open_bare_engine: bool = False, open_trailing_dashes: bool = False,
+                  double_dash_closed: bool = False) -> list[dict]:
     out = []
     if not raw:
         return out
@@ -233,6 +256,14 @@ def parse_serial(raw: str, book: dict, default_kind: str = "machine", *,
     for part in s.split(","):
         m = re.match(r"^([A-Z]*)(\d+)(?:-(\d*))?$", part)
         if not m:
+            if double_dash_closed:
+                closed = re.match(r"^([A-Z]*)(\d+)--(\d+)$", part)
+                if closed:
+                    pfx, a, b = closed.group(1) or prefix, closed.group(2), closed.group(3)
+                    out.append({"kind": kind, "prefix": pfx, "from_raw": a, "to_raw": b,
+                                "from_num": int(a), "to_num": int(b),
+                                "flags": ["double_dash_closed"]})
+                    continue
             if open_trailing_dashes:
                 dashed = re.match(r"^([A-Z]*)(\d+)--+$", part)
                 if dashed:
@@ -472,13 +503,13 @@ def parse_list_page(page, pno: int, profile: dict | None = None):
         t = w[4]
         if t == profile.get("header_index_token", "INDEX") and "index" not in hdr:
             hdr["index"] = w
-        elif t == "PART" and "part" not in hdr:
+        elif t in ("PART", "Part") and "part" not in hdr:
             hdr["part"] = w
-        elif t == "DESCRIPTION" and "desc" not in hdr:
+        elif t in ("DESCRIPTION", "Description", profile.get("desc_header_token")) and "desc" not in hdr:
             hdr["desc"] = w
         elif t in profile.get("qty_header_tokens", ("Q'TY", "QT'Y", "QTY")) and "qty" not in hdr:
             hdr["qty"] = w
-        elif t == "SERIAL" and "serial" not in hdr:
+        elif t in profile.get("serial_header_tokens", ("SERIAL",)) and "serial" not in hdr:
             hdr["serial"] = w
     if len(hdr) < 5:
         return None
@@ -490,6 +521,11 @@ def parse_list_page(page, pno: int, profile: dict | None = None):
     if profile.get("figure") == "footer_ref":
         ref_y = [w[1] for w in words if w[4] == "Ref."]
         bottom = min(ref_y) - 1 if ref_y else page_h - 60
+    elif profile["columns"] == "pc1250_headers":
+        footer_y = [w[1] for w in words
+                    if (w[4] == "Ref." or w[4].startswith("Reference:"))
+                    and w[1] > hy + 25]
+        bottom = min(footer_y) - 1 if footer_y else page_h - 20
     else:
         foot_y = [w[1] for w in words if w[1] > page_h * 0.7 and w[4] in FOOTER_TOKENS]
         bottom = min(foot_y) - 1 if foot_y else page_h - 60
@@ -500,7 +536,15 @@ def parse_list_page(page, pno: int, profile: dict | None = None):
     def mode_x(cands, default):
         c = Counter(round(w[0]) for w in cands)
         return c.most_common(1)[0][0] if c else default
-    if profile["columns"] == "header_offsets":
+    if profile["columns"] == "pc1250_headers":
+        # The same book prints compact and wide tables; the quantity and serial
+        # headers track those changes while PN and description cells start at 88/150.
+        x_pn, x_desc = 84, 145
+        x_qty = hdr["qty"][0] - 4
+        x_ser = mode_x([w for w in lst if
+                        re.match(r"^(?:SN:\d+|\d{5,}-)", w[4])
+                        and w[0] >= hdr["qty"][0]], hdr["serial"][0]) - 2
+    elif profile["columns"] == "header_offsets":
         # WA600 has the same five logical columns in two horizontal placements.
         # Their data offsets from the printed headers are stable on both halves.
         x_pn = hdr["part"][0] + profile["pn_offset"]
@@ -526,7 +570,8 @@ def parse_list_page(page, pno: int, profile: dict | None = None):
         cols = {"item": [], "pn": [], "desc": [], "qty": [], "serial": []}
         for w in rw:
             x, t = w[0], w[4]
-            if x < x_pn and not cols["item"] and not cols["pn"] and item_re.match(t):
+            if (x < x_pn and not cols["item"] and not cols["pn"] and
+                    (item_re.match(t) or t in profile.get("group_item_markers", ()))):
                 cols["item"].append(w)
             elif x < x_desc:
                 cols["pn"].append(w)
@@ -548,6 +593,21 @@ def parse_list_page(page, pno: int, profile: dict | None = None):
           "footer": " ".join(w[4] for w in sorted(footer, key=lambda z: z[0])),
           "list_bbox": pymupdf.Rect(x_idx, hdr["index"][1], page.rect.width, bottom),
           "columns": {"pn": x_pn, "desc": x_desc, "qty": x_qty, "serial": x_ser}}
+    if profile["figure"] == "table_reference":
+        text = page.get_text("text")
+        refs = re.findall(r"(?:Reference:|Ref\.\s*)([A-Z]\d{4}-[A-Z0-9]{4,7})", text)
+        labels = re.findall(r"(?:Page:|Page\s+)([A-Z0-9]{6,7})", text)
+        fp["table_figure"] = refs[-1].upper() if refs else None
+        fp["view_figure"] = refs[0].upper() if len(refs) > 1 else None
+        fp["page_label"] = labels[-1] if labels else None
+        fp["banner_text"] = text.splitlines()[0] if text else ""
+        before_ref = re.split(r"(?:Reference:|Ref\.\s*)[A-Z]\d{4}-[A-Z0-9]{4,7}", text)
+        title_area = before_ref[-2] if len(before_ref) > 1 else ""
+        lines = title_area.splitlines()
+        banners = [i for i, line in enumerate(lines)
+                   if any(b in line for b in profile["allowed_banners"])]
+        title_lines = [line.strip() for line in lines[banners[-1] + 1:] if line.strip()] if banners else []
+        fp["list_title"] = " ".join(title_lines[-3:])
     if profile["figure"] == "table_heading":
         text = page.get_text("text")
         figure = re.search(r"FIG\s+NO\.\s*:\s*([A-Z]\d{4}-[A-Z0-9]{4,7})", text, re.I)
@@ -693,6 +753,12 @@ def build(book_id: str, db_path: Path) -> dict:
     doc = pymupdf.open(pdf)
     groups = []
     printed_groups = {}
+    if profile["groups"] == "toc_levels":
+        headings = [(title, start) for level, title, start in doc.get_toc() if level == 1 and start >= 4]
+        groups = [(f"TOC{i:02}", title, start,
+                   headings[i][1] - 1 if i < len(headings) else doc.page_count)
+                  for i, (title, start) in enumerate(headings, 1)]
+        con.executemany("INSERT INTO groups VALUES (?,?,?,?,?)", [(book_id, *g) for g in groups])
     if profile["groups"] == "toc":
         toc = [(t[1], t[2]) for t in doc.get_toc()]
         for i, (title, start) in enumerate(toc):
@@ -723,10 +789,14 @@ def build(book_id: str, db_path: Path) -> dict:
     occ_id = con.execute("SELECT coalesce(max(occ_id),0) FROM part_occurrences").fetchone()[0]
     for pi in range(doc.page_count):
         pno = pi + 1
-        g = group_for(pno) if profile["groups"] == "toc" else None
+        g = group_for(pno) if profile["groups"] in ("toc", "toc_levels") else None
         if profile["groups"] == "toc" and (g is None or g[0] in ("NU",)):
             continue
         page = doc[pi]
+        if profile.get("allowed_banners") and not any(
+                banner in page.get_text("text")[:120] for banner in profile["allowed_banners"]):
+            stats["no_table_pages"].append(pno)
+            continue
         parsed = parse_list_page(page, pno, profile)
         if parsed is None:
             # HD465 section titles sit on header pages, so contents pages stay front matter.
@@ -756,7 +826,17 @@ def build(book_id: str, db_path: Path) -> dict:
             bounds[1] = pno
             g = (code, code, bounds[0], bounds[1])
         page_flags = []
-        if profile["figure"] == "table_heading":
+        if profile["figure"] == "table_reference":
+            fig_no = fp.get("table_figure") or f"UNKNOWN-P{pno}"
+            title = fp.get("list_title") or ""
+            fig_line = "Reference:" + (fp.get("table_figure") or "")
+            if not fp.get("table_figure"):
+                page_flags.append("figure_header_missing")
+                stats["figure_missing_pages"].append(pno)
+            if fp.get("view_figure") and fp["view_figure"] != fig_no:
+                page_flags.append("view_figure_mismatch")
+                stats["figure_view_mismatch_pages"].append(pno)
+        elif profile["figure"] == "table_heading":
             fig_no = fp.get("table_figure") or f"UNKNOWN-P{pno}"
             title = fp.get("view_title") or fig_meta.get(fig_no, {}).get("title", "")
             fig_line = "FIG NO. : " + (fp.get("table_figure") or "")
@@ -793,7 +873,17 @@ def build(book_id: str, db_path: Path) -> dict:
         is_cont = fig_no == last["fig"]
         if fig_no != last["fig"]:
             last.update(item_no=None, occ=None, item_raw=None)
-        if profile["view"] == "vector_header":
+        if profile["view"] == "raster_above_table":
+            top_images = [pymupdf.Rect(info["bbox"]) * page.rotation_matrix
+                          for info in page.get_image_info()]
+            top_images = [rect for rect in top_images
+                          if rect.width > 100 and rect.height > 100
+                          and rect.y1 < fp["list_bbox"].y0 - 15]
+            has_view = bool(top_images) and fp.get("view_figure") == fig_no
+            vb = rect_str(max(top_images, key=lambda rect: rect.width * rect.height)) if has_view else ""
+            label = fp.get("page_label") or ""
+            title_raw = fp.get("list_title") or fig_line
+        elif profile["view"] == "vector_header":
             has_view = fp.get("view_figure") == fig_no
             vb = vector_view_bbox(page, fp["list_bbox"]) if has_view else ""
             label = fp.get("page_label") or ""
@@ -893,21 +983,34 @@ def build(book_id: str, db_path: Path) -> dict:
         prev_row = None
         for r in rows:
             t = r["txt"]
+            if profile["columns"] == "pc1250_headers" and t["pn"].startswith(("Ref.", "Reference:")):
+                continue
+            if (profile["columns"] == "pc1250_headers" and t["pn"] and
+                    not (t["item"] or t["qty"] or t["serial"]) and
+                    not re.match(profile["pn_pattern"], norm_pn(t["pn"])[0])):
+                # Section labels such as STANDARD are printed in the PN column.
+                continue
             flags = list(page_flags)
             item_raw = t["item"] or None
             pn_raw = t["pn"] or None
             item_no, marker, inherited = None, None, 0
             if item_raw:
-                im = item_re.match(item_raw)
-                if im:
-                    item_no, marker = int(im.group(1)), (im.group(2) or None)
+                if item_raw in profile.get("group_item_markers", ()):
+                    marker = item_raw
+                    flags.append("item_group_marker")
                 else:
-                    flags.append("item_unparsed")
+                    im = item_re.match(item_raw)
+                    if im:
+                        item_no, marker = int(im.group(1)), (im.group(2) or None)
+                    else:
+                        flags.append("item_unparsed")
             # Description-only lines continue the preceding source row.
             if not item_raw and not pn_raw and not t["qty"] and not t["serial"] and t["desc"] and prev_row:
-                con.execute("UPDATE part_occurrences SET description_raw = description_raw || ' ' || ?, "
+                separator = " || " if profile["columns"] == "pc1250_headers" else " "
+                con.execute("UPDATE part_occurrences SET description_raw = description_raw || ? || ?, "
                             "raw_text = raw_text || ' || ' || ?, flags = json_insert(flags, '$[#]', 'desc_wrapped') "
-                            "WHERE occ_id=?", (clean_description(t["desc"], profile), r["raw"], prev_row))
+                            "WHERE occ_id=?", (separator, clean_description(t["desc"], profile),
+                                              r["raw"], prev_row))
                 continue
             glyphs = set(profile.get("icon_pn_glyphs") or ())
             if pn_raw and glyphs:
@@ -928,7 +1031,7 @@ def build(book_id: str, db_path: Path) -> dict:
                 flags.append("pn_symbol_only")
             elif not pn_raw:
                 flags.append("no_part_number")
-            elif not PN_RE.match(pn_norm):
+            elif not re.match(profile.get("pn_pattern", PN_RE), pn_norm):
                 flags.append("pn_pattern_unusual")
             if item_no is None and not item_raw:
                 if last["item_no"] is not None:
@@ -938,7 +1041,7 @@ def build(book_id: str, db_path: Path) -> dict:
                         flags.append("continued_from_previous_page")
                 else:
                     flags.append("item_missing")
-            if marker:
+            if marker and marker not in profile.get("group_item_markers", ()):
                 flags.append("item_marker_star" if marker == "*" else
                              "item_marker_dash" if marker == "-" else
                              "item_suffix_" + marker)
@@ -969,10 +1072,15 @@ def build(book_id: str, db_path: Path) -> dict:
                          rect_str(r["bbox"]), book.get("extractor_version", EXTRACTOR_VERSION),
                          r["raw"], status, json.dumps(flags)))
             serial_kind = serial_kind_for_page(profile, fp.get("banner_text") or "", g[0])
+            if profile["columns"] == "pc1250_headers" and t["serial"] and "@" in t["serial"]:
+                flags.append("ambiguous_applicability_symbol")
+                con.execute("UPDATE part_occurrences SET flags=? WHERE occ_id=?",
+                            (json.dumps(flags), occ_id))
             for a in parse_serial(
                     t["serial"], book, serial_kind,
                     open_bare_engine=bool(profile.get("bare_engine_open_start") and serial_kind == "engine"),
-                    open_trailing_dashes=bool(profile.get("serial_open_trailing_dashes"))):
+                    open_trailing_dashes=bool(profile.get("serial_open_trailing_dashes")),
+                    double_dash_closed=bool(profile.get("serial_double_dash_closed"))):
                 con.execute("INSERT INTO row_applicability VALUES (?,?,?,?,?,?,?,?)",
                             (occ_id, a["kind"], a["prefix"], a["from_raw"], a["to_raw"],
                              a["from_num"], a["to_num"], json.dumps(a["flags"])))

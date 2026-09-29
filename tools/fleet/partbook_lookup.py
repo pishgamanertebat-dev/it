@@ -173,7 +173,9 @@ def verify_rows(cands, con):
                 toks = set(text.split())
                 checks = {}
                 if c["part_number_raw"]:
-                    checks["part_number"] = c["part_number_raw"] in toks
+                    checks["part_number"] = (c["part_number_raw"] in toks or
+                                              (" " in c["part_number_raw"] and
+                                               c["part_number_raw"] in text))
                 if c["item_raw"]:
                     checks["item"] = c["item_raw"] in toks
                 if c["quantity"]:

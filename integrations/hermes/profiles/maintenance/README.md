@@ -155,6 +155,27 @@ after an indexed miss. `finish` accepts only a `request_id` created by the
 same session's retrieve, and URLs from that retrieve's search results. The
 handler refuses delegated child sessions, so the child contracts are unchanged.
 
+### PC1250SP-8R Part Book index (September 2026)
+
+The 789-page Filemarket PC1250-8R compilation contains an explicitly printed
+PC1250SP-8R S/N 35001-UP (W/O EGR, +55C) parts section on PDF pages 137-788.
+Its preceding SAA6D170E-5CR-W engine section states S/N 610001-UP; PDF page
+136 names a different engine variant and is excluded. Only the PC1250SP-8R
+model key is enabled. The `pc1250_top_view` profile uses PDF bookmarks for
+groups, printed Reference IDs for Figures, and a matching top raster view.
+Variable-width tables can continue on viewless pages. Exact rows are verified
+against the PDF before direct media; `@` serial notation and multi-Figure
+ambiguity suppress automatic rendering.
+
+The index has 18 groups, 598 Figures, 784 parts-list pages (598 with a
+matching view, 186 without a new view), and 13,487 source rows. Of these,
+676 blank-PN rows are rejected and 314 other rows need verification.
+The book was built twice in a private copy of production SQLite; all
+per-table digests matched, and HD785-7 B1, WA600-6, HD785-5, and HD465-7R
+digests were preserved before and after atomic installation. Run
+`python -m unittest tools.fleet.test_partbook_pc1250sp
+tools.test_maintenance_pc1250sp_part` for source-grounded checks.
+
 ## Two-stream delegation
 
 The maintenance Bale `delegation` toolset adds only `delegate_task` to the
