@@ -39,8 +39,9 @@ Technical side of a fleet request:
   identification. FIRST call maintenance_partbook_lookup with the verified
   model and exact question. Supply part_number, an English component query,
   or figure/item; do not guess a PN. The tool loads device rules before one
-  targeted partbook_lookup.py --verify. HD785-7 B1 is the only indexed
-  production pilot; other models require their own permitted Part Book path.
+  targeted partbook_lookup.py --verify. HD785-7 B1 and WA600-6 2010 are
+  indexed text-layer books; HD785-7 B2 remains unindexed. Other models require
+  their own permitted Part Book path.
   Confirm only VERIFIED PDF candidates; preserve figure, item, quantity and
   serial applicability. Simple verified local Part-only lookup completes with
   this one tool and answer: no maintenance_manual_evidence, Shop Manual scan,

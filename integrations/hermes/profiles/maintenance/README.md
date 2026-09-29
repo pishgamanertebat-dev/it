@@ -41,12 +41,36 @@ This is a tool configuration for the routed agent, not a bot credential or a sec
 Part Number, Parts Book identification and Figure/Item requests start with
 `maintenance_partbook_lookup`; mixed requests use it first and retain Shop
 Manual evidence for diagnosis. Simple VERIFIED local identification needs no
-manual/web lookup. HD785-7 B1 remains the only indexed production pilot;
+manual/web lookup. HD785-7 B1 and WA600-6 2010 are indexed production books;
 misses and coverage gaps permit fallback and never prove nonexistence.
 The Part tool reads full device rules, then calls the existing
 `tools/fleet/partbook_lookup.py --verify` once. The manual dispatch guard stops
 Part-only requests before any Shop Manual/web batch. Both tools use the
 existing `komatso_maintenance` toolset and direct schemas.
+
+### WA600-6 Part Book index (September 2026)
+
+`tools/partbook_index.py --book WA600-6-2010` builds the text-layer
+`WA600-6/WA600-6-partbook-2010.pdf` into the existing SQLite/FTS5 index.
+The builder copies the current DB, replaces only that book's records, checks
+other-book counts, then atomically installs the result. HD785-7 B1 remains
+indexed and B2 remains unindexed. The shared extractor uses a small
+`wa600_vector` layout profile for printed group labels, column offsets,
+table Figure IDs and vector exploded views. No PDF scan occurs at lookup time.
+
+The verified source has 795 PDF pages: 674 parts-list pages, 650 pages with a
+vector view and 24 continuation tables without a new view. The index contains
+621 Figures and 12,721 source rows (12,306 orderable rows, 4,890 distinct
+normalized PNs); 930 rows carry review flags and one row is rejected. Front
+matter and the numerical index are outside the row index. Source serial notes
+remain raw; the AA engine group is also stored as engine applicability, while
+other groups use machine applicability. A continuation row uses the Figure's
+verified view page. Direct Part-only VERIFIED lookup automatically renders one
+unique Figure page, or two distinct VERIFIED alternatives; optional technical
+Part enrichment remains non-rendering. Run
+`python -m unittest tools.fleet.test_partbook_wa600 tools.test_maintenance_wa600_part`
+after rebuilding. Older benchmark sections below describe their historical
+HD785-only pilot state.
 
 `SOUL.md` routes technical requests: greetings, clarification and trivial answers
 go to the Parent directly; a technical/manual question about a supported

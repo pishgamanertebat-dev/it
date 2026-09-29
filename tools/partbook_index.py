@@ -1,7 +1,7 @@
 """Rebuildable SQLite + FTS5 index for Komatsu text-layer Part Books.
 
-Pilot scope: HD785-7 book B1 (SERIAL NUMBERS N10001-N10560) only.
-B2 (N8173 and up) is scanned; it is deliberately NOT OCR'd or indexed here.
+Indexed text-layer books use one geometry/SQLite pipeline with book profiles.
+HD785-7 B2 (N8173 and up) remains scanned and deliberately unindexed.
 
 The index is a ROUTER, not technical evidence. Every row keeps raw text,
 PDF page, bbox and row ordinal so the lookup tool can re-read that exact
@@ -9,6 +9,7 @@ page region from the real PDF for verification.
 
 Rebuild:
     E:\\KomatsoAI\\.venv\\Scripts\\python.exe E:\\KomatsoAI\\tools\\partbook_index.py --book HD785-7-B1
+    E:\\KomatsoAI\\.venv\\Scripts\\python.exe E:\\KomatsoAI\\tools\\partbook_index.py --book WA600-6-2010
 
 Only the generated SQLite file (runtime/partbook/, gitignored) is written.
 No operational DB, fleet data, gateway or messaging state is touched.
@@ -31,11 +32,24 @@ ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_DB = ROOT / "runtime" / "partbook" / "partbook_index.sqlite"
 EXTRACTOR_VERSION = "pb-geom-1"
 
-# Book registry. Adding B2 later = new entry with its own extraction method
-# (e.g. OCR) writing into the same schema; nothing here assumes one book.
+# Source-layout choices only. Rows, normalization, SQLite storage, and PDF
+# verification remain shared across text-layer books.
+PROFILES = {
+    "hd785_raster": {"groups": "toc", "columns": "learned",
+                     "figure": "left_heading", "view": "raster",
+                     "engine_groups": (), "item_suffix_letters": False},
+    "wa600_vector": {"groups": "printed_label", "columns": "header_offsets",
+                     "figure": "table_heading", "view": "vector_header",
+                     "pn_offset": -28, "desc_offset": -55,
+                     "qty_offset": -10, "serial_offset": -14,
+                     "engine_groups": ("AA",), "quantity_tokens": ("AR",),
+                     "item_suffix_letters": True},
+}
+
 BOOKS = {
     "HD785-7-B1": {
         "model": "HD785-7",
+        "profile": "hd785_raster",
         "pdf": "HD785-7/KOMATSU HD785-7 DUMP TRUCK PART BOOK SERIAL NUMBERS N10001- N10560.pdf",
         "title": "HD785-7 Parts Book, Serial N10001-N10560, Engine SAA12V140E-3B-02",
         "machine_serial_prefix": "N",
@@ -46,6 +60,7 @@ BOOKS = {
     },
     "HD785-7-B2": {
         "model": "HD785-7",
+        "profile": "hd785_raster",
         "pdf": "HD785-7/KOMATSU HD785-7 DUMP TRUCK PART BOOK SERIAL NUMBERS N8173 and up.pdf",
         "title": "HD785-7 Parts Book, Serial N8173 and up (scanned, NOT indexed)",
         "machine_serial_prefix": "N",
@@ -53,6 +68,18 @@ BOOKS = {
         "machine_serial_to": None,
         "engine_serial_raw": None,
         "text_layer": False,
+    },
+    "WA600-6-2010": {
+        "model": "WA600-6",
+        "profile": "wa600_vector",
+        "pdf": "WA600-6/WA600-6-partbook-2010.pdf",
+        "title": "WA600-6 Parts Book, Serial 60217 and up, Engine SAA6D170E-5A-01",
+        "machine_serial_prefix": "",
+        "machine_serial_from": 60217,
+        "machine_serial_to": None,
+        "engine_serial_raw": "511030 and up",
+        "text_layer": True,
+        "extractor_version": "pb-geom-wa-1",
     },
 }
 
@@ -108,6 +135,7 @@ CREATE VIRTUAL TABLE figures_fts USING fts5(fig_no, title, group_title);
 
 PN_RE = re.compile(r"^[\(\[]?[A-Za-z0-9]{2,6}(?:-[A-Za-z0-9]{2,8}){1,3}[A-Za-z]{0,3}[\)\]]?$|^[A-Za-z0-9]{8,14}$")
 ITEM_RE = re.compile(r"^(\d{1,3})([*\-]?)$")
+ITEM_SUFFIX_RE = re.compile(r"^(\d{1,3})([A-Z*\-]?)$")
 FOOTER_TOKENS = {"HD785-7", "SAA12V140E-3B", "HD785", "SAA12V140E"}
 FIG_RE = re.compile(r"^(?:FIG\.?\s*)?([A-Z]\d{4}-(?:[A-Z0-9]{4}|\d{6}[A-Z]?))\b")
 FIG_GARBLED_RE = re.compile(r"FIG\.?\s*(\S+)")
@@ -123,11 +151,11 @@ def norm_pn(raw: str) -> tuple[str, list[str]]:
     s = s.replace(" ", "")
     if s.startswith("(") and s.endswith(")"):
         s = s[1:-1]  # double parentheses (( )) seen on some group rows
-    pua = "".join(ch for ch in s if 0xE000 <= ord(ch) <= 0xF8FF)
-    if pua:
-        # Legend symbol glyphs (interchangeability/supply marks) share the PN cell.
-        flags.append("pn_symbol_prefix:" + ",".join(f"U+{ord(ch):04X}" for ch in pua))
-        s = "".join(ch for ch in s if not 0xE000 <= ord(ch) <= 0xF8FF)
+    symbols = "".join(ch for ch in s if 0xE000 <= ord(ch) <= 0xF8FF or ch in "\u2606\u2605")
+    if symbols:
+        # Legend symbols share the PN cell; retain the untouched raw cell too.
+        flags.append("pn_symbol_prefix:" + ",".join(f"U+{ord(ch):04X}" for ch in symbols))
+        s = "".join(ch for ch in s if not (0xE000 <= ord(ch) <= 0xF8FF or ch in "\u2606\u2605"))
     # Glyph 'u' rendered in front of assembly/kit PNs (symbol font leak). Keep raw,
     # expose stripped key, mark for PDF verification.
     if s[:1] == "u" and len(s) > 1 and s[1].isupper():
@@ -136,12 +164,12 @@ def norm_pn(raw: str) -> tuple[str, list[str]]:
     return s.upper(), flags
 
 
-def parse_serial(raw: str, book: dict) -> list[dict]:
+def parse_serial(raw: str, book: dict, default_kind: str = "machine") -> list[dict]:
     out = []
     if not raw:
         return out
     s = raw.replace(" ", "")
-    kind, prefix = "machine", book["machine_serial_prefix"]
+    kind, prefix = default_kind, (book["machine_serial_prefix"] if default_kind == "machine" else "")
     if s.upper().startswith("SN:"):
         kind, prefix, s = "engine", "", s[3:]
     for part in s.split(","):
@@ -201,8 +229,33 @@ def rect_str(r):
     return ",".join(f"{v:.1f}" for v in r)
 
 
-def parse_list_page(page, pno: int):
-    """Return (header dict, rows) or None if page has no parts-list table."""
+def clean_description(raw: str, profile: dict) -> str:
+    if profile["columns"] == "header_offsets":
+        return re.sub(r"\.{3,}\s*$", "", raw).rstrip()
+    return raw
+
+
+def vector_view_bbox(page, list_bbox):
+    """Bounds of vector paths on the view half, in displayed page coordinates."""
+    selected = []
+    for path in page.get_drawings():
+        rect = path["rect"] * page.rotation_matrix
+        if (rect.width > 3 and rect.height > 3 and
+                rect.x0 < list_bbox.x0 and rect.x1 <= list_bbox.x0 + 3 and
+                rect.y1 > 20 and rect.y0 < page.rect.height - 20):
+            selected.append(rect)
+    if not selected:
+        return ""
+    region = selected[0]
+    for rect in selected[1:]:
+        region |= rect
+    return rect_str(region)
+
+
+def parse_list_page(page, pno: int, profile: dict | None = None):
+    """Return (source page metadata, rows) or None without a parts-list table."""
+    profile = profile or PROFILES["hd785_raster"]
+    item_re = ITEM_SUFFIX_RE if profile["item_suffix_letters"] else ITEM_RE
     words = page_words(page)
     hdr = {}
     for w in words:
@@ -233,13 +286,21 @@ def parse_list_page(page, pno: int):
     def mode_x(cands, default):
         c = Counter(round(w[0]) for w in cands)
         return c.most_common(1)[0][0] if c else default
-    x_pn = mode_x([w for w in lst if PN_RE.match(w[4]) and w[0] < hdr["desc"][0] - 20
-                   and not ITEM_RE.match(w[4])], hdr["part"][0]) - 1.5
-    x_ser = mode_x([w for w in lst if re.match(r"^(N\d{3,}|SN:)", w[4]) and w[0] > hdr["qty"][0] - 20],
-                   hdr["serial"][0] - 12) - 1.5
-    x_desc = mode_x([w for w in lst if x_pn + 45 < w[0] < hdr["qty"][0] - 20
-                     and re.match(r"^[.A-Z(]", w[4])], hdr["desc"][0] - 50) - 3
-    x_qty = x_ser - 22  # qty is right-aligned just before serial column
+    if profile["columns"] == "header_offsets":
+        # WA600 has the same five logical columns in two horizontal placements.
+        # Their data offsets from the printed headers are stable on both halves.
+        x_pn = hdr["part"][0] + profile["pn_offset"]
+        x_desc = hdr["desc"][0] + profile["desc_offset"]
+        x_qty = hdr["qty"][0] + profile["qty_offset"]
+        x_ser = hdr["serial"][0] + profile["serial_offset"]
+    else:
+        x_pn = mode_x([w for w in lst if PN_RE.match(w[4]) and w[0] < hdr["desc"][0] - 20
+                       and not item_re.match(w[4])], hdr["part"][0]) - 1.5
+        x_ser = mode_x([w for w in lst if re.match(r"^(N\d{3,}|SN:)", w[4]) and w[0] > hdr["qty"][0] - 20],
+                       hdr["serial"][0] - 12) - 1.5
+        x_desc = mode_x([w for w in lst if x_pn + 45 < w[0] < hdr["qty"][0] - 20
+                         and re.match(r"^[.A-Z(]", w[4])], hdr["desc"][0] - 50) - 3
+        x_qty = x_ser - 22  # qty is right-aligned just before serial column
     fig_line = " ".join(w[4] for w in sorted(
         [w for w in words if abs(w[1] - hdr["index"][1]) < 9 and w[0] < x_idx], key=lambda z: z[0]))
     title_cont = " ".join(w[4] for w in sorted(
@@ -249,14 +310,14 @@ def parse_list_page(page, pno: int):
         cols = {"item": [], "pn": [], "desc": [], "qty": [], "serial": []}
         for w in rw:
             x, t = w[0], w[4]
-            if x < x_pn and not cols["item"] and not cols["pn"] and ITEM_RE.match(t):
+            if x < x_pn and not cols["item"] and not cols["pn"] and item_re.match(t):
                 cols["item"].append(w)
             elif x < x_desc:
                 cols["pn"].append(w)
             elif x < x_qty:
                 cols["desc"].append(w)
             elif x < x_ser:
-                if re.match(r"^\d+$", t) and not cols["qty"]:
+                if (re.match(r"^\d+$", t) or t in profile.get("quantity_tokens", ())) and not cols["qty"]:
                     cols["qty"].append(w)
                 else:
                     cols["desc"].append(w)
@@ -271,11 +332,54 @@ def parse_list_page(page, pno: int):
           "footer": " ".join(w[4] for w in sorted(footer, key=lambda z: z[0])),
           "list_bbox": pymupdf.Rect(x_idx, hdr["index"][1], page.rect.width, bottom),
           "columns": {"pn": x_pn, "desc": x_desc, "qty": x_qty, "serial": x_ser}}
+    if profile["figure"] == "table_heading":
+        text = page.get_text("text")
+        figure = re.search(r"FIG\s+NO\.\s*:\s*([A-Z]\d{4}-[A-Z0-9]{4,7})", text, re.I)
+        printed = re.search(r"(?m)^\s*([A-Z]{1,2}\d?)-\s*(\d+)\s*$", text)
+        before_table = text.split("INDEX", 1)[0]
+        view = re.search(r"FIG\.\s*([A-Z]\d{4}-[A-Z0-9]{4,7})\s*([^\n]*)",
+                         before_table, re.I)
+        fp["table_figure"] = figure.group(1).upper() if figure else None
+        fp["view_figure"] = view.group(1).upper() if view else None
+        fp["page_label"] = (printed.group(1) + "-" + printed.group(2)) if printed else None
+        fp["group_code"] = printed.group(1) if printed else None
+        if view:
+            lines = before_table[view.end():].splitlines()
+            title = [view.group(2).strip()]
+            for line in lines[:3]:
+                line = line.strip()
+                if not line or re.match(r"^[A-Z]{1,2}\d?-\s*\d+$", line):
+                    break
+                title.append(line)
+            fp["view_title"] = " ".join(x for x in title if x)
     return fp, rows
+
+
+def other_book_counts(con: sqlite3.Connection, selected_book: str) -> dict:
+    """Guard additive builds against changing another book's indexed records."""
+    result = {}
+    for (bid,) in con.execute("SELECT book_id FROM books WHERE book_id<>?", (selected_book,)):
+        counts = [con.execute(f"SELECT count(*) FROM {table} WHERE book_id=?", (bid,)).fetchone()[0]
+                  for table in ("groups", "figures", "figure_pages",
+                                "part_occurrences", "book_coverages")]
+        counts.append(con.execute(
+            "SELECT count(*) FROM row_applicability a JOIN part_occurrences o "
+            "ON o.occ_id=a.occ_id WHERE o.book_id=?", (bid,)).fetchone()[0])
+        counts.append(con.execute(
+            "SELECT count(*) FROM part_relations r JOIN part_occurrences o "
+            "ON o.occ_id=r.occ_id WHERE o.book_id=?", (bid,)).fetchone()[0])
+        counts.append(con.execute(
+            "SELECT count(*) FROM parts_fts f JOIN part_occurrences o "
+            "ON o.occ_id=f.rowid WHERE o.book_id=?", (bid,)).fetchone()[0])
+        result[bid] = (con.execute("SELECT * FROM books WHERE book_id=?", (bid,)).fetchone(),
+                       tuple(counts))
+    return result
 
 
 def build(book_id: str, db_path: Path) -> dict:
     book = BOOKS[book_id]
+    profile = PROFILES[book["profile"]]
+    item_re = ITEM_SUFFIX_RE if profile["item_suffix_letters"] else ITEM_RE
     pdf = ROOT / book["pdf"]
     t0 = time.perf_counter()
     tmp = db_path.with_suffix(".building")
@@ -283,17 +387,37 @@ def build(book_id: str, db_path: Path) -> dict:
     if tmp.exists():
         tmp.unlink()
     con = sqlite3.connect(tmp)
-    con.executescript(SCHEMA)
+    if db_path.exists():
+        source = sqlite3.connect(f"file:{db_path.resolve().as_posix()}?mode=ro", uri=True)
+        source.backup(con)
+        source.close()
+        con.execute("DELETE FROM part_relations WHERE occ_id IN "
+                    "(SELECT occ_id FROM part_occurrences WHERE book_id=?) "
+                    "OR related_occ_id IN "
+                    "(SELECT occ_id FROM part_occurrences WHERE book_id=?)",
+                    (book_id, book_id))
+        con.execute("DELETE FROM row_applicability WHERE occ_id IN "
+                    "(SELECT occ_id FROM part_occurrences WHERE book_id=?)", (book_id,))
+        con.execute("DELETE FROM parts_fts WHERE rowid IN "
+                    "(SELECT occ_id FROM part_occurrences WHERE book_id=?)", (book_id,))
+        for table in ("part_occurrences", "figure_pages", "figures", "groups",
+                      "book_coverages", "books"):
+            con.execute(f"DELETE FROM {table} WHERE book_id=?", (book_id,))
+    else:
+        con.executescript(SCHEMA)
+    preserved = other_book_counts(con, book_id)
     sha = hashlib.sha256(pdf.read_bytes()).hexdigest()
     doc = pymupdf.open(pdf)
-    toc = [(t[1], t[2]) for t in doc.get_toc()]
     groups = []
-    for i, (title, start) in enumerate(toc):
-        m = re.match(r"^([A-Z]\d)\s+(.*)$", title)
-        end = (toc[i + 1][1] - 1) if i + 1 < len(toc) else doc.page_count
-        if m:
-            groups.append((m.group(1), m.group(2).strip(), start, end))
-    con.executemany("INSERT INTO groups VALUES (?,?,?,?,?)", [(book_id, *g) for g in groups])
+    printed_groups = {}
+    if profile["groups"] == "toc":
+        toc = [(t[1], t[2]) for t in doc.get_toc()]
+        for i, (title, start) in enumerate(toc):
+            m = re.match(r"^([A-Z]\d)\s+(.*)$", title)
+            end = (toc[i + 1][1] - 1) if i + 1 < len(toc) else doc.page_count
+            if m:
+                groups.append((m.group(1), m.group(2).strip(), start, end))
+        con.executemany("INSERT INTO groups VALUES (?,?,?,?,?)", [(book_id, *g) for g in groups])
 
     def group_for(p):
         for g in groups:
@@ -302,54 +426,80 @@ def build(book_id: str, db_path: Path) -> dict:
         return None
 
     stats = {"pages": doc.page_count, "list_pages": 0, "rows": 0, "needs_verification": 0,
-             "rejected_rows": 0, "figures": 0, "no_table_pages": []}
+             "rejected_rows": 0, "figures": 0, "no_table_pages": [],
+             "figure_missing_pages": [], "figure_view_mismatch_pages": []}
     last = {"fig": None, "item_no": None, "occ": None, "item_raw": None}
     fig_rows = {}
     fig_meta = {}
-    occ_id = 0
+    occ_id = con.execute("SELECT coalesce(max(occ_id),0) FROM part_occurrences").fetchone()[0]
     for pi in range(doc.page_count):
         pno = pi + 1
-        g = group_for(pno)
-        if g is None or g[0] in ("NU",):
+        g = group_for(pno) if profile["groups"] == "toc" else None
+        if profile["groups"] == "toc" and (g is None or g[0] in ("NU",)):
             continue
         page = doc[pi]
-        parsed = parse_list_page(page, pno)
+        parsed = parse_list_page(page, pno, profile)
         if parsed is None:
             stats["no_table_pages"].append(pno)
             continue
         fp, rows = parsed
+        if profile["groups"] == "printed_label":
+            code = fp.get("group_code")
+            if not code:
+                stats.setdefault("group_missing_pages", []).append(pno)
+                continue
+            bounds = printed_groups.setdefault(code, [pno, pno])
+            bounds[1] = pno
+            g = (code, code, bounds[0], bounds[1])
         stats["list_pages"] += 1
-        fig_line = re.sub(r"^FIG\.\s+", "FIG.", fp["fig_line"])
-        fm = FIG_RE.match(fig_line)
         page_flags = []
-        if fm:
-            fig_no = fm.group(1)
-            title = fig_line[fm.end():].strip()
-            if fp["title_cont"]:
-                title = f"{title} {fp['title_cont']}".strip()
-        elif FIG_GARBLED_RE.search(fp["fig_line"]):
-            # Header text layer is corrupted on some pages (e.g. 'fFIG.J3j240-01A0').
-            # Keep raw token as figure id; never guess the real code.
-            gm = FIG_GARBLED_RE.search(fp["fig_line"])
-            fig_no = "RAW:" + gm.group(1)
-            title = fp["fig_line"][gm.end():].strip()
-            page_flags.append("figure_header_garbled")
+        if profile["figure"] == "table_heading":
+            fig_no = fp.get("table_figure") or f"UNKNOWN-P{pno}"
+            title = fp.get("view_title") or fig_meta.get(fig_no, {}).get("title", "")
+            fig_line = "FIG NO. : " + (fp.get("table_figure") or "")
+            if not fp.get("table_figure"):
+                page_flags.append("figure_header_missing")
+                stats["figure_missing_pages"].append(pno)
+            if fp.get("view_figure") and fp["view_figure"] != fig_no:
+                page_flags.append("view_figure_mismatch")
+                stats["figure_view_mismatch_pages"].append(pno)
         else:
-            fig_no = last["fig"] or f"UNKNOWN-P{pno}"
-            title = fp["fig_line"]
-            page_flags.append("figure_header_missing")
+            fig_line = re.sub(r"^FIG\.\s+", "FIG.", fp["fig_line"])
+            fm = FIG_RE.match(fig_line)
+            if fm:
+                fig_no = fm.group(1)
+                title = fig_line[fm.end():].strip()
+                if fp["title_cont"]:
+                    title = f"{title} {fp['title_cont']}".strip()
+            elif FIG_GARBLED_RE.search(fp["fig_line"]):
+                gm = FIG_GARBLED_RE.search(fp["fig_line"])
+                fig_no = "RAW:" + gm.group(1)
+                title = fp["fig_line"][gm.end():].strip()
+                page_flags.append("figure_header_garbled")
+            else:
+                fig_no = last["fig"] or f"UNKNOWN-P{pno}"
+                title = fp["fig_line"]
+                page_flags.append("figure_header_missing")
         is_cont = fig_no == last["fig"]
         if fig_no != last["fig"]:
             last.update(item_no=None, occ=None, item_raw=None)
-        views = [i for i in page.get_image_info() if i["bbox"][2] - i["bbox"][0] > 100]
-        vb = ""
-        if views:
-            vr = pymupdf.Rect(views[0]["bbox"]) * page.rotation_matrix
-            vb = rect_str(vr)
-        label = fp["footer"]
+        if profile["view"] == "vector_header":
+            has_view = fp.get("view_figure") == fig_no
+            vb = vector_view_bbox(page, fp["list_bbox"]) if has_view else ""
+            label = fp.get("page_label") or ""
+            title_raw = fp.get("view_title") or fig_line
+        else:
+            views = [i for i in page.get_image_info() if i["bbox"][2] - i["bbox"][0] > 100]
+            vb = ""
+            if views:
+                vr = pymupdf.Rect(views[0]["bbox"]) * page.rotation_matrix
+                vb = rect_str(vr)
+            has_view = bool(views)
+            label = fp["footer"]
+            title_raw = fp["fig_line"]
         con.execute("INSERT OR REPLACE INTO figure_pages VALUES (?,?,?,?,?,?,?,?,?,?)",
-                    (book_id, fig_no, pno, label, page.rotation, 1 if views else 0, vb,
-                     rect_str(fp["list_bbox"]), 1 if is_cont else 0, fp["fig_line"]))
+                    (book_id, fig_no, pno, label, page.rotation, int(has_view), vb,
+                     rect_str(fp["list_bbox"]), int(is_cont), title_raw))
         meta = fig_meta.setdefault(fig_no, {"title": title, "group": g[0], "first": pno, "last": pno})
         meta["last"] = pno
         if len(title) > len(meta["title"]) and not is_cont:
@@ -362,23 +512,24 @@ def build(book_id: str, db_path: Path) -> dict:
             pn_raw = t["pn"] or None
             item_no, marker, inherited = None, None, 0
             if item_raw:
-                im = ITEM_RE.match(item_raw)
+                im = item_re.match(item_raw)
                 if im:
                     item_no, marker = int(im.group(1)), (im.group(2) or None)
                 else:
                     flags.append("item_unparsed")
-            # description-only line = wrapped description of previous row
+            # Description-only lines continue the preceding source row.
             if not item_raw and not pn_raw and not t["qty"] and not t["serial"] and t["desc"] and prev_row:
                 con.execute("UPDATE part_occurrences SET description_raw = description_raw || ' ' || ?, "
                             "raw_text = raw_text || ' || ' || ?, flags = json_insert(flags, '$[#]', 'desc_wrapped') "
-                            "WHERE occ_id=?", (t["desc"], r["raw"], prev_row))
+                            "WHERE occ_id=?", (clean_description(t["desc"], profile), r["raw"], prev_row))
                 continue
-            if pn_raw and all(0xE000 <= ord(ch) <= 0xF8FF or ch == " " for ch in pn_raw):
-                flags.append("pn_symbol_only")  # legend symbol glyph in PN column, no orderable PN
+            pn_norm, pnf = norm_pn(pn_raw) if pn_raw else (None, [])
+            flags += pnf
+            if pn_raw and not pn_norm:
+                flags.append("pn_symbol_only")
             elif not pn_raw:
-                # No part number: cannot be a lookup candidate. Keep it, flagged.
                 flags.append("no_part_number")
-            elif not PN_RE.match(pn_raw) and not pn_raw[:1] == "u":
+            elif not PN_RE.match(pn_norm):
                 flags.append("pn_pattern_unusual")
             if item_no is None and not item_raw:
                 if last["item_no"] is not None:
@@ -389,16 +540,18 @@ def build(book_id: str, db_path: Path) -> dict:
                 else:
                     flags.append("item_missing")
             if marker:
-                flags.append(f"item_marker_{'star' if marker == '*' else 'dash'}")
-            pn_norm, pnf = norm_pn(pn_raw) if pn_raw and "pn_symbol_only" not in flags else (None, [])
-            flags += pnf
+                flags.append("item_marker_star" if marker == "*" else
+                             "item_marker_dash" if marker == "-" else
+                             "item_suffix_" + marker)
+            if "pn_symbol_only" in flags:
+                pn_norm = None
             if not t["qty"]:
                 flags.append("qty_missing")
-            elif not re.match(r"^\d+$", t["qty"]):
+            elif not re.match(r"^\d+$", t["qty"]) and t["qty"] not in profile.get("quantity_tokens", ()):
                 flags.append("qty_nonnumeric")
             if not t["serial"]:
                 flags.append("serial_missing")
-            desc = t["desc"] or None
+            desc = clean_description(t["desc"], profile) or None
             level = 0
             if desc:
                 level = len(desc) - len(desc.lstrip("."))
@@ -414,8 +567,10 @@ def build(book_id: str, db_path: Path) -> dict:
             con.execute("INSERT INTO part_occurrences VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                         (occ_id, book_id, fig_no, pno, r["ordinal"], item_raw, item_no, marker, inherited,
                          pn_raw, pn_norm, desc, level, t["qty"] or None, t["serial"] or None,
-                         rect_str(r["bbox"]), EXTRACTOR_VERSION, r["raw"], status, json.dumps(flags)))
-            for a in parse_serial(t["serial"], book):
+                         rect_str(r["bbox"]), book.get("extractor_version", EXTRACTOR_VERSION),
+                         r["raw"], status, json.dumps(flags)))
+            serial_kind = "engine" if g[0] in profile["engine_groups"] else "machine"
+            for a in parse_serial(t["serial"], book, serial_kind):
                 con.execute("INSERT INTO row_applicability VALUES (?,?,?,?,?,?,?,?)",
                             (occ_id, a["kind"], a["prefix"], a["from_raw"], a["to_raw"],
                              a["from_num"], a["to_num"], json.dumps(a["flags"])))
@@ -433,6 +588,11 @@ def build(book_id: str, db_path: Path) -> dict:
                 last["item_no"] = item_no
             prev_row = occ_id
         last["fig"] = fig_no
+    if profile["groups"] == "printed_label":
+        groups = [(code, code, bounds[0], bounds[1])
+                  for code, bounds in sorted(printed_groups.items(), key=lambda pair: pair[1][0])]
+        con.executemany("INSERT INTO groups VALUES (?,?,?,?,?)",
+                        [(book_id, *group) for group in groups])
     # star/dash marked rows: relate to the unmarked row with same item in the same figure
     con.execute("""INSERT INTO part_relations
         SELECT a.occ_id, b.occ_id, CASE a.item_marker WHEN '*' THEN 'marked_star_same_item' ELSE 'marked_dash_same_item' END,
@@ -440,47 +600,78 @@ def build(book_id: str, db_path: Path) -> dict:
         FROM part_occurrences a JOIN part_occurrences b
           ON a.book_id=b.book_id AND a.fig_no=b.fig_no AND a.item_no=b.item_no
          AND b.item_marker IS NULL AND b.item_inherited=0 AND a.occ_id<>b.occ_id
-        WHERE a.item_marker IS NOT NULL""")
+        WHERE a.item_marker IN ('*','-') AND a.book_id=?""", (book_id,))
     for fig_no, m in fig_meta.items():
         con.execute("INSERT INTO figures VALUES (?,?,?,?,?,?,?)",
                     (book_id, fig_no, m["title"], m["group"], m["first"], m["last"], fig_rows.get(fig_no, 0)))
         gt = next((g[1] for g in groups if g[0] == m["group"]), "")
-        con.execute("INSERT INTO figures_fts(fig_no,title,group_title) VALUES (?,?,?)", (fig_no, m["title"], gt))
     stats["figures"] = len(fig_meta)
+    con.execute("DELETE FROM figures_fts")
+    con.execute("""INSERT INTO figures_fts(fig_no,title,group_title)
+        SELECT f.fig_no, coalesce(f.title,''), coalesce(g.title,'')
+        FROM figures f LEFT JOIN groups g ON g.book_id=f.book_id AND g.group_code=f.group_code
+        ORDER BY f.book_id, f.first_page, f.fig_no""")
     con.execute("""INSERT INTO parts_fts(rowid, description, figure_title, group_title, remarks, pn_raw)
         SELECT o.occ_id, coalesce(o.description_raw,''), coalesce(f.title,''), coalesce(g.title,''),
                coalesce(o.serial_raw,''), coalesce(o.pn_raw,'')
         FROM part_occurrences o JOIN figures f ON f.book_id=o.book_id AND f.fig_no=o.fig_no
-        LEFT JOIN groups g ON g.book_id=f.book_id AND g.group_code=f.group_code""")
+        LEFT JOIN groups g ON g.book_id=f.book_id AND g.group_code=f.group_code
+        WHERE o.book_id=?""", (book_id,))
     now = time.strftime("%Y-%m-%dT%H:%M:%S")
     for bid, b in BOOKS.items():
         if b["model"] != book["model"]:
             continue
         status = "indexed_partial" if bid == book_id else "not_indexed_scanned"
-        con.execute("INSERT INTO books VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
+        con.execute("INSERT OR REPLACE INTO books VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
                     (bid, b["model"], b["title"], b["pdf"], sha if bid == book_id else None,
                      doc.page_count if bid == book_id else None, b["machine_serial_prefix"],
                      b["machine_serial_from"], b["machine_serial_to"], b["engine_serial_raw"], status,
-                     EXTRACTOR_VERSION if bid == book_id else None, now if bid == book_id else None))
+                     b.get("extractor_version", EXTRACTOR_VERSION) if bid == book_id else None,
+                     now if bid == book_id else None))
     cov = [(book_id, g[2], g[3], f"group {g[0]} {g[1]}", "text_layer_indexed",
             "geometry extraction; rows may be flagged needs_verification") for g in groups]
     if stats["no_table_pages"]:
         cov.append((book_id, None, None, "pages_without_parts_table", "not_indexed",
                     "section dividers / blank / non-table pages: " + ",".join(map(str, stats["no_table_pages"]))))
-    cov.append((book_id, 1, 21, "front matter & contents", "not_indexed", "cover/foreword/contents"))
-    cov.append((book_id, 1096, doc.page_count, "NUMERICAL INDEX", "not_indexed",
-                "custom-encoded font, text not extractable; use figure rows instead"))
-    cov.append(("HD785-7-B2", None, None, "entire book", "not_indexed",
-                "scanned without text layer; OCR out of pilot scope"))
+    if profile["groups"] == "toc":
+        # Keep the existing HD text-layer coverage declarations unchanged.
+        cov.append((book_id, 1, 21, "front matter & contents", "not_indexed",
+                    "cover/foreword/contents"))
+        cov.append((book_id, 1096, doc.page_count, "NUMERICAL INDEX", "not_indexed",
+                    "custom-encoded font, text not extractable; use figure rows instead"))
+    else:
+        indexed_pages = sorted(
+            page for page, in con.execute("SELECT pdf_page FROM figure_pages WHERE book_id=?", (book_id,)))
+        if indexed_pages:
+            if indexed_pages[0] > 1:
+                cov.append((book_id, 1, indexed_pages[0] - 1, "front matter", "not_indexed",
+                            "no parts-list table"))
+            if indexed_pages[-1] < doc.page_count:
+                cov.append((book_id, indexed_pages[-1] + 1, doc.page_count,
+                            "end matter / numerical index", "not_indexed", "no parts-list table"))
+    for bid, other in BOOKS.items():
+        if other["model"] == book["model"] and not other["text_layer"]:
+            con.execute("DELETE FROM book_coverages WHERE book_id=?", (bid,))
+            cov.append((bid, None, None, "entire book", "not_indexed",
+                        "scanned without text layer; OCR out of pilot scope"))
     con.executemany("INSERT INTO book_coverages VALUES (?,?,?,?,?,?)", cov)
     stats["seconds"] = round(time.perf_counter() - t0, 2)
     stats["no_table_pages_count"] = len(stats["no_table_pages"])
-    con.executemany("INSERT INTO meta VALUES (?,?)", [
-        ("extractor_version", EXTRACTOR_VERSION), ("built_at", now),
-        ("stats", json.dumps({k: v for k, v in stats.items() if k != "no_table_pages"})),
-        ("coverage_complete", "false"),
-        ("coverage_note", "Only HD785-7 B1 (N10001-N10560) indexed. B2 (N8173 and up) scanned, not indexed. "
-                          "Index miss never means the part does not exist.")])
+    per_book_meta = [
+        ("stats:" + book_id, json.dumps({k: v for k, v in stats.items() if k != "no_table_pages"})),
+        ("extractor_version:" + book_id, book.get("extractor_version", EXTRACTOR_VERSION)),
+        ("built_at:" + book_id, now),
+    ]
+    con.executemany("INSERT OR REPLACE INTO meta VALUES (?,?)", per_book_meta)
+    if profile["groups"] == "toc":
+        con.executemany("INSERT OR REPLACE INTO meta VALUES (?,?)", [
+            ("extractor_version", EXTRACTOR_VERSION), ("built_at", now),
+            ("stats", json.dumps({k: v for k, v in stats.items() if k != "no_table_pages"})),
+            ("coverage_complete", "false"),
+            ("coverage_note", "Only HD785-7 B1 (N10001-N10560) indexed. B2 (N8173 and up) scanned, not indexed. "
+                              "Index miss never means the part does not exist.")])
+    if other_book_counts(con, book_id) != preserved:
+        raise ValueError("Additive Part Book build changed another book; candidate DB not installed")
     con.commit()
     con.execute("VACUUM")
     con.close()

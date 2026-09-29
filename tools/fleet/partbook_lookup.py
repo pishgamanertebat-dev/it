@@ -34,6 +34,10 @@ RENDERER = ROOT / "tools" / "render_page.py"
 
 def norm_pn(raw: str) -> str:
     s = raw.strip().strip("()").replace(" ", "")
+    s = "".join(ch for ch in s if not (0xE000 <= ord(ch) <= 0xF8FF
+                                      or ch in "\u2606\u2605"))
+    if s[:1] == "u" and len(s) > 1 and s[1].isupper():
+        s = s[1:]
     return s.upper()
 
 
@@ -55,7 +59,7 @@ def connect(db: Path) -> sqlite3.Connection:
     if not db.exists():
         raise SystemExit(json.dumps({
             "error": "partbook index missing",
-            "rebuild": r"E:\KomatsoAI\.venv\Scripts\python.exe E:\KomatsoAI\tools\partbook_index.py --book HD785-7-B1"}))
+            "rebuild": r"E:\KomatsoAI\.venv\Scripts\python.exe E:\KomatsoAI\tools\partbook_index.py --book BOOK_ID"}))
     con = sqlite3.connect(f"file:{db}?mode=ro", uri=True)  # read-only
     con.row_factory = sqlite3.Row
     return con
@@ -204,10 +208,12 @@ def verified_view_candidates(cands):
         if not any(figure == target or figure.startswith(target + "-")
                    for figure in primary_figures):
             selected.append(candidate)
-    figures = {(c["_source_pdf"], c["figure"]) for c in selected}
-    if not selected or len(figures) > 2:
+    distinct = {}
+    for candidate in selected:
+        distinct.setdefault((candidate["_source_pdf"], candidate["figure"]), candidate)
+    if not distinct or len(distinct) > 2:
         return []
-    return selected
+    return list(distinct.values())
 
 
 def render(cands, label):
@@ -282,6 +288,9 @@ def main(argv=None):
             if m is None and any(x["kind"] == "engine" for x in ap_rows) is False:
                 flags.append("engine_serial_not_applicable_to_row")
         vp = view_pages(con, r["book_id"], r["fig_no"])
+        views = [p["pdf_page"] for p in vp if p["has_view"]]
+        views.sort(key=lambda page: (page != r["pdf_page"], abs(page - r["pdf_page"]),
+                                     page > r["pdf_page"], page))
         rel = [dict(x) for x in con.execute(
             "SELECT p.relation, o.item_raw, o.pn_raw, o.description_raw, o.pdf_page FROM part_relations p "
             "JOIN part_occurrences o ON o.occ_id=p.related_occ_id WHERE p.occ_id=?", (r["occ_id"],))]
@@ -293,7 +302,7 @@ def main(argv=None):
             "applicability": r["serial_raw"], "serial_raw": r["serial_raw"],
             "serial_match": ok_serial,
             "pdf_pages": [r["pdf_page"]],
-            "view_pages": [p["pdf_page"] for p in vp if p["has_view"]] or [r["pdf_page"]],
+            "view_pages": views or [r["pdf_page"]],
             "figure_pdf_pages": [p["pdf_page"] for p in vp],
             "row": {"ordinal": r["row_ordinal"], "bbox": r["row_bbox"], "method": r["extraction_method"]},
             "status": r["status"], "flags": flags, "relations": rel[:4],
@@ -309,7 +318,11 @@ def main(argv=None):
     t_verify = time.perf_counter() - t0
     if a.auto_render_verified and not a.verify:
         ap.error("--auto-render-verified requires --verify")
-    render_candidates = verified_view_candidates(cands) if a.auto_render_verified else cands
+    if a.auto_render_verified:
+        render_candidates = (verified_view_candidates(cands)
+                             if all(c.get("part_number") for c in cands) else [])
+    else:
+        render_candidates = cands
     rendered = render(render_candidates, a.label) if (a.render or a.auto_render_verified) and render_candidates else []
     t_total = time.perf_counter() - t0
     for c in cands:
@@ -332,7 +345,7 @@ def main(argv=None):
     if rendered:
         result["rendered"] = rendered
     if not cands:
-        result["miss"] = "no indexed candidate; NOT evidence of absence (check B2 / supersession / spelling)"
+        result["miss"] = "no indexed candidate; NOT evidence of absence (check this model's book coverage, supersession and spelling)"
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
     print(json.dumps(result, ensure_ascii=False, indent=1))
