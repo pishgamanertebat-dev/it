@@ -10,6 +10,7 @@ page region from the real PDF for verification.
 Rebuild:
     E:\\KomatsoAI\\.venv\\Scripts\\python.exe E:\\KomatsoAI\\tools\\partbook_index.py --book HD785-7-B1
     E:\\KomatsoAI\\.venv\\Scripts\\python.exe E:\\KomatsoAI\\tools\\partbook_index.py --book WA600-6-2010
+    E:\\KomatsoAI\\.venv\\Scripts\\python.exe E:\\KomatsoAI\\tools\\partbook_index.py --book HD785-5
 
 Only the generated SQLite file (runtime/partbook/, gitignored) is written.
 No operational DB, fleet data, gateway or messaging state is touched.
@@ -44,6 +45,15 @@ PROFILES = {
                      "qty_offset": -10, "serial_offset": -14,
                      "engine_groups": ("AA",), "quantity_tokens": ("AR",),
                      "item_suffix_letters": True},
+    # Rotated text-layer book: ITEM headers, footer Ref. figures, divider groups.
+    "hd785_5_raster": {"groups": "section_dividers", "columns": "learned",
+                       "figure": "footer_ref", "view": "raster",
+                       "header_index_token": "ITEM",
+                       "serial_anchor": r"^(?:J\d{3,}|0\d{5,})",
+                       "engine_groups": ("03",), "quantity_tokens": ("AR",),
+                       "item_suffix_letters": True, "strip_leader_dots": True,
+                       "skip_duplicate_lists": True, "prefer_left_image": True,
+                       "icon_pn_glyphs": ("j", "i")},
 }
 
 BOOKS = {
@@ -80,6 +90,18 @@ BOOKS = {
         "engine_serial_raw": "511030 and up",
         "text_layer": True,
         "extractor_version": "pb-geom-wa-1",
+    },
+    "HD785-5": {
+        "model": "HD785-5",
+        "profile": "hd785_5_raster",
+        "pdf": "HD785-5/HD785-5 part book.pdf",
+        "title": "HD785-5 Parts Book, Serial J10001 and up, Engine SA12V140-1 0012121 and up",
+        "machine_serial_prefix": "J",
+        "machine_serial_from": 10001,
+        "machine_serial_to": None,
+        "engine_serial_raw": "0012121 and up",
+        "text_layer": True,
+        "extractor_version": "pb-geom-hd7855-1",
     },
 }
 
@@ -175,6 +197,14 @@ def parse_serial(raw: str, book: dict, default_kind: str = "machine") -> list[di
     for part in s.split(","):
         m = re.match(r"^([A-Z]*)(\d+)(?:-(\d*))?$", part)
         if not m:
+            # Existing forms still match above. This only accepts J10001-J10030.
+            repeated = re.match(r"^([A-Z]+)(\d+)-\1(\d+)$", part)
+            if repeated:
+                pfx, a, b = repeated.group(1), repeated.group(2), repeated.group(3)
+                out.append({"kind": kind, "prefix": pfx, "from_raw": a, "to_raw": b,
+                            "from_num": int(a), "to_num": int(b),
+                            "flags": ["range_end_repeated_prefix"]})
+                continue
             out.append({"kind": kind, "prefix": prefix, "from_raw": part, "to_raw": None,
                         "from_num": None, "to_num": None, "flags": ["serial_unparsed"]})
             continue
@@ -230,9 +260,56 @@ def rect_str(r):
 
 
 def clean_description(raw: str, profile: dict) -> str:
+    if profile.get("strip_leader_dots"):
+        lead = len(raw) - len(raw.lstrip("."))
+        body = re.sub(r"\.{2,}", " ", raw[lead:])
+        body = re.sub(r"\s+", " ", body).strip()
+        return f"{'.' * lead}{body}" if body or lead else raw
     if profile["columns"] == "header_offsets":
         return re.sub(r"\.{3,}\s*$", "", raw).rstrip()
     return raw
+
+
+def _collapse_phrase(tokens):
+    for size in range(1, len(tokens) // 2 + 1):
+        if len(tokens) % size:
+            continue
+        chunk = tokens[:size]
+        if chunk * (len(tokens) // size) == tokens:
+            return chunk
+    return tokens
+
+
+def divider_title(page):
+    """Section title from a divider page. Shadow copies overlap; keep the widest word."""
+    lines = cluster_rows(page_words(page), tol=2.0)
+    titles = []
+    for line in lines:
+        chosen = []
+        # Longest word wins when shadow copies split RELATED into REL + TED.
+        for word in sorted(line, key=lambda w: (-(w[2] - w[0]), w[0])):
+            width = word[2] - word[0]
+            if any(min(word[2], kept[2]) - max(word[0], kept[0]) > min(width, kept[2] - kept[0]) * 0.5
+                   for kept in chosen):
+                continue
+            chosen.append(word)
+        tokens = []
+        for word in sorted(chosen, key=lambda w: w[0]):
+            if not tokens or tokens[-1] != word[4]:
+                tokens.append(word[4])
+        tokens = _collapse_phrase(tokens)
+        if tokens:
+            titles.extend(tokens)
+    title = " ".join(_collapse_phrase(titles)).strip()
+    return title or None
+
+
+def list_identity(fig_no, rows):
+    """Figure plus normalized table cells. Duplicate pages share this, not a page-text hash."""
+    return (fig_no, tuple(
+        (row["txt"].get("item", ""), row["txt"].get("pn", ""), row["txt"].get("desc", ""),
+         row["txt"].get("qty", ""), row["txt"].get("serial", ""))
+        for row in rows))
 
 
 def vector_view_bbox(page, list_bbox):
@@ -260,7 +337,7 @@ def parse_list_page(page, pno: int, profile: dict | None = None):
     hdr = {}
     for w in words:
         t = w[4]
-        if t == "INDEX" and "index" not in hdr:
+        if t == profile.get("header_index_token", "INDEX") and "index" not in hdr:
             hdr["index"] = w
         elif t == "PART" and "part" not in hdr:
             hdr["part"] = w
@@ -277,8 +354,12 @@ def parse_list_page(page, pno: int, profile: dict | None = None):
     # starts are learned from this page's own data tokens, anchored by the headers.
     x_idx = hdr["index"][0] - 30  # item markers ("12*") start left of header
     page_h = page.rect.height
-    foot_y = [w[1] for w in words if w[1] > page_h * 0.7 and w[4] in FOOTER_TOKENS]
-    bottom = min(foot_y) - 1 if foot_y else page_h - 60
+    if profile.get("figure") == "footer_ref":
+        ref_y = [w[1] for w in words if w[4] == "Ref."]
+        bottom = min(ref_y) - 1 if ref_y else page_h - 60
+    else:
+        foot_y = [w[1] for w in words if w[1] > page_h * 0.7 and w[4] in FOOTER_TOKENS]
+        bottom = min(foot_y) - 1 if foot_y else page_h - 60
     body = [w for w in words if w[1] > hy + 0.5 and w[3] < bottom]
     title_words = [w for w in words if w[0] < x_idx and w[1] <= hy + 30 and w[3] < bottom]
     footer = [w for w in words if w[1] >= bottom]
@@ -296,7 +377,8 @@ def parse_list_page(page, pno: int, profile: dict | None = None):
     else:
         x_pn = mode_x([w for w in lst if PN_RE.match(w[4]) and w[0] < hdr["desc"][0] - 20
                        and not item_re.match(w[4])], hdr["part"][0]) - 1.5
-        x_ser = mode_x([w for w in lst if re.match(r"^(N\d{3,}|SN:)", w[4]) and w[0] > hdr["qty"][0] - 20],
+        anchor = profile.get("serial_anchor", r"^(N\d{3,}|SN:)")
+        x_ser = mode_x([w for w in lst if re.match(anchor, w[4]) and w[0] > hdr["qty"][0] - 20],
                        hdr["serial"][0] - 12) - 1.5
         x_desc = mode_x([w for w in lst if x_pn + 45 < w[0] < hdr["qty"][0] - 20
                          and re.match(r"^[.A-Z(]", w[4])], hdr["desc"][0] - 50) - 3
@@ -352,6 +434,17 @@ def parse_list_page(page, pno: int, profile: dict | None = None):
                     break
                 title.append(line)
             fp["view_title"] = " ".join(x for x in title if x)
+    if profile["figure"] == "footer_ref":
+        text = page.get_text("text")
+        figure = re.search(r"Ref\.\s*([A-Z]\d{4}-[A-Z0-9]{4,6})\b", text)
+        printed = re.search(r"\bPage\s+(\d{6})\b", text)
+        fp["table_figure"] = figure.group(1).upper() if figure else None
+        fp["page_label"] = printed.group(1) if printed else None
+        banner = {"S/N", "HD785-5", "SA12V140-1"}
+        band = [w for w in words
+                if hdr["index"][1] - 42 <= w[1] < hdr["index"][1] - 1
+                and w[0] >= x_idx and w[4] not in banner and not str(w[4]).endswith("-UP")]
+        fp["list_title"] = " ".join(w[4] for w in sorted(band, key=lambda z: (round(z[1]), z[0])))
     return fp, rows
 
 
@@ -374,6 +467,47 @@ def other_book_counts(con: sqlite3.Connection, selected_book: str) -> dict:
         result[bid] = (con.execute("SELECT * FROM books WHERE book_id=?", (bid,)).fetchone(),
                        tuple(counts))
     return result
+
+
+def book_digest(con: sqlite3.Connection, book_id: str) -> dict:
+    """Stable content hashes. Rebuilds must match; another book's digest must not move."""
+    queries = {
+        "groups": """SELECT group_code, title, page_from, page_to FROM groups
+                     WHERE book_id=? ORDER BY page_from, group_code""",
+        "figures": """SELECT fig_no, title, group_code, first_page, last_page, row_count
+                      FROM figures WHERE book_id=? ORDER BY first_page, fig_no""",
+        "figure_pages": """SELECT fig_no, pdf_page, page_label, rotation, has_view, view_bbox,
+                                  list_bbox, is_continuation, title_raw
+                           FROM figure_pages WHERE book_id=? ORDER BY pdf_page""",
+        "part_occurrences": """SELECT occ_id, fig_no, pdf_page, row_ordinal, item_raw, item_no,
+                                      item_marker, item_inherited, pn_raw, pn_norm, description_raw,
+                                      desc_level, qty_raw, serial_raw, row_bbox, extraction_method,
+                                      raw_text, status, flags
+                               FROM part_occurrences WHERE book_id=?
+                               ORDER BY pdf_page, row_ordinal, occ_id""",
+        "row_applicability": """SELECT a.occ_id, a.kind, a.prefix, a.from_raw, a.to_raw,
+                                       a.from_num, a.to_num, a.flags
+                                FROM row_applicability a
+                                JOIN part_occurrences o ON o.occ_id=a.occ_id
+                                WHERE o.book_id=?
+                                ORDER BY a.occ_id, a.kind, a.from_num, a.to_num, a.from_raw""",
+        "part_relations": """SELECT r.occ_id, r.related_occ_id, r.relation, r.basis
+                             FROM part_relations r
+                             JOIN part_occurrences o ON o.occ_id=r.occ_id
+                             WHERE o.book_id=?
+                             ORDER BY r.occ_id, r.related_occ_id, r.relation""",
+        "parts_fts": """SELECT f.rowid, f.description, f.figure_title, f.group_title, f.remarks, f.pn_raw
+                        FROM parts_fts f
+                        JOIN part_occurrences o ON o.occ_id=f.rowid
+                        WHERE o.book_id=? ORDER BY f.rowid""",
+    }
+    out = {}
+    for name, sql in queries.items():
+        rows = [list(row) for row in con.execute(sql, (book_id,))]
+        blob = json.dumps(rows, ensure_ascii=False, separators=(",", ":")).encode()
+        out[name] = hashlib.sha256(blob).hexdigest()
+    out["combined"] = hashlib.sha256("".join(out[name] for name in queries).encode()).hexdigest()
+    return out
 
 
 def build(book_id: str, db_path: Path) -> dict:
@@ -431,6 +565,10 @@ def build(book_id: str, db_path: Path) -> dict:
     last = {"fig": None, "item_no": None, "occ": None, "item_raw": None}
     fig_rows = {}
     fig_meta = {}
+    seen_lists = set()
+    pending_title = None
+    current_group = None
+    section_groups = []
     occ_id = con.execute("SELECT coalesce(max(occ_id),0) FROM part_occurrences").fetchone()[0]
     for pi in range(doc.page_count):
         pno = pi + 1
@@ -440,6 +578,12 @@ def build(book_id: str, db_path: Path) -> dict:
         page = doc[pi]
         parsed = parse_list_page(page, pno, profile)
         if parsed is None:
+            if profile["groups"] == "section_dividers":
+                title = divider_title(page)
+                if title:
+                    pending_title = title
+                    stats.setdefault("divider_pages", []).append(pno)
+                    continue
             stats["no_table_pages"].append(pno)
             continue
         fp, rows = parsed
@@ -451,7 +595,6 @@ def build(book_id: str, db_path: Path) -> dict:
             bounds = printed_groups.setdefault(code, [pno, pno])
             bounds[1] = pno
             g = (code, code, bounds[0], bounds[1])
-        stats["list_pages"] += 1
         page_flags = []
         if profile["figure"] == "table_heading":
             fig_no = fp.get("table_figure") or f"UNKNOWN-P{pno}"
@@ -463,6 +606,13 @@ def build(book_id: str, db_path: Path) -> dict:
             if fp.get("view_figure") and fp["view_figure"] != fig_no:
                 page_flags.append("view_figure_mismatch")
                 stats["figure_view_mismatch_pages"].append(pno)
+        elif profile["figure"] == "footer_ref":
+            fig_no = fp.get("table_figure") or f"UNKNOWN-P{pno}"
+            title = fp.get("list_title") or ""
+            fig_line = "Ref. " + (fp.get("table_figure") or "")
+            if not fp.get("table_figure"):
+                page_flags.append("figure_header_missing")
+                stats["figure_missing_pages"].append(pno)
         else:
             fig_line = re.sub(r"^FIG\.\s+", "FIG.", fp["fig_line"])
             fm = FIG_RE.match(fig_line)
@@ -489,14 +639,58 @@ def build(book_id: str, db_path: Path) -> dict:
             label = fp.get("page_label") or ""
             title_raw = fp.get("view_title") or fig_line
         else:
-            views = [i for i in page.get_image_info() if i["bbox"][2] - i["bbox"][0] > 100]
             vb = ""
-            if views:
-                vr = pymupdf.Rect(views[0]["bbox"]) * page.rotation_matrix
-                vb = rect_str(vr)
-            has_view = bool(views)
-            label = fp["footer"]
-            title_raw = fp["fig_line"]
+            if profile.get("prefer_left_image"):
+                # Rotation makes the stored bbox width the short side, so size is measured
+                # after the page rotation. Only a raster left of the parts list is a view.
+                ranked = []
+                for info in page.get_image_info():
+                    rect = pymupdf.Rect(info["bbox"]) * page.rotation_matrix
+                    if max(rect.width, rect.height) > 100:
+                        ranked.append((rect.x0, rect))
+                left = [item for item in ranked if item[0] < fp["list_bbox"].x0 - 5]
+                if left:
+                    vb = rect_str(min(left, key=lambda item: item[0])[1])
+                has_view = bool(left)
+            else:
+                images = [i for i in page.get_image_info() if i["bbox"][2] - i["bbox"][0] > 100]
+                if images:
+                    vr = pymupdf.Rect(images[0]["bbox"]) * page.rotation_matrix
+                    vb = rect_str(vr)
+                has_view = bool(images)
+            if profile["figure"] == "footer_ref":
+                label = fp.get("page_label") or ""
+                title_raw = fp.get("list_title") or fig_line
+            else:
+                label = fp["footer"]
+                title_raw = fp["fig_line"]
+        if profile.get("skip_duplicate_lists"):
+            ident = list_identity(fig_no, rows)
+            if ident in seen_lists:
+                stats.setdefault("duplicate_list_pages", []).append(pno)
+                if has_view and not con.execute(
+                        "SELECT 1 FROM figure_pages WHERE book_id=? AND fig_no=? AND has_view=1",
+                        (book_id, fig_no)).fetchone():
+                    con.execute("INSERT OR REPLACE INTO figure_pages VALUES (?,?,?,?,?,?,?,?,?,?)",
+                                (book_id, fig_no, pno, label, page.rotation, 1, vb,
+                                 rect_str(fp["list_bbox"]), 1, title_raw))
+                    stored = fig_meta.get(fig_no)
+                    if stored:
+                        stored["last"] = max(stored["last"], pno)
+                continue
+            seen_lists.add(ident)
+        if profile["groups"] == "section_dividers":
+            prefix = (fp.get("page_label") or "")[:2]
+            section_title = pending_title or prefix or "UNGROUPED"
+            if current_group is None or current_group[1] != section_title:
+                current_group = [prefix or "NA", section_title, pno, pno]
+                section_groups.append(current_group)
+            else:
+                if prefix and prefix != current_group[0]:
+                    stats.setdefault("group_prefix_mismatch", []).append(pno)
+                current_group[3] = pno
+            g = tuple(current_group)
+        stats["list_pages"] += 1
         con.execute("INSERT OR REPLACE INTO figure_pages VALUES (?,?,?,?,?,?,?,?,?,?)",
                     (book_id, fig_no, pno, label, page.rotation, int(has_view), vb,
                      rect_str(fp["list_bbox"]), int(is_cont), title_raw))
@@ -523,6 +717,13 @@ def build(book_id: str, db_path: Path) -> dict:
                             "raw_text = raw_text || ' || ' || ?, flags = json_insert(flags, '$[#]', 'desc_wrapped') "
                             "WHERE occ_id=?", (clean_description(t["desc"], profile), r["raw"], prev_row))
                 continue
+            glyphs = set(profile.get("icon_pn_glyphs") or ())
+            if pn_raw and glyphs:
+                parts = pn_raw.split()
+                if any(part in glyphs for part in parts):
+                    flags.append("pn_icon_glyph")
+                    kept = [part for part in parts if part not in glyphs]
+                    pn_raw = " ".join(kept) or None
             pn_norm, pnf = norm_pn(pn_raw) if pn_raw else (None, [])
             flags += pnf
             if pn_raw and not pn_norm:
@@ -593,6 +794,10 @@ def build(book_id: str, db_path: Path) -> dict:
                   for code, bounds in sorted(printed_groups.items(), key=lambda pair: pair[1][0])]
         con.executemany("INSERT INTO groups VALUES (?,?,?,?,?)",
                         [(book_id, *group) for group in groups])
+    elif profile["groups"] == "section_dividers":
+        groups = [tuple(item) for item in section_groups]
+        con.executemany("INSERT INTO groups VALUES (?,?,?,?,?)",
+                        [(book_id, *group) for group in groups])
     # star/dash marked rows: relate to the unmarked row with same item in the same figure
     con.execute("""INSERT INTO part_relations
         SELECT a.occ_id, b.occ_id, CASE a.item_marker WHEN '*' THEN 'marked_star_same_item' ELSE 'marked_dash_same_item' END,
@@ -633,6 +838,13 @@ def build(book_id: str, db_path: Path) -> dict:
     if stats["no_table_pages"]:
         cov.append((book_id, None, None, "pages_without_parts_table", "not_indexed",
                     "section dividers / blank / non-table pages: " + ",".join(map(str, stats["no_table_pages"]))))
+    if stats.get("divider_pages"):
+        cov.append((book_id, None, None, "section_dividers", "not_indexed",
+                    "group title pages: " + ",".join(map(str, stats["divider_pages"]))))
+    if stats.get("duplicate_list_pages"):
+        cov.append((book_id, None, None, "duplicate_parts_lists", "not_indexed",
+                    "same figure and table already ingested; a later view is kept only when the first copy has none: "
+                    + ",".join(map(str, stats["duplicate_list_pages"]))))
     if profile["groups"] == "toc":
         # Keep the existing HD text-layer coverage declarations unchanged.
         cov.append((book_id, 1, 21, "front matter & contents", "not_indexed",

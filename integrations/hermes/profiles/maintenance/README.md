@@ -41,7 +41,7 @@ This is a tool configuration for the routed agent, not a bot credential or a sec
 Part Number, Parts Book identification and Figure/Item requests start with
 `maintenance_partbook_lookup`; mixed requests use it first and retain Shop
 Manual evidence for diagnosis. Simple VERIFIED local identification needs no
-manual/web lookup. HD785-7 B1 and WA600-6 2010 are indexed production books;
+manual/web lookup. HD785-7 B1, HD785-5 and WA600-6 2010 are indexed production books;
 misses and coverage gaps permit fallback and never prove nonexistence.
 The Part tool reads full device rules, then calls the existing
 `tools/fleet/partbook_lookup.py --verify` once. The manual dispatch guard stops
@@ -71,6 +71,32 @@ Part enrichment remains non-rendering. Run
 `python -m unittest tools.fleet.test_partbook_wa600 tools.test_maintenance_wa600_part`
 after rebuilding. Older benchmark sections below describe their historical
 HD785-only pilot state.
+
+### HD785-5 Part Book index (September 2026)
+
+`tools/partbook_index.py --book HD785-5` builds the text-layer
+`HD785-5/HD785-5 part book.pdf` on the same SQLite pipeline. The book profile
+is `hd785_5_raster`: `ITEM` headers, footer `Ref.` figure ids, section-divider
+groups, and a left raster exploded view. A repeated-prefix serial such as
+`J10001-J10030` is parsed only when the existing serial form does not match.
+Duplicate parts lists are skipped by figure identity plus normalized table
+rows; a later page keeps view metadata only when the first copy has no
+exploded-view raster. Direct Part lookup does not render a parts-list page
+when no verified view exists. HD785-7 B1 and WA600-6 are not rebuilt.
+The candidate database is built twice and installed only when those digests
+match and the other books' digests stay unchanged.
+
+The verified source has 554 PDF pages. 529 parts-list pages are indexed
+(517 with a left raster view and 12 with no exploded-view raster). Four later
+pages repeat the ENGINE RELATED PARTS tables and are not ingested again.
+The index contains 506 Figures and 10,580 source rows (10,182 rows with a
+part number, 4,868 distinct normalized PNs); 989 rows need review and 398
+rows are rejected because the text layer has an icon glyph instead of a part
+number. Machine applicability is `J10001-UP`; engine group 03 uses
+`0012121-`. A direct Part lookup renders a verified view when one exists and
+returns text only when the figure has no raster. Run
+`python -m unittest tools.fleet.test_partbook_hd785_5 tools.test_maintenance_hd785_5_part`
+after rebuilding.
 
 `SOUL.md` routes technical requests: greetings, clarification and trivial answers
 go to the Parent directly; a technical/manual question about a supported

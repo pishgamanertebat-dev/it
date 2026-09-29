@@ -81,7 +81,12 @@ def coverage_note(model, books):
     for book in books:
         prefix = book.get("machine_serial_prefix") or ""
         start, end = book.get("machine_serial_from"), book.get("machine_serial_to")
-        serial = f"{prefix}{start}-{prefix}{end if end is not None else 'UP'}" if start is not None else "serial coverage unknown"
+        if start is None:
+            serial = "serial coverage unknown"
+        elif end is None:
+            serial = f"{prefix}{start}-UP"
+        else:
+            serial = f"{prefix}{start}-{prefix}{end}"
         summaries.append(f"{book['book_id']}: {book['index_status']}, {serial}")
     return (f"Index coverage for {model}: " + ("; ".join(summaries) or "no indexed books")
             + ". Coverage is incomplete. A miss is NOT evidence of absence; verify actual PDF rows and applicability.")
@@ -302,7 +307,8 @@ def main(argv=None):
             "applicability": r["serial_raw"], "serial_raw": r["serial_raw"],
             "serial_match": ok_serial,
             "pdf_pages": [r["pdf_page"]],
-            "view_pages": views or [r["pdf_page"]],
+            # Only exploded-view pages. A parts-list page is not a substitute image.
+            "view_pages": views,
             "figure_pdf_pages": [p["pdf_page"] for p in vp],
             "row": {"ordinal": r["row_ordinal"], "bbox": r["row_bbox"], "method": r["extraction_method"]},
             "status": r["status"], "flags": flags, "relations": rel[:4],

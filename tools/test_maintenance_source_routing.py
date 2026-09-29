@@ -162,9 +162,10 @@ class SourceRoutingTests(unittest.TestCase):
 
     def test_unindexed_model_is_explicit_and_never_borrows_pilot(self):
         with patch.object(plugin.subprocess, "run", side_effect=AssertionError("No cross-model lookup")):
-            result = json.loads(plugin.part_lookup(dict(model="HD785-5", question="Part Number filter", query="filter")))
+            result = json.loads(plugin.part_lookup(dict(model="HD465-7R", question="Part Number filter", query="filter")))
         self.assertFalse(result["indexed_lookup_available"])
         self.assertFalse(result["coverage_complete"])
+        self.assertIn("HD785-5", plugin.INDEXED_PART_MODELS)
 
     def test_outside_serial_reports_coverage_gap(self):
         result = self.lookup(A, serial="N9000")
