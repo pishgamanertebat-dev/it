@@ -8,6 +8,20 @@ polling instrumentation. Both HTTPX clients save `trust_env=False` and
 `proxy=None`, including when PTB rebuilds them. No Telegram proxy or fallback-IP
 discovery is invoked.
 
+Private Bale chats override `_is_user_authorized_from_message` and return
+before the parent deny. Hermes 0.21.4 drops unknown senders in the Telegram
+adapter, before `pre_gateway_dispatch`. Bale onboarding lives in
+`komatso-bale-registry` on that hook, so a private message has to reach it.
+Group and channel messages still use the parent gate. Do not set
+`allow_from: *` to get the same effect: the gateway reads that list after
+the hook and would admit a sender when the registry plugin is absent.
+On a later Hermes upgrade, `test_upstream_intake_still_asks_the_overridden_gate`
+must still pass. If the parent stops calling `_is_user_authorized_from_message`
+from its text, command, location, or media handlers, attach this same private-chat
+exception to the new intake gate before deploying. A newer Hermes `authorize`
+hook action does not replace this override: the adapter drops the message
+before any hook runs.
+
 The existing `ik:` authorization/dispatch, endpoints, Markdown de-escaping and
 Persian reset translation are retained. Persian provider rate-limit translation
 previously inherited from the customized runtime Telegram core now lives in

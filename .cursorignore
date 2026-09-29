@@ -4,3 +4,6 @@ AGENTS.md
 AGENTS.override.md
 **/AGENTS.override.md
 AGENTS.before_fleet_v1.md
+.venv/
+__pycache__/
+backup/

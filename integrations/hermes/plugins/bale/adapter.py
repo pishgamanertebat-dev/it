@@ -187,6 +187,29 @@ class BaleAdapter(TelegramAdapter):
         )
         await self.handle_message(event)
 
+    @staticmethod
+    def _chat_type_value(message) -> str:
+        chat = getattr(message, "chat", None)
+        raw = getattr(chat, "type", None)
+        value = getattr(raw, "value", raw)
+        return str(value or "").strip().lower()
+
+    def _is_user_authorized_from_message(self, message) -> bool:
+        """Let a private Bale chat reach komatso-bale-registry.
+
+        Hermes rejects an unknown sender inside the Telegram adapter, before
+        pre_gateway_dispatch. Bale onboarding is that hook, not Hermes pairing.
+        A private chat must not be dropped here. Group and channel messages
+        keep the parent gate. After the hook, gateway authorization still
+        applies, so a missing registry plugin does not admit the sender.
+        """
+        if self._chat_type_value(message) in {"private", "dm"}:
+            return True
+        parent = getattr(super(), "_is_user_authorized_from_message", None)
+        if not callable(parent):
+            return True
+        return parent(message)
+
     def __init__(self, config: PlatformConfig):
         # Inject the Bale token + base_url BEFORE TelegramAdapter.__init__ reads
         # config.token / config.extra.  We mutate the passed config object in

@@ -162,6 +162,41 @@ def test_file_download_and_upload_use_bale_transport(monkeypatch):
     asyncio.run(check())
 
 
+def test_private_chat_reaches_onboarding_when_hermes_would_deny(monkeypatch):
+    monkeypatch.setattr(
+        upstream.TelegramAdapter, "_is_user_authorized_from_message",
+        lambda self, message: False,
+    )
+    adapter = object.__new__(BaleAdapter)
+    private = SimpleNamespace(chat=SimpleNamespace(type="private"), from_user=SimpleNamespace(id=1))
+    enum_private = SimpleNamespace(
+        chat=SimpleNamespace(type=SimpleNamespace(value="private")),
+        from_user=SimpleNamespace(id=1),
+    )
+    assert adapter._is_user_authorized_from_message(private) is True
+    assert adapter._is_user_authorized_from_message(enum_private) is True
+
+
+def test_non_private_chat_keeps_the_hermes_gate(monkeypatch):
+    monkeypatch.setattr(
+        upstream.TelegramAdapter, "_is_user_authorized_from_message",
+        lambda self, message: False,
+    )
+    adapter = object.__new__(BaleAdapter)
+    group = SimpleNamespace(chat=SimpleNamespace(type="supergroup"), from_user=SimpleNamespace(id=1))
+    assert adapter._is_user_authorized_from_message(group) is False
+
+
+def test_upstream_intake_still_asks_the_overridden_gate():
+    import inspect
+    for name in (
+        "_handle_text_message", "_handle_command",
+        "_handle_location_message", "_handle_media_message",
+    ):
+        source = inspect.getsource(getattr(upstream.TelegramAdapter, name))
+        assert "_is_user_authorized_from_message" in source, name
+
+
 def test_manifest_and_new_directory_loader():
     from hermes_cli.plugins import PluginManager, parse_manifest_file
     from gateway.platform_registry import PlatformEntry

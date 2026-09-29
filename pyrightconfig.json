@@ -1,0 +1,13 @@
+{
+  "exclude": [
+    "**/.venv",
+    "**/__pycache__",
+    "**/.git",
+    "**/node_modules",
+    "**/backup",
+    "**/artifacts",
+    "**/runtime",
+    "**/.pytest_cache",
+    "**/.mypy_cache"
+  ]
+}
