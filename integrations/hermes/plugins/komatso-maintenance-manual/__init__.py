@@ -16,7 +16,7 @@ PREPARED = "KOMATSO_MANUAL_PREPARED_V3"
 TOOL = "maintenance_manual_evidence"
 PART_TOOL = "maintenance_partbook_lookup"
 # Expand only after another model index is production-ready.
-INDEXED_PART_MODELS = {"HD785-7", "WA600-6", "HD785-5"}
+INDEXED_PART_MODELS = {"HD785-7", "WA600-6", "HD785-5", "HD465-7R"}
 PART_ENRICHMENT_BUDGET_SECONDS = 1.0
 PART_ENRICHMENT_LIMIT = 4
 _request_enrichments = {}
@@ -555,8 +555,8 @@ PART_DESCRIPTION = (
     "FIRST tool for Part Number / شماره فنی / شماره قطعه / پارت نامبر, bare PN with model, "
     "Parts Book component identification, Figure/Item or exploded view. Reads device AGENTS.md IN FULL "
     "before one targeted partbook_lookup.py --verify; verifies actual PDF rows. Use part_number for "
-    "a supplied PN, query for English component name, or figure/item. HD785-7 B1, HD785-5 and WA600-6 2010 "
-    "have indexed text-layer books; HD785-7 B2 remains unindexed. Confirm only VERIFIED candidates "
+    "a supplied PN, query for English component name, or figure/item. HD785-7 B1, HD785-5, WA600-6 2010 "
+    "and HD465-7R have indexed text-layer books; HD785-7 B2 remains unindexed. Confirm only VERIFIED candidates "
     "with quantity and applicability. Simple verified "
     "local lookup needs no Shop Manual/web. Mixed diagnosis + PN needs this FIRST plus "
     "maintenance_manual_evidence. Miss, incomplete coverage, serial outside coverage, ambiguity, "

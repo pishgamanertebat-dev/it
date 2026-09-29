@@ -11,6 +11,7 @@ Rebuild:
     E:\\KomatsoAI\\.venv\\Scripts\\python.exe E:\\KomatsoAI\\tools\\partbook_index.py --book HD785-7-B1
     E:\\KomatsoAI\\.venv\\Scripts\\python.exe E:\\KomatsoAI\\tools\\partbook_index.py --book WA600-6-2010
     E:\\KomatsoAI\\.venv\\Scripts\\python.exe E:\\KomatsoAI\\tools\\partbook_index.py --book HD785-5
+    E:\\KomatsoAI\\.venv\\Scripts\\python.exe E:\\KomatsoAI\\tools\\partbook_index.py --book HD465-7R
 
 Only the generated SQLite file (runtime/partbook/, gitignored) is written.
 No operational DB, fleet data, gateway or messaging state is touched.
@@ -54,6 +55,28 @@ PROFILES = {
                        "item_suffix_letters": True, "strip_leader_dots": True,
                        "skip_duplicate_lists": True, "prefer_left_image": True,
                        "icon_pn_glyphs": ("j", "i")},
+    # Landscape text-layer book: INDEX headers, "Ref. :" on both halves, left raster.
+    "hd465_raster": {"groups": "section_dividers", "columns": "learned",
+                     "figure": "footer_ref", "view": "raster",
+                     "header_index_token": "INDEX",
+                     "qty_header_tokens": ("Q'TY", "QT'Y", "QTY", "Q\u2019TY"),
+                     "ref_pattern": r"Ref\.\s*:\s*([A-Z]\d{4,5}-[A-Z0-9]{4,6})",
+                     "page_label_pattern": r"Page:\s*(\d{6,7})",
+                     "list_ref_min_x": 520, "view_ref_max_x": 400,
+                     "require_matching_view_ref": True,
+                     "banner_tokens": ("S/N", "HD", "465-7R", "SAA6D170E-5R",
+                                       "J20116--UP", "610017--"),
+                     "serial_anchor": r"^(?:J\d{3,}(?:--)?|\d{5,})",
+                     "applicability_banner": {"engine": "SAA6D170E-5R", "machine": "465-7R"},
+                     "bare_engine_open_start": True, "serial_open_trailing_dashes": True,
+                     "engine_groups": (), "quantity_tokens": ("AR",),
+                     "item_suffix_letters": True, "strip_leader_dots": True,
+                     "desc_anchor": r"^[.*A-Z(]",
+                     "desc_level_chars": ".*", "strip_pn_controls": True,
+                     "skip_duplicate_lists": True, "prefer_left_image": True,
+                     "icon_pn_glyphs": ("j", "i"),
+                     "header_without_parts": "section_or_template",
+                     "disambiguate_group_prefix": True},
 }
 
 BOOKS = {
@@ -102,6 +125,18 @@ BOOKS = {
         "engine_serial_raw": "0012121 and up",
         "text_layer": True,
         "extractor_version": "pb-geom-hd7855-1",
+    },
+    "HD465-7R": {
+        "model": "HD465-7R",
+        "profile": "hd465_raster",
+        "pdf": "HD465-7R_HD605-7R/HD465-7R  Parts Book.pdf",
+        "title": "HD465-7R Parts Book, Serial J20116 and up, Engine SAA6D170E-5R 610017 and up",
+        "machine_serial_prefix": "J",
+        "machine_serial_from": 20116,
+        "machine_serial_to": None,
+        "engine_serial_raw": "610017 and up",
+        "text_layer": True,
+        "extractor_version": "pb-geom-hd465-1",
     },
 }
 
@@ -186,7 +221,8 @@ def norm_pn(raw: str) -> tuple[str, list[str]]:
     return s.upper(), flags
 
 
-def parse_serial(raw: str, book: dict, default_kind: str = "machine") -> list[dict]:
+def parse_serial(raw: str, book: dict, default_kind: str = "machine", *,
+                  open_bare_engine: bool = False, open_trailing_dashes: bool = False) -> list[dict]:
     out = []
     if not raw:
         return out
@@ -197,6 +233,14 @@ def parse_serial(raw: str, book: dict, default_kind: str = "machine") -> list[di
     for part in s.split(","):
         m = re.match(r"^([A-Z]*)(\d+)(?:-(\d*))?$", part)
         if not m:
+            if open_trailing_dashes:
+                dashed = re.match(r"^([A-Z]*)(\d+)--+$", part)
+                if dashed:
+                    pfx, a = dashed.group(1) or prefix, dashed.group(2)
+                    out.append({"kind": kind, "prefix": pfx, "from_raw": a, "to_raw": None,
+                                "from_num": int(a), "to_num": None,
+                                "flags": ["open_trailing_dashes"]})
+                    continue
             # Existing forms still match above. This only accepts J10001-J10030.
             repeated = re.match(r"^([A-Z]+)(\d+)-\1(\d+)$", part)
             if repeated:
@@ -223,6 +267,11 @@ def parse_serial(raw: str, book: dict, default_kind: str = "machine") -> list[di
                 to_num = int(b)
         if kind == "machine" and b is None and "-" not in part:
             # Machine rows in B1 list only the start serial ("N10001") = from that serial on.
+            to_num = None
+            flags = ["open_start_only"]
+        elif open_bare_engine and kind == "engine" and b is None and "-" not in part:
+            # HD465 engine cells print the banner start (610017) with no hyphen.
+            # Only the caller that already identified the engine banner may set this.
             to_num = None
             flags = ["open_start_only"]
         out.append({"kind": kind, "prefix": pfx, "from_raw": a, "to_raw": b,
@@ -312,6 +361,90 @@ def list_identity(fig_no, rows):
         for row in rows))
 
 
+def group_code_for_prefix_run(prefix: str, run_index: int) -> str:
+    """Code for one contiguous page-label prefix run.
+
+    run_index is 1-based and counted while scanning the PDF forward.
+    It is not read from SQLite or from set/dict iteration order.
+    The first run of a prefix keeps that prefix; later runs are prefix-2, prefix-3, ...
+    """
+    prefix = prefix or "NA"
+    if run_index <= 1:
+        return prefix
+    return f"{prefix}-{run_index}"
+
+
+def serial_kind_for_page(profile: dict, banner_text: str, group_code: str) -> str:
+    """Engine kind only from an explicit banner, otherwise the existing group-code rule."""
+    spec = profile.get("applicability_banner") or {}
+    text = banner_text or ""
+    engine = spec.get("engine")
+    machine = spec.get("machine")
+    if engine and engine in text:
+        return "engine"
+    if machine and machine in text:
+        return "machine"
+    return "engine" if group_code in profile.get("engine_groups", ()) else "machine"
+
+
+def _footer_side_text(words, *, min_x=None, max_x=None, min_y=500):
+    selected = []
+    for word in words:
+        if word[1] < min_y:
+            continue
+        if min_x is not None and word[0] < min_x:
+            continue
+        if max_x is not None and word[0] > max_x:
+            continue
+        selected.append(word)
+    return " ".join(word[4] for word in sorted(selected, key=lambda item: (item[1], item[0])))
+
+
+def parts_list_has_rows(rows) -> bool:
+    """True when the table has a real part row. A lone section title or X/XXX cells do not count."""
+    for row in rows:
+        item = row["txt"].get("item") or ""
+        pn = re.sub(r"\s+", "", row["txt"].get("pn") or "")
+        qty = row["txt"].get("qty") or ""
+        # A section title such as ELECTRICAL can look like the compact PN form.
+        # A parts row has an item, a hyphenated part number, or a real quantity.
+        if re.match(r"^\d{1,3}[A-Z*\-]?$", item) or ("-" in pn and PN_RE.match(pn)):
+            return True
+        if re.fullmatch(r"\d+|AR", qty):
+            letters = re.sub(r"[^A-Za-z]", "", row["txt"].get("desc") or "")
+            if letters and set(letters.upper()) - {"X"}:
+                return True
+    return False
+
+
+_HEADER_TOKENS = {"INDEX", "PART", "NO.", "DESCRIPTION", "SERIAL", "Q'TY", "QT'Y", "QTY", "Q\u2019TY"}
+
+
+def nonlist_section_title(page, profile: dict, min_x: float):
+    """Section title on a header page that has no part rows. XXXX templates return None."""
+    banner = set(profile.get("banner_tokens") or ())
+    tokens = []
+    for word in sorted(page_words(page), key=lambda item: (round(item[1]), item[0])):
+        token = word[4]
+        if word[0] < min_x or token in _HEADER_TOKENS or token in banner:
+            continue
+        if token in {"Ref.", ":", "Page:"} or str(token).endswith("-UP"):
+            continue
+        if re.fullmatch(r"\d{6,7}", token) or re.fullmatch(r"[A-Z]\d{4,5}-[A-Z0-9]{4,6}", token):
+            continue
+        if tokens and tokens[-1] == token:
+            continue
+        core = token.strip(".")
+        if not core or set(core.upper()) <= {"X"}:
+            continue
+        tokens.append(core)
+    text = re.sub(r"\s+", " ", " ".join(tokens)).strip(" .")
+    letters = re.sub(r"[^A-Za-z]", "", text)
+    if not letters or set(letters.upper()) <= {"X"}:
+        return None
+    return text
+
+
 def vector_view_bbox(page, list_bbox):
     """Bounds of vector paths on the view half, in displayed page coordinates."""
     selected = []
@@ -343,7 +476,7 @@ def parse_list_page(page, pno: int, profile: dict | None = None):
             hdr["part"] = w
         elif t == "DESCRIPTION" and "desc" not in hdr:
             hdr["desc"] = w
-        elif t in ("Q'TY", "QT'Y", "QTY") and "qty" not in hdr:
+        elif t in profile.get("qty_header_tokens", ("Q'TY", "QT'Y", "QTY")) and "qty" not in hdr:
             hdr["qty"] = w
         elif t == "SERIAL" and "serial" not in hdr:
             hdr["serial"] = w
@@ -380,8 +513,9 @@ def parse_list_page(page, pno: int, profile: dict | None = None):
         anchor = profile.get("serial_anchor", r"^(N\d{3,}|SN:)")
         x_ser = mode_x([w for w in lst if re.match(anchor, w[4]) and w[0] > hdr["qty"][0] - 20],
                        hdr["serial"][0] - 12) - 1.5
+        desc_anchor = profile.get("desc_anchor", r"^[.A-Z(]")
         x_desc = mode_x([w for w in lst if x_pn + 45 < w[0] < hdr["qty"][0] - 20
-                         and re.match(r"^[.A-Z(]", w[4])], hdr["desc"][0] - 50) - 3
+                         and re.match(desc_anchor, w[4])], hdr["desc"][0] - 50) - 3
         x_qty = x_ser - 22  # qty is right-aligned just before serial column
     fig_line = " ".join(w[4] for w in sorted(
         [w for w in words if abs(w[1] - hdr["index"][1]) < 9 and w[0] < x_idx], key=lambda z: z[0]))
@@ -435,16 +569,31 @@ def parse_list_page(page, pno: int, profile: dict | None = None):
                 title.append(line)
             fp["view_title"] = " ".join(x for x in title if x)
     if profile["figure"] == "footer_ref":
-        text = page.get_text("text")
-        figure = re.search(r"Ref\.\s*([A-Z]\d{4}-[A-Z0-9]{4,6})\b", text)
-        printed = re.search(r"\bPage\s+(\d{6})\b", text)
-        fp["table_figure"] = figure.group(1).upper() if figure else None
-        fp["page_label"] = printed.group(1) if printed else None
-        banner = {"S/N", "HD785-5", "SA12V140-1"}
+        if profile.get("list_ref_min_x") is not None:
+            pattern = re.compile(profile["ref_pattern"])
+            label_pattern = re.compile(profile["page_label_pattern"])
+            list_text = _footer_side_text(words, min_x=profile["list_ref_min_x"])
+            view_text = _footer_side_text(words, max_x=profile.get("view_ref_max_x"))
+            figure = pattern.search(list_text)
+            view = pattern.search(view_text)
+            printed = label_pattern.search(list_text)
+            fp["table_figure"] = figure.group(1).upper() if figure else None
+            fp["view_figure"] = view.group(1).upper() if view else None
+            fp["page_label"] = printed.group(1) if printed else None
+        else:
+            text = page.get_text("text")
+            figure = re.search(r"Ref\.\s*([A-Z]\d{4}-[A-Z0-9]{4,6})\b", text)
+            printed = re.search(r"\bPage\s+(\d{6})\b", text)
+            fp["table_figure"] = figure.group(1).upper() if figure else None
+            fp["page_label"] = printed.group(1) if printed else None
+        banner = set(profile.get("banner_tokens") or ("S/N", "HD785-5", "SA12V140-1"))
         band = [w for w in words
                 if hdr["index"][1] - 42 <= w[1] < hdr["index"][1] - 1
                 and w[0] >= x_idx and w[4] not in banner and not str(w[4]).endswith("-UP")]
         fp["list_title"] = " ".join(w[4] for w in sorted(band, key=lambda z: (round(z[1]), z[0])))
+        fp["banner_text"] = " ".join(w[4] for w in sorted(
+            (w for w in words if w[1] < hdr["index"][1] - 1 and w[0] >= x_idx),
+            key=lambda item: (item[1], item[0])))
     return fp, rows
 
 
@@ -568,6 +717,8 @@ def build(book_id: str, db_path: Path) -> dict:
     seen_lists = set()
     pending_title = None
     current_group = None
+    current_prefix = None
+    prefix_runs = {}
     section_groups = []
     occ_id = con.execute("SELECT coalesce(max(occ_id),0) FROM part_occurrences").fetchone()[0]
     for pi in range(doc.page_count):
@@ -578,7 +729,8 @@ def build(book_id: str, db_path: Path) -> dict:
         page = doc[pi]
         parsed = parse_list_page(page, pno, profile)
         if parsed is None:
-            if profile["groups"] == "section_dividers":
+            # HD465 section titles sit on header pages, so contents pages stay front matter.
+            if profile["groups"] == "section_dividers" and not profile.get("header_without_parts"):
                 title = divider_title(page)
                 if title:
                     pending_title = title
@@ -587,6 +739,14 @@ def build(book_id: str, db_path: Path) -> dict:
             stats["no_table_pages"].append(pno)
             continue
         fp, rows = parsed
+        if profile.get("header_without_parts") == "section_or_template" and not parts_list_has_rows(rows):
+            title = nonlist_section_title(page, profile, profile.get("list_ref_min_x", 0))
+            if title:
+                pending_title = title
+                stats.setdefault("divider_pages", []).append(pno)
+            else:
+                stats.setdefault("template_pages", []).append(pno)
+            continue
         if profile["groups"] == "printed_label":
             code = fp.get("group_code")
             if not code:
@@ -664,6 +824,15 @@ def build(book_id: str, db_path: Path) -> dict:
             else:
                 label = fp["footer"]
                 title_raw = fp["fig_line"]
+        if profile.get("require_matching_view_ref") and fp.get("view_figure") != fig_no:
+            # A left raster whose printed Ref disagrees with the parts list is not a view.
+            if has_view:
+                has_view = False
+                vb = ""
+            if fp.get("view_figure"):
+                page_flags.append("view_figure_mismatch")
+                page_flags.append("illustration_ref:" + fp["view_figure"])
+                stats["figure_view_mismatch_pages"].append(pno)
         if profile.get("skip_duplicate_lists"):
             ident = list_identity(fig_no, rows)
             if ident in seen_lists:
@@ -680,15 +849,38 @@ def build(book_id: str, db_path: Path) -> dict:
                 continue
             seen_lists.add(ident)
         if profile["groups"] == "section_dividers":
-            prefix = (fp.get("page_label") or "")[:2]
-            section_title = pending_title or prefix or "UNGROUPED"
-            if current_group is None or current_group[1] != section_title:
-                current_group = [prefix or "NA", section_title, pno, pno]
-                section_groups.append(current_group)
+            prefix = (fp.get("page_label") or "")[:2] or "NA"
+            if profile.get("disambiguate_group_prefix"):
+                # A reused page-code prefix (HD465 prints 030010 twice) needs a second
+                # code. The suffix is the 1-based run count from this forward scan.
+                fresh = pending_title if pending_title and (
+                    current_group is None or pending_title != current_group[1]) else None
+                prefix_changed = current_group is None or prefix != current_prefix
+                if current_group is None or fresh or prefix_changed:
+                    if fresh:
+                        section_title = fresh
+                        pending_title = None
+                    elif prefix_changed and current_group is not None:
+                        section_title = prefix
+                    else:
+                        section_title = pending_title or prefix
+                        pending_title = None
+                    prefix_runs[prefix] = prefix_runs.get(prefix, 0) + 1
+                    code = group_code_for_prefix_run(prefix, prefix_runs[prefix])
+                    current_group = [code, section_title, pno, pno]
+                    current_prefix = prefix
+                    section_groups.append(current_group)
+                else:
+                    current_group[3] = pno
             else:
-                if prefix and prefix != current_group[0]:
-                    stats.setdefault("group_prefix_mismatch", []).append(pno)
-                current_group[3] = pno
+                section_title = pending_title or prefix or "UNGROUPED"
+                if current_group is None or current_group[1] != section_title:
+                    current_group = [prefix or "NA", section_title, pno, pno]
+                    section_groups.append(current_group)
+                else:
+                    if prefix and prefix != current_group[0]:
+                        stats.setdefault("group_prefix_mismatch", []).append(pno)
+                    current_group[3] = pno
             g = tuple(current_group)
         stats["list_pages"] += 1
         con.execute("INSERT OR REPLACE INTO figure_pages VALUES (?,?,?,?,?,?,?,?,?,?)",
@@ -724,7 +916,13 @@ def build(book_id: str, db_path: Path) -> dict:
                     flags.append("pn_icon_glyph")
                     kept = [part for part in parts if part not in glyphs]
                     pn_raw = " ".join(kept) or None
-            pn_norm, pnf = norm_pn(pn_raw) if pn_raw else (None, [])
+            pn_for_norm = pn_raw
+            if pn_raw and profile.get("strip_pn_controls"):
+                stripped = "".join(ch for ch in pn_raw if ord(ch) >= 32 and not 0x7F <= ord(ch) <= 0x9F)
+                if stripped != pn_raw:
+                    flags.append("pn_control_char")
+                    pn_for_norm = stripped or None
+            pn_norm, pnf = norm_pn(pn_for_norm) if pn_for_norm else (None, [])
             flags += pnf
             if pn_raw and not pn_norm:
                 flags.append("pn_symbol_only")
@@ -755,7 +953,7 @@ def build(book_id: str, db_path: Path) -> dict:
             desc = clean_description(t["desc"], profile) or None
             level = 0
             if desc:
-                level = len(desc) - len(desc.lstrip("."))
+                level = len(desc) - len(desc.lstrip(profile.get("desc_level_chars", ".")))
             hard = {"no_part_number", "item_unparsed", "item_missing", "pn_pattern_unusual",
                     "figure_header_missing", "figure_header_garbled", "qty_nonnumeric", "pn_symbol_only", "qty_missing"}
             status = "needs_verification" if (hard & set(flags)) else "ok"
@@ -770,8 +968,11 @@ def build(book_id: str, db_path: Path) -> dict:
                          pn_raw, pn_norm, desc, level, t["qty"] or None, t["serial"] or None,
                          rect_str(r["bbox"]), book.get("extractor_version", EXTRACTOR_VERSION),
                          r["raw"], status, json.dumps(flags)))
-            serial_kind = "engine" if g[0] in profile["engine_groups"] else "machine"
-            for a in parse_serial(t["serial"], book, serial_kind):
+            serial_kind = serial_kind_for_page(profile, fp.get("banner_text") or "", g[0])
+            for a in parse_serial(
+                    t["serial"], book, serial_kind,
+                    open_bare_engine=bool(profile.get("bare_engine_open_start") and serial_kind == "engine"),
+                    open_trailing_dashes=bool(profile.get("serial_open_trailing_dashes"))):
                 con.execute("INSERT INTO row_applicability VALUES (?,?,?,?,?,?,?,?)",
                             (occ_id, a["kind"], a["prefix"], a["from_raw"], a["to_raw"],
                              a["from_num"], a["to_num"], json.dumps(a["flags"])))
@@ -845,6 +1046,10 @@ def build(book_id: str, db_path: Path) -> dict:
         cov.append((book_id, None, None, "duplicate_parts_lists", "not_indexed",
                     "same figure and table already ingested; a later view is kept only when the first copy has none: "
                     + ",".join(map(str, stats["duplicate_list_pages"]))))
+    if stats.get("template_pages"):
+        cov.append((book_id, None, None, "blank_table_templates", "not_indexed",
+                    "header pages whose cells are only X/XXX placeholders: "
+                    + ",".join(map(str, stats["template_pages"]))))
     if profile["groups"] == "toc":
         # Keep the existing HD text-layer coverage declarations unchanged.
         cov.append((book_id, 1, 21, "front matter & contents", "not_indexed",

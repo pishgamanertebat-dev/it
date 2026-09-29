@@ -41,7 +41,7 @@ This is a tool configuration for the routed agent, not a bot credential or a sec
 Part Number, Parts Book identification and Figure/Item requests start with
 `maintenance_partbook_lookup`; mixed requests use it first and retain Shop
 Manual evidence for diagnosis. Simple VERIFIED local identification needs no
-manual/web lookup. HD785-7 B1, HD785-5 and WA600-6 2010 are indexed production books;
+manual/web lookup. HD785-7 B1, HD785-5, WA600-6 2010 and HD465-7R are indexed production books;
 misses and coverage gaps permit fallback and never prove nonexistence.
 The Part tool reads full device rules, then calls the existing
 `tools/fleet/partbook_lookup.py --verify` once. The manual dispatch guard stops
@@ -96,6 +96,30 @@ number. Machine applicability is `J10001-UP`; engine group 03 uses
 `0012121-`. A direct Part lookup renders a verified view when one exists and
 returns text only when the figure has no raster. Run
 `python -m unittest tools.fleet.test_partbook_hd785_5 tools.test_maintenance_hd785_5_part`
+after rebuilding.
+
+### HD465-7R Part Book index (September 2026)
+
+`tools/partbook_index.py --book HD465-7R` builds the text-layer
+`HD465-7R_HD605-7R/HD465-7R  Parts Book.pdf` on the same SQLite pipeline.
+The book profile is `hd465_raster`: `INDEX` headers, a right-hand `Ref. :`
+figure id, a left raster only when that illustration Ref matches, and section
+titles from divider pages. Page-code prefix `03` is used twice, so the second
+run is group `03-2`. Engine applicability is taken from the `SAA6D170E-5R`
+banner; a bare engine serial such as `610017` is open-ended only in that
+context. HD605-7R is not indexed. HD785-7 B1, HD785-5 and WA600-6 are not rebuilt.
+The candidate database is built twice and installed only when those digests
+match and the other books' digests stay unchanged.
+
+The verified source has 466 PDF pages. 438 parts-list pages are indexed.
+421 Figures are stored. Eleven sheets whose illustration Ref disagrees with
+the parts-list Ref stay text-only. The index contains 8,540 source rows;
+182 rows are rejected because the text layer has an icon glyph instead of a
+part number, and 158 rows need review. Machine applicability is `J20116-UP`.
+Engine rows under the engine banner use `610017` and up. A direct Part lookup
+renders a verified left raster when the Refs agree and returns text only
+otherwise. Run
+`python -m unittest tools.fleet.test_partbook_hd465 tools.test_maintenance_hd465_part`
 after rebuilding.
 
 `SOUL.md` routes technical requests: greetings, clarification and trivial answers

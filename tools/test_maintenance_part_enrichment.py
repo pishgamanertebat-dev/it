@@ -47,7 +47,7 @@ class EnrichmentTests(unittest.TestCase):
 
     def test_c_generic_and_unindexed_models_skip_without_subprocess(self):
         for model, query, reason in (("HD785-7", None, "no_query"), ("HD785-7", "", "no_query"),
-                                     ("HD465-7R", "steering pump", "unindexed_model"),
+                                     ("HD605-7R", "steering pump", "unindexed_model"),
                                      ("HD785-7", "581-91-19110", "invalid_query"),
                                      ("HD785-7", "پمپ فرمان", "invalid_query"),
                                      ("HD785-7", "x" * 81, "invalid_query")):
