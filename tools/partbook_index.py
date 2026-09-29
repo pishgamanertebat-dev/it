@@ -12,6 +12,7 @@ Rebuild:
     E:\\KomatsoAI\\.venv\\Scripts\\python.exe E:\\KomatsoAI\\tools\\partbook_index.py --book WA600-6-2010
     E:\\KomatsoAI\\.venv\\Scripts\\python.exe E:\\KomatsoAI\\tools\\partbook_index.py --book HD785-5
     E:\\KomatsoAI\\.venv\\Scripts\\python.exe E:\\KomatsoAI\\tools\\partbook_index.py --book HD465-7R
+    E:\\KomatsoAI\\.venv\\Scripts\\python.exe E:\\KomatsoAI\\tools\\partbook_index.py --book PC800-8
 
 Only the generated SQLite file (runtime/partbook/, gitignored) is written.
 No operational DB, fleet data, gateway or messaging state is touched.
@@ -91,6 +92,22 @@ PROFILES = {
                         "pn_pattern": r"^[A-Z0-9]{2,9}(?:-[A-Z0-9]{1,8}){1,3}$|^[A-Z0-9]{8,14}$",
                         "group_item_markers": ("G", "G1", "G2"),
                         "serial_double_dash_closed": True},
+    # Same top-raster catalogue shape as PC1250. PC800LC-8 pages in this file
+    # are a separate printed variant and are not PC800-8 evidence.
+    "pc800_top_view": {"groups": "toc_levels", "columns": "pc1250_headers",
+                       "figure": "table_reference", "view": "raster_above_table",
+                       "toc_min_page": 2,
+                       "header_index_token": "Item", "desc_header_token": "Name",
+                       "qty_header_tokens": ("Qty",), "serial_header_tokens": ("Serial", "Options"),
+                       "quantity_tokens": ("AR",), "item_suffix_letters": True,
+                       "applicability_banner": {"engine": "SAA6D140E-5F-03",
+                                                "machine": "PC800-8"},
+                       "allowed_banners": ("PC800-8", "SAA6D140E-5F-03"),
+                       "excluded_banners": ("PC800LC-8",),
+                       "strip_pn_controls": True,
+                       "pn_pattern": r"^[A-Z0-9]{2,9}(?:-[A-Z0-9]{1,8}){1,3}$|^[A-Z0-9]{8,14}$",
+                       "skip_duplicate_lists": True,
+                       "desc_level_chars": " "},
 }
 
 BOOKS = {
@@ -159,6 +176,14 @@ BOOKS = {
         "machine_serial_prefix": "", "machine_serial_from": 35001,
         "machine_serial_to": None, "engine_serial_raw": "SAA6D170E-5CR-W 610001-UP",
         "text_layer": True, "extractor_version": "pb-geom-pc1250sp-1",
+    },
+    "PC800-8": {
+        "model": "PC800-8", "profile": "pc800_top_view",
+        "pdf": "PC800/KOMATSU PC800-8 PART BOOK.pdf",
+        "title": "PC800-8 Parts Book, serial 50001-UP (ecot3); engine SAA6D140E-5F-03 530001-UP",
+        "machine_serial_prefix": "", "machine_serial_from": 50001,
+        "machine_serial_to": None, "engine_serial_raw": "SAA6D140E-5F-03 530001-UP",
+        "text_layer": True, "extractor_version": "pb-geom-pc800-1",
     },
 }
 
@@ -754,7 +779,9 @@ def build(book_id: str, db_path: Path) -> dict:
     groups = []
     printed_groups = {}
     if profile["groups"] == "toc_levels":
-        headings = [(title, start) for level, title, start in doc.get_toc() if level == 1 and start >= 4]
+        min_page = profile.get("toc_min_page", 4)
+        headings = [(title, start) for level, title, start in doc.get_toc()
+                    if level == 1 and start >= min_page]
         groups = [(f"TOC{i:02}", title, start,
                    headings[i][1] - 1 if i < len(headings) else doc.page_count)
                   for i, (title, start) in enumerate(headings, 1)]
@@ -795,7 +822,12 @@ def build(book_id: str, db_path: Path) -> dict:
         page = doc[pi]
         if profile.get("allowed_banners") and not any(
                 banner in page.get_text("text")[:120] for banner in profile["allowed_banners"]):
-            stats["no_table_pages"].append(pno)
+            head = page.get_text("text")[:120]
+            if any(token in head for token in profile.get("excluded_banners") or ()):
+                # A different printed machine banner is not evidence for this model.
+                stats.setdefault("excluded_banner_pages", []).append(pno)
+            else:
+                stats["no_table_pages"].append(pno)
             continue
         parsed = parse_list_page(page, pno, profile)
         if parsed is None:
@@ -1144,6 +1176,14 @@ def build(book_id: str, db_path: Path) -> dict:
                      now if bid == book_id else None))
     cov = [(book_id, g[2], g[3], f"group {g[0]} {g[1]}", "text_layer_indexed",
             "geometry extraction; rows may be flagged needs_verification") for g in groups]
+    if stats.get("excluded_banner_pages"):
+        skipped = stats["excluded_banner_pages"]
+        span = (f"{skipped[0]}-{skipped[-1]}"
+                if skipped == list(range(skipped[0], skipped[-1] + 1))
+                else ",".join(map(str, skipped)))
+        cov.append((book_id, skipped[0], skipped[-1], "excluded_machine_banner", "not_indexed",
+                    "printed banner is a different machine variant and is not returned as this model: "
+                    + span))
     if stats["no_table_pages"]:
         cov.append((book_id, None, None, "pages_without_parts_table", "not_indexed",
                     "section dividers / blank / non-table pages: " + ",".join(map(str, stats["no_table_pages"]))))

@@ -16,7 +16,7 @@ PREPARED = "KOMATSO_MANUAL_PREPARED_V3"
 TOOL = "maintenance_manual_evidence"
 PART_TOOL = "maintenance_partbook_lookup"
 # Expand only after another model index is production-ready.
-INDEXED_PART_MODELS = {"HD785-7", "WA600-6", "HD785-5", "HD465-7R", "PC1250SP-8R"}
+INDEXED_PART_MODELS = {"HD785-7", "WA600-6", "HD785-5", "HD465-7R", "PC1250SP-8R", "PC800-8"}
 PART_ENRICHMENT_BUDGET_SECONDS = 1.0
 PART_ENRICHMENT_LIMIT = 4
 _request_enrichments = {}
@@ -99,11 +99,20 @@ def is_maintenance(home):
     return home.name.casefold() == "maintenance" and home.parent.name.casefold() == "profiles"
 
 
+def manual_models():
+    return json.loads((ROOT / "tools/manual_models.json").read_text(encoding="utf-8"))
+
+
 def verified_device(model, question):
-    models = json.loads((ROOT / "tools/manual_models.json").read_text(encoding="utf-8"))
+    models = manual_models()
     if model not in models or not isinstance(question, str) or not question.strip():
         raise ValueError("Verified model and original question required")
     return ROOT / models[model] / "AGENTS.md"
+
+
+def part_model_names():
+    """Part tool models. Shop Manual registration stays in manual_models.json."""
+    return set(manual_models()) | set(INDEXED_PART_MODELS)
 
 
 def write_request(home, seed, model, question):
@@ -346,9 +355,12 @@ def enrichment_lookup(model, query, session_id):
     env = dict(os.environ, PYTHONIOENCODING="utf-8")
     if session_id:
         env["HERMES_SESSION_ID"] = session_id
+    command = [str(ROOT / ".venv/Scripts/python.exe"), str(ROOT / "tools/fleet/partbook_lookup.py"),
+               "--model", model, "--query", query.strip(), "--verify", "--limit", str(PART_ENRICHMENT_LIMIT)]
+    if os.environ.get("PARTBOOK_TEST_DB"):
+        command += ["--db", os.environ["PARTBOOK_TEST_DB"]]
     completed = subprocess.run(
-        [str(ROOT / ".venv/Scripts/python.exe"), str(ROOT / "tools/fleet/partbook_lookup.py"),
-         "--model", model, "--query", query.strip(), "--verify", "--limit", str(PART_ENRICHMENT_LIMIT)],
+        command,
         stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=PART_ENRICHMENT_BUDGET_SECONDS,
         cwd=str(ROOT), env=env, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
     if completed.returncode:
@@ -555,8 +567,9 @@ PART_DESCRIPTION = (
     "FIRST tool for Part Number / شماره فنی / شماره قطعه / پارت نامبر, bare PN with model, "
     "Parts Book component identification, Figure/Item or exploded view. Reads device AGENTS.md IN FULL "
     "before one targeted partbook_lookup.py --verify; verifies actual PDF rows. Use part_number for "
-    "a supplied PN, query for English component name, or figure/item. HD785-7 B1, HD785-5, WA600-6 2010 "
-    "HD465-7R and PC1250SP-8R have indexed text-layer books; HD785-7 B2 remains unindexed. Confirm only VERIFIED candidates "
+    "a supplied PN, query for English component name, or figure/item. HD785-7 B1, HD785-5, WA600-6 2010, "
+    "HD465-7R, PC1250SP-8R and PC800-8 have indexed text-layer books; HD785-7 B2 remains unindexed. "
+    "PC800-8R is not the indexed PC800-8 Parts Book. Confirm only VERIFIED candidates "
     "with quantity and applicability. Simple verified "
     "local lookup needs no Shop Manual/web. Mixed diagnosis + PN needs this FIRST plus "
     "maintenance_manual_evidence. Miss, incomplete coverage, serial outside coverage, ambiguity, "
@@ -583,13 +596,23 @@ def part_lookup(args, session_id="", **kwargs):
         if not is_maintenance(get_hermes_home().resolve()):
             raise ValueError("Available only in the Maintenance profile")
         model, question = args.get("model"), args.get("question")
-        device = verified_device(model, question)
-        # Complete rule load BEFORE lookup, including Part rules for name-only queries.
-        root_rules = (ROOT / "AGENTS.md").read_text(encoding="utf-8")
-        rules, _ = select_rules(device.read_text(encoding="utf-8"), root_rules,
-                                question + " Part Number", presentation=True)
-        prepared = {"model": model, "device_agents_read_in_full": str(device),
-                    "applicable_device_policy": rules}
+        shop_models = manual_models()
+        if model in shop_models:
+            device = verified_device(model, question)
+            # Complete rule load BEFORE lookup, including Part rules for name-only queries.
+            root_rules = (ROOT / "AGENTS.md").read_text(encoding="utf-8")
+            rules, _ = select_rules(device.read_text(encoding="utf-8"), root_rules,
+                                    question + " Part Number", presentation=True)
+            prepared = {"model": model, "device_agents_read_in_full": str(device),
+                        "applicable_device_policy": rules}
+        elif model in INDEXED_PART_MODELS:
+            # An indexed Parts Book model is not a Shop Manual identity.
+            if not isinstance(question, str) or not question.strip():
+                raise ValueError("Verified model and original question required")
+            prepared = {"model": model, "device_agents_read_in_full": None,
+                        "applicable_device_policy": "", "shop_manual_identity": None}
+        else:
+            raise ValueError("Verified model and original question required")
         if model not in INDEXED_PART_MODELS:
             return json.dumps({"prepared": prepared, "coverage_complete": False,
                                "indexed_lookup_available": False,
@@ -603,6 +626,8 @@ def part_lookup(args, session_id="", **kwargs):
             raise ValueError("Supply user PN, English component query or figure/item; never guess a PN")
         command = [str(ROOT / ".venv/Scripts/python.exe"),
                    str(ROOT / "tools/fleet/partbook_lookup.py"), "--model", model, "--verify"]
+        if os.environ.get("PARTBOOK_TEST_DB"):
+            command += ["--db", os.environ["PARTBOOK_TEST_DB"]]
         for option, value in (("--part-number", pn), ("--query", args.get("query")),
                               ("--figure", args.get("figure")), ("--item", args.get("item")),
                               ("--serial", args.get("serial"))):
@@ -644,9 +669,9 @@ def register(ctx):
     ctx.register_hook("subagent_start", subagent_start)
     ctx.register_hook("subagent_stop", subagent_stop)
     ctx.register_system_prompt_section("komatso.maintenance.prepared-manual", prepared_policy, max_chars=1400)
-    models = json.loads((ROOT / "tools/manual_models.json").read_text(encoding="utf-8"))
+    models = manual_models()
     ctx.register_tool(name=TOOL, toolset="komatso_maintenance", schema=tool_schema(models),
                       handler=manual_evidence, description=TOOL_DESCRIPTION)
 
-    ctx.register_tool(name=PART_TOOL, toolset="komatso_maintenance", schema=part_schema(models),
+    ctx.register_tool(name=PART_TOOL, toolset="komatso_maintenance", schema=part_schema(part_model_names()),
                       handler=part_lookup, description=PART_DESCRIPTION)

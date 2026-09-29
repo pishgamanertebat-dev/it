@@ -176,6 +176,16 @@ digests were preserved before and after atomic installation. Run
 `python -m unittest tools.fleet.test_partbook_pc1250sp
 tools.test_maintenance_pc1250sp_part` for source-grounded checks.
 
+### PC800-8 Part Book index (September 2026)
+
+`PC800/KOMATSU PC800-8 PART BOOK.pdf` is the PC800-8 S/N 50001-UP (ecot3)
+parts catalogue, engine SAA6D140E-5F-03 S/N 530001-UP. It uses the shared
+top-view profile. Pages 368-435 are printed `PC800LC-8` and are not indexed
+as PC800-8 evidence. PC800-8R is not an indexed parts model. The shop-manual
+model list is unchanged, so PC800-8 does not become a Shop Manual identity.
+Run `python -m unittest tools.fleet.test_partbook_pc800
+tools.test_maintenance_pc800_part`.
+
 ## Two-stream delegation
 
 The maintenance Bale `delegation` toolset adds only `delegate_task` to the
