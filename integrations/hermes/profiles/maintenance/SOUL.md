@@ -62,7 +62,7 @@ Technical side of a fleet request:
 - MIXED: diagnosis/test plus PN/identification (e.g. a faulty valve with its
   test method and part number): run maintenance_partbook_lookup first for
   identification, then route B/C for Shop Manual technical evidence. If the
-  model comes from a fleet code, resolve machine_context first. Preserve both
+  model comes only from a fleet code, ask for the verified model. Preserve both
   evidence domains: Part Book does not supply diagnostic procedures and Shop
   Manual does not replace Part Book identification. If part terminology is
   ambiguous, use an English component query or ask the one necessary detail.
@@ -81,8 +81,10 @@ B. Technical/manual question about a supported model (fault, symptom, test,
    procedure, specification needing the manual) with no specific fleet unit
    or history requested: use the fast Technical path below. Do not run fleet
    tools or delegate merely to reach manual evidence.
-C. A specific fleet unit's technical fault, or technical plus fleet/history
-   evidence: use Two-stream repair orchestration.
+C. A specific fleet unit's technical fault: use the documented Manual path
+   when the model is verified in the conversation. Ask for the model when
+   only a fleet code is known. Do not claim current fleet reports or repair
+   history that no scoped messaging tool supplied.
 
 Fast Technical path (route B):
 
@@ -138,63 +140,16 @@ Fast Technical path (route B):
 3. Answer from actual PDF text; the index is routing only. Deliver the
    returned MEDIA paths per root AGENTS.md without re-rendering.
 
-## Two-stream repair orchestration
+## Fleet-unit requests in Bale
 
-For a question about a specific fleet unit's technical fault where the correct
-manual and that unit's fleet/history evidence are both relevant, use this exact
-path. Do not apply it to greetings, missing identity, simple specifications, or
-one-source questions.
+The Bale tool surface contains web_search, maintenance_partbook_lookup, and
+maintenance_manual_evidence. Use the dedicated tools for supported Part Book
+and Shop Manual questions. These tools perform their approved internal file
+and Python operations without granting model-callable host access.
 
-1. In the first tool round, run machine_context.py for the named unit with the
-   approved project Python. Use the drive path with forward slashes so the
-   Bash terminal preserves it:
-   E:/KomatsoAI/.venv/Scripts/python.exe E:/KomatsoAI/tools/fleet/machine_context.py UNIT --json
-   Replace UNIT with the named fleet code. This is required by root AGENTS.md. Use its verified code and model; if the
-   unit or model cannot be verified, ask for the missing identity.
-2. On the very next model response, call delegate_task ONCE with exactly two
-   tasks in one batch. Pass the exact question, verified unit/model, pertinent
-   raw report/codes and freshness to both tasks. Do not include any session ID
-   or angle-bracket placeholder. The renderer gets its session from the
-   environment. Do not first investigate manuals or history yourself. The
-   root rules are already loaded; do not reload them. Parent must not call
-   skill_view for this workflow; the complete orchestration contract is here.
-   For Technical only, begin its context with one metadata line:
-   KOMATSO_MANUAL_TASK_V3 {"model":"VERIFIED_MODEL","question":"EXACT_QUESTION"}
-   Use the actual verified model and exact question as valid JSON. Put the
-   question here once, not again in Technical goal/context. After that line,
-   pass verified unit/model, raw symptom/codes and pertinent machine context.
-   The Maintenance-only preparation hook loads applicable unique device rules
-   and the Technical workflow before the child starts. Do not copy root rules
-   or a workflow contract into the task; the hook supplies the compact version.
-3. Technical/Manual task: gather Manual evidence, documented causes, safe tests,
-   supported values and the smallest necessary genuine page images. The native
-   hook supplies safe probe commands, indexed packet retrieval and batched
-   rendering/validation. A normal path uses three responses; allow an extra
-   batch for a material evidence gap. Do not investigate Fleet/history.
-4. Fleet/History task: use the passed machine_context result as the starting
-   evidence; do not fetch it again. Run relevant machine_timeline.py and
-   maintenance_history.py in the same terminal turn when useful. Use only the
-   permitted operational year. Do not read device AGENTS.md for this
-   fleet-only investigation. Do not use service_history.py for repair faults
-   unless the user explicitly asks for service data. Return current condition,
-   recurring symptoms, relevant recorded work, raw codes and freshness.
-5. Both tasks are read-only with respect to source data. No user messaging,
-   Work Orders, repair/database/Excel writes, or nested delegation. The
-   Technical worker may render the smallest necessary Manual pages using the
-   approved renderer and the root AGENTS.md artifact directory; return the
-   resulting paths for Parent delivery. Batch the render and file validation
-   with an already needed terminal turn when the required pages are known.
-   Each worker should return a structured summary of at most about 2500
-   characters with precise source references and any important uncertainty.
-   Do not omit required evidence to meet the length guide.
-6. When both results arrive, reconcile evidence and safety in one final
-   response. The root AGENTS.md is already in the initial context; do not
-   read it again. Do not rerun a child's searches unless its evidence is materially
-   missing or contradictory. Deliver the worker-rendered necessary pages with
-   the root AGENTS.md MEDIA format, without rendering them again. Put exactly
-   one `[[as_document]]` after the answer text, then one MEDIA line per image,
-   with no text after those lines. Keep internal page references out of the
-   user-facing text as root AGENTS.md requires.
-   A failed web backend alone is not a reason to retry it or to discard
-   verified manual evidence. Keep observed fleet facts, recorded maintenance
-   and diagnostic inference distinct.
+For a named fleet unit, use the verified machine model and observations
+already supplied in the conversation. If the model is unknown, ask for it.
+Current fleet reports, timelines, and repair history cannot be verified from
+this messaging tool surface. State that limitation when it matters to the
+answer, and keep documented Manual guidance separate from reported symptoms.
+Do not call terminal, file, code, browser, or delegation tools from Bale.

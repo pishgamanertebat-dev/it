@@ -18,22 +18,24 @@ Keep runtime `.env`, `auth.json`, API keys, OAuth credentials, bot tokens, `stat
 
 ## Bale tool access under multiplex
 
-When the default Gateway routes Bale conversations to `maintenance`, set `platform_toolsets.bale` explicitly in the maintenance runtime `config.yaml`. The implicit `hermes-bale` fallback can resolve to an empty tool surface in a routed profile. Match the default Bale tool surface so the agent can read device `AGENTS.md` files, search manuals, and use the project's tools:
+The active Maintenance Bale allowlist is `platform_toolsets.bale:
+[search, komatso_maintenance, no_mcp]`. The effective model schemas are
+`web_search`, `maintenance_partbook_lookup`, and
+`maintenance_manual_evidence`. The `no_mcp` sentinel prevents globally
+enabled MCP servers from widening the messaging surface. Keep terminal, file,
+code execution, browser automation, connections, skills management, and
+delegation out of Bale. The CLI toolset remains separate.
 
-```yaml
-platform_toolsets:
-  bale:
-    - browser
-    - code_execution
-    - connections
-    - delegation
-    - file
-    - skills
-    - terminal
-    - web
-```
+The Maintenance plugin runs its own bounded Python and file operations behind
+the dedicated tools. `known_plugin_toolsets.telegram` includes
+`komatso_maintenance` while `platform_toolsets.telegram` omits it, so
+Telegram receives only `web_search`. Hermes treats a plugin listed as known
+but absent from the platform allowlist as disabled.
 
-This is a tool configuration for the routed agent, not a bot credential or a second Bale Gateway. Keep sender routes and real user IDs in the default Gateway's local runtime configuration, outside Git.
+Run `tools/security/verify_messaging_tools.py` with the installed Hermes
+Python for both messaging platforms after a config edit or Hermes upgrade.
+It checks the resolved model schemas and rejects any tool outside the expected
+set. Runtime config and credentials remain outside Git.
 
 ## Technical routing and Parent fast path
 
@@ -186,22 +188,19 @@ model list is unchanged, so PC800-8 does not become a Shop Manual identity.
 Run `python -m unittest tools.fleet.test_partbook_pc800
 tools.test_maintenance_pc800_part`.
 
-## Two-stream delegation
+## Fleet context during channel lockdown
 
-The maintenance Bale `delegation` toolset adds only `delegate_task` to the
-existing tool surface. Set `delegation.max_concurrent_children: 2` and
-`delegation.independent_completions: false` in the maintenance runtime config.
-Keep `delegation.model` and `delegation.provider` unset so both workers inherit
-the parent route. Keep the default one-level delegation depth. The canonical `SOUL.md` contains the two-stream trigger; the scoped plugin owns the compact Technical contract.
-Keep it synchronized with the maintenance runtime SOUL. The existing
-`maintenance-two-stream-evidence` skill remains installed. The preparation hook
-reads it and the selected device AGENTS in full, then injects only applicable
-unique device policy and the Technical scope. Root/project paragraphs and the
-original question are deduplicated. A native system section attests instruction
-loading only for the prepared Technical session; Fleet receives no such section.
-Ensure maintenance agent.disabled_toolsets excludes delegation; leave the CLI toolset list unchanged.
+Maintenance Bale does not expose `delegate_task` or generic host tools.
+The former two-stream fleet workflow depends on those tools and is unavailable
+through messaging in this phase. The current SOUL asks for a verified model
+and uses the dedicated Manual path while clearly distinguishing any
+user-supplied fleet observations from verified operational history. Restoring
+live fleet context requires a future strictly scoped domain tool.
 
 ## Local live benchmark
+
+The measurements below describe the previous tool surface and are historical;
+they are not instructions to re-enable delegation or host tools on Bale.
 
 Use 	ools/bench_maintenance_delegation.py --question-file <private UTF-8 file> with
 HERMES_HOME set to the Maintenance profile and PYTHONPATH set to the installed
