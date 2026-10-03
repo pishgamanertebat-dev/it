@@ -13,7 +13,34 @@ proposal_keyboard = InlineKeyboardBuilder('work_order', (
     (action('confirm', '✅ تایید و ساخت اکسل'), action('cancel', 'انصراف')),
 ))
 
-COMMANDS = {'add': 'اضافه', 'remove': 'حذف', 'confirm': 'تایید', 'cancel': 'انصراف'}
+oil_proposal_keyboard = InlineKeyboardBuilder('work_order', (
+    (action('add', '➕ افزودن دستگاه'), action('remove', '❌ حذف دستگاه')),
+    (action('edit_excel', '✏️ ویرایش اکسل'),),
+    (action('confirm', '✅ تایید و ساخت اکسل'), action('cancel', 'انصراف')),
+))
+
+oil_edit_code_keyboard = InlineKeyboardBuilder('work_order', ((
+    action('edit_back', '↩️ بازگشت', 'EDIT_CODE'),
+    action('cancel', 'انصراف', 'EDIT_CODE'),
+),))
+
+oil_interval_keyboard = InlineKeyboardBuilder('work_order', (
+    *[(action(f'interval_{n}', str(n), 'EDIT_INTERVAL'),
+       action(f'interval_{n+200}', str(n+200), 'EDIT_INTERVAL')) for n in range(200, 2000, 400)],
+    (action('edit_back', '↩️ بازگشت', 'EDIT_INTERVAL'),
+     action('cancel', 'انصراف', 'EDIT_INTERVAL')),
+))
+
+oil_edit_confirm_keyboard = InlineKeyboardBuilder('work_order', (
+    (action('edit_apply', '✅ تأیید ویرایش', 'EDIT_CONFIRM'),
+     action('edit_change', '✏️ تغییر نوبت', 'EDIT_CONFIRM')),
+    (action('edit_back', '↩️ بازگشت', 'EDIT_CONFIRM'),
+     action('cancel', 'انصراف', 'EDIT_CONFIRM')),
+))
+
+COMMANDS = {'add': 'اضافه', 'remove': 'حذف', 'confirm': 'تایید', 'cancel': 'انصراف',
+            'edit_excel': 'ویرایش اکسل', 'edit_back': 'برگشت',
+            'edit_apply': 'تایید ویرایش', 'edit_change': 'تغییر نوبت'}
 
 MENU_TYPES = {'oil': 'OIL_CHANGE', 'greasing': 'GREASING', 'air_filter': 'AIR_FILTER'}
 SHIFT_COMMANDS = {'shift_morning': 'صبح', 'shift_noon': 'ظهر',
@@ -51,6 +78,13 @@ def staff_keyboard(options):
 
 
 def keyboard_for(session, *, review=False):
+    if session.work_order_type == 'OIL_CHANGE':
+        if session.stage == 'EDIT_CODE':
+            return oil_edit_code_keyboard
+        if session.stage == 'EDIT_INTERVAL':
+            return oil_interval_keyboard
+        if session.stage == 'EDIT_CONFIRM':
+            return oil_edit_confirm_keyboard
     if session.stage == 'SHIFT':
         return shift_keyboard
     if session.stage == 'REMOVE' and session.removal_selection is not None:
@@ -64,11 +98,13 @@ def keyboard_for(session, *, review=False):
     if session.stage == 'MENU':
         return entry_keyboard()
     if session.stage == 'PROPOSAL':
-        return proposal_keyboard
+        return oil_proposal_keyboard if session.work_order_type == 'OIL_CHANGE' else proposal_keyboard
     return None
 
 
 def command_for(action_name, *, order_no=''):
+    if action_name.startswith('interval_') and action_name[9:].isdecimal():
+        return action_name[9:]
     if action_name in SHIFT_COMMANDS:
         return SHIFT_COMMANDS[action_name]
     if action_name == 'select_confirm':

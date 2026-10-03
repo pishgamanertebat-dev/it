@@ -38,6 +38,7 @@ logger = logging.getLogger(__name__)
 
 TRANSIENT_WORK_ORDER_STAGES = frozenset({
     'MENU', 'PROPOSAL', 'REMOVE', 'ADD_CODES', 'ADD_ACTION', 'SHIFT',
+    'EDIT_CODE', 'EDIT_INTERVAL', 'EDIT_CONFIRM',
 })
 
 
@@ -86,6 +87,8 @@ class FormSession:
     keyboard_message_ids: list[str] = field(default_factory=list)
     loading_message_id: str = ''
     pending_delete_ids: list[str] = field(default_factory=list)
+    edit_machine_code: str = ''
+    edit_interval: int | None = None
     removal_selection: dict | None = None
     ui_cleanup: bool = False
 
@@ -224,6 +227,22 @@ class WorkOrderMenuHandler:
                 '🔴 انتخاب‌شده برای حذف؛ کلیک دوباره انتخاب را برمی‌دارد.\n'
                 'تا زدن «تأیید حذف» هیچ دستگاهی حذف نمی‌شود.\n'
                 f'انتخاب‌شده: {len(selection.selected)}\nصفحه {selection.page+1} از {selection.pages}')
+
+    def _oil_edit_code_text(self, session):
+        from tools.fleet.work_orders.types.oil_change.builder import parse_action
+        lines = ['ویرایش نوبت سرویس حکم تعویض روغن',
+                 'کد یک دستگاه از فهرست زیر را وارد کنید؛ مانند 1252 یا EX1252.']
+        lines += [f"{item['machine_code']}: سرویس {parse_action(item['action_code'])[1]} ساعتی"
+                  for item in session.proposal['items']]
+        return '\n'.join(lines)
+
+    def _oil_interval_text(self, session):
+        from tools.fleet.work_orders.channels.bale.proposal_form import oil_edit_item
+        from tools.fleet.work_orders.types.oil_change.builder import parse_action
+        item = oil_edit_item(session.proposal, session.edit_machine_code)
+        return (f"دستگاه {item['machine_code']}؛ نوبت فعلی این حکم: سرویس {parse_action(item['action_code'])[1]} ساعتی.\n"
+                'نوبت مورد نظر را از ۲۰۰ تا ۲۰۰۰ انتخاب کنید یا عدد آن را بنویسید.\n'
+                'این انتخاب فقط برای همین حکم است؛ ساعت‌کار واقعی دستگاه و فایل برنامه‌ریزی تغییر نمی‌کند.')
 
     def _send_reply(self, gateway, chat_id, reply, send, *, key=None, edit_message_id=None):
         try:
@@ -851,14 +870,23 @@ class WorkOrderMenuHandler:
                     gateway, send, notice='در حال ساخت حکم کار', discard_prompt=True)
                 reply = ''
                 reason = "work-order-type-selected"
-            elif session.proposal is not None and session.stage in {'PROPOSAL','REMOVE','ADD_CODES','ADD_ACTION'}:
-                from tools.fleet.work_orders.channels.bale.proposal_form import render, add_items
+            elif session.proposal is not None and session.stage in {'PROPOSAL','REMOVE','ADD_CODES','ADD_ACTION','EDIT_CODE','EDIT_INTERVAL','EDIT_CONFIRM'}:
+                from tools.fleet.work_orders.channels.bale.proposal_form import render, add_items, oil_edit_item, edit_oil_interval, creation_metadata
                 if text == 'برگشت':
+                    session.edit_machine_code = ''
+                    session.edit_interval = None
                     session.removal_selection = None
                     session.stage = 'PROPOSAL'
                     reply = render(session.proposal)
                 elif session.stage == 'PROPOSAL':
-                    if text == 'حذف':
+                    if text == 'ویرایش اکسل' and session.work_order_type == 'OIL_CHANGE':
+                        if not session.proposal['items']:
+                            raise ValueError('فهرست خالی است؛ ابتدا دستگاه مورد نظر را اضافه کنید.')
+                        session.edit_machine_code = ''
+                        session.edit_interval = None
+                        session.stage = 'EDIT_CODE'
+                        reply = self._oil_edit_code_text(session)
+                    elif text == 'حذف':
                         session.stage = 'REMOVE'
                         session.removal_selection = None
                         reply = self._removal_text(session)
@@ -874,7 +902,7 @@ class WorkOrderMenuHandler:
                                        "machine_codes": [i['machine_code'] for i in session.proposal['items']],
                                        "jalali_date": session.jalali_date, "shift": "روزانه",
                                        "item_actions": {i['machine_code']:i['action_code'] for i in session.proposal['items']},
-                                       "proposal": {k:session.proposal[k] for k in ('cutoff','plan_date','source_sha256')}}
+                                       "proposal": creation_metadata(session.proposal)}
                             self._start_request(key, session, request, gateway, send,
                                 notice='در حال ساخت حکم کار و فایل اکسل…')
                             reply = ''
@@ -889,6 +917,8 @@ class WorkOrderMenuHandler:
                     if text in {'تایید حذف', 'تأیید حذف'}:
                         selected = selection.confirmed_ids(i['machine_code'] for i in session.proposal['items'])
                         session.proposal['items'] = [i for i in session.proposal['items'] if i['machine_code'] not in selected]
+                        for code in selected:
+                            session.proposal.get('service_overrides', {}).pop(code, None)
                         session.removal_selection = None
                         session.stage = 'PROPOSAL'
                         reply = render(session.proposal)
@@ -901,6 +931,36 @@ class WorkOrderMenuHandler:
                         selection.selected = [o['id'] for n,o in enumerate(selection.options,1) if n in {int(v) for v in values}]
                         session.removal_selection = selection.to_dict()
                         reply = self._removal_text(session)
+                elif session.stage == 'EDIT_CODE':
+                    item = oil_edit_item(session.proposal, normalize_digits(text))
+                    session.edit_machine_code = item['machine_code']
+                    session.edit_interval = None
+                    session.stage = 'EDIT_INTERVAL'
+                    reply = self._oil_interval_text(session)
+                elif session.stage == 'EDIT_INTERVAL':
+                    from tools.fleet.work_orders.types.oil_change.builder import normalize_interval, parse_action
+                    interval = normalize_interval(text)
+                    item = oil_edit_item(session.proposal, session.edit_machine_code)
+                    old_interval = parse_action(item['action_code'])[1]
+                    session.edit_interval = interval
+                    session.stage = 'EDIT_CONFIRM'
+                    reply = (f"دستگاه {item['machine_code']}\n"
+                             f"نوبت فعلی حکم: سرویس {old_interval} ساعتی\n"
+                             f"نوبت انتخاب‌شده: سرویس {interval} ساعتی\n"
+                             'برای اعمال این تغییر «تأیید ویرایش» را بزنید.')
+                elif session.stage == 'EDIT_CONFIRM':
+                    if text in {'تایید ویرایش', 'تأیید ویرایش'}:
+                        edit_oil_interval(session.proposal, session.edit_machine_code, session.edit_interval)
+                        session.edit_machine_code = ''
+                        session.edit_interval = None
+                        session.stage = 'PROPOSAL'
+                        reply = render(session.proposal)
+                    elif text == 'تغییر نوبت':
+                        session.edit_interval = None
+                        session.stage = 'EDIT_INTERVAL'
+                        reply = self._oil_interval_text(session)
+                    else:
+                        reply = 'برای اعمال تغییر «تأیید ویرایش» را بزنید یا «تغییر نوبت» را انتخاب کنید.'
                 elif session.stage == 'ADD_CODES':
                     codes = [c for c in re.split(r'[\s,،]+',normalize_digits(text)) if c]
                     if session.work_order_type not in {'GREASING','OIL_CHANGE'}:
@@ -962,7 +1022,8 @@ class WorkOrderMenuHandler:
                 if session.proposal is not None:
                     request['machine_codes'] = [i['machine_code'] for i in session.proposal['items']]
                     request['item_actions'] = {i['machine_code']:i['action_code'] for i in session.proposal['items']}
-                    request['proposal'] = {k:session.proposal[k] for k in ('cutoff','plan_date','source_sha256')}
+                    from tools.fleet.work_orders.channels.bale.proposal_form import creation_metadata
+                    request['proposal'] = creation_metadata(session.proposal)
                 self._start_request(key, session, request, gateway, send,
                     notice="در حال ساخت حکم کار و فایل اکسل…")
                 reply = ''

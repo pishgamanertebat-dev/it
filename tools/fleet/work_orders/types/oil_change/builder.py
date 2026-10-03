@@ -1,5 +1,6 @@
 """Manual PM orders. Each model retains its own immutable source template."""
 import re
+from copy import deepcopy
 from pathlib import Path
 from zipfile import ZipFile
 from xml.etree import ElementTree as ET
@@ -29,6 +30,32 @@ INTERVALS = tuple(range(200, 2001, 200))
 PC600_SERVICE_TITLES = {'400': 200, '1400': 1000, '1600': 1200, '1800': 1000}
 NS = 'http://schemas.openxmlformats.org/spreadsheetml/2006/main'
 REL = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships'
+
+
+# Confirmed by the operator: planning W151/W152 are the two D155 units.
+PLANNING_ALIASES = {'W151':'D151', 'W152':'D152'}
+
+
+def planning_code(value):
+    code = str(value).strip().translate(str.maketrans('۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩', '01234567890123456789')).upper()
+    return PLANNING_ALIASES.get(code, code)
+
+
+def override_interval(item, interval):
+    """Change this order's cycle only; retain all measured source evidence."""
+    model, original = parse_action(item['action_code'])
+    interval = normalize_interval(interval)
+    edited = deepcopy(item)
+    component = edited['components']['oil_change']
+    original = component.get('planned_interval', original)
+    component['planned_interval'] = original
+    component['next_interval'] = interval
+    edited.update(get_items([item['machine_code']],
+        {item['machine_code']: action_for(model, interval)})[0])
+    edited['manual_note'] = (
+        f'با انتخاب مسئول نت، نوبت این حکم از سرویس {original} به {interval} ساعتی تغییر کرد.'
+    )
+    return edited
 
 
 def normalize_code(value, model='HD785-5'):

@@ -471,7 +471,8 @@ class InlineMenusTests(PermissionDatabaseTestCase, unittest.IsolatedAsyncioTestC
         self.assertEqual(self.requests[-1]['work_order_no'], number)
         self.assertEqual(self.requests[-1]['action'], 'edit')
         self.assertEqual(self.handler.pending[self.key].stage, 'PROPOSAL')
-        self.assertEqual(sum(map(len,self.sent[-1]['reply_markup']['inline_keyboard'])), 4)
+        self.assertEqual(sum(map(len,self.sent[-1]['reply_markup']['inline_keyboard'])), 5)
+        self.assertTrue(self.button(self.sent[-1], 'edit_excel'))
         self.assertEqual(self.removed, [1])
 
     async def test_failed_document_delivery_has_no_review_buttons(self):
@@ -679,6 +680,139 @@ class InlineMenusTests(PermissionDatabaseTestCase, unittest.IsolatedAsyncioTestC
         self.assertEqual([b['text'] for b in buttons], ['↩️ بازگشت'])
         self.assertIn('سرویسکار فعالی موجود نیست', self.sent[-1]['text'])
 
+
+
+    async def oil_edit_step(self):
+        from tools.fleet.oil_change.test_proposal import sample_source
+        from tools.fleet.oil_change.proposal import build_proposal, resolve_items
+        from tools.fleet.work_orders.channels.bale.proposal_form import add_items, render
+        source = sample_source('PC1250-8', 'EX1252', last=1800, remaining=100)
+        with patch('tools.fleet.oil_change.proposal.read_source', return_value=source):
+            proposal = build_proposal()
+        self.assertFalse(proposal['items'])
+        add_items(proposal, resolve_items(['1252'], source), '')
+        session = FormSession(expires=self.handler.clock()+600, stage='PROPOSAL',
+            work_order_type='OIL_CHANGE', jalali_date=proposal['plan_date'], proposal=proposal)
+        self.handler.pending[self.key] = session
+        self.handler._send_reply(self.gateway, self.key[2], render(proposal), lambda *a:None, key=self.key)
+        await self.settle()
+        return session
+
+    async def test_oil_edit_confirmation_restart_and_exact_creation_request(self):
+        session = await self.oil_edit_step()
+        original = self.sent[-1]
+        original_id = len(self.sent)
+        self.assertEqual(sum(map(len, original['reply_markup']['inline_keyboard'])), 5)
+        edit_data = self.button(original, 'edit_excel')
+        self.message('', data=edit_data, origin=original_id)
+        await self.settle()
+        self.assertIn(original_id, self.removed)
+        self.assertEqual(session.stage, 'EDIT_CODE')
+        self.assertEqual(self.message('UNKNOWN')['reason'], 'work-order-input-rejected')
+        await self.settle()
+        self.message('۱۲۵۲')
+        await self.settle()
+        self.assertEqual(session.stage, 'EDIT_INTERVAL')
+        interval_card, interval_id = self.sent[-1], len(self.sent)
+        self.assertEqual([b['text'] for row in interval_card['reply_markup']['inline_keyboard']
+                          for b in row][:10], [str(i) for i in range(200, 2001, 200)])
+        self.assertEqual(self.message('1801')['reason'], 'work-order-input-rejected')
+        await self.settle()
+        interval_card, interval_id = self.sent[-1], len(self.sent)
+        self.message('', data=self.button(interval_card, 'interval_1800'), origin=interval_id)
+        await self.settle()
+        self.assertEqual(session.stage, 'EDIT_CONFIRM')
+        self.assertTrue(session.proposal['items'][0]['action_code'].endswith('_2000'))
+        confirmation, confirmation_id = self.sent[-1], len(self.sent)
+        self.handler = self.new_handler()
+        session = self.handler.pending[self.key]
+        self.assertEqual(session.edit_interval, 1800)
+        apply_data = self.button(confirmation, 'edit_apply')
+        self.message('', data=apply_data, origin=confirmation_id)
+        self.message('', data=apply_data, origin=confirmation_id)
+        await self.settle()
+        self.assertEqual(session.stage, 'PROPOSAL')
+        self.assertIn(confirmation_id, self.removed)
+        self.assertEqual(session.proposal['service_overrides'], {'EX1252':1800})
+        self.assertTrue(session.proposal['items'][0]['action_code'].endswith('_1800'))
+        self.assertTrue(session.proposal['evaluations'][0]['action_code'].endswith('_2000'))
+        self.assertEqual(self.message('', data=edit_data, origin=original_id)['reason'], 'inline-rejected')
+        await self.settle()
+        self.assertFalse(self.requests)
+        # Use the current proposal keyboard; an old callback never creates a file.
+        self.message('تایید')
+        await self.settle()
+        self.assertEqual(len(self.requests), 1)
+        request = self.requests[0]
+        self.assertEqual(request['action'], 'create')
+        self.assertEqual(request['proposal']['service_overrides'], {'EX1252':1800})
+        self.assertEqual(request['item_actions'], {'EX1252':'OIL_CHANGE_PC1250-8_1800'})
+
+    async def test_oil_edit_back_change_and_cancel_never_apply_pending_value(self):
+        session = await self.oil_edit_step()
+        self.message('ویرایش اکسل'); await self.settle()
+        self.message('ex1252'); await self.settle()
+        self.message('۱۶۰۰'); await self.settle()
+        self.message('', data=self.button(self.sent[-1], 'edit_change'), origin=len(self.sent))
+        await self.settle()
+        self.assertEqual(session.stage, 'EDIT_INTERVAL')
+        self.assertIsNone(session.edit_interval)
+        self.message('١٨٠٠'); await self.settle()
+        self.message('', data=self.button(self.sent[-1], 'edit_back'), origin=len(self.sent))
+        await self.settle()
+        self.assertEqual(session.stage, 'PROPOSAL')
+        self.assertTrue(session.proposal['items'][0]['action_code'].endswith('_2000'))
+        self.assertFalse(session.proposal.get('service_overrides'))
+        for stop_stage in ('EDIT_CODE', 'EDIT_INTERVAL', 'EDIT_CONFIRM'):
+            session = await self.oil_edit_step()
+            self.message('ویرایش اکسل'); await self.settle()
+            if stop_stage != 'EDIT_CODE':
+                self.message('1252'); await self.settle()
+            if stop_stage == 'EDIT_CONFIRM':
+                self.message('1800'); await self.settle()
+            self.assertEqual(session.stage, stop_stage)
+            origin = len(self.sent)
+            self.message('', data=self.button(self.sent[-1], 'cancel'), origin=origin)
+            await self.settle()
+            self.assertFalse(self.handler.pending)
+            self.assertIn(origin, self.deleted)
+            self.assertFalse(self.requests)
+            self.document_sender.assert_not_called()
+
+    async def test_oil_edit_duplicate_add_preserves_override_and_remove_clears_it(self):
+        from tools.fleet.work_orders.channels.bale.proposal_form import add_items, edit_oil_interval
+        session = await self.oil_edit_step()
+        edit_oil_interval(session.proposal, '1252', 1800)
+        add_items(session.proposal, session.proposal['evaluations'], '')
+        self.assertTrue(session.proposal['items'][0]['action_code'].endswith('_1800'))
+        self.message('حذف'); await self.settle()
+        self.message('1'); await self.settle()
+        self.message('تایید حذف'); await self.settle()
+        self.assertFalse(session.proposal['service_overrides'])
+        add_items(session.proposal, session.proposal['evaluations'], '')
+        self.assertTrue(session.proposal['items'][0]['action_code'].endswith('_2000'))
+
+    async def test_oil_edit_permission_and_expired_callbacks_are_rejected(self):
+        session = await self.oil_edit_step()
+        self.message('ویرایش اکسل'); await self.settle()
+        self.message('1252'); await self.settle()
+        self.message('1800'); await self.settle()
+        card, origin = self.sent[-1], len(self.sent)
+        data = self.button(card, 'edit_apply')
+        self.message('', data=data, origin=origin, user='1004')
+        await self.settle()
+        self.assertTrue(session.proposal['items'][0]['action_code'].endswith('_2000'))
+        with test_database(self.db_path) as con:
+            con.execute("UPDATE service_work_order_users SET active=0 WHERE bale_id='455740857'")
+        self.message('', data=data, origin=origin)
+        await self.settle()
+        self.assertFalse(session.proposal.get('service_overrides'))
+        with test_database(self.db_path) as con:
+            con.execute("UPDATE service_work_order_users SET active=1 WHERE bale_id='455740857'")
+        session.expires = self.handler.clock()-1
+        self.assertEqual(self.message('', data=data, origin=origin)['reason'], 'inline-rejected')
+        await self.settle()
+        self.assertFalse(self.requests)
 
 CREATE_LOADING = 'در حال ساخت حکم کار و فایل اکسل…'
 BACK_LOADING = 'در حال بازگشت به بررسی همین حکم…'

@@ -1,5 +1,35 @@
 """Small draft editor; persisted work orders are created only after confirmation."""
+import re
+
 from tools.fleet.air_filter.rules import ACTIONS, BOTH, OUTER, rule_for
+
+
+def oil_edit_item(proposal, code):
+    from tools.fleet.work_orders.types.oil_change.builder import planning_code
+    code = planning_code(code)
+    matches = [item for item in proposal['items'] if item['machine_code'] == code or
+               (code.isdecimal() and re.sub(r'^[A-Z]+', '', item['machine_code']) == code)]
+    if proposal.get('work_order_type') != 'OIL_CHANGE' or len(matches) != 1:
+        raise ValueError('کد یک دستگاه از فهرست همین پیشنهاد را وارد کنید؛ ابتدا دستگاه مورد نظر را اضافه کنید.')
+    return matches[0]
+
+
+def edit_oil_interval(proposal, code, interval):
+    from tools.fleet.work_orders.types.oil_change.builder import override_interval
+    item = oil_edit_item(proposal, code)
+    edited = override_interval(item, interval)
+    proposal['items'] = [edited if candidate['machine_code'] == item['machine_code'] else candidate
+                         for candidate in proposal['items']]
+    proposal.setdefault('service_overrides', {})[item['machine_code']] = edited['components']['oil_change']['next_interval']
+
+
+def creation_metadata(proposal):
+    metadata = {key: proposal[key] for key in ('cutoff', 'plan_date', 'source_sha256')}
+    if proposal.get('work_order_type') == 'OIL_CHANGE':
+        selected = {item['machine_code'] for item in proposal['items']}
+        metadata['service_overrides'] = {code: interval for code, interval in
+            proposal.get('service_overrides', {}).items() if code in selected}
+    return metadata
 
 
 def _status_text(component):
@@ -110,6 +140,10 @@ def add_items(proposal, items, action):
         if calculated and calculated.get('components'):
             item = {**item, 'components':calculated['components']}
         if proposal.get('work_order_type') == 'OIL_CHANGE':
+            if item['machine_code'] in proposal.get('service_overrides', {}):
+                from tools.fleet.work_orders.types.oil_change.builder import override_interval
+                additions.append(override_interval(item, proposal['service_overrides'][item['machine_code']]))
+                continue
             additions.append({**item, 'manual_note':'با انتخاب مسئول نت اضافه شد؛ نوبت سرویس از برنامه‌ریزی خوانده شد.'})
             continue
         if proposal.get('work_order_type') == 'GREASING':

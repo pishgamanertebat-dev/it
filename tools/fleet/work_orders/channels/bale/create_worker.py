@@ -80,7 +80,22 @@ def execute_request(request: dict, *, db_path=None) -> dict:
                     from tools.fleet.oil_change.proposal import build_proposal
                     proposal = build_proposal()
                     available = {i['machine_code']:i for i in proposal['evaluations']}
-                    proposal['items'] = [available[i['machine_code']] for i in order['items'] if i['machine_code'] in available]
+                    from tools.fleet.oil_change.proposal import override_interval
+                    from tools.fleet.work_orders.types.oil_change.builder import parse_action
+                    proposal['items'] = []
+                    proposal['service_overrides'] = {}
+                    for stored in order['items']:
+                        code = stored['machine_code']
+                        if code not in available:
+                            raise ValueError('دستگاه حکم قبلی در برنامه‌ریزی فعلی معتبر نیست؛ پیشنهاد جدید بگیرید.')
+                        current = available[code]
+                        model, interval = parse_action(stored['action_code'])
+                        if model != parse_action(current['action_code'])[0]:
+                            raise ValueError('مدل دستگاه نسبت به حکم قبلی تغییر کرده است؛ پیشنهاد جدید بگیرید.')
+                        if stored['action_code'] != current['action_code']:
+                            current = override_interval(current, interval)
+                            proposal['service_overrides'][code] = interval
+                        proposal['items'].append(current)
                     return {'ok': True, 'work_order_type': 'OIL_CHANGE', 'proposal': proposal}
                 return {"ok": True, "work_order_type": order["work_order_type"], 'proposal': {
                     'work_order_type':order['work_order_type'],
@@ -114,6 +129,13 @@ def execute_request(request: dict, *, db_path=None) -> dict:
             if source['sha256'] != proposal.get('source_sha256'):
                 raise ValueError('فایل اطلاعات سرویس تغییر کرده است؛ پیشنهاد جدید بگیرید.')
             items = resolve_items(request['machine_codes'], source)
+            from tools.fleet.oil_change.proposal import override_interval
+            overrides = proposal.get('service_overrides', {})
+            selected = {item['machine_code'] for item in items}
+            if not isinstance(overrides, dict) or not set(overrides).issubset(selected):
+                raise ValueError('ویرایش نوبت سرویس باید فقط برای دستگاه‌های همین حکم باشد.')
+            items = [override_interval(item, overrides[item['machine_code']])
+                     if item['machine_code'] in overrides else item for item in items]
             actions = {i['machine_code']:i['action_code'] for i in items}
             if actions != request.get('item_actions'):
                 raise ValueError('نوبت سرویس با برنامه‌ریزی فعلی تطابق ندارد؛ پیشنهاد جدید بگیرید.')

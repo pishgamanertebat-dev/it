@@ -3,7 +3,7 @@ from collections import Counter
 import re
 
 from tools.fleet.greasing.source import clean, format_date, format_shift, from_ordinal, ordinal
-from tools.fleet.work_orders.types.oil_change.builder import action_for, get_items, normalize_interval
+from tools.fleet.work_orders.types.oil_change.builder import action_for, get_items, normalize_interval, override_interval, planning_code, PLANNING_ALIASES
 from .source import SOURCE, PLANNING_SOURCE, read_source, number
 from .scope import excluded_codes, included_plans
 
@@ -18,15 +18,6 @@ MODEL_MAP = {
     ('لودر','600-6'):'WA600-6', ('لودر','470-3'):'WA470-3',
     ('بلدوزر','155-2'):'D155A-2', ('بلدوزر','155-6'):'D155A-6',
 }
-
-# Confirmed by the operator: planning W151/W152 are the two D155 units.
-PLANNING_ALIASES = {'W151':'D151', 'W152':'D152'}
-
-
-def planning_code(code):
-    code = code.upper()
-    return PLANNING_ALIASES.get(code, code)
-
 
 def next_interval(last):
     if number(last) and last == int(last):
