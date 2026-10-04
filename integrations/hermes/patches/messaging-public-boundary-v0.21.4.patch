@@ -1,0 +1,633 @@
+From a5da8101aef30fd4a40082a16ba467863d847c0f Mon Sep 17 00:00:00 2001
+From: Codex <codex@localhost>
+Date: Sun, 4 Oct 2026 09:31:17 +0330
+Subject: [PATCH] fix(security): bound messaging research and delegation to
+ parent capabilities
+
+---
+ agent/agent_init.py                           |   5 +
+ agent/skill_preprocessing.py                  |   3 +-
+ agent/tool_executor.py                        |   3 +
+ plugins/web/parallel/provider.py              |   1 +
+ tests/tools/test_messaging_public_boundary.py | 186 ++++++++++++++++++
+ tools/delegate_tool.py                        |  16 +-
+ tools/delegate_tool_toolsets.py               | 102 ++++++----
+ tools/invocation_policy.py                    |  25 +++
+ tools/url_safety.py                           |  24 ++-
+ tools/web_extract_boundary.py                 |  37 ++++
+ tools/web_tools.py                            |   4 +
+ toolsets.py                                   |   1 +
+ 12 files changed, 360 insertions(+), 47 deletions(-)
+ create mode 100644 tests/tools/test_messaging_public_boundary.py
+ create mode 100644 tools/invocation_policy.py
+ create mode 100644 tools/web_extract_boundary.py
+
+diff --git a/agent/agent_init.py b/agent/agent_init.py
+index 4d2bb6c993..e4937a0ac7 100644
+--- a/agent/agent_init.py
++++ b/agent/agent_init.py
+@@ -1073,9 +1073,11 @@ def _load_tools(agent, enabled_toolsets, disabled_toolsets):
+     except Exception:
+         agent._tool_snapshot_generation = 0
+     import model_tools
++    from tools.invocation_policy import is_messaging_invocation
+     agent.tools = model_tools.get_tool_definitions(
+         enabled_toolsets=enabled_toolsets, disabled_toolsets=disabled_toolsets,
+         quiet_mode=agent.quiet_mode,
++        skip_tool_search_assembly=is_messaging_invocation(agent),
+     )
+     # A finite -q run has no later session to learn for: no skill authoring tool (agent/oneshot_footprint.py).
+     from agent.oneshot_footprint import prune_oneshot_tools
+@@ -1085,6 +1087,9 @@ def _load_tools(agent, enabled_toolsets, disabled_toolsets):
+     if drops:
+         agent.tools = [t for t in agent.tools if t["function"]["name"] not in drops]
+ 
++    ceiling = getattr(agent, "_inherited_tool_ceiling", None)
++    if ceiling is not None:
++        agent.tools = [t for t in (agent.tools or []) if t["function"]["name"] in ceiling]
+     agent.valid_tool_names = {tool["function"]["name"] for tool in agent.tools} if agent.tools else set()
+     # Kanban guidance is session-static for the dispatcher-owned worker only. Profiles may
+     # expose kanban_show interactively, and children/cron runs inherit the env var, without
+diff --git a/agent/skill_preprocessing.py b/agent/skill_preprocessing.py
+index 9d2e40e11b..d2d639e164 100644
+--- a/agent/skill_preprocessing.py
++++ b/agent/skill_preprocessing.py
+@@ -108,6 +108,7 @@ def preprocess_skill_content(
+     cfg = skills_cfg if isinstance(skills_cfg, dict) else load_skills_config()
+     if cfg.get("template_vars", True):
+         content = substitute_template_vars(content, skill_dir, session_id)
+-    if cfg.get("inline_shell", False):
++    from tools.invocation_policy import is_messaging_invocation
++    if cfg.get("inline_shell", False) and not is_messaging_invocation():
+         content = expand_inline_shell(content, skill_dir, int(cfg.get("inline_shell_timeout", 10) or 10))
+     return content
+diff --git a/agent/tool_executor.py b/agent/tool_executor.py
+index b877a637a4..8ac696e740 100644
+--- a/agent/tool_executor.py
++++ b/agent/tool_executor.py
+@@ -375,6 +375,9 @@ def _tool_search_scoped_names(agent) -> frozenset:
+         ) or [])
+     except Exception:
+         names = frozenset()
++    ceiling = getattr(agent, "_inherited_tool_ceiling", None)
++    if ceiling is not None:
++        names = frozenset(names) & frozenset(ceiling)
+     with contextlib.suppress(Exception):
+         agent._tool_search_scope_cache = (cache_key, names)
+     return names
+diff --git a/plugins/web/parallel/provider.py b/plugins/web/parallel/provider.py
+index dbb4585694..e43999da65 100644
+--- a/plugins/web/parallel/provider.py
++++ b/plugins/web/parallel/provider.py
+@@ -43,6 +43,7 @@ def _resolve_search_mode() -> str:
+ 
+ 
+ class ParallelWebSearchProvider(BaseWebSearchProvider):
++    extract_network_boundary = "remote_public"
+     """Parallel.ai search + async extract provider."""
+ 
+     NAME = "parallel"
+diff --git a/tests/tools/test_messaging_public_boundary.py b/tests/tools/test_messaging_public_boundary.py
+new file mode 100644
+index 0000000000..359f781bbe
+--- /dev/null
++++ b/tests/tools/test_messaging_public_boundary.py
+@@ -0,0 +1,186 @@
++"""Messaging inherits public capabilities without inheriting local execution or URL opt-outs."""
++import asyncio
++import socket
++from types import SimpleNamespace
++from unittest.mock import Mock
++import pytest
++from tools.invocation_policy import public_network_scope
++from tools import url_safety as u
++from tools.delegate_tool_toolsets import _resolve_child_toolsets, parent_tool_ceiling, apply_child_tool_ceiling
++from toolsets import resolve_toolset
++
++PUBLIC=("https://example.com","https://www.wikipedia.org/wiki/Excavator","http://www.komatsu.com/en/")
++PRIVATE=("http://127.0.0.1","http://127.10.0.5","http://localhost","http://localhost.",
++ "http://0.0.0.0","http://10.1.2.3","http://172.16.2.3","http://192.168.1.8",
++ "http://169.254.169.254","http://100.64.1.2","http://[::1]","http://[fc00::1]",
++ "http://[fe80::1]","http://[::ffff:127.0.0.1]","file:///C:/Windows/win.ini",
++ "C:\\Windows\\win.ini","\\\\server\\share","http://metadata.google.internal")
++
++@pytest.fixture
++def dns(monkeypatch):
++    def resolve(host,port=None,*_):
++        try: ip=socket.inet_ntop(socket.AF_INET6,socket.inet_pton(socket.AF_INET6,host)); family=socket.AF_INET6
++        except OSError:
++            try: ip=socket.inet_ntoa(socket.inet_aton(host)); family=socket.AF_INET
++            except OSError: ip="127.0.0.1" if host.rstrip(".")=="localhost" or host=="private.example" else "93.184.216.34"; family=socket.AF_INET
++        return [(family,socket.SOCK_STREAM,6,"",(ip,port or 80))]
++    monkeypatch.setattr(u,"_getaddrinfo",resolve)
++    monkeypatch.setattr(u,"_resolve_allow_private_urls",lambda:True)
++    monkeypatch.setattr(u,"_proxy_is_configured",lambda:True)
++    u._reset_allow_private_cache()
++    return resolve
++
++@pytest.mark.parametrize("url",PUBLIC)
++def test_public_allowed_despite_legacy_private_optout(dns,url):
++    with public_network_scope():
++        assert u.is_safe_url(url)
++
++@pytest.mark.parametrize("url",PRIVATE+("http://private.example",))
++def test_private_denied_despite_local_backend_and_legacy_optout(dns,url):
++    with public_network_scope():
++        assert not u.is_safe_url(url)
++
++def test_scope_does_not_change_developer_cli(dns):
++    assert u.is_safe_url("http://127.0.0.1")
++    with public_network_scope():
++        assert not u.is_safe_url("http://127.0.0.1")
++    assert u.is_safe_url("http://127.0.0.1")
++
++def test_dns_failure_and_empty_dns_fail_closed_with_proxy(dns,monkeypatch):
++    with public_network_scope():
++        monkeypatch.setattr(u,"_getaddrinfo",lambda *_:[])
++        assert not u.is_safe_url(PUBLIC[0])
++        def fail(*_): raise socket.gaierror()
++        monkeypatch.setattr(u,"_getaddrinfo",fail)
++        assert not u.is_safe_url(PUBLIC[0])
++
++def test_extract_redirect_block_before_private_request(dns):
++    from tools.web_extract_boundary import _check_redirect
++    response=SimpleNamespace(is_redirect=True,url="https://example.com",headers={"location":"http://10.1.2.3/manual"})
++    with public_network_scope(), pytest.raises(u.SSRFConnectionBlocked):
++        _check_redirect(response)
++
++def test_extract_backend_contract_is_required(monkeypatch):
++    from tools import web_extract_boundary as b
++    provider=SimpleNamespace(name="future-local")
++    with pytest.raises(u.SSRFConnectionBlocked):
++        asyncio.run(b.prepare_public_extract_urls(provider,[PUBLIC[0]]))
++    calls=[]
++    monkeypatch.setattr(b,"_public_extract_target",lambda url:calls.append(url) or url)
++    for name in ("parallel","komatso-parallel","future-verified-cloud"):
++        provider=SimpleNamespace(name=name,extract_network_boundary="remote_public")
++        assert asyncio.run(b.prepare_public_extract_urls(provider,[PUBLIC[0]]))==[PUBLIC[0]]
++    assert len(calls)==3
++
++def test_real_extract_dispatch_denies_private_before_backend(dns,monkeypatch):
++    from tools import web_tools as w
++    provider=Mock()
++    monkeypatch.setattr(w,"_resolve_extract_provider",lambda _: (provider,None))
++    with public_network_scope():
++        result=asyncio.run(w.web_extract_tool(["http://192.168.1.1"]))
++    assert "Blocked" in result
++    provider.extract.assert_not_called()
++
++@pytest.mark.parametrize("requested", [["terminal"],["file"],["skills"],["connections"],["mcp-any"],["hermes-cli"],["web","terminal"]])
++def test_child_requested_tools_cannot_escalate(requested):
++    parent=SimpleNamespace(platform="bale",enabled_toolsets=["web","skills_readonly","no_mcp"],disabled_toolsets=[],valid_tool_names={"web_search","web_extract","skills_list","skill_view"})
++    enabled,disabled=_resolve_child_toolsets(parent,requested,"leaf")
++    names={n for ts in enabled for n in resolve_toolset(ts)}
++    assert names<=parent.valid_tool_names
++    assert "no_mcp" in enabled
++    assert "terminal" not in names and "read_file" not in names and "skill_manage" not in names
++
++@pytest.mark.parametrize("actual", [None,set(),{"web_search"}])
++def test_none_toolset_fallback_and_nested_ceiling(actual):
++    parent=SimpleNamespace(platform="telegram",enabled_toolsets=None,disabled_toolsets=[])
++    if actual is not None: parent.valid_tool_names=actual
++    enabled,disabled=_resolve_child_toolsets(parent,None,"orchestrator")
++    names={n for ts in enabled for n in resolve_toolset(ts)}
++    assert names <= (actual or set())
++    assert "terminal" not in names and "read_file" not in names and "delegate_task" not in names
++    child=SimpleNamespace(platform="subagent",_public_network_only=True,enabled_toolsets=enabled,disabled_toolsets=disabled,valid_tool_names=names,_inherited_tool_ceiling=frozenset(actual or set()))
++    nested,_=_resolve_child_toolsets(child,["hermes-cli","terminal","file","web"],"orchestrator")
++    assert {n for ts in nested for n in resolve_toolset(ts)}<=names
++
++def test_partial_plugin_toolset_does_not_expand_parent(monkeypatch):
++    from tools.registry import registry
++    registry.register(name="phase1_plugin_read",toolset="phase1_domain",schema={"name":"phase1_plugin_read","parameters":{}},handler=lambda args,**kw:"{}")
++    registry.register(name="phase1_plugin_write",toolset="phase1_domain",schema={"name":"phase1_plugin_write","parameters":{}},handler=lambda args,**kw:"{}")
++    parent=SimpleNamespace(platform="bale",enabled_toolsets=["phase1_domain","no_mcp"],disabled_toolsets=[],valid_tool_names={"phase1_plugin_read"})
++    child,disabled=_resolve_child_toolsets(parent,["phase1_domain"],"leaf")
++    assert "phase1_domain" not in child
++
++def test_child_snapshot_enforces_actual_parent_tools():
++    parent=SimpleNamespace(platform="bale",enabled_toolsets=["web"],valid_tool_names={"web_search"},disabled_toolsets=[])
++    child=SimpleNamespace(tools=[{"function":{"name":n}} for n in ["web_search","web_extract","terminal","read_file"]])
++    apply_child_tool_ceiling(child,parent)
++    assert child.valid_tool_names=={"web_search"}
++    assert child._inherited_tool_ceiling==frozenset(parent.valid_tool_names)
++
++def test_readonly_skill_surface_uses_native_resolver():
++    assert set(resolve_toolset("skills_readonly"))=={"skills_list","skill_view"}
++    assert "skill_manage" not in resolve_toolset("skills_readonly")
++
++def test_skills_view_never_runs_inline_shell_or_traverses_host(tmp_path,monkeypatch):
++    import json
++    from tools.skills_tool import skill_view, skills_list
++    home=tmp_path/"home"; skill=home/"skills"/"readonly"; skill.mkdir(parents=True)
++    (home/"config.yaml").write_text("skills:\n  inline_shell: false\n",encoding="utf-8")
++    content="---\nname: readonly\ndescription: Read-only fixture\n---\n!\x60echo must-never-run\x60"
++    (skill/"SKILL.md").write_text(content,encoding="utf-8")
++    secret=home/"secret.txt"; secret.write_text("HOST_SECRET_MUST_NOT_APPEAR")
++    monkeypatch.setenv("HERMES_HOME",str(home))
++    import agent.skill_preprocessing as preprocessing
++    run=Mock(side_effect=AssertionError("Inline shell executed"))
++    monkeypatch.setattr(preprocessing,"run_inline_shell",run)
++    result=skill_view("readonly",task_id="readonly-test")
++    assert "must-never-run" in result
++    assert "readonly" in skills_list(task_id="readonly-test")
++    run.assert_not_called()
++    denied=skill_view("readonly",file_path="../../secret.txt",task_id="readonly-file-test")
++    assert "HOST_SECRET_MUST_NOT_APPEAR" not in denied
++    assert (skill/"SKILL.md").read_text(encoding="utf-8")==content
++
++def test_maintenance_child_inherits_only_registered_domain_tools():
++    from tools.registry import registry
++    names={"maintenance_manual_evidence","maintenance_partbook_lookup"}
++    for name in names:
++        registry.register(name=name,toolset="phase1_maintenance",schema={"name":name,"parameters":{}},handler=lambda args,**kw:"{}")
++    parent=SimpleNamespace(platform="bale",enabled_toolsets=["web","phase1_maintenance","no_mcp"],disabled_toolsets=[],valid_tool_names=names|{"web_search","web_extract","delegate_task"})
++    child,disabled=_resolve_child_toolsets(parent,["web","phase1_maintenance","terminal","file"],"leaf")
++    inherited={n for ts in child for n in resolve_toolset(ts)}
++    assert names <= inherited
++    assert {"web_search","web_extract"} <= inherited
++    assert inherited <= parent.valid_tool_names
++
++@pytest.mark.parametrize("platform",["bale","telegram"])
++def test_gateway_source_scope_is_enforced_without_explicit_wrapper(dns,monkeypatch,platform):
++    monkeypatch.setenv("HERMES_SESSION_PLATFORM",platform)
++    assert not u.is_safe_url("http://10.1.2.3")
++    assert u.is_safe_url("https://example.com")
++    parent=SimpleNamespace(enabled_toolsets=None,disabled_toolsets=[])
++    enabled,_=_resolve_child_toolsets(parent,None,"leaf")
++    assert {n for ts in enabled for n in resolve_toolset(ts)}==set()
++
++def test_messaging_skill_shell_is_denied_even_if_config_regresses(monkeypatch,tmp_path):
++    from agent import skill_preprocessing as p
++    monkeypatch.setenv("HERMES_SESSION_PLATFORM","bale")
++    monkeypatch.setattr(p,"load_skills_config",lambda:{"inline_shell":True})
++    shell=Mock(side_effect=AssertionError("Messaging shell escaped"))
++    monkeypatch.setattr(p,"run_inline_shell",shell)
++    text="Knowledge: !\x60echo must-never-run\x60"
++    assert "must-never-run" in p.preprocess_skill_content(text,tmp_path,"skill-test")
++    shell.assert_not_called()
++
++def test_missing_parent_metadata_never_uses_host_fallback():
++    for parent in (None,SimpleNamespace(),SimpleNamespace(platform="subagent")):
++        assert parent_tool_ceiling(parent)==set()
++        enabled,_=_resolve_child_toolsets(parent,None,"leaf")
++        assert {n for ts in enabled for n in resolve_toolset(ts)}==set()
++
++def test_connect_time_guard_rejects_rebinding(dns,monkeypatch):
++    with public_network_scope():
++        assert u.is_safe_url("https://example.com")
++        monkeypatch.setattr(u,"_getaddrinfo",lambda *_:[(socket.AF_INET,socket.SOCK_STREAM,6,"",("10.1.2.3",443))])
++        with pytest.raises(u.SSRFConnectionBlocked):
++            u._resolved_http_connect_ips("example.com",443,"https")
+diff --git a/tools/delegate_tool.py b/tools/delegate_tool.py
+index 9e2379f103..adc051c6aa 100644
+--- a/tools/delegate_tool.py
++++ b/tools/delegate_tool.py
+@@ -186,9 +186,11 @@ def _build_child_agent(
+     from agent.delegation_context import delegated_child_context
+     # Role is depth-derived: a child may delegate iff the kill switch is on and
+     # depth budget remains below max_spawn_depth. The `role` arg is ignored.
++    from tools.invocation_policy import is_messaging_invocation, public_network_scope
++    messaging_parent = is_messaging_invocation(parent_agent)
+     child_depth = getattr(parent_agent, "_delegate_depth", 0) + 1
+     max_spawn = _get_max_spawn_depth()
+-    effective_role = "orchestrator" if _get_orchestrator_enabled() and child_depth < max_spawn else "leaf"
++    effective_role = "orchestrator" if not messaging_parent and _get_orchestrator_enabled() and child_depth < max_spawn else "leaf"
+ 
+     # One subagent_id shared by the progress callback, spawn_requested event and
+     # the live registry; parent_id is set when THIS parent is itself a subagent.
+@@ -231,7 +233,7 @@ def _build_child_agent(
+         request_overrides = {} if override_provider else dict(getattr(parent_agent, "request_overrides", {}) or {})
+     parent_sid = getattr(parent_agent, "session_id", None)
+     child_session_db = _open_child_session_db(parent_agent)
+-    with delegated_child_context():
++    with delegated_child_context(), public_network_scope(messaging_parent):
+         try:
+             child = AIAgent(
+                 **rt, max_iterations=max_iterations, prefill_messages=getattr(parent_agent, "prefill_messages", None),
+@@ -254,6 +256,9 @@ def _build_child_agent(
+                     from hermes_state_registry import release_or_close
+                     release_or_close(child_session_db)
+             raise
++    from tools.delegate_tool_toolsets import apply_child_tool_ceiling
++    apply_child_tool_ceiling(child, parent_agent)
++    child._public_network_only = messaging_parent
+     child._print_fn = getattr(parent_agent, "_print_fn", None)
+     _apply_child_cache_ttl(child)
+     if child_session_db is not None:
+@@ -328,6 +333,8 @@ def _run_single_child(
+     # Set when a timed-out Future still owns the child: closing it from this
+     # thread before the worker settles races the conversation's finally path.
+     _child_close_deferred = False
++    from tools.invocation_policy import PUBLIC_NETWORK_ONLY, is_messaging_invocation
++    policy_token = PUBLIC_NETWORK_ONLY.set(is_messaging_invocation(child))
+     try:
+         heartbeat.start()
+         _safe_progress(child_progress_cb, "subagent.start", preview=goal)
+@@ -359,7 +366,10 @@ def _run_single_child(
+             preview=str(exc), summary=str(exc), status="failed",
+         )
+     finally:
+-        run.cleanup(heartbeat=heartbeat, child_pool=child_pool, leased_cred_id=leased_cred_id, close_deferred=_child_close_deferred)
++        try:
++            run.cleanup(heartbeat=heartbeat, child_pool=child_pool, leased_cred_id=leased_cred_id, close_deferred=_child_close_deferred)
++        finally:
++            PUBLIC_NETWORK_ONLY.reset(policy_token)
+ 
+ 
+ def _build_children(
+diff --git a/tools/delegate_tool_toolsets.py b/tools/delegate_tool_toolsets.py
+index ead1979a39..f81cc96222 100644
+--- a/tools/delegate_tool_toolsets.py
++++ b/tools/delegate_tool_toolsets.py
+@@ -74,50 +74,72 @@ def _blocked_toolsets_for_role(role: str) -> List[str]:
+         name for name, defn in TOOLSETS.items() if defn.get("tools") and set(defn.get("tools", ())).issubset(blocked_names)
+     )
+ 
+-def _resolve_child_toolsets(
+-    parent_agent, toolsets: Optional[List[str]], effective_role: str
+-) -> tuple[List[str], List[str]]:
+-    """``(enabled_toolsets, disabled_toolsets)`` for a child. Children never gain tools the parent lacks: explicit
+-    ``toolsets`` are intersected with the parent's (composite-expanded) set, else the parent's enabled set is
+-    inherited. Blocked tools are stripped twice — whole blocked toolsets here, and exact one-tool deny toolsets via
+-    ``disabled_toolsets`` so blocked names inside mixed bundles (hermes-cli) are subtracted AFTER composite
+-    expansion and survive registry refreshes. Orchestrators get ``delegation`` re-added unconditionally
+-    (role-granted, not inherited)."""
+-    # enabled_toolsets=None means "all tools", so derive from loaded tool names.
++def parent_tool_ceiling(parent_agent):
++    """Exact parent tools, never a whole toolset inferred from a single member."""
++    from tools.invocation_policy import is_messaging_invocation
++    names = getattr(parent_agent, "valid_tool_names", None)
++    inherited = getattr(parent_agent, "_inherited_tool_ceiling", None)
++    if names is not None:
++        ceiling = set(names)
++    else:
++        enabled = getattr(parent_agent, "enabled_toolsets", None)
++        if enabled is None:
++            # No resolved parent means no authority, even if source metadata was lost.
++            # Real CLI agents still inherit their full, explicit loaded tool surface.
++            ceiling = set()
++        else:
++            import model_tools
++            ceiling = model_tools._select_tool_names(
++                list(enabled), getattr(parent_agent, "disabled_toolsets", None), True
++            )
++    return ceiling if inherited is None else ceiling & set(inherited)
++
++
++def apply_child_tool_ceiling(child, parent_agent):
++    """Persist the ceiling as well as pruning the initial schema snapshot."""
++    ceiling = frozenset(parent_tool_ceiling(parent_agent))
++    child._inherited_tool_ceiling = ceiling
++    child.tools = [t for t in (child.tools or []) if t["function"]["name"] in ceiling]
++    child.valid_tool_names = {t["function"]["name"] for t in child.tools}
++
++
++def _resolve_child_toolsets(parent_agent, toolsets, effective_role):
++    """Inheritance is bounded by actual tools, including plugins and disabled tools."""
++    from tools.invocation_policy import is_messaging_invocation
++    ceiling = parent_tool_ceiling(parent_agent)
+     parent_enabled = getattr(parent_agent, "enabled_toolsets", None)
+     if parent_enabled is not None:
+         parent_toolsets = set(parent_enabled)
+-    elif parent_agent and hasattr(parent_agent, "valid_tool_names"):
+-        import model_tools
++    else:
++        from tools.registry import registry
+         parent_toolsets = {
+-            ts for name in parent_agent.valid_tool_names if (ts := model_tools.get_toolset_for_tool(name)) is not None
++            ts for ts in set(TOOLSETS) | set(registry.get_tool_to_toolset_map().values())
++            if (names := set(resolve_toolset(ts))) and names.issubset(ceiling)
+         }
+-    else:
+-        parent_toolsets = set(DEFAULT_TOOLSETS)
+-
+-    if toolsets:
+-        expanded_parent = _expand_parent_toolsets(parent_toolsets)
+-        child_toolsets = [t for t in toolsets if t in expanded_parent]
+-        if _get_inherit_mcp_toolsets():
+-            # Append any parent MCP toolsets missing from the narrowed child.
+-            child_toolsets += [
+-                name for name in sorted(parent_toolsets) if _is_mcp_toolset_name(name) and name not in child_toolsets
+-            ]
+-    elif parent_agent and parent_enabled is not None:
+-        child_toolsets = parent_enabled
+-    else:
+-        child_toolsets = sorted(parent_toolsets) or DEFAULT_TOOLSETS
++    expanded = _expand_parent_toolsets(parent_toolsets)
++    # Registry toolsets need the same exact containment as static composites.
++    child_toolsets = [
++        ts for ts in (toolsets if toolsets is not None else sorted(parent_toolsets))
++        if ts in expanded and (
++            ts == "no_mcp" or set(resolve_toolset(ts)).issubset(ceiling)
++        )
++    ]
++    if _get_inherit_mcp_toolsets() and toolsets is not None:
++        child_toolsets += [
++            ts for ts in sorted(parent_toolsets)
++            if _is_mcp_toolset_name(ts) and ts not in child_toolsets
++            and set(resolve_toolset(ts)).issubset(ceiling)
++        ]
+     child_toolsets = _strip_blocked_tools(child_toolsets)
+-
+-    raw_parent_disabled = getattr(parent_agent, "disabled_toolsets", None)
+-    inherited_disabled = (
+-        [str(name) for name in raw_parent_disabled] if isinstance(raw_parent_disabled, (list, tuple, set)) else []
+-    )
+-    if effective_role == "orchestrator":
+-        inherited_disabled = [name for name in inherited_disabled if name != "delegation"]
+-        if "delegation" not in child_toolsets:
++    raw_disabled = getattr(parent_agent, "disabled_toolsets", None)
++    inherited_disabled = list(raw_disabled) if isinstance(raw_disabled, (list, tuple, set)) else []
++    # Role cannot mint a capability. Messaging orchestration remains disabled.
++    if effective_role == "orchestrator" and not is_messaging_invocation(parent_agent) and "delegate_task" in ceiling:
++        if "delegation" not in inherited_disabled:
+             child_toolsets.append("delegation")
+-    child_disabled_toolsets = list(
+-        dict.fromkeys(inherited_disabled + _blocked_toolsets_for_role(effective_role) + ["kanban"])
+-    )
+-    return child_toolsets, child_disabled_toolsets
++    elif effective_role == "orchestrator":
++        effective_role = "leaf"
++    if "no_mcp" in parent_toolsets or not any(str(n).startswith("mcp_") for n in ceiling):
++        child_toolsets.append("no_mcp")
++    disabled = list(dict.fromkeys(inherited_disabled + _blocked_toolsets_for_role(effective_role) + ["kanban"]))
++    return list(dict.fromkeys(child_toolsets)), disabled
+diff --git a/tools/invocation_policy.py b/tools/invocation_policy.py
+new file mode 100644
+index 0000000000..e096cfe865
+--- /dev/null
++++ b/tools/invocation_policy.py
+@@ -0,0 +1,25 @@
++"""Invocation-scoped network restrictions; CLI retains its configured URL policy."""
++from contextvars import ContextVar
++from contextlib import contextmanager
++
++PUBLIC_NETWORK_ONLY = ContextVar("hermes_public_network_only", default=False)
++
++def is_messaging_invocation(agent=None):
++    if PUBLIC_NETWORK_ONLY.get():
++        return True
++    if agent is not None and getattr(agent, "_public_network_only", False):
++        return True
++    if agent is not None:
++        source = getattr(agent, "_messaging_source_platform", None) or getattr(agent, "platform", None)
++        if source in {"bale", "telegram"}:
++            return True
++    from gateway.session_context import get_session_env
++    return get_session_env("HERMES_SESSION_PLATFORM", "") in {"bale", "telegram"}
++
++@contextmanager
++def public_network_scope(enabled=True):
++    token = PUBLIC_NETWORK_ONLY.set(bool(enabled) or PUBLIC_NETWORK_ONLY.get())
++    try:
++        yield
++    finally:
++        PUBLIC_NETWORK_ONLY.reset(token)
+diff --git a/tools/url_safety.py b/tools/url_safety.py
+index 3ecb01123f..2518ceca5c 100644
+--- a/tools/url_safety.py
++++ b/tools/url_safety.py
+@@ -147,6 +147,9 @@ def _global_allow_private_urls() -> bool:
+     (``get_hermes_home_override()`` set) bypass the process-global cache — a multiplex gateway serves
+     several profiles in one process; the first profile's opt-out must not disable blocking for later ones."""
+     global _allow_private_resolved, _cached_allow_private
++    from tools.invocation_policy import is_messaging_invocation
++    if is_messaging_invocation():
++        return False
+     if get_hermes_home_override() is not None:
+         return _resolve_allow_private_urls()
+     if not _allow_private_resolved:
+@@ -215,6 +218,9 @@ def _global_fake_ip_ranges() -> tuple:
+     """Process-lifetime cache with the same profile-scope bypass as ``_global_allow_private_urls``:
+     a multiplex gateway must not apply the first profile's declaration to later ones."""
+     global _fake_ip_resolved, _cached_fake_ip_ranges
++    from tools.invocation_policy import is_messaging_invocation
++    if is_messaging_invocation():
++        return ()
+     if get_hermes_home_override() is not None:
+         return _resolve_fake_ip_ranges()
+     if not _fake_ip_resolved:
+@@ -323,12 +329,20 @@ def is_always_blocked_url(url: str) -> bool:
+ 
+ def _allows_private_ip_resolution(hostname: str, scheme: str) -> bool:
+     """Return True when a trusted HTTPS hostname may bypass IP-class blocking."""
+-    return scheme == "https" and hostname in _TRUSTED_PRIVATE_IP_HOSTS
++    from tools.invocation_policy import is_messaging_invocation
++    return not is_messaging_invocation() and scheme == "https" and hostname in _TRUSTED_PRIVATE_IP_HOSTS
+ 
+ 
+ def _resolved_ip_block_reason(ip: _IPAddress, allow_private: bool) -> Optional[str]:
+     """Why a resolved answer must be rejected, or None if it may be dialed. The metadata floor
+     ignores ``allow_private``; ordinary private/internal classes are blocked only when it is False."""
++    from tools.invocation_policy import is_messaging_invocation
++    if is_messaging_invocation():
++        checked = _embedded_ipv4(ip)
++        if not checked.is_global or checked.is_multicast or checked.is_reserved:
++            return "private/internal address"
++        if isinstance(ip, ipaddress.IPv6Address) and (ip in ipaddress.ip_network("64:ff9b::/96") or ip.sixtofour is not None or ip.teredo is not None):
++            return "IPv6 transition address"
+     if _is_always_blocked_ip(ip):
+         return "cloud metadata address"
+     if not allow_private and _is_blocked_ip(ip) and not _is_declared_fake_ip(ip):
+@@ -351,7 +365,8 @@ def is_safe_url(url: str) -> bool:
+             return False
+ 
+         # Metadata hostnames are blocked BEFORE consulting the toggle.
+-        if hostname in _BLOCKED_HOSTNAMES:
++        from tools.invocation_policy import is_messaging_invocation
++        if hostname in _BLOCKED_HOSTNAMES or (is_messaging_invocation() and (hostname == "localhost" or hostname.endswith((".localhost", ".local", ".internal")))):
+             logger.warning("Blocked request to internal hostname: %s", hostname)
+             return False
+         allow_all_private = _global_allow_private_urls()
+@@ -364,13 +379,16 @@ def is_safe_url(url: str) -> bool:
+             # configured, delegate resolution to it (metadata hostnames were already
+             # rejected above). Literal IPs need no DNS, so a failure on one is not a
+             # proxy symptom — keep them fail-closed.
+-            if _parse_ip(hostname) is None and _proxy_is_configured():
++            from tools.invocation_policy import is_messaging_invocation
++            if not is_messaging_invocation() and _parse_ip(hostname) is None and _proxy_is_configured():
+                 logger.debug(
+                     "DNS resolution failed for %s — proxy configured, allowing through for proxy-side resolution",
+                     hostname)
+                 return True
+             logger.warning("Blocked request — DNS resolution failed for: %s", hostname)
+             return False
++        if not addr_info:
++            return False
+         for raw, ip_str, ip in _iter_resolved_ips(addr_info):
+             if ip is None:
+                 logger.warning("Blocked request — unparseable IP address %r for hostname %s", raw, hostname)
+diff --git a/tools/web_extract_boundary.py b/tools/web_extract_boundary.py
+new file mode 100644
+index 0000000000..9da5ab4f8b
+--- /dev/null
++++ b/tools/web_extract_boundary.py
+@@ -0,0 +1,37 @@
++"""Public-only extract preflight, independent of the configured provider.
++
++A provider must declare off-host URL fetching to receive messaging URLs. Local
++providers must integrate connect-time policy before declaring support. Unknown
++providers fail closed instead of silently gaining the host's network.
++"""
++import asyncio
++from tools.invocation_policy import public_network_scope
++from tools.url_safety import (
++    create_ssrf_safe_client, is_safe_url, redirect_target_from_response,
++    SSRFConnectionBlocked,
++)
++
++def _check_redirect(response):
++    target = redirect_target_from_response(response)
++    if target and not is_safe_url(target):
++        raise SSRFConnectionBlocked("Blocked: redirect targets a private or internal address")
++
++def _public_extract_target(url):
++    with public_network_scope():
++        with create_ssrf_safe_client(
++            trust_env=False, follow_redirects=True, max_redirects=10,
++            timeout=15, event_hooks={"response": [_check_redirect]},
++        ) as client:
++            # Streaming GET sees real redirects without downloading arbitrary bodies.
++            with client.stream("GET", url) as response:
++                final_url = str(response.url)
++                if not is_safe_url(final_url):
++                    raise SSRFConnectionBlocked("Blocked: extract final URL is not public")
++                return final_url
++
++async def prepare_public_extract_urls(provider, urls):
++    if getattr(provider, "extract_network_boundary", None) != "remote_public":
++        raise SSRFConnectionBlocked(
++            "Blocked: extract provider has no verified public-network fetch boundary"
++        )
++    return await asyncio.gather(*(asyncio.to_thread(_public_extract_target, u) for u in urls))
+diff --git a/tools/web_tools.py b/tools/web_tools.py
+index 22b00afa2a..be8e815c91 100644
+--- a/tools/web_tools.py
++++ b/tools/web_tools.py
+@@ -384,6 +384,10 @@ async def web_extract_tool(urls: List[Any], format: str = None, char_limit: Opti
+             provider, error_json = _resolve_extract_provider(backend)
+             if error_json is not None:
+                 return error_json
++            from tools.invocation_policy import is_messaging_invocation
++            if is_messaging_invocation():
++                from tools.web_extract_boundary import prepare_public_extract_urls
++                safe_urls = await prepare_public_extract_urls(provider, safe_urls)
+             results = await _extract_safe_urls(provider, safe_urls, format)
+         # Reconstruct input order across invalid, blocked, and provider entries (providers preserve
+         # the order of the safe URL list they receive).
+diff --git a/toolsets.py b/toolsets.py
+index 289003182c..9772878675 100644
+--- a/toolsets.py
++++ b/toolsets.py
+@@ -99,6 +99,7 @@ TOOLSETS = {
+         ["computer_use"],
+     ),
+     "terminal": _ts("Terminal/command execution and process management tools", ["terminal", "process_manage"]),
++    "skills_readonly": _ts("Discover and read skills without authoring", ["skills_list", "skill_view"]),
+     "skills": _ts(
+         "Access, create, edit, and manage skill documents with specialized "
+         "instructions and knowledge",
+-- 
+2.54.0.windows.1
+

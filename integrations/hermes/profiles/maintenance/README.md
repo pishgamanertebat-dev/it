@@ -19,12 +19,12 @@ Keep runtime `.env`, `auth.json`, API keys, OAuth credentials, bot tokens, `stat
 ## Bale tool access under multiplex
 
 The active Maintenance Bale allowlist is `platform_toolsets.bale:
-[search, komatso_maintenance, no_mcp]`. The effective model schemas are
-`web_search`, `maintenance_partbook_lookup`, and
-`maintenance_manual_evidence`. The `no_mcp` sentinel prevents globally
-enabled MCP servers from widening the messaging surface. Keep terminal, file,
-code execution, browser automation, connections, skills management, and
-delegation out of Bale. The CLI toolset remains separate.
+[web, skills_readonly, komatso_public_browser, delegation, komatso_maintenance, no_mcp]`.
+The model receives public web research, read-only skills, safe delegation and both
+maintenance evidence tools. Public browser tools are named `public_browser_*`;
+native `browser_*` remains separate for local/developer use. Generic terminal,
+filesystem, code execution, connections, MCP and skill management stay unavailable.
+The CLI toolset remains separate. See [Phase 1 policy](../../SECURITY_PHASE1.md).
 
 The Maintenance plugin runs its own bounded Python and file operations behind
 the dedicated tools. `known_plugin_toolsets.telegram` includes

@@ -83,6 +83,7 @@ async def _run_async(operation, **kwargs):
 
 
 class KomatsoParallelProvider(WebSearchProvider):
+    extract_network_boundary = "remote_public"
     @property
     def name(self):
         return "komatso-parallel"

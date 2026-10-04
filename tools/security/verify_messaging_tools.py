@@ -1,4 +1,4 @@
-﻿"""Verify model-callable Hermes messaging tools against a strict allowlist.
+"""Verify model-callable Hermes messaging tools against a strict allowlist.
 
 Runs installed Hermes plugin discovery and the same toolset/schema resolvers
 used by Gateway turns. Output contains only toolset and tool names.
@@ -11,17 +11,22 @@ import os
 import sys
 from pathlib import Path
 
+PUBLIC_BROWSER = {"public_browser_" + action for action in (
+    "navigate", "snapshot", "click", "type", "hover", "select", "press", "scroll",
+    "back", "tabs", "switch_tab", "frame", "drag", "screenshot", "images", "console", "close"
+)}
+RESEARCH = {"web_search", "web_extract", "skills_list", "skill_view"} | PUBLIC_BROWSER
 ALLOWED = {
-    ("default", "bale"): {"web_search"},
-    ("default", "telegram"): {"web_search"},
-    ("maintenance", "bale"): {
-        "web_search", "maintenance_manual_evidence", "maintenance_partbook_lookup"
+    ("default", "bale"): RESEARCH,
+    ("default", "telegram"): RESEARCH,
+    ("maintenance", "bale"): RESEARCH | {
+        "delegate_task", "maintenance_manual_evidence", "maintenance_partbook_lookup"
     },
     ("maintenance", "telegram"): {"web_search"},
 }
 FORBIDDEN = {
     "terminal", "process_manage", "execute_code", "read_file", "write_file",
-    "patch", "search_files", "manage_connections", "delegate_task",
+    "patch", "search_files", "manage_connections",
     "skill_manage", "computer_use", "read_terminal", "close_terminal",
     "desktop_preview", "drive_preview", "read_window_below", "focus_pane",
 }
@@ -44,7 +49,8 @@ def inspect(home: Path, platform: str, source: Path) -> dict:
     raw = get_tool_definitions(
         toolsets, disabled, quiet_mode=True, skip_tool_search_assembly=True
     )
-    visible = get_tool_definitions(toolsets, disabled, quiet_mode=True)
+    visible = get_tool_definitions(toolsets, disabled, quiet_mode=True,
+                                   skip_tool_search_assembly=platform in {"bale", "telegram"})
     names = sorted({item["function"]["name"] for item in raw})
     visible_names = sorted({item["function"]["name"] for item in visible})
     profile = "maintenance" if home.name == "maintenance" else "default"
@@ -54,6 +60,7 @@ def inspect(home: Path, platform: str, source: Path) -> dict:
         if name in FORBIDDEN or name.startswith("browser_")
     )
     unexpected = sorted(set(names) - allowed) if allowed is not None else []
+    missing = sorted(allowed - set(names)) if allowed is not None else []
     return {
         "profile": profile,
         "platform": platform,
@@ -62,6 +69,7 @@ def inspect(home: Path, platform: str, source: Path) -> dict:
         "visible_model_tools": visible_names,
         "forbidden_model_tools": forbidden,
         "unexpected_model_tools": unexpected,
+        "missing_model_tools": missing,
     }
 
 def main() -> int:
@@ -78,7 +86,7 @@ def main() -> int:
         args.output.write_text(rendered, encoding="utf-8")
     print(rendered, end="")
     return 0 if args.snapshot_only or not (
-        result["forbidden_model_tools"] or result["unexpected_model_tools"]
+        result["forbidden_model_tools"] or result["unexpected_model_tools"] or result["missing_model_tools"]
     ) else 1
 
 if __name__ == "__main__":

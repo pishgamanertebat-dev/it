@@ -1,0 +1,4 @@
+name: komatso-public-research
+version: 1.0.0
+description: Public HTTP/HTTPS Chromium with pinned-IP egress, isolated sessions and read-only research.
+author: KomatsoAI
