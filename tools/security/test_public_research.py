@@ -79,6 +79,18 @@ class ScopedWorkerCleanupTests(unittest.TestCase):
         worker.proc.kill.assert_not_called()
 
 
+class BrowserSessionIsolationTests(unittest.TestCase):
+    def test_default_task_id_never_overrides_distinct_conversation_sessions(self):
+        captured=[]
+        ctx=Mock();ctx.register_tool.side_effect=lambda **kw:captured.append(kw)
+        pkg.register(ctx)
+        handler=next(i["handler"] for i in captured if i["name"]=="public_browser_navigate")
+        args={"url":"https://example.com","session_id":"untrusted-tool-arg"}
+        with patch.object(pkg,"browser_action",return_value="{}") as action:
+            handler(args,task_id="default",session_id="conversation-A")
+            handler(args,task_id="default",session_id="conversation-B")
+        self.assertEqual([call.args[2] for call in action.call_args_list],["conversation-A","conversation-B"])
+
 class ExtractRegistryBoundaryTests(unittest.TestCase):
     def test_async_registry_keeps_public_policy_and_never_calls_private_provider(self):
         import os,tempfile

@@ -105,7 +105,7 @@ def browser_action(action,args,task_id=None):
         if action=="navigate": public_url(args.get("url",""))
         from hermes_constants import hermes_home_key, get_hermes_home
         from gateway.session_context import get_session_env
-        owner=task_id or get_session_env("HERMES_SESSION_ID","")
+        owner=task_id if task_id and task_id != "default" else get_session_env("HERMES_SESSION_ID","")
         if not owner: return json.dumps({"success":False,"error":"A browser session id is required"})
         key=(hermes_home_key(),owner)
         with _lock:

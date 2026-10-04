@@ -31,7 +31,7 @@ def register(ctx):
     for action,(description,properties,required) in ACTIONS.items():
         name="public_browser_"+action
         def handler(args, _action=action, **kw):
-            return browser_action(_action,args,kw.get("task_id") or kw.get("session_id"))
+            return browser_action(_action,args,kw.get("session_id") or kw.get("task_id"))
         ctx.register_tool(name=name,toolset="komatso_public_browser",
             schema={"name":name,"description":description,"parameters":{
                 "type":"object","properties":properties,"required":required,"additionalProperties":False}},
