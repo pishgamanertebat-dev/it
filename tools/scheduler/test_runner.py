@@ -11,6 +11,7 @@ import yaml
 
 from .runner import ROOT, latest_due, load_config, tick
 from .tasks import BaleSender, overflow
+from tools.authorization.store import RecipientResolution
 
 TZ = ZoneInfo('Asia/Tehran')
 NOW = datetime(2026, 9, 16, 9, 0, tzinfo=TZ)
@@ -25,8 +26,8 @@ class SchedulerTests(unittest.TestCase):
         self.path = Path(self.temp.name) / 'schedules.yaml'
         self.state = Path(self.temp.name) / 'state.sqlite3'
         self.sent = []
-        self.registry = {'overflow': (lambda p: None, lambda r, p: self.sent.append(r))}
-        self.job = dict(id='daily', task='overflow', recipient='455740857',
+        self.registry = {'repairs': (lambda p: None, lambda r, p: self.sent.append(r))}
+        self.job = dict(id='daily', task='repairs', recipient='101',
                         trigger=dict(type='cron', hour=9, minute=0))
         self.write([self.job])
 
@@ -41,12 +42,12 @@ class SchedulerTests(unittest.TestCase):
         self.run_tick(NOW - timedelta(seconds=1))
         self.assertEqual(self.sent, [])
         self.run_tick()
-        self.assertEqual(self.sent, ['455740857'])
+        self.assertEqual(self.sent, ['101'])
 
     def test_restart_deduplicates_and_next_day_sends(self):
         self.run_tick()
         self.run_tick(NOW + timedelta(minutes=1))
-        self.assertEqual(self.sent, ['455740857'])
+        self.assertEqual(self.sent, ['101'])
         self.run_tick(NOW + timedelta(days=1))
         self.assertEqual(len(self.sent), 2)
 
@@ -69,7 +70,7 @@ class SchedulerTests(unittest.TestCase):
     def test_second_recipient(self):
         self.write([self.job, dict(self.job, id='second', recipient='123')])
         self.run_tick()
-        self.assertEqual(self.sent, ['455740857', '123'])
+        self.assertEqual(self.sent, ['101', '123'])
 
     def test_one_shot(self):
         self.write([dict(self.job, trigger=dict(type='date', run_at='2026-09-16 09:00:00'))])
@@ -96,10 +97,10 @@ class SchedulerTests(unittest.TestCase):
 
     def test_failure_recorded_without_blind_retry_and_other_job_runs(self):
         def send(recipient, params):
-            if recipient == '455740857':
+            if recipient == '101':
                 raise RuntimeError('private-url-secret')
             self.sent.append(recipient)
-        self.registry['overflow'] = (lambda p: None, send)
+        self.registry['repairs'] = (lambda p: None, send)
         self.write([self.job, dict(self.job, id='second', recipient='123')])
         self.assertEqual(self.run_tick(), 1)
         self.run_tick(NOW + timedelta(minutes=1))
@@ -124,7 +125,10 @@ class SchedulerTests(unittest.TestCase):
         delivered = []
         with patch('tools.scheduler.tasks.build_report', worker), patch('tools.scheduler.tasks.BaleSender') as sender:
             sender.return_value.photo.side_effect = lambda r, p, c: delivered.append((r, p, c, p.exists()))
-            overflow('455740857', {})
+            from unittest.mock import Mock
+            auth = Mock()
+            auth.resolve_daily_recipient.return_value = RecipientResolution('ready', '101', 1)
+            overflow('101', {'date': '1405/06/25'}, authorization=auth)
         self.assertEqual(len(delivered), 2)
         self.assertTrue(delivered[0][3])
         self.assertIn('1405/06/25', delivered[0][2])
@@ -140,7 +144,7 @@ class SchedulerTests(unittest.TestCase):
         path.write_bytes(b'test')
         with patch.object(sender.session, 'post', side_effect=RuntimeError('private-token')):
             with self.assertRaises(RuntimeError) as caught:
-                sender.photo('455740857', path, '')
+                sender.photo('101', path, '')
         self.assertNotIn('private-token', str(caught.exception))
 
 

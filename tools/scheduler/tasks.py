@@ -2,18 +2,23 @@
 from __future__ import annotations
 
 import asyncio
+from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 import os
+import logging
 import tempfile
 from pathlib import Path
 
 from dotenv import dotenv_values
 import requests
 
+from tools.authorization import AuthorizationStore
 from tools.fleet.overflow.bale import build_report
 from tools.fleet.overflow.report import validate_date
-from tools.fleet.report_caption import report_caption
+from tools.fleet.report_caption import jalali_today, report_caption
 
 ROOT = Path(__file__).resolve().parents[2]
+logger = logging.getLogger(__name__)
 
 
 class BaleSender:
@@ -65,6 +70,26 @@ class BaleSender:
             raise RuntimeError('Bale connection check failed') from None
 
 
+def overflow_report_date(due=None):
+    """Previous calendar day of the scheduled occurrence, always in Tehran."""
+    tehran = ZoneInfo('Asia/Tehran')
+    instant = due if due is not None else datetime.now(tehran)
+    if instant.tzinfo is None or instant.utcoffset() is None:
+        raise ValueError('Overflow occurrence must have an explicit timezone')
+    previous_day = instant.astimezone(tehran).date() - timedelta(days=1)
+    return jalali_today(previous_day)
+
+
+def overflow_report_caption(report_date, expected_date):
+    """Same report template; yesterday is the intended, current reporting day."""
+    import jdatetime
+    expected_date = validate_date(expected_date)
+    if report_date != expected_date:
+        raise ValueError('Overflow report does not match the requested previous day')
+    expected_day = jdatetime.date(*map(int, expected_date.split('/'))).togregorian()
+    return report_caption('سرریز روزانه', report_date, today=expected_day)
+
+
 def validate_overflow(params):
     if set(params) - {'date'}:
         raise ValueError('overflow only accepts params.date')
@@ -74,20 +99,41 @@ def validate_overflow(params):
         validate_date(params['date'])
 
 
-def overflow(recipient, params):
+def overflow(recipient, params, *, authorization=None):
+    validate_overflow(params)
+    store = authorization if authorization is not None else AuthorizationStore()
+
+    def authorized():
+        resolution = store.resolve_daily_recipient()
+        if resolution.status != 'ready' or resolution.recipient != recipient:
+            reason = resolution.status if resolution.status != 'ready' else 'recipient_changed'
+            logger.warning('Overflow no send: %s active_holders=%s', reason, resolution.holder_count)
+            return {'status': 'skipped', 'reason': reason}
+        return None
+
+    denied = authorized()
+    if denied:
+        return denied
     runtime = ROOT / 'runtime/scheduler'
     runtime.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix='overflow-', dir=runtime) as directory:
-        result = asyncio.run(build_report(params.get('date'), directory))
+        expected_date = validate_date(params['date']) if params.get('date') else overflow_report_date()
+        result = asyncio.run(build_report(expected_date, directory))
+        denied = authorized()
+        if denied:
+            return denied
         if not result.get('ok'):
             raise RuntimeError(result.get('message', 'Overflow report unavailable'))
         if not result.get('images'):
             raise RuntimeError('Overflow report contains no images')
         report = result['report']
-        caption = report_caption('سرریز روزانه', report['date'])
+        caption = overflow_report_caption(report['date'], expected_date)
         sender = BaleSender()
         try:
             for index, path in enumerate(result['images']):
+                denied = authorized()
+                if denied:
+                    return denied
                 sender.photo(recipient, path, caption if index == 0 else '')
         finally:
             sender.close()

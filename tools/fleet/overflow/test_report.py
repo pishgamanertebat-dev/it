@@ -6,12 +6,11 @@ import tempfile
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, Mock
 
 import openpyxl
 
 from .bale import OverflowHandler, ROOT, build_report
-from .integration import STAGE
 from .report import ReportError, load_report, parse_command, render_report, validate_date
 
 
@@ -88,13 +87,19 @@ class Reports(unittest.TestCase):
 def event(text='سرریز', platform='bale', chat_type='dm', message_id='1'):
     return SimpleNamespace(text=text, message_id=message_id,
                            source=SimpleNamespace(platform=platform, chat_type=chat_type,
-                                                  user_id='test-user', chat_id='test-chat'))
+                                                  user_id='test-user', chat_id='test-user'))
+
+
+def allowed_authorization():
+    auth = Mock()
+    auth.can_read_overflow.return_value = True
+    return auth
 
 
 class Routing(unittest.IsolatedAsyncioTestCase):
-    async def test_error_routing_and_no_registration_requirement(self):
+    async def test_authorized_error_routing(self):
         worker = AsyncMock(return_value={'ok': False, 'message': 'گزارش موجود نیست'})
-        handler = OverflowHandler(worker)
+        handler = OverflowHandler(worker, allowed_authorization())
         adapter = SimpleNamespace(send=AsyncMock())
         gateway = SimpleNamespace(adapters={'bale': adapter})
         sent = []
@@ -107,31 +112,18 @@ class Routing(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(handler.handle(event(), gateway, send=send)['reason'], 'overflow-duplicate')
         await asyncio.gather(*handler.tasks)
         worker.assert_awaited_once()
-        adapter.send.assert_awaited_once_with('test-chat', 'گزارش موجود نیست')
+        adapter.send.assert_awaited_once_with('test-user', 'گزارش موجود نیست')
         handler.handle(event('سرریز 1405/0/6/14'), gateway, send=send)
         self.assertIn('قالب تاریخ', sent[-1])
 
     async def test_worker_failure_is_handled(self):
-        handler = OverflowHandler(AsyncMock(side_effect=RuntimeError('test error')))
+        handler = OverflowHandler(AsyncMock(side_effect=RuntimeError('test error')), allowed_authorization())
         adapter = SimpleNamespace(send=AsyncMock())
         with self.assertLogs('tools.fleet.overflow.bale', level='ERROR'):
             handler.handle(event(), SimpleNamespace(adapters={'bale': adapter}), send=lambda *a: None)
             await asyncio.gather(*handler.tasks)
         self.assertFalse(handler.busy)
         adapter.send.assert_awaited_once()
-
-    async def test_staged_registry_handles_public_report_before_registration(self):
-        tree = ast.parse((STAGE / 'staged.py').read_text(encoding='utf-8'))
-        functions = [n for n in tree.body if isinstance(n, ast.FunctionDef)
-                     and n.name in {'_handle_bale', '_handle_overflow_report', '_platform_name'}]
-        sent = []
-        scope = {'_send': lambda g, c, t: sent.append(t)}
-        exec(compile(ast.Module(body=functions, type_ignores=[]), '<registry-test>', 'exec'), scope)
-        # No registry DB, admin IDs, or registration dependencies are provided.
-        result = scope['_handle_bale'](event('سرریز 1405/13/14'), SimpleNamespace())
-        self.assertEqual(result['action'], 'skip')
-        self.assertTrue(sent)
-        self.assertIsNone(scope['_handle_bale'](event(platform='telegram'), SimpleNamespace()))
 
     async def test_real_workbook_and_worker_with_fake_bale_transport(self):
         from .report import DEFAULT_SOURCE
@@ -141,7 +133,7 @@ class Routing(unittest.IsolatedAsyncioTestCase):
         async def photo(**kwargs):
             received.append((kwargs['caption'], kwargs['photo'].read(8)))
         adapter = SimpleNamespace(send=AsyncMock(), _bot=SimpleNamespace(send_photo=photo))
-        handler = OverflowHandler(build_report)
+        handler = OverflowHandler(build_report, allowed_authorization())
         handler.handle(event('سرریز 1405/06/14'), SimpleNamespace(adapters={'bale': adapter}), send=lambda *a: None)
         await asyncio.gather(*handler.tasks)
         self.assertEqual(received[0][1], b'\x89PNG\r\n\x1a\n')

@@ -16,7 +16,8 @@ from apscheduler.triggers.date import DateTrigger
 from tzlocal import get_localzone
 import yaml
 
-from .tasks import ROOT, TASKS
+from tools.authorization import AuthorizationStore, OFFICE_SUPERVISOR
+from .tasks import ROOT, TASKS, overflow_report_date
 
 CONFIG = ROOT / 'settings/schedules.yaml'
 STATE = ROOT / 'runtime/scheduler/runs.sqlite3'
@@ -42,7 +43,7 @@ def load_config(path=CONFIG, registry=TASKS):
         raise ValueError('schedules must be a list')
     jobs, ids = [], set()
     for raw in config['schedules']:
-        only_keys(raw, ['id', 'enabled', 'task', 'recipient', 'trigger', 'params'], 'schedule')
+        only_keys(raw, ['id', 'enabled', 'task', 'recipient', 'recipient_role', 'timezone', 'trigger', 'params'], 'schedule')
         job = dict(raw)
         name = job.get('id')
         if not isinstance(name, str) or not re.fullmatch(r'[A-Za-z0-9_-]{1,80}', name) or name in ids:
@@ -52,13 +53,25 @@ def load_config(path=CONFIG, registry=TASKS):
             raise ValueError(f'{name}: enabled must be true/false')
         if job.get('task') not in registry:
             raise ValueError(f'{name}: unknown task')
-        recipient = str(job.get('recipient', ''))
-        if not re.fullmatch(r'[1-9][0-9]*', recipient):
-            raise ValueError(f'{name}: recipient must be a positive Bale user ID')
-        job['recipient'] = recipient
+        if job['task'] == 'overflow':
+            if 'recipient' in job or job.get('recipient_role') != OFFICE_SUPERVISOR:
+                raise ValueError(f'{name}: overflow requires office_supervisor; fixed recipient forbidden')
+            if job.get('timezone') != 'Asia/Tehran':
+                raise ValueError(f'{name}: overflow requires explicit Asia/Tehran timezone')
+            job['recipient'] = 'role:' + OFFICE_SUPERVISOR
+        else:
+            if 'recipient_role' in job:
+                raise ValueError(f'{name}: role delivery is only defined for overflow')
+            recipient = str(job.get('recipient', ''))
+            if not re.fullmatch(r'[1-9][0-9]*', recipient):
+                raise ValueError(f'{name}: recipient must be a positive Bale user ID')
+            job['recipient'] = recipient
+        job_tz = ZoneInfo(job['timezone']) if 'timezone' in job else tz
         params = job.get('params', {})
         if not isinstance(params, dict):
             raise ValueError(f'{name}: params must be a mapping')
+        if job['task'] == 'overflow' and params:
+            raise ValueError(f'{name}: overflow schedule computes the previous day; params must be empty')
         registry[job['task']][0](params)
         job['params'] = params
         spec = job.get('trigger')
@@ -68,12 +81,12 @@ def load_config(path=CONFIG, registry=TASKS):
             only_keys(spec, ['type', 'hour', 'minute', 'day_of_week', 'day', 'month', 'year', 'start_date', 'end_date'], name)
             if 'hour' not in spec or 'minute' not in spec:
                 raise ValueError(f'{name}: cron requires hour and minute')
-            job['trigger'] = CronTrigger(timezone=tz, second=0, **{k: v for k, v in spec.items() if k != 'type'})
+            job['trigger'] = CronTrigger(timezone=job_tz, second=0, **{k: v for k, v in spec.items() if k != 'type'})
         elif spec.get('type') == 'date':
             only_keys(spec, ['type', 'run_at'], name)
             if not isinstance(spec.get('run_at'), str):
                 raise ValueError(f'{name}: run_at must be a quoted ISO Gregorian datetime')
-            job['trigger'] = DateTrigger(run_date=spec['run_at'], timezone=tz)
+            job['trigger'] = DateTrigger(run_date=spec['run_at'], timezone=job_tz)
         else:
             raise ValueError(f'{name}: trigger type must be cron or date')
         jobs.append(job)
@@ -103,7 +116,7 @@ def connect(path):
     return conn
 
 
-def tick(config=CONFIG, state=STATE, now=None, registry=TASKS):
+def tick(config=CONFIG, state=STATE, now=None, registry=TASKS, authorization=None):
     tz, grace, jobs = load_config(config, registry)
     now = now or datetime.now(tz)
     failed = False
@@ -125,7 +138,23 @@ def tick(config=CONFIG, state=STATE, now=None, registry=TASKS):
             logger.info('Starting %s due=%s recipient=%s', *key, job['recipient'])
             status, error = 'succeeded', None
             try:
-                registry[job['task']][1](job['recipient'], job['params'])
+                recipient = job['recipient']
+                params = dict(job['params'])
+                if job['task'] == 'overflow':
+                    store = authorization if authorization is not None else AuthorizationStore()
+                    resolution = store.resolve_daily_recipient()
+                    if resolution.status != 'ready':
+                        status, error = 'skipped', resolution.status
+                        logger.warning('Overflow no send: %s active_holders=%s',
+                                       resolution.status, resolution.holder_count)
+                    else:
+                        recipient = resolution.recipient
+                        params['date'] = overflow_report_date(due)
+                        logger.info('Overflow requested previous-day report: %s', params['date'])
+                if status != 'skipped':
+                    result = registry[job['task']][1](recipient, params)
+                    if isinstance(result, dict) and result.get('status') == 'skipped':
+                        status, error = 'skipped', result['reason']
             except Exception as exc:
                 # Persist the exception class only: third-party errors can contain secrets.
                 status, error, failed = 'failed', type(exc).__name__, True

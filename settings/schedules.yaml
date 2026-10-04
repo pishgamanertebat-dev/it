@@ -1,4 +1,4 @@
-# Server-local time. Reloaded automatically on every scheduler tick.
+# Reloaded automatically each tick. Overflow resolves its organizational role at runtime.
 version: 1
 timezone: local
 misfire_grace_seconds: 900
@@ -6,7 +6,8 @@ schedules:
   - id: overflow_daily_test
     enabled: true
     task: overflow
-    recipient: "654806764"
+    recipient_role: office_supervisor
+    timezone: Asia/Tehran
     trigger:
       type: cron
       hour: 9

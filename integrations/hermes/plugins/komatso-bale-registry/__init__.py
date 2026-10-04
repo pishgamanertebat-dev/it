@@ -1343,8 +1343,13 @@ def _handle_overflow_report(event, gateway):
         project_tools = r"E:\KomatsoAI\tools"
         if project_tools not in tools_package.__path__:
             tools_package.__path__.append(project_tools)
-        from tools.fleet.overflow.bale import handle_overflow_message
-        return handle_overflow_message(event, gateway, send=_send)
+        from tools.fleet.overflow import bale as overflow_backend
+        if getattr(overflow_backend, "AUTHORIZATION_VERSION", 0) != 1:
+            import importlib
+            overflow_backend = importlib.reload(overflow_backend)
+        if getattr(overflow_backend, "AUTHORIZATION_VERSION", 0) != 1:
+            raise RuntimeError("Authorized overflow backend required")
+        return overflow_backend.handle_overflow_message(event, gateway, send=_send)
     except Exception:
         import logging
         import re
@@ -1422,7 +1427,8 @@ def _handle_bale(event, gateway, **kwargs):
 
     text = (event.text or "").strip()
 
-    # Public daily overflow lookup, before registration and work-order menus.
+    # Overflow backend enforces persisted registration + capability before data access.
+    # Intercept even denied commands here, so admin/agent routing cannot bypass it.
     result = _handle_overflow_report(event, gateway)
     if result is not None:
         return result
