@@ -78,4 +78,21 @@ class ScopedWorkerCleanupTests(unittest.TestCase):
         deadline.kill_process_tree.assert_called_once_with(321)
         worker.proc.kill.assert_not_called()
 
+
+class ExtractRegistryBoundaryTests(unittest.TestCase):
+    def test_async_registry_keeps_public_policy_and_never_calls_private_provider(self):
+        import os,tempfile
+        core=Path("C:/Users/win-10/AppData/Local/hermes/hermes-agent")
+        sys.path.insert(0,str(core))
+        with tempfile.TemporaryDirectory(dir=ROOT/"runtime") as home,patch.dict(os.environ,{"HERMES_HOME":home,"HERMES_ALLOW_PRIVATE_URLS":"1"}):
+            from tools import web_tools as web,url_safety as safety
+            from tools.registry import registry
+            from tools.invocation_policy import public_network_scope
+            safety._reset_allow_private_cache()
+            provider=Mock()
+            with patch.object(safety,"_getaddrinfo",return_value=answer("10.1.2.3",80)),patch.object(web,"_resolve_extract_provider",return_value=(provider,None)),public_network_scope():
+                result=registry.dispatch("web_extract",{"urls":["http://10.1.2.3"]},task_id="private-registry-stub")
+            self.assertIn("Blocked",result)
+            provider.extract.assert_not_called()
+
 if __name__=="__main__": unittest.main()
