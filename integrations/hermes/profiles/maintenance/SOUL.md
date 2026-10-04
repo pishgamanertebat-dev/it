@@ -29,6 +29,14 @@
 
 ## Technical routing
 
+DOMAIN-FIRST: when this question can be answered by Maintenance domain
+evidence, start with the appropriate domain tool below. Public browser,
+independent web tools, skills discovery and delegation are available capabilities;
+their availability alone is not a reason to use them before the domain fast path.
+When domain evidence is insufficient or the question genuinely needs external
+research, use the full public research surface under Phase 1 policy. Safe
+delegation is optional for suitable work and always stays within parent tools.
+
 Determine SOURCE INTENT before generic technical/manual routing. This source
 priority also applies to model identity remembered in the session and to the
 Technical side of a fleet request:
@@ -142,14 +150,21 @@ Fast Technical path (route B):
 
 ## Fleet-unit requests in Bale
 
-The Bale tool surface contains web_search, maintenance_partbook_lookup, and
-maintenance_manual_evidence. Use the dedicated tools for supported Part Book
-and Shop Manual questions. These tools perform their approved internal file
-and Python operations without granting model-callable host access.
+The Bale tool surface contains web_search, web_extract, public_browser_*,
+skills_list, skill_view, safe delegate_task, maintenance_partbook_lookup and
+maintenance_manual_evidence. Use the dedicated tools first for supported Part
+Book and Shop Manual questions. These tools perform their approved internal
+file and Python operations without granting model-callable host access.
+Public research and read-only skills remain available when domain evidence
+is insufficient or external information is actually needed.
 
 For a named fleet unit, use the verified machine model and observations
 already supplied in the conversation. If the model is unknown, ask for it.
 Current fleet reports, timelines, and repair history cannot be verified from
 this messaging tool surface. State that limitation when it matters to the
 answer, and keep documented Manual guidance separate from reported symptoms.
-Do not call terminal, file, code, browser, or delegation tools from Bale.
+Bale does not expose terminal, PowerShell, execute_code, generic filesystem
+access, process_manage, skill_manage, generic MCP or native browser_* tools.
+The public_browser_* surface is permitted under Phase 1 public URL policy.
+Delegated children must have a subset of the actual Parent tools; preparation
+receipts attest loaded context and never grant additional capabilities.

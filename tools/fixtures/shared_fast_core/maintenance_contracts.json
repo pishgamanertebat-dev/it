@@ -1,0 +1,1929 @@
+{
+  "policies": [
+    {
+      "source": "# Device\n\nSerial 1001-UP.\n\n## Unknown substantive rule\n\nKeep this rule.\n\n### تست فشار\n\nGauge rating.\n\n## PART BOOK\n\nPart number required.\n\n## IMAGE DELIVERY\n\nSend one image.\n\n## FAST PATH\n\nOld mechanics.\n\n## Source\n\nShared root paragraph.\n\nRelease pressure.\n\nبرای سفارش شماره قطعه لازم است.",
+      "existing": "Shared root paragraph.",
+      "question": "pressure test",
+      "presentation": false,
+      "part_enrichment": false,
+      "result": [
+        "# Device\n\nSerial 1001-UP.\n\n## Unknown substantive rule\n\nKeep this rule.\n\n### تست فشار\n\nGauge rating.\n\n## Source\n\nRelease pressure.",
+        [
+          "# Device",
+          "## Unknown substantive rule",
+          "### تست فشار",
+          "## Source"
+        ]
+      ]
+    },
+    {
+      "source": "# Device\n\nSerial 1001-UP.\n\n## Unknown substantive rule\n\nKeep this rule.\n\n### تست فشار\n\nGauge rating.\n\n## PART BOOK\n\nPart number required.\n\n## IMAGE DELIVERY\n\nSend one image.\n\n## FAST PATH\n\nOld mechanics.\n\n## Source\n\nShared root paragraph.\n\nRelease pressure.\n\nبرای سفارش شماره قطعه لازم است.",
+      "existing": "Shared root paragraph.",
+      "question": "pressure test",
+      "presentation": false,
+      "part_enrichment": true,
+      "result": [
+        "# Device\n\nSerial 1001-UP.\n\n## Unknown substantive rule\n\nKeep this rule.\n\n### تست فشار\n\nGauge rating.\n\n## PART BOOK\n\nPart number required.\n\n## Source\n\nRelease pressure.\n\nبرای سفارش شماره قطعه لازم است.",
+        [
+          "# Device",
+          "## Unknown substantive rule",
+          "### تست فشار",
+          "## PART BOOK",
+          "## Source"
+        ]
+      ]
+    },
+    {
+      "source": "# Device\n\nSerial 1001-UP.\n\n## Unknown substantive rule\n\nKeep this rule.\n\n### تست فشار\n\nGauge rating.\n\n## PART BOOK\n\nPart number required.\n\n## IMAGE DELIVERY\n\nSend one image.\n\n## FAST PATH\n\nOld mechanics.\n\n## Source\n\nShared root paragraph.\n\nRelease pressure.\n\nبرای سفارش شماره قطعه لازم است.",
+      "existing": "Shared root paragraph.",
+      "question": "pressure test",
+      "presentation": true,
+      "part_enrichment": false,
+      "result": [
+        "# Device\n\nSerial 1001-UP.\n\n## Unknown substantive rule\n\nKeep this rule.\n\n### تست فشار\n\nGauge rating.\n\n## IMAGE DELIVERY\n\nSend one image.\n\n## Source\n\nRelease pressure.",
+        [
+          "# Device",
+          "## Unknown substantive rule",
+          "### تست فشار",
+          "## IMAGE DELIVERY",
+          "## Source"
+        ]
+      ]
+    },
+    {
+      "source": "# Device\n\nSerial 1001-UP.\n\n## Unknown substantive rule\n\nKeep this rule.\n\n### تست فشار\n\nGauge rating.\n\n## PART BOOK\n\nPart number required.\n\n## IMAGE DELIVERY\n\nSend one image.\n\n## FAST PATH\n\nOld mechanics.\n\n## Source\n\nShared root paragraph.\n\nRelease pressure.\n\nبرای سفارش شماره قطعه لازم است.",
+      "existing": "Shared root paragraph.",
+      "question": "pressure test",
+      "presentation": true,
+      "part_enrichment": true,
+      "result": [
+        "# Device\n\nSerial 1001-UP.\n\n## Unknown substantive rule\n\nKeep this rule.\n\n### تست فشار\n\nGauge rating.\n\n## PART BOOK\n\nPart number required.\n\n## IMAGE DELIVERY\n\nSend one image.\n\n## Source\n\nRelease pressure.\n\nبرای سفارش شماره قطعه لازم است.",
+        [
+          "# Device",
+          "## Unknown substantive rule",
+          "### تست فشار",
+          "## PART BOOK",
+          "## IMAGE DELIVERY",
+          "## Source"
+        ]
+      ]
+    },
+    {
+      "source": "# Device\n\nSerial 1001-UP.\n\n## Unknown substantive rule\n\nKeep this rule.\n\n### تست فشار\n\nGauge rating.\n\n## PART BOOK\n\nPart number required.\n\n## IMAGE DELIVERY\n\nSend one image.\n\n## FAST PATH\n\nOld mechanics.\n\n## Source\n\nShared root paragraph.\n\nRelease pressure.\n\nبرای سفارش شماره قطعه لازم است.",
+      "existing": "Shared root paragraph.",
+      "question": "part number",
+      "presentation": false,
+      "part_enrichment": false,
+      "result": [
+        "# Device\n\nSerial 1001-UP.\n\n## Unknown substantive rule\n\nKeep this rule.\n\n## PART BOOK\n\nPart number required.\n\n## Source\n\nRelease pressure.\n\nبرای سفارش شماره قطعه لازم است.",
+        [
+          "# Device",
+          "## Unknown substantive rule",
+          "## PART BOOK",
+          "## Source"
+        ]
+      ]
+    },
+    {
+      "source": "# Device\n\nSerial 1001-UP.\n\n## Unknown substantive rule\n\nKeep this rule.\n\n### تست فشار\n\nGauge rating.\n\n## PART BOOK\n\nPart number required.\n\n## IMAGE DELIVERY\n\nSend one image.\n\n## FAST PATH\n\nOld mechanics.\n\n## Source\n\nShared root paragraph.\n\nRelease pressure.\n\nبرای سفارش شماره قطعه لازم است.",
+      "existing": "Shared root paragraph.",
+      "question": "part number",
+      "presentation": false,
+      "part_enrichment": true,
+      "result": [
+        "# Device\n\nSerial 1001-UP.\n\n## Unknown substantive rule\n\nKeep this rule.\n\n## PART BOOK\n\nPart number required.\n\n## Source\n\nRelease pressure.\n\nبرای سفارش شماره قطعه لازم است.",
+        [
+          "# Device",
+          "## Unknown substantive rule",
+          "## PART BOOK",
+          "## Source"
+        ]
+      ]
+    },
+    {
+      "source": "# Device\n\nSerial 1001-UP.\n\n## Unknown substantive rule\n\nKeep this rule.\n\n### تست فشار\n\nGauge rating.\n\n## PART BOOK\n\nPart number required.\n\n## IMAGE DELIVERY\n\nSend one image.\n\n## FAST PATH\n\nOld mechanics.\n\n## Source\n\nShared root paragraph.\n\nRelease pressure.\n\nبرای سفارش شماره قطعه لازم است.",
+      "existing": "Shared root paragraph.",
+      "question": "part number",
+      "presentation": true,
+      "part_enrichment": false,
+      "result": [
+        "# Device\n\nSerial 1001-UP.\n\n## Unknown substantive rule\n\nKeep this rule.\n\n## PART BOOK\n\nPart number required.\n\n## IMAGE DELIVERY\n\nSend one image.\n\n## Source\n\nRelease pressure.\n\nبرای سفارش شماره قطعه لازم است.",
+        [
+          "# Device",
+          "## Unknown substantive rule",
+          "## PART BOOK",
+          "## IMAGE DELIVERY",
+          "## Source"
+        ]
+      ]
+    },
+    {
+      "source": "# Device\n\nSerial 1001-UP.\n\n## Unknown substantive rule\n\nKeep this rule.\n\n### تست فشار\n\nGauge rating.\n\n## PART BOOK\n\nPart number required.\n\n## IMAGE DELIVERY\n\nSend one image.\n\n## FAST PATH\n\nOld mechanics.\n\n## Source\n\nShared root paragraph.\n\nRelease pressure.\n\nبرای سفارش شماره قطعه لازم است.",
+      "existing": "Shared root paragraph.",
+      "question": "part number",
+      "presentation": true,
+      "part_enrichment": true,
+      "result": [
+        "# Device\n\nSerial 1001-UP.\n\n## Unknown substantive rule\n\nKeep this rule.\n\n## PART BOOK\n\nPart number required.\n\n## IMAGE DELIVERY\n\nSend one image.\n\n## Source\n\nRelease pressure.\n\nبرای سفارش شماره قطعه لازم است.",
+        [
+          "# Device",
+          "## Unknown substantive rule",
+          "## PART BOOK",
+          "## IMAGE DELIVERY",
+          "## Source"
+        ]
+      ]
+    },
+    {
+      "source": "# Device\n\nSerial 1001-UP.\n\n## Unknown substantive rule\n\nKeep this rule.\n\n### تست فشار\n\nGauge rating.\n\n## PART BOOK\n\nPart number required.\n\n## IMAGE DELIVERY\n\nSend one image.\n\n## FAST PATH\n\nOld mechanics.\n\n## Source\n\nShared root paragraph.\n\nRelease pressure.\n\nبرای سفارش شماره قطعه لازم است.",
+      "existing": "Shared root paragraph.",
+      "question": "error code",
+      "presentation": false,
+      "part_enrichment": false,
+      "result": [
+        "# Device\n\nSerial 1001-UP.\n\n## Unknown substantive rule\n\nKeep this rule.\n\n## Source\n\nRelease pressure.",
+        [
+          "# Device",
+          "## Unknown substantive rule",
+          "## Source"
+        ]
+      ]
+    },
+    {
+      "source": "# Device\n\nSerial 1001-UP.\n\n## Unknown substantive rule\n\nKeep this rule.\n\n### تست فشار\n\nGauge rating.\n\n## PART BOOK\n\nPart number required.\n\n## IMAGE DELIVERY\n\nSend one image.\n\n## FAST PATH\n\nOld mechanics.\n\n## Source\n\nShared root paragraph.\n\nRelease pressure.\n\nبرای سفارش شماره قطعه لازم است.",
+      "existing": "Shared root paragraph.",
+      "question": "error code",
+      "presentation": false,
+      "part_enrichment": true,
+      "result": [
+        "# Device\n\nSerial 1001-UP.\n\n## Unknown substantive rule\n\nKeep this rule.\n\n## PART BOOK\n\nPart number required.\n\n## Source\n\nRelease pressure.\n\nبرای سفارش شماره قطعه لازم است.",
+        [
+          "# Device",
+          "## Unknown substantive rule",
+          "## PART BOOK",
+          "## Source"
+        ]
+      ]
+    },
+    {
+      "source": "# Device\n\nSerial 1001-UP.\n\n## Unknown substantive rule\n\nKeep this rule.\n\n### تست فشار\n\nGauge rating.\n\n## PART BOOK\n\nPart number required.\n\n## IMAGE DELIVERY\n\nSend one image.\n\n## FAST PATH\n\nOld mechanics.\n\n## Source\n\nShared root paragraph.\n\nRelease pressure.\n\nبرای سفارش شماره قطعه لازم است.",
+      "existing": "Shared root paragraph.",
+      "question": "error code",
+      "presentation": true,
+      "part_enrichment": false,
+      "result": [
+        "# Device\n\nSerial 1001-UP.\n\n## Unknown substantive rule\n\nKeep this rule.\n\n## IMAGE DELIVERY\n\nSend one image.\n\n## Source\n\nRelease pressure.",
+        [
+          "# Device",
+          "## Unknown substantive rule",
+          "## IMAGE DELIVERY",
+          "## Source"
+        ]
+      ]
+    },
+    {
+      "source": "# Device\n\nSerial 1001-UP.\n\n## Unknown substantive rule\n\nKeep this rule.\n\n### تست فشار\n\nGauge rating.\n\n## PART BOOK\n\nPart number required.\n\n## IMAGE DELIVERY\n\nSend one image.\n\n## FAST PATH\n\nOld mechanics.\n\n## Source\n\nShared root paragraph.\n\nRelease pressure.\n\nبرای سفارش شماره قطعه لازم است.",
+      "existing": "Shared root paragraph.",
+      "question": "error code",
+      "presentation": true,
+      "part_enrichment": true,
+      "result": [
+        "# Device\n\nSerial 1001-UP.\n\n## Unknown substantive rule\n\nKeep this rule.\n\n## PART BOOK\n\nPart number required.\n\n## IMAGE DELIVERY\n\nSend one image.\n\n## Source\n\nRelease pressure.\n\nبرای سفارش شماره قطعه لازم است.",
+        [
+          "# Device",
+          "## Unknown substantive rule",
+          "## PART BOOK",
+          "## IMAGE DELIVERY",
+          "## Source"
+        ]
+      ]
+    },
+    {
+      "source": "# Device\n\nSerial 1001-UP.\n\n## Unknown substantive rule\n\nKeep this rule.\n\n### تست فشار\n\nGauge rating.\n\n## PART BOOK\n\nPart number required.\n\n## IMAGE DELIVERY\n\nSend one image.\n\n## FAST PATH\n\nOld mechanics.\n\n## Source\n\nShared root paragraph.\n\nRelease pressure.\n\nبرای سفارش شماره قطعه لازم است.",
+      "existing": "Shared root paragraph.",
+      "question": "serial range",
+      "presentation": false,
+      "part_enrichment": false,
+      "result": [
+        "# Device\n\nSerial 1001-UP.\n\n## Unknown substantive rule\n\nKeep this rule.\n\n## Source\n\nRelease pressure.",
+        [
+          "# Device",
+          "## Unknown substantive rule",
+          "## Source"
+        ]
+      ]
+    },
+    {
+      "source": "# Device\n\nSerial 1001-UP.\n\n## Unknown substantive rule\n\nKeep this rule.\n\n### تست فشار\n\nGauge rating.\n\n## PART BOOK\n\nPart number required.\n\n## IMAGE DELIVERY\n\nSend one image.\n\n## FAST PATH\n\nOld mechanics.\n\n## Source\n\nShared root paragraph.\n\nRelease pressure.\n\nبرای سفارش شماره قطعه لازم است.",
+      "existing": "Shared root paragraph.",
+      "question": "serial range",
+      "presentation": false,
+      "part_enrichment": true,
+      "result": [
+        "# Device\n\nSerial 1001-UP.\n\n## Unknown substantive rule\n\nKeep this rule.\n\n## PART BOOK\n\nPart number required.\n\n## Source\n\nRelease pressure.\n\nبرای سفارش شماره قطعه لازم است.",
+        [
+          "# Device",
+          "## Unknown substantive rule",
+          "## PART BOOK",
+          "## Source"
+        ]
+      ]
+    },
+    {
+      "source": "# Device\n\nSerial 1001-UP.\n\n## Unknown substantive rule\n\nKeep this rule.\n\n### تست فشار\n\nGauge rating.\n\n## PART BOOK\n\nPart number required.\n\n## IMAGE DELIVERY\n\nSend one image.\n\n## FAST PATH\n\nOld mechanics.\n\n## Source\n\nShared root paragraph.\n\nRelease pressure.\n\nبرای سفارش شماره قطعه لازم است.",
+      "existing": "Shared root paragraph.",
+      "question": "serial range",
+      "presentation": true,
+      "part_enrichment": false,
+      "result": [
+        "# Device\n\nSerial 1001-UP.\n\n## Unknown substantive rule\n\nKeep this rule.\n\n## IMAGE DELIVERY\n\nSend one image.\n\n## Source\n\nRelease pressure.",
+        [
+          "# Device",
+          "## Unknown substantive rule",
+          "## IMAGE DELIVERY",
+          "## Source"
+        ]
+      ]
+    },
+    {
+      "source": "# Device\n\nSerial 1001-UP.\n\n## Unknown substantive rule\n\nKeep this rule.\n\n### تست فشار\n\nGauge rating.\n\n## PART BOOK\n\nPart number required.\n\n## IMAGE DELIVERY\n\nSend one image.\n\n## FAST PATH\n\nOld mechanics.\n\n## Source\n\nShared root paragraph.\n\nRelease pressure.\n\nبرای سفارش شماره قطعه لازم است.",
+      "existing": "Shared root paragraph.",
+      "question": "serial range",
+      "presentation": true,
+      "part_enrichment": true,
+      "result": [
+        "# Device\n\nSerial 1001-UP.\n\n## Unknown substantive rule\n\nKeep this rule.\n\n## PART BOOK\n\nPart number required.\n\n## IMAGE DELIVERY\n\nSend one image.\n\n## Source\n\nRelease pressure.\n\nبرای سفارش شماره قطعه لازم است.",
+        [
+          "# Device",
+          "## Unknown substantive rule",
+          "## PART BOOK",
+          "## IMAGE DELIVERY",
+          "## Source"
+        ]
+      ]
+    },
+    {
+      "source": "# Device\n\nSerial 1001-UP.\n\n## Unknown substantive rule\n\nKeep this rule.\n\n### تست فشار\n\nGauge rating.\n\n## PART BOOK\n\nPart number required.\n\n## IMAGE DELIVERY\n\nSend one image.\n\n## FAST PATH\n\nOld mechanics.\n\n## Source\n\nShared root paragraph.\n\nRelease pressure.\n\nبرای سفارش شماره قطعه لازم است.",
+      "existing": "Shared root paragraph.",
+      "question": "شماره فنی و فشار",
+      "presentation": false,
+      "part_enrichment": false,
+      "result": [
+        "# Device\n\nSerial 1001-UP.\n\n## Unknown substantive rule\n\nKeep this rule.\n\n### تست فشار\n\nGauge rating.\n\n## PART BOOK\n\nPart number required.\n\n## Source\n\nRelease pressure.\n\nبرای سفارش شماره قطعه لازم است.",
+        [
+          "# Device",
+          "## Unknown substantive rule",
+          "### تست فشار",
+          "## PART BOOK",
+          "## Source"
+        ]
+      ]
+    },
+    {
+      "source": "# Device\n\nSerial 1001-UP.\n\n## Unknown substantive rule\n\nKeep this rule.\n\n### تست فشار\n\nGauge rating.\n\n## PART BOOK\n\nPart number required.\n\n## IMAGE DELIVERY\n\nSend one image.\n\n## FAST PATH\n\nOld mechanics.\n\n## Source\n\nShared root paragraph.\n\nRelease pressure.\n\nبرای سفارش شماره قطعه لازم است.",
+      "existing": "Shared root paragraph.",
+      "question": "شماره فنی و فشار",
+      "presentation": false,
+      "part_enrichment": true,
+      "result": [
+        "# Device\n\nSerial 1001-UP.\n\n## Unknown substantive rule\n\nKeep this rule.\n\n### تست فشار\n\nGauge rating.\n\n## PART BOOK\n\nPart number required.\n\n## Source\n\nRelease pressure.\n\nبرای سفارش شماره قطعه لازم است.",
+        [
+          "# Device",
+          "## Unknown substantive rule",
+          "### تست فشار",
+          "## PART BOOK",
+          "## Source"
+        ]
+      ]
+    },
+    {
+      "source": "# Device\n\nSerial 1001-UP.\n\n## Unknown substantive rule\n\nKeep this rule.\n\n### تست فشار\n\nGauge rating.\n\n## PART BOOK\n\nPart number required.\n\n## IMAGE DELIVERY\n\nSend one image.\n\n## FAST PATH\n\nOld mechanics.\n\n## Source\n\nShared root paragraph.\n\nRelease pressure.\n\nبرای سفارش شماره قطعه لازم است.",
+      "existing": "Shared root paragraph.",
+      "question": "شماره فنی و فشار",
+      "presentation": true,
+      "part_enrichment": false,
+      "result": [
+        "# Device\n\nSerial 1001-UP.\n\n## Unknown substantive rule\n\nKeep this rule.\n\n### تست فشار\n\nGauge rating.\n\n## PART BOOK\n\nPart number required.\n\n## IMAGE DELIVERY\n\nSend one image.\n\n## Source\n\nRelease pressure.\n\nبرای سفارش شماره قطعه لازم است.",
+        [
+          "# Device",
+          "## Unknown substantive rule",
+          "### تست فشار",
+          "## PART BOOK",
+          "## IMAGE DELIVERY",
+          "## Source"
+        ]
+      ]
+    },
+    {
+      "source": "# Device\n\nSerial 1001-UP.\n\n## Unknown substantive rule\n\nKeep this rule.\n\n### تست فشار\n\nGauge rating.\n\n## PART BOOK\n\nPart number required.\n\n## IMAGE DELIVERY\n\nSend one image.\n\n## FAST PATH\n\nOld mechanics.\n\n## Source\n\nShared root paragraph.\n\nRelease pressure.\n\nبرای سفارش شماره قطعه لازم است.",
+      "existing": "Shared root paragraph.",
+      "question": "شماره فنی و فشار",
+      "presentation": true,
+      "part_enrichment": true,
+      "result": [
+        "# Device\n\nSerial 1001-UP.\n\n## Unknown substantive rule\n\nKeep this rule.\n\n### تست فشار\n\nGauge rating.\n\n## PART BOOK\n\nPart number required.\n\n## IMAGE DELIVERY\n\nSend one image.\n\n## Source\n\nRelease pressure.\n\nبرای سفارش شماره قطعه لازم است.",
+        [
+          "# Device",
+          "## Unknown substantive rule",
+          "### تست فشار",
+          "## PART BOOK",
+          "## IMAGE DELIVERY",
+          "## Source"
+        ]
+      ]
+    },
+    {
+      "source": "# Device\n\nSerial 1001-UP.\n\n## Unknown substantive rule\n\nKeep this rule.\n\n### تست فشار\n\nGauge rating.\n\n## PART BOOK\n\nPart number required.\n\n## IMAGE DELIVERY\n\nSend one image.\n\n## FAST PATH\n\nOld mechanics.\n\n## Source\n\nShared root paragraph.\n\nRelease pressure.\n\nبرای سفارش شماره قطعه لازم است.",
+      "existing": "Shared root paragraph.",
+      "question": "سلام",
+      "presentation": false,
+      "part_enrichment": false,
+      "result": [
+        "# Device\n\nSerial 1001-UP.\n\n## Unknown substantive rule\n\nKeep this rule.\n\n## Source\n\nRelease pressure.",
+        [
+          "# Device",
+          "## Unknown substantive rule",
+          "## Source"
+        ]
+      ]
+    },
+    {
+      "source": "# Device\n\nSerial 1001-UP.\n\n## Unknown substantive rule\n\nKeep this rule.\n\n### تست فشار\n\nGauge rating.\n\n## PART BOOK\n\nPart number required.\n\n## IMAGE DELIVERY\n\nSend one image.\n\n## FAST PATH\n\nOld mechanics.\n\n## Source\n\nShared root paragraph.\n\nRelease pressure.\n\nبرای سفارش شماره قطعه لازم است.",
+      "existing": "Shared root paragraph.",
+      "question": "سلام",
+      "presentation": false,
+      "part_enrichment": true,
+      "result": [
+        "# Device\n\nSerial 1001-UP.\n\n## Unknown substantive rule\n\nKeep this rule.\n\n## PART BOOK\n\nPart number required.\n\n## Source\n\nRelease pressure.\n\nبرای سفارش شماره قطعه لازم است.",
+        [
+          "# Device",
+          "## Unknown substantive rule",
+          "## PART BOOK",
+          "## Source"
+        ]
+      ]
+    },
+    {
+      "source": "# Device\n\nSerial 1001-UP.\n\n## Unknown substantive rule\n\nKeep this rule.\n\n### تست فشار\n\nGauge rating.\n\n## PART BOOK\n\nPart number required.\n\n## IMAGE DELIVERY\n\nSend one image.\n\n## FAST PATH\n\nOld mechanics.\n\n## Source\n\nShared root paragraph.\n\nRelease pressure.\n\nبرای سفارش شماره قطعه لازم است.",
+      "existing": "Shared root paragraph.",
+      "question": "سلام",
+      "presentation": true,
+      "part_enrichment": false,
+      "result": [
+        "# Device\n\nSerial 1001-UP.\n\n## Unknown substantive rule\n\nKeep this rule.\n\n## IMAGE DELIVERY\n\nSend one image.\n\n## Source\n\nRelease pressure.",
+        [
+          "# Device",
+          "## Unknown substantive rule",
+          "## IMAGE DELIVERY",
+          "## Source"
+        ]
+      ]
+    },
+    {
+      "source": "# Device\n\nSerial 1001-UP.\n\n## Unknown substantive rule\n\nKeep this rule.\n\n### تست فشار\n\nGauge rating.\n\n## PART BOOK\n\nPart number required.\n\n## IMAGE DELIVERY\n\nSend one image.\n\n## FAST PATH\n\nOld mechanics.\n\n## Source\n\nShared root paragraph.\n\nRelease pressure.\n\nبرای سفارش شماره قطعه لازم است.",
+      "existing": "Shared root paragraph.",
+      "question": "سلام",
+      "presentation": true,
+      "part_enrichment": true,
+      "result": [
+        "# Device\n\nSerial 1001-UP.\n\n## Unknown substantive rule\n\nKeep this rule.\n\n## PART BOOK\n\nPart number required.\n\n## IMAGE DELIVERY\n\nSend one image.\n\n## Source\n\nRelease pressure.\n\nبرای سفارش شماره قطعه لازم است.",
+        [
+          "# Device",
+          "## Unknown substantive rule",
+          "## PART BOOK",
+          "## IMAGE DELIVERY",
+          "## Source"
+        ]
+      ]
+    }
+  ],
+  "coverage": [
+    {
+      "coverage": null,
+      "broad": false,
+      "result": "Evaluate once, then call phase=finish with this request_id and every needed follow-up together. If the packet lacks the relevant topic, retrieve again with refined keywords, then broad=true. If evidence is still missing, state the gap or ask for the missing detail; never fill it by guesswork."
+    },
+    {
+      "coverage": null,
+      "broad": true,
+      "result": "Evaluate once, then call phase=finish with this request_id and every needed follow-up together. If the packet lacks the relevant topic, retrieve again with refined keywords, then broad=true. If evidence is still missing, state the gap or ask for the missing detail; never fill it by guesswork."
+    },
+    {
+      "coverage": {},
+      "broad": false,
+      "result": "Evaluate once, then call phase=finish with this request_id and every needed follow-up together. If the packet lacks the relevant topic, retrieve again with refined keywords, then broad=true. If evidence is still missing, state the gap or ask for the missing detail; never fill it by guesswork."
+    },
+    {
+      "coverage": {},
+      "broad": true,
+      "result": "Evaluate once, then call phase=finish with this request_id and every needed follow-up together. If the packet lacks the relevant topic, retrieve again with refined keywords, then broad=true. If evidence is still missing, state the gap or ask for the missing detail; never fill it by guesswork."
+    },
+    {
+      "coverage": {
+        "status": "complete",
+        "reason": "verified topic"
+      },
+      "broad": false,
+      "result": "evidence_coverage.status is complete. A documented troubleshooting or test topic in this packet already covers the requested component or generic symptom and its text is complete. Call phase=finish with this request_id and the smallest sufficient render_pages. Do not retrieve again. Other index hits, adjacent faults, and a cross-reference already written in that topic are not missing evidence. Use read_pages only when a required value, test condition, or safety step is not already in the complete topic. If that text does not contain the specific procedure, say it is not documented; do not guess. verified topic"
+    },
+    {
+      "coverage": {
+        "status": "complete",
+        "reason": "verified topic"
+      },
+      "broad": true,
+      "result": "evidence_coverage.status is complete. A documented troubleshooting or test topic in this packet already covers the requested component or generic symptom and its text is complete. Call phase=finish with this request_id and the smallest sufficient render_pages. Do not retrieve again. Other index hits, adjacent faults, and a cross-reference already written in that topic are not missing evidence. Use read_pages only when a required value, test condition, or safety step is not already in the complete topic. If that text does not contain the specific procedure, say it is not documented; do not guess. verified topic"
+    },
+    {
+      "coverage": {
+        "status": "truncated",
+        "reason": "page cap"
+      },
+      "broad": false,
+      "result": "evidence_coverage.status is truncated. The matching topic is already in this packet but the page limit cut it off. Do not retrieve again. Call phase=finish and pass read_pages for evidence_coverage.resume_at_pdf_pages. page cap"
+    },
+    {
+      "coverage": {
+        "status": "truncated",
+        "reason": "page cap"
+      },
+      "broad": true,
+      "result": "evidence_coverage.status is truncated. The matching topic is already in this packet but the page limit cut it off. Do not retrieve again. Call phase=finish and pass read_pages for evidence_coverage.resume_at_pdf_pages. page cap"
+    },
+    {
+      "coverage": {
+        "status": "incomplete",
+        "missing_component_terms": [
+          "pump",
+          "valve"
+        ],
+        "reason": "gap"
+      },
+      "broad": false,
+      "result": "evidence_coverage.status is incomplete. No complete troubleshooting or test topic covers: pump, valve. Retrieve again with refined English Shop Manual keywords for those missing terms. If that packet is still incomplete, retrieve with broad=true. Do not finish as if the missing procedure were documented. gap"
+    },
+    {
+      "coverage": {
+        "status": "incomplete",
+        "missing_component_terms": [
+          "pump",
+          "valve"
+        ],
+        "reason": "gap"
+      },
+      "broad": true,
+      "result": "evidence_coverage.status is incomplete after a whole-manual search. Do not retrieve again. Answer from the relevant pages only, and state what the manual does not document. Never invent values, procedures, or safety conditions. gap"
+    },
+    {
+      "coverage": {
+        "status": "incomplete"
+      },
+      "broad": false,
+      "result": "evidence_coverage.status is incomplete. No complete troubleshooting or test topic covers: the requested component. Retrieve again with refined English Shop Manual keywords for those missing terms. If that packet is still incomplete, retrieve with broad=true. Do not finish as if the missing procedure were documented. "
+    },
+    {
+      "coverage": {
+        "status": "incomplete"
+      },
+      "broad": true,
+      "result": "evidence_coverage.status is incomplete after a whole-manual search. Do not retrieve again. Answer from the relevant pages only, and state what the manual does not document. Never invent values, procedures, or safety conditions. "
+    },
+    {
+      "coverage": {
+        "status": "unknown"
+      },
+      "broad": false,
+      "result": "Evaluate once, then call phase=finish with this request_id and every needed follow-up together. If the packet lacks the relevant topic, retrieve again with refined keywords, then broad=true. If evidence is still missing, state the gap or ask for the missing detail; never fill it by guesswork."
+    },
+    {
+      "coverage": {
+        "status": "unknown"
+      },
+      "broad": true,
+      "result": "Evaluate once, then call phase=finish with this request_id and every needed follow-up together. If the packet lacks the relevant topic, retrieve again with refined keywords, then broad=true. If evidence is still missing, state the gap or ask for the missing detail; never fill it by guesswork."
+    }
+  ],
+  "manual_schema": {
+    "name": "maintenance_manual_evidence",
+    "description": "Maintenance Parent fast Shop Manual path for diagnosis, tests, adjustments or specifications. Determine source intent first: Part Number/Parts Book/figure/item/identification requests use maintenance_partbook_lookup FIRST. Verified Part-only needs no Shop Manual/web. Mixed requests use Part Book identification plus this tool for technical evidence. phase=retrieve first reads the selected device AGENTS.md IN FULL and returns its applicable policy; this satisfies the root requirement to load machine-specific rules before source access, so do not read that file again. It then concurrently runs the manual_sections-routed evidence packet (bounded actual Shop Manual topic text; the index is routing only, never evidence) and the configured web_search. Optional part_query: short English component/assembly explicitly identified in the request, supplied with these keywords in this SAME retrieve call (e.g. steering pump). No guessed PN, separate model call or separate Part tool for technical enrichment. Omit/null for generic symptoms or a pure error code without an identified component. Local verified Part Book enrichment runs concurrently for indexed models, with a 1s budget and NO wait after manual retrieval. Only include ready VERIFIED candidates that help the question; candidates are alternatives, not a diagnosis or guaranteed fit. Skip failures/misses/ambiguity silently for optional enrichment; do not retry or delay the technical answer. No enrichment rendering by default. phase=finish concurrently renders and validates the chosen genuine pages, reads bounded missing page text and web_extracts one URL taken from the retrieve results; it returns MEDIA paths for delivery. Normal path: retrieve, one evaluation, finish, answer. Read evidence_coverage.status on the result. complete: finish and do not retrieve again. truncated: finish with read_pages for the listed resume pages, do not retrieve again. incomplete: retrieve again with refined keywords, then broad=true if still incomplete. Do not call web_search, web_extract, PDF scripts or render_page separately for this question. Not for delegated workers.",
+    "parameters": {
+      "type": "object",
+      "required": [
+        "phase"
+      ],
+      "properties": {
+        "phase": {
+          "type": "string",
+          "enum": [
+            "retrieve",
+            "finish"
+          ]
+        },
+        "model": {
+          "type": "string",
+          "enum": [
+            "HD465-7R",
+            "HD605-7R",
+            "HD785-5",
+            "HD785-7",
+            "PC1250-8R",
+            "PC1250SP-8R",
+            "PC800-8R",
+            "PC850-8R",
+            "R330LC-9S",
+            "WA600-6"
+          ],
+          "description": "retrieve: verified model; ask the user when it cannot be safely identified"
+        },
+        "question": {
+          "type": "string",
+          "description": "retrieve: exact original user question, verbatim"
+        },
+        "keywords": {
+          "type": "string",
+          "description": "retrieve: English Shop Manual terms for the affected system/component and symptom, normalizing colloquial, abbreviated or misspelled user wording. Do not add guessed causes."
+        },
+        "part_query": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 80,
+          "description": "retrieve: optional short English component/assembly from the request, e.g. boom foot pin or steering pump, produced with keywords in this same call. Omit/null when no component is identified (generic overheating or error code alone). Never guess a PN or cause."
+        },
+        "fault_code": {
+          "type": "string",
+          "description": "retrieve: complete displayed failure code only; never an incomplete action code"
+        },
+        "broad": {
+          "type": "boolean",
+          "description": "retrieve fallback only: scan the whole Shop Manual (10-30 s) after an indexed packet missed the relevant topic"
+        },
+        "request_id": {
+          "type": "string",
+          "description": "finish: request_id returned by retrieve"
+        },
+        "render_pages": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "maxItems": 8,
+          "description": "finish: smallest sufficient image set, usually 1-4"
+        },
+        "read_pages": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "maxItems": 8,
+          "description": "finish: only pages with a material text gap"
+        },
+        "web_url": {
+          "type": "string",
+          "description": "finish: one directly relevant URL from retrieve web_search results"
+        }
+      }
+    }
+  },
+  "part_schema": {
+    "name": "maintenance_partbook_lookup",
+    "description": "FIRST tool for Part Number / شماره فنی / شماره قطعه / پارت نامبر, bare PN with model, Parts Book component identification, Figure/Item or exploded view. Reads device AGENTS.md IN FULL before one targeted partbook_lookup.py --verify; verifies actual PDF rows. Use part_number for a supplied PN, query for English component name, or figure/item. HD785-7 B1, HD785-5, WA600-6 2010, HD465-7R, PC1250SP-8R and PC800-8 have indexed text-layer books; HD785-7 B2 remains unindexed. PC800-8R is not the indexed PC800-8 Parts Book. Confirm only VERIFIED candidates with quantity and applicability. Simple verified local lookup needs no Shop Manual/web. Mixed diagnosis + PN needs this FIRST plus maintenance_manual_evidence. Miss, incomplete coverage, serial outside coverage, ambiguity, supersession or unavailable/replacement permit fallback; index miss NEVER proves nonexistence.",
+    "parameters": {
+      "type": "object",
+      "required": [
+        "model",
+        "question"
+      ],
+      "properties": {
+        "model": {
+          "type": "string",
+          "enum": [
+            "HD465-7R",
+            "HD605-7R",
+            "HD785-5",
+            "HD785-7",
+            "PC1250-8R",
+            "PC1250SP-8R",
+            "PC800-8",
+            "PC800-8R",
+            "PC850-8R",
+            "R330LC-9S",
+            "WA600-6"
+          ]
+        },
+        "question": {
+          "type": "string",
+          "description": "Exact original question; model may come from session"
+        },
+        "part_number": {
+          "type": "string",
+          "description": "Exact user PN; never guess"
+        },
+        "query": {
+          "type": "string",
+          "description": "English Part Book component name; no guessed PN"
+        },
+        "figure": {
+          "type": "string"
+        },
+        "item": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "serial": {
+          "type": "string",
+          "description": "Machine serial only if supplied/verified"
+        },
+        "render": {
+          "type": "boolean",
+          "description": "Optional explicit render for mixed requests; verified direct Part-only identification renders automatically"
+        }
+      }
+    }
+  },
+  "device_policy_hashes": [
+    {
+      "model": "PC800-8R",
+      "folder": "PC800",
+      "question": "pressure test",
+      "presentation": false,
+      "part_enrichment": false,
+      "sha256": "9ca22251c9cdc75d4ed5327d4f3d350d149c0f24555feded3c954ca4bd84c4d5"
+    },
+    {
+      "model": "PC800-8R",
+      "folder": "PC800",
+      "question": "pressure test",
+      "presentation": false,
+      "part_enrichment": true,
+      "sha256": "ff4ffe9dea2b0baab4bf24aaaae3772dcb542ddc31b01858f7b0847a25c76298"
+    },
+    {
+      "model": "PC800-8R",
+      "folder": "PC800",
+      "question": "pressure test",
+      "presentation": true,
+      "part_enrichment": false,
+      "sha256": "da9494f9cfdc2f8a7511f256da3804ed30dfe2b4f87b8f4f5982ed7d7c23da74"
+    },
+    {
+      "model": "PC800-8R",
+      "folder": "PC800",
+      "question": "pressure test",
+      "presentation": true,
+      "part_enrichment": true,
+      "sha256": "eb235148a45fd9d638a8eac08bba974d8452d2c39739b3ab2826b4ce8ddd3d0d"
+    },
+    {
+      "model": "PC800-8R",
+      "folder": "PC800",
+      "question": "part number",
+      "presentation": false,
+      "part_enrichment": false,
+      "sha256": "8d71ba75c66c6a807175eab5c9abf5423ec984af47db53dad9e462ab78793d00"
+    },
+    {
+      "model": "PC800-8R",
+      "folder": "PC800",
+      "question": "part number",
+      "presentation": false,
+      "part_enrichment": true,
+      "sha256": "8d71ba75c66c6a807175eab5c9abf5423ec984af47db53dad9e462ab78793d00"
+    },
+    {
+      "model": "PC800-8R",
+      "folder": "PC800",
+      "question": "part number",
+      "presentation": true,
+      "part_enrichment": false,
+      "sha256": "dfe155627797424903c7be800984c4c9729ab31f7f4e51c784a6b11a76214449"
+    },
+    {
+      "model": "PC800-8R",
+      "folder": "PC800",
+      "question": "part number",
+      "presentation": true,
+      "part_enrichment": true,
+      "sha256": "dfe155627797424903c7be800984c4c9729ab31f7f4e51c784a6b11a76214449"
+    },
+    {
+      "model": "PC800-8R",
+      "folder": "PC800",
+      "question": "error code",
+      "presentation": false,
+      "part_enrichment": false,
+      "sha256": "c53cb8e8daeff9d55f9e1d20fe72d18c850279a0d0340cac33df05985b4798f1"
+    },
+    {
+      "model": "PC800-8R",
+      "folder": "PC800",
+      "question": "error code",
+      "presentation": false,
+      "part_enrichment": true,
+      "sha256": "efb81da46974a985f03ade6c136968500a3f898345bafb2a46d22c76ac3b9cd1"
+    },
+    {
+      "model": "PC800-8R",
+      "folder": "PC800",
+      "question": "error code",
+      "presentation": true,
+      "part_enrichment": false,
+      "sha256": "c72a1c4ccbe93d7a7e3a200085ebb5023309cc00d727967dfd8844055cbbc7b0"
+    },
+    {
+      "model": "PC800-8R",
+      "folder": "PC800",
+      "question": "error code",
+      "presentation": true,
+      "part_enrichment": true,
+      "sha256": "fd7c305141ea67a5e4251f786cf288133800567f62de4bb143a1479f91207b6e"
+    },
+    {
+      "model": "PC800-8R",
+      "folder": "PC800",
+      "question": "serial range",
+      "presentation": false,
+      "part_enrichment": false,
+      "sha256": "6c97c4f8a5f78669b1289a1981d9bed645eb48b8822d40a424947b2c85848b92"
+    },
+    {
+      "model": "PC800-8R",
+      "folder": "PC800",
+      "question": "serial range",
+      "presentation": false,
+      "part_enrichment": true,
+      "sha256": "8d71ba75c66c6a807175eab5c9abf5423ec984af47db53dad9e462ab78793d00"
+    },
+    {
+      "model": "PC800-8R",
+      "folder": "PC800",
+      "question": "serial range",
+      "presentation": true,
+      "part_enrichment": false,
+      "sha256": "eca2c689ce2912eaa2e02a1966043053d3ac38faa3fa8559a0656a1ea2089a7b"
+    },
+    {
+      "model": "PC800-8R",
+      "folder": "PC800",
+      "question": "serial range",
+      "presentation": true,
+      "part_enrichment": true,
+      "sha256": "dfe155627797424903c7be800984c4c9729ab31f7f4e51c784a6b11a76214449"
+    },
+    {
+      "model": "PC850-8R",
+      "folder": "PC800",
+      "question": "pressure test",
+      "presentation": false,
+      "part_enrichment": false,
+      "sha256": "9ca22251c9cdc75d4ed5327d4f3d350d149c0f24555feded3c954ca4bd84c4d5"
+    },
+    {
+      "model": "PC850-8R",
+      "folder": "PC800",
+      "question": "pressure test",
+      "presentation": false,
+      "part_enrichment": true,
+      "sha256": "ff4ffe9dea2b0baab4bf24aaaae3772dcb542ddc31b01858f7b0847a25c76298"
+    },
+    {
+      "model": "PC850-8R",
+      "folder": "PC800",
+      "question": "pressure test",
+      "presentation": true,
+      "part_enrichment": false,
+      "sha256": "da9494f9cfdc2f8a7511f256da3804ed30dfe2b4f87b8f4f5982ed7d7c23da74"
+    },
+    {
+      "model": "PC850-8R",
+      "folder": "PC800",
+      "question": "pressure test",
+      "presentation": true,
+      "part_enrichment": true,
+      "sha256": "eb235148a45fd9d638a8eac08bba974d8452d2c39739b3ab2826b4ce8ddd3d0d"
+    },
+    {
+      "model": "PC850-8R",
+      "folder": "PC800",
+      "question": "part number",
+      "presentation": false,
+      "part_enrichment": false,
+      "sha256": "8d71ba75c66c6a807175eab5c9abf5423ec984af47db53dad9e462ab78793d00"
+    },
+    {
+      "model": "PC850-8R",
+      "folder": "PC800",
+      "question": "part number",
+      "presentation": false,
+      "part_enrichment": true,
+      "sha256": "8d71ba75c66c6a807175eab5c9abf5423ec984af47db53dad9e462ab78793d00"
+    },
+    {
+      "model": "PC850-8R",
+      "folder": "PC800",
+      "question": "part number",
+      "presentation": true,
+      "part_enrichment": false,
+      "sha256": "dfe155627797424903c7be800984c4c9729ab31f7f4e51c784a6b11a76214449"
+    },
+    {
+      "model": "PC850-8R",
+      "folder": "PC800",
+      "question": "part number",
+      "presentation": true,
+      "part_enrichment": true,
+      "sha256": "dfe155627797424903c7be800984c4c9729ab31f7f4e51c784a6b11a76214449"
+    },
+    {
+      "model": "PC850-8R",
+      "folder": "PC800",
+      "question": "error code",
+      "presentation": false,
+      "part_enrichment": false,
+      "sha256": "c53cb8e8daeff9d55f9e1d20fe72d18c850279a0d0340cac33df05985b4798f1"
+    },
+    {
+      "model": "PC850-8R",
+      "folder": "PC800",
+      "question": "error code",
+      "presentation": false,
+      "part_enrichment": true,
+      "sha256": "efb81da46974a985f03ade6c136968500a3f898345bafb2a46d22c76ac3b9cd1"
+    },
+    {
+      "model": "PC850-8R",
+      "folder": "PC800",
+      "question": "error code",
+      "presentation": true,
+      "part_enrichment": false,
+      "sha256": "c72a1c4ccbe93d7a7e3a200085ebb5023309cc00d727967dfd8844055cbbc7b0"
+    },
+    {
+      "model": "PC850-8R",
+      "folder": "PC800",
+      "question": "error code",
+      "presentation": true,
+      "part_enrichment": true,
+      "sha256": "fd7c305141ea67a5e4251f786cf288133800567f62de4bb143a1479f91207b6e"
+    },
+    {
+      "model": "PC850-8R",
+      "folder": "PC800",
+      "question": "serial range",
+      "presentation": false,
+      "part_enrichment": false,
+      "sha256": "6c97c4f8a5f78669b1289a1981d9bed645eb48b8822d40a424947b2c85848b92"
+    },
+    {
+      "model": "PC850-8R",
+      "folder": "PC800",
+      "question": "serial range",
+      "presentation": false,
+      "part_enrichment": true,
+      "sha256": "8d71ba75c66c6a807175eab5c9abf5423ec984af47db53dad9e462ab78793d00"
+    },
+    {
+      "model": "PC850-8R",
+      "folder": "PC800",
+      "question": "serial range",
+      "presentation": true,
+      "part_enrichment": false,
+      "sha256": "eca2c689ce2912eaa2e02a1966043053d3ac38faa3fa8559a0656a1ea2089a7b"
+    },
+    {
+      "model": "PC850-8R",
+      "folder": "PC800",
+      "question": "serial range",
+      "presentation": true,
+      "part_enrichment": true,
+      "sha256": "dfe155627797424903c7be800984c4c9729ab31f7f4e51c784a6b11a76214449"
+    },
+    {
+      "model": "PC1250-8R",
+      "folder": "PC1250-8R",
+      "question": "pressure test",
+      "presentation": false,
+      "part_enrichment": false,
+      "sha256": "6468fb004700129094fb98aeafd9db033ef891ba0fdc5087db0de7eb313778d0"
+    },
+    {
+      "model": "PC1250-8R",
+      "folder": "PC1250-8R",
+      "question": "pressure test",
+      "presentation": false,
+      "part_enrichment": true,
+      "sha256": "06af4c9e6d17f0d46c4e0c1ed956d12f9371e5b9adb5a5bbd4d7b2c9d633651f"
+    },
+    {
+      "model": "PC1250-8R",
+      "folder": "PC1250-8R",
+      "question": "pressure test",
+      "presentation": true,
+      "part_enrichment": false,
+      "sha256": "6c978f3e50ea1a2a22f2b8b5abe692d97ab8000063659d8793495a5e265e16d7"
+    },
+    {
+      "model": "PC1250-8R",
+      "folder": "PC1250-8R",
+      "question": "pressure test",
+      "presentation": true,
+      "part_enrichment": true,
+      "sha256": "d3b2a67e16f29a7f1bb8cfdf28d6192cc7b18e6bf79d72c6a5f8166a7d7d2f1b"
+    },
+    {
+      "model": "PC1250-8R",
+      "folder": "PC1250-8R",
+      "question": "part number",
+      "presentation": false,
+      "part_enrichment": false,
+      "sha256": "7003a24eff2c5b841ef996ff759c7f37ad8575f66e816193ba563a024e4753ed"
+    },
+    {
+      "model": "PC1250-8R",
+      "folder": "PC1250-8R",
+      "question": "part number",
+      "presentation": false,
+      "part_enrichment": true,
+      "sha256": "7003a24eff2c5b841ef996ff759c7f37ad8575f66e816193ba563a024e4753ed"
+    },
+    {
+      "model": "PC1250-8R",
+      "folder": "PC1250-8R",
+      "question": "part number",
+      "presentation": true,
+      "part_enrichment": false,
+      "sha256": "25b700dd3f483d66cd12520401d88608c208af56aad08413a414289b7fe6891b"
+    },
+    {
+      "model": "PC1250-8R",
+      "folder": "PC1250-8R",
+      "question": "part number",
+      "presentation": true,
+      "part_enrichment": true,
+      "sha256": "25b700dd3f483d66cd12520401d88608c208af56aad08413a414289b7fe6891b"
+    },
+    {
+      "model": "PC1250-8R",
+      "folder": "PC1250-8R",
+      "question": "error code",
+      "presentation": false,
+      "part_enrichment": false,
+      "sha256": "605324c10bc2c5d349630632f174c43748146e197d676f297a321dc02f3ffa18"
+    },
+    {
+      "model": "PC1250-8R",
+      "folder": "PC1250-8R",
+      "question": "error code",
+      "presentation": false,
+      "part_enrichment": true,
+      "sha256": "0df12c18829e90a9e2450c0d5089d0386950fcba03d680e87e3c17afb995738f"
+    },
+    {
+      "model": "PC1250-8R",
+      "folder": "PC1250-8R",
+      "question": "error code",
+      "presentation": true,
+      "part_enrichment": false,
+      "sha256": "2daa0cae085df66771fb764f14f22f5be233591019d15d5660581db37d2abaab"
+    },
+    {
+      "model": "PC1250-8R",
+      "folder": "PC1250-8R",
+      "question": "error code",
+      "presentation": true,
+      "part_enrichment": true,
+      "sha256": "98824bc3c7397ba636dfca16815809ca51e01b975ea8779b4b878a0aa9471ef9"
+    },
+    {
+      "model": "PC1250-8R",
+      "folder": "PC1250-8R",
+      "question": "serial range",
+      "presentation": false,
+      "part_enrichment": false,
+      "sha256": "62cb15210c4c89b640affdad66916e12d337b98c051234bf5c1859562ac0e29e"
+    },
+    {
+      "model": "PC1250-8R",
+      "folder": "PC1250-8R",
+      "question": "serial range",
+      "presentation": false,
+      "part_enrichment": true,
+      "sha256": "7003a24eff2c5b841ef996ff759c7f37ad8575f66e816193ba563a024e4753ed"
+    },
+    {
+      "model": "PC1250-8R",
+      "folder": "PC1250-8R",
+      "question": "serial range",
+      "presentation": true,
+      "part_enrichment": false,
+      "sha256": "68e1f6868fc49f41a8dc7f86552279e5d366f26a6c9ce30919f22be1f8b07543"
+    },
+    {
+      "model": "PC1250-8R",
+      "folder": "PC1250-8R",
+      "question": "serial range",
+      "presentation": true,
+      "part_enrichment": true,
+      "sha256": "25b700dd3f483d66cd12520401d88608c208af56aad08413a414289b7fe6891b"
+    },
+    {
+      "model": "PC1250SP-8R",
+      "folder": "PC1250-8R",
+      "question": "pressure test",
+      "presentation": false,
+      "part_enrichment": false,
+      "sha256": "6468fb004700129094fb98aeafd9db033ef891ba0fdc5087db0de7eb313778d0"
+    },
+    {
+      "model": "PC1250SP-8R",
+      "folder": "PC1250-8R",
+      "question": "pressure test",
+      "presentation": false,
+      "part_enrichment": true,
+      "sha256": "06af4c9e6d17f0d46c4e0c1ed956d12f9371e5b9adb5a5bbd4d7b2c9d633651f"
+    },
+    {
+      "model": "PC1250SP-8R",
+      "folder": "PC1250-8R",
+      "question": "pressure test",
+      "presentation": true,
+      "part_enrichment": false,
+      "sha256": "6c978f3e50ea1a2a22f2b8b5abe692d97ab8000063659d8793495a5e265e16d7"
+    },
+    {
+      "model": "PC1250SP-8R",
+      "folder": "PC1250-8R",
+      "question": "pressure test",
+      "presentation": true,
+      "part_enrichment": true,
+      "sha256": "d3b2a67e16f29a7f1bb8cfdf28d6192cc7b18e6bf79d72c6a5f8166a7d7d2f1b"
+    },
+    {
+      "model": "PC1250SP-8R",
+      "folder": "PC1250-8R",
+      "question": "part number",
+      "presentation": false,
+      "part_enrichment": false,
+      "sha256": "7003a24eff2c5b841ef996ff759c7f37ad8575f66e816193ba563a024e4753ed"
+    },
+    {
+      "model": "PC1250SP-8R",
+      "folder": "PC1250-8R",
+      "question": "part number",
+      "presentation": false,
+      "part_enrichment": true,
+      "sha256": "7003a24eff2c5b841ef996ff759c7f37ad8575f66e816193ba563a024e4753ed"
+    },
+    {
+      "model": "PC1250SP-8R",
+      "folder": "PC1250-8R",
+      "question": "part number",
+      "presentation": true,
+      "part_enrichment": false,
+      "sha256": "25b700dd3f483d66cd12520401d88608c208af56aad08413a414289b7fe6891b"
+    },
+    {
+      "model": "PC1250SP-8R",
+      "folder": "PC1250-8R",
+      "question": "part number",
+      "presentation": true,
+      "part_enrichment": true,
+      "sha256": "25b700dd3f483d66cd12520401d88608c208af56aad08413a414289b7fe6891b"
+    },
+    {
+      "model": "PC1250SP-8R",
+      "folder": "PC1250-8R",
+      "question": "error code",
+      "presentation": false,
+      "part_enrichment": false,
+      "sha256": "605324c10bc2c5d349630632f174c43748146e197d676f297a321dc02f3ffa18"
+    },
+    {
+      "model": "PC1250SP-8R",
+      "folder": "PC1250-8R",
+      "question": "error code",
+      "presentation": false,
+      "part_enrichment": true,
+      "sha256": "0df12c18829e90a9e2450c0d5089d0386950fcba03d680e87e3c17afb995738f"
+    },
+    {
+      "model": "PC1250SP-8R",
+      "folder": "PC1250-8R",
+      "question": "error code",
+      "presentation": true,
+      "part_enrichment": false,
+      "sha256": "2daa0cae085df66771fb764f14f22f5be233591019d15d5660581db37d2abaab"
+    },
+    {
+      "model": "PC1250SP-8R",
+      "folder": "PC1250-8R",
+      "question": "error code",
+      "presentation": true,
+      "part_enrichment": true,
+      "sha256": "98824bc3c7397ba636dfca16815809ca51e01b975ea8779b4b878a0aa9471ef9"
+    },
+    {
+      "model": "PC1250SP-8R",
+      "folder": "PC1250-8R",
+      "question": "serial range",
+      "presentation": false,
+      "part_enrichment": false,
+      "sha256": "62cb15210c4c89b640affdad66916e12d337b98c051234bf5c1859562ac0e29e"
+    },
+    {
+      "model": "PC1250SP-8R",
+      "folder": "PC1250-8R",
+      "question": "serial range",
+      "presentation": false,
+      "part_enrichment": true,
+      "sha256": "7003a24eff2c5b841ef996ff759c7f37ad8575f66e816193ba563a024e4753ed"
+    },
+    {
+      "model": "PC1250SP-8R",
+      "folder": "PC1250-8R",
+      "question": "serial range",
+      "presentation": true,
+      "part_enrichment": false,
+      "sha256": "68e1f6868fc49f41a8dc7f86552279e5d366f26a6c9ce30919f22be1f8b07543"
+    },
+    {
+      "model": "PC1250SP-8R",
+      "folder": "PC1250-8R",
+      "question": "serial range",
+      "presentation": true,
+      "part_enrichment": true,
+      "sha256": "25b700dd3f483d66cd12520401d88608c208af56aad08413a414289b7fe6891b"
+    },
+    {
+      "model": "HD785-7",
+      "folder": "HD785-7",
+      "question": "pressure test",
+      "presentation": false,
+      "part_enrichment": false,
+      "sha256": "1193dab10477360a4479b6d59aea6a36c0b65060e42439ce66234f071c102e60"
+    },
+    {
+      "model": "HD785-7",
+      "folder": "HD785-7",
+      "question": "pressure test",
+      "presentation": false,
+      "part_enrichment": true,
+      "sha256": "503dfb0f2882aa874eb8312e060191f03593bf0b25956fccf8e9708b807f7509"
+    },
+    {
+      "model": "HD785-7",
+      "folder": "HD785-7",
+      "question": "pressure test",
+      "presentation": true,
+      "part_enrichment": false,
+      "sha256": "f642a0b53189aa96cdea81692bc585540d5987946a4c0b3e506f4b5eff6dd0b8"
+    },
+    {
+      "model": "HD785-7",
+      "folder": "HD785-7",
+      "question": "pressure test",
+      "presentation": true,
+      "part_enrichment": true,
+      "sha256": "e65a8b70955c70ce6aaf855fccfac2da5e4e23244d7fec4bf995ef69f76b0615"
+    },
+    {
+      "model": "HD785-7",
+      "folder": "HD785-7",
+      "question": "part number",
+      "presentation": false,
+      "part_enrichment": false,
+      "sha256": "850c6150739ab56f9d6f087d36fad989d2e1ae810174d9a3d5950851b5b5d325"
+    },
+    {
+      "model": "HD785-7",
+      "folder": "HD785-7",
+      "question": "part number",
+      "presentation": false,
+      "part_enrichment": true,
+      "sha256": "850c6150739ab56f9d6f087d36fad989d2e1ae810174d9a3d5950851b5b5d325"
+    },
+    {
+      "model": "HD785-7",
+      "folder": "HD785-7",
+      "question": "part number",
+      "presentation": true,
+      "part_enrichment": false,
+      "sha256": "15903f9b68297349499506a56ed2f2df4dd60d797188637f733fbc77bdc6e2cd"
+    },
+    {
+      "model": "HD785-7",
+      "folder": "HD785-7",
+      "question": "part number",
+      "presentation": true,
+      "part_enrichment": true,
+      "sha256": "15903f9b68297349499506a56ed2f2df4dd60d797188637f733fbc77bdc6e2cd"
+    },
+    {
+      "model": "HD785-7",
+      "folder": "HD785-7",
+      "question": "error code",
+      "presentation": false,
+      "part_enrichment": false,
+      "sha256": "1673172ad65e51a8c225dc5e3952d99ad42b06277a1b6539b94be1ba3014aa9f"
+    },
+    {
+      "model": "HD785-7",
+      "folder": "HD785-7",
+      "question": "error code",
+      "presentation": false,
+      "part_enrichment": true,
+      "sha256": "561b7b16468ffca7f274b98d93a187dad4807a0f1799536e108fcd321eab60c2"
+    },
+    {
+      "model": "HD785-7",
+      "folder": "HD785-7",
+      "question": "error code",
+      "presentation": true,
+      "part_enrichment": false,
+      "sha256": "9e53c556790b1851cb118d4c8f78242ebc9a00178a477391b4c826c2763ad625"
+    },
+    {
+      "model": "HD785-7",
+      "folder": "HD785-7",
+      "question": "error code",
+      "presentation": true,
+      "part_enrichment": true,
+      "sha256": "fe224115d86a7f28da6909cf751d7a280951107f87469c6ce84c3ae7ea52f4d4"
+    },
+    {
+      "model": "HD785-7",
+      "folder": "HD785-7",
+      "question": "serial range",
+      "presentation": false,
+      "part_enrichment": false,
+      "sha256": "a84b22b779d265cce9b749dd93915057952a6aea0b9bdc828c59e9a50d00f415"
+    },
+    {
+      "model": "HD785-7",
+      "folder": "HD785-7",
+      "question": "serial range",
+      "presentation": false,
+      "part_enrichment": true,
+      "sha256": "850c6150739ab56f9d6f087d36fad989d2e1ae810174d9a3d5950851b5b5d325"
+    },
+    {
+      "model": "HD785-7",
+      "folder": "HD785-7",
+      "question": "serial range",
+      "presentation": true,
+      "part_enrichment": false,
+      "sha256": "412b7e739cf7759efbc5db6d8fda7fd014933b503fc94cc66c0da8c73f960804"
+    },
+    {
+      "model": "HD785-7",
+      "folder": "HD785-7",
+      "question": "serial range",
+      "presentation": true,
+      "part_enrichment": true,
+      "sha256": "15903f9b68297349499506a56ed2f2df4dd60d797188637f733fbc77bdc6e2cd"
+    },
+    {
+      "model": "HD785-5",
+      "folder": "HD785-5",
+      "question": "pressure test",
+      "presentation": false,
+      "part_enrichment": false,
+      "sha256": "d5006159318ecf563cb03b08ad1013bde5cbab2ca5db95e11c55b61b639b002b"
+    },
+    {
+      "model": "HD785-5",
+      "folder": "HD785-5",
+      "question": "pressure test",
+      "presentation": false,
+      "part_enrichment": true,
+      "sha256": "bac5832d0ac57bb234d1f3250cac76f86798d9189260ed3981b1e51d90a04fc0"
+    },
+    {
+      "model": "HD785-5",
+      "folder": "HD785-5",
+      "question": "pressure test",
+      "presentation": true,
+      "part_enrichment": false,
+      "sha256": "da8387b8954ceac04c63d62043b9fe3346d8c185832209c054199447196f2874"
+    },
+    {
+      "model": "HD785-5",
+      "folder": "HD785-5",
+      "question": "pressure test",
+      "presentation": true,
+      "part_enrichment": true,
+      "sha256": "efec8129d1aef307b4c69ed9f86e241b1086a7157cfe9ebc601c3f734d766238"
+    },
+    {
+      "model": "HD785-5",
+      "folder": "HD785-5",
+      "question": "part number",
+      "presentation": false,
+      "part_enrichment": false,
+      "sha256": "db1470c584b78894a7f64765c9c00c66dbdaf9c2d927431a14d59dbd141725d0"
+    },
+    {
+      "model": "HD785-5",
+      "folder": "HD785-5",
+      "question": "part number",
+      "presentation": false,
+      "part_enrichment": true,
+      "sha256": "db1470c584b78894a7f64765c9c00c66dbdaf9c2d927431a14d59dbd141725d0"
+    },
+    {
+      "model": "HD785-5",
+      "folder": "HD785-5",
+      "question": "part number",
+      "presentation": true,
+      "part_enrichment": false,
+      "sha256": "fc185e7049c55b191dd0ec6a7e1274c8adcc4228c5b269c52195a221d84867ad"
+    },
+    {
+      "model": "HD785-5",
+      "folder": "HD785-5",
+      "question": "part number",
+      "presentation": true,
+      "part_enrichment": true,
+      "sha256": "fc185e7049c55b191dd0ec6a7e1274c8adcc4228c5b269c52195a221d84867ad"
+    },
+    {
+      "model": "HD785-5",
+      "folder": "HD785-5",
+      "question": "error code",
+      "presentation": false,
+      "part_enrichment": false,
+      "sha256": "0b68c5785a0ed8e4aa34801c73f371a06f7de851d649a58b40b5a0a0853a6833"
+    },
+    {
+      "model": "HD785-5",
+      "folder": "HD785-5",
+      "question": "error code",
+      "presentation": false,
+      "part_enrichment": true,
+      "sha256": "77ad54f96ec64a2911e76e3dbeb5e4326e418e5b96c4d48df7bb72523bf83b9f"
+    },
+    {
+      "model": "HD785-5",
+      "folder": "HD785-5",
+      "question": "error code",
+      "presentation": true,
+      "part_enrichment": false,
+      "sha256": "b5c7d23b478c3beb8c33568086626639e98248d5fe3cc8338281e1614a5676c9"
+    },
+    {
+      "model": "HD785-5",
+      "folder": "HD785-5",
+      "question": "error code",
+      "presentation": true,
+      "part_enrichment": true,
+      "sha256": "b70d807887fb17cae59bbead58d668b762d51b4c1f6ae4bf9b31d625fddf0202"
+    },
+    {
+      "model": "HD785-5",
+      "folder": "HD785-5",
+      "question": "serial range",
+      "presentation": false,
+      "part_enrichment": false,
+      "sha256": "c27384e5391d0aff017bb6463c0d00cbb72b5b3b1641bf4842a91914311697d6"
+    },
+    {
+      "model": "HD785-5",
+      "folder": "HD785-5",
+      "question": "serial range",
+      "presentation": false,
+      "part_enrichment": true,
+      "sha256": "db1470c584b78894a7f64765c9c00c66dbdaf9c2d927431a14d59dbd141725d0"
+    },
+    {
+      "model": "HD785-5",
+      "folder": "HD785-5",
+      "question": "serial range",
+      "presentation": true,
+      "part_enrichment": false,
+      "sha256": "51f9ebacbe19585880f94c3a8833d288bacb5204d1b1bcaa54aff4ee7232a681"
+    },
+    {
+      "model": "HD785-5",
+      "folder": "HD785-5",
+      "question": "serial range",
+      "presentation": true,
+      "part_enrichment": true,
+      "sha256": "fc185e7049c55b191dd0ec6a7e1274c8adcc4228c5b269c52195a221d84867ad"
+    },
+    {
+      "model": "HD465-7R",
+      "folder": "HD465-7R_HD605-7R",
+      "question": "pressure test",
+      "presentation": false,
+      "part_enrichment": false,
+      "sha256": "ef227b8a5ee9f825825a616fbe1094185926c6fb56e06a93af957a89953df920"
+    },
+    {
+      "model": "HD465-7R",
+      "folder": "HD465-7R_HD605-7R",
+      "question": "pressure test",
+      "presentation": false,
+      "part_enrichment": true,
+      "sha256": "0fb3f66946f15b3d4f849e483b4c94df5ea57091a348a12c4e08b0a25972b4f6"
+    },
+    {
+      "model": "HD465-7R",
+      "folder": "HD465-7R_HD605-7R",
+      "question": "pressure test",
+      "presentation": true,
+      "part_enrichment": false,
+      "sha256": "9d23eca27313b7d63449055c9fa9b50e1c16f73988490718e30253570989c71d"
+    },
+    {
+      "model": "HD465-7R",
+      "folder": "HD465-7R_HD605-7R",
+      "question": "pressure test",
+      "presentation": true,
+      "part_enrichment": true,
+      "sha256": "210ca9c523bf683acd26caea6677ecfd0771711f148ec3088e44edf54977889e"
+    },
+    {
+      "model": "HD465-7R",
+      "folder": "HD465-7R_HD605-7R",
+      "question": "part number",
+      "presentation": false,
+      "part_enrichment": false,
+      "sha256": "6e33c29b2fcd665e4c36a52384c3694d5fbe440f005ba7a719e38779ff7dc92f"
+    },
+    {
+      "model": "HD465-7R",
+      "folder": "HD465-7R_HD605-7R",
+      "question": "part number",
+      "presentation": false,
+      "part_enrichment": true,
+      "sha256": "6e33c29b2fcd665e4c36a52384c3694d5fbe440f005ba7a719e38779ff7dc92f"
+    },
+    {
+      "model": "HD465-7R",
+      "folder": "HD465-7R_HD605-7R",
+      "question": "part number",
+      "presentation": true,
+      "part_enrichment": false,
+      "sha256": "f5bbb04d0569c326b7ef296495d1f1fd6889fd69c428271adcb8a53a47b2a09b"
+    },
+    {
+      "model": "HD465-7R",
+      "folder": "HD465-7R_HD605-7R",
+      "question": "part number",
+      "presentation": true,
+      "part_enrichment": true,
+      "sha256": "f5bbb04d0569c326b7ef296495d1f1fd6889fd69c428271adcb8a53a47b2a09b"
+    },
+    {
+      "model": "HD465-7R",
+      "folder": "HD465-7R_HD605-7R",
+      "question": "error code",
+      "presentation": false,
+      "part_enrichment": false,
+      "sha256": "fb3164dd219ada9e30a782a29bbe5eb716863cd3d398a9c89b31cbd64a1a51c2"
+    },
+    {
+      "model": "HD465-7R",
+      "folder": "HD465-7R_HD605-7R",
+      "question": "error code",
+      "presentation": false,
+      "part_enrichment": true,
+      "sha256": "a81ba1768b4af4aebcfa56efc126fd5fefcfba65a98f0a79b336950db144f4af"
+    },
+    {
+      "model": "HD465-7R",
+      "folder": "HD465-7R_HD605-7R",
+      "question": "error code",
+      "presentation": true,
+      "part_enrichment": false,
+      "sha256": "6f06e802657fa3f5de4955a6ad76ac19b8f595ca0ee25e96db16f1b853f3cc3a"
+    },
+    {
+      "model": "HD465-7R",
+      "folder": "HD465-7R_HD605-7R",
+      "question": "error code",
+      "presentation": true,
+      "part_enrichment": true,
+      "sha256": "15dd8397bb968384001c8e2ec6c4e1f438cea48e81ccb6cddf0fc388db57f8a1"
+    },
+    {
+      "model": "HD465-7R",
+      "folder": "HD465-7R_HD605-7R",
+      "question": "serial range",
+      "presentation": false,
+      "part_enrichment": false,
+      "sha256": "0be06996e5e2e77103bd536286a07fe13f0adeed49cc0584d15cacec9f29c752"
+    },
+    {
+      "model": "HD465-7R",
+      "folder": "HD465-7R_HD605-7R",
+      "question": "serial range",
+      "presentation": false,
+      "part_enrichment": true,
+      "sha256": "6e33c29b2fcd665e4c36a52384c3694d5fbe440f005ba7a719e38779ff7dc92f"
+    },
+    {
+      "model": "HD465-7R",
+      "folder": "HD465-7R_HD605-7R",
+      "question": "serial range",
+      "presentation": true,
+      "part_enrichment": false,
+      "sha256": "a67be81813729dc669e7ee0cf5788df1ec2253936a45b73f60c04a7579f45919"
+    },
+    {
+      "model": "HD465-7R",
+      "folder": "HD465-7R_HD605-7R",
+      "question": "serial range",
+      "presentation": true,
+      "part_enrichment": true,
+      "sha256": "f5bbb04d0569c326b7ef296495d1f1fd6889fd69c428271adcb8a53a47b2a09b"
+    },
+    {
+      "model": "HD605-7R",
+      "folder": "HD465-7R_HD605-7R",
+      "question": "pressure test",
+      "presentation": false,
+      "part_enrichment": false,
+      "sha256": "ef227b8a5ee9f825825a616fbe1094185926c6fb56e06a93af957a89953df920"
+    },
+    {
+      "model": "HD605-7R",
+      "folder": "HD465-7R_HD605-7R",
+      "question": "pressure test",
+      "presentation": false,
+      "part_enrichment": true,
+      "sha256": "0fb3f66946f15b3d4f849e483b4c94df5ea57091a348a12c4e08b0a25972b4f6"
+    },
+    {
+      "model": "HD605-7R",
+      "folder": "HD465-7R_HD605-7R",
+      "question": "pressure test",
+      "presentation": true,
+      "part_enrichment": false,
+      "sha256": "9d23eca27313b7d63449055c9fa9b50e1c16f73988490718e30253570989c71d"
+    },
+    {
+      "model": "HD605-7R",
+      "folder": "HD465-7R_HD605-7R",
+      "question": "pressure test",
+      "presentation": true,
+      "part_enrichment": true,
+      "sha256": "210ca9c523bf683acd26caea6677ecfd0771711f148ec3088e44edf54977889e"
+    },
+    {
+      "model": "HD605-7R",
+      "folder": "HD465-7R_HD605-7R",
+      "question": "part number",
+      "presentation": false,
+      "part_enrichment": false,
+      "sha256": "6e33c29b2fcd665e4c36a52384c3694d5fbe440f005ba7a719e38779ff7dc92f"
+    },
+    {
+      "model": "HD605-7R",
+      "folder": "HD465-7R_HD605-7R",
+      "question": "part number",
+      "presentation": false,
+      "part_enrichment": true,
+      "sha256": "6e33c29b2fcd665e4c36a52384c3694d5fbe440f005ba7a719e38779ff7dc92f"
+    },
+    {
+      "model": "HD605-7R",
+      "folder": "HD465-7R_HD605-7R",
+      "question": "part number",
+      "presentation": true,
+      "part_enrichment": false,
+      "sha256": "f5bbb04d0569c326b7ef296495d1f1fd6889fd69c428271adcb8a53a47b2a09b"
+    },
+    {
+      "model": "HD605-7R",
+      "folder": "HD465-7R_HD605-7R",
+      "question": "part number",
+      "presentation": true,
+      "part_enrichment": true,
+      "sha256": "f5bbb04d0569c326b7ef296495d1f1fd6889fd69c428271adcb8a53a47b2a09b"
+    },
+    {
+      "model": "HD605-7R",
+      "folder": "HD465-7R_HD605-7R",
+      "question": "error code",
+      "presentation": false,
+      "part_enrichment": false,
+      "sha256": "fb3164dd219ada9e30a782a29bbe5eb716863cd3d398a9c89b31cbd64a1a51c2"
+    },
+    {
+      "model": "HD605-7R",
+      "folder": "HD465-7R_HD605-7R",
+      "question": "error code",
+      "presentation": false,
+      "part_enrichment": true,
+      "sha256": "a81ba1768b4af4aebcfa56efc126fd5fefcfba65a98f0a79b336950db144f4af"
+    },
+    {
+      "model": "HD605-7R",
+      "folder": "HD465-7R_HD605-7R",
+      "question": "error code",
+      "presentation": true,
+      "part_enrichment": false,
+      "sha256": "6f06e802657fa3f5de4955a6ad76ac19b8f595ca0ee25e96db16f1b853f3cc3a"
+    },
+    {
+      "model": "HD605-7R",
+      "folder": "HD465-7R_HD605-7R",
+      "question": "error code",
+      "presentation": true,
+      "part_enrichment": true,
+      "sha256": "15dd8397bb968384001c8e2ec6c4e1f438cea48e81ccb6cddf0fc388db57f8a1"
+    },
+    {
+      "model": "HD605-7R",
+      "folder": "HD465-7R_HD605-7R",
+      "question": "serial range",
+      "presentation": false,
+      "part_enrichment": false,
+      "sha256": "0be06996e5e2e77103bd536286a07fe13f0adeed49cc0584d15cacec9f29c752"
+    },
+    {
+      "model": "HD605-7R",
+      "folder": "HD465-7R_HD605-7R",
+      "question": "serial range",
+      "presentation": false,
+      "part_enrichment": true,
+      "sha256": "6e33c29b2fcd665e4c36a52384c3694d5fbe440f005ba7a719e38779ff7dc92f"
+    },
+    {
+      "model": "HD605-7R",
+      "folder": "HD465-7R_HD605-7R",
+      "question": "serial range",
+      "presentation": true,
+      "part_enrichment": false,
+      "sha256": "a67be81813729dc669e7ee0cf5788df1ec2253936a45b73f60c04a7579f45919"
+    },
+    {
+      "model": "HD605-7R",
+      "folder": "HD465-7R_HD605-7R",
+      "question": "serial range",
+      "presentation": true,
+      "part_enrichment": true,
+      "sha256": "f5bbb04d0569c326b7ef296495d1f1fd6889fd69c428271adcb8a53a47b2a09b"
+    },
+    {
+      "model": "WA600-6",
+      "folder": "WA600-6",
+      "question": "pressure test",
+      "presentation": false,
+      "part_enrichment": false,
+      "sha256": "8963713911ee3c217ab522015c50df6e1a0b221780621ab7bfd9cb2f30a351f5"
+    },
+    {
+      "model": "WA600-6",
+      "folder": "WA600-6",
+      "question": "pressure test",
+      "presentation": false,
+      "part_enrichment": true,
+      "sha256": "0cf7bc2eb2b559dcc842cf916a56df7aea56cab88f6f71f209aa168a25b754e7"
+    },
+    {
+      "model": "WA600-6",
+      "folder": "WA600-6",
+      "question": "pressure test",
+      "presentation": true,
+      "part_enrichment": false,
+      "sha256": "74444aaafa66702d3cee02e7ed635bacf4398103dc943d28c1cc17d86609358a"
+    },
+    {
+      "model": "WA600-6",
+      "folder": "WA600-6",
+      "question": "pressure test",
+      "presentation": true,
+      "part_enrichment": true,
+      "sha256": "d5ea50dd4fc5f9d33bfd8d367e5d9b65f89359fdeb564c53bca85b08baf9fc5a"
+    },
+    {
+      "model": "WA600-6",
+      "folder": "WA600-6",
+      "question": "part number",
+      "presentation": false,
+      "part_enrichment": false,
+      "sha256": "fb867295dabe809700bdd83d40b13253037e7a0342c78888be6207c7bd04319a"
+    },
+    {
+      "model": "WA600-6",
+      "folder": "WA600-6",
+      "question": "part number",
+      "presentation": false,
+      "part_enrichment": true,
+      "sha256": "fb867295dabe809700bdd83d40b13253037e7a0342c78888be6207c7bd04319a"
+    },
+    {
+      "model": "WA600-6",
+      "folder": "WA600-6",
+      "question": "part number",
+      "presentation": true,
+      "part_enrichment": false,
+      "sha256": "f2a4657c10e3f8fbe0436e9f93b7b3f285f8e66857e1485efa159e34a3664ca2"
+    },
+    {
+      "model": "WA600-6",
+      "folder": "WA600-6",
+      "question": "part number",
+      "presentation": true,
+      "part_enrichment": true,
+      "sha256": "f2a4657c10e3f8fbe0436e9f93b7b3f285f8e66857e1485efa159e34a3664ca2"
+    },
+    {
+      "model": "WA600-6",
+      "folder": "WA600-6",
+      "question": "error code",
+      "presentation": false,
+      "part_enrichment": false,
+      "sha256": "615db848a90e9f511c0fb87c531a34cedd28b7ca02c3a3ba20d173365aae76e2"
+    },
+    {
+      "model": "WA600-6",
+      "folder": "WA600-6",
+      "question": "error code",
+      "presentation": false,
+      "part_enrichment": true,
+      "sha256": "725102692036dc3d664dc5b5b8cbe15424f0c07144ad0a80da55aea34523825a"
+    },
+    {
+      "model": "WA600-6",
+      "folder": "WA600-6",
+      "question": "error code",
+      "presentation": true,
+      "part_enrichment": false,
+      "sha256": "5d5d5eb2329cd04bf33802628e38e5ffc23f49dc51455c7c67d28c22981f8ae7"
+    },
+    {
+      "model": "WA600-6",
+      "folder": "WA600-6",
+      "question": "error code",
+      "presentation": true,
+      "part_enrichment": true,
+      "sha256": "92e1faad756f6233abbcbb0d1edcb6dff932d70637f35ad0b791d4245714b6af"
+    },
+    {
+      "model": "WA600-6",
+      "folder": "WA600-6",
+      "question": "serial range",
+      "presentation": false,
+      "part_enrichment": false,
+      "sha256": "ac7b7af612f1921cfd7d3a4a937b073e6e586529e7b440786bb95ed01e7761cc"
+    },
+    {
+      "model": "WA600-6",
+      "folder": "WA600-6",
+      "question": "serial range",
+      "presentation": false,
+      "part_enrichment": true,
+      "sha256": "fb867295dabe809700bdd83d40b13253037e7a0342c78888be6207c7bd04319a"
+    },
+    {
+      "model": "WA600-6",
+      "folder": "WA600-6",
+      "question": "serial range",
+      "presentation": true,
+      "part_enrichment": false,
+      "sha256": "033fd220d7ac1a39576eeff0c46cc2e3367237e48766c43c0531f84fad132fea"
+    },
+    {
+      "model": "WA600-6",
+      "folder": "WA600-6",
+      "question": "serial range",
+      "presentation": true,
+      "part_enrichment": true,
+      "sha256": "f2a4657c10e3f8fbe0436e9f93b7b3f285f8e66857e1485efa159e34a3664ca2"
+    },
+    {
+      "model": "R330LC-9S",
+      "folder": "R330LC-9S",
+      "question": "pressure test",
+      "presentation": false,
+      "part_enrichment": false,
+      "sha256": "351645b46244c34790faa8b5d267e5fed5d6e1a8bd8915da4d731f17c4ca78f2"
+    },
+    {
+      "model": "R330LC-9S",
+      "folder": "R330LC-9S",
+      "question": "pressure test",
+      "presentation": false,
+      "part_enrichment": true,
+      "sha256": "b1324d12f121b4f6bd1e72384220ddb20291b1bcb53091bb8af85d2a16666c30"
+    },
+    {
+      "model": "R330LC-9S",
+      "folder": "R330LC-9S",
+      "question": "pressure test",
+      "presentation": true,
+      "part_enrichment": false,
+      "sha256": "bf14d4fff822cc3d25ab73d365ad78cd66510d37d7f8cbfad613862fc964c29a"
+    },
+    {
+      "model": "R330LC-9S",
+      "folder": "R330LC-9S",
+      "question": "pressure test",
+      "presentation": true,
+      "part_enrichment": true,
+      "sha256": "24ad2f099554ccfbe8e1e42aceebca4fc67db46e0af9c482653adb2241e60a7d"
+    },
+    {
+      "model": "R330LC-9S",
+      "folder": "R330LC-9S",
+      "question": "part number",
+      "presentation": false,
+      "part_enrichment": false,
+      "sha256": "026d830e6deda4317f843e6c3d96f87059ed5bcd08d2c6023779e4b9628075c8"
+    },
+    {
+      "model": "R330LC-9S",
+      "folder": "R330LC-9S",
+      "question": "part number",
+      "presentation": false,
+      "part_enrichment": true,
+      "sha256": "026d830e6deda4317f843e6c3d96f87059ed5bcd08d2c6023779e4b9628075c8"
+    },
+    {
+      "model": "R330LC-9S",
+      "folder": "R330LC-9S",
+      "question": "part number",
+      "presentation": true,
+      "part_enrichment": false,
+      "sha256": "ed4fd359c89cdbbe66bfd648f63aec07c34e00f98239b52ef1922dd3fcb9f359"
+    },
+    {
+      "model": "R330LC-9S",
+      "folder": "R330LC-9S",
+      "question": "part number",
+      "presentation": true,
+      "part_enrichment": true,
+      "sha256": "ed4fd359c89cdbbe66bfd648f63aec07c34e00f98239b52ef1922dd3fcb9f359"
+    },
+    {
+      "model": "R330LC-9S",
+      "folder": "R330LC-9S",
+      "question": "error code",
+      "presentation": false,
+      "part_enrichment": false,
+      "sha256": "945723f624e23ec2ff468a140f4da0955673653d5eed7e02feb0606f99a56d56"
+    },
+    {
+      "model": "R330LC-9S",
+      "folder": "R330LC-9S",
+      "question": "error code",
+      "presentation": false,
+      "part_enrichment": true,
+      "sha256": "493fd92938c11b48e4177080caf8399dab3da90d3989564d55e31011503c72e2"
+    },
+    {
+      "model": "R330LC-9S",
+      "folder": "R330LC-9S",
+      "question": "error code",
+      "presentation": true,
+      "part_enrichment": false,
+      "sha256": "cd7a0860fb3f4ce2c11bd4f9312473b3eba8ba460d55ecb58e05dc2644c1cf96"
+    },
+    {
+      "model": "R330LC-9S",
+      "folder": "R330LC-9S",
+      "question": "error code",
+      "presentation": true,
+      "part_enrichment": true,
+      "sha256": "75dd3aa4976ea7f9eb404bbb672f87b4b53d604822d02c7cdd6d8bea266510eb"
+    },
+    {
+      "model": "R330LC-9S",
+      "folder": "R330LC-9S",
+      "question": "serial range",
+      "presentation": false,
+      "part_enrichment": false,
+      "sha256": "01f608dbd34043240ce66745b1a0b1fe127613daff97646b0c42f44bc90d8fa8"
+    },
+    {
+      "model": "R330LC-9S",
+      "folder": "R330LC-9S",
+      "question": "serial range",
+      "presentation": false,
+      "part_enrichment": true,
+      "sha256": "026d830e6deda4317f843e6c3d96f87059ed5bcd08d2c6023779e4b9628075c8"
+    },
+    {
+      "model": "R330LC-9S",
+      "folder": "R330LC-9S",
+      "question": "serial range",
+      "presentation": true,
+      "part_enrichment": false,
+      "sha256": "68b6264debd97407071e346d4719201d769d2938687f7e9ca228993ee5e20ca0"
+    },
+    {
+      "model": "R330LC-9S",
+      "folder": "R330LC-9S",
+      "question": "serial range",
+      "presentation": true,
+      "part_enrichment": true,
+      "sha256": "ed4fd359c89cdbbe66bfd648f63aec07c34e00f98239b52ef1922dd3fcb9f359"
+    }
+  ]
+}

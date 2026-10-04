@@ -4,13 +4,20 @@ import hashlib
 import json
 import os
 import re
-import secrets
 import subprocess
+import sys
 import threading
 import time
 from pathlib import Path
 
 ROOT = Path("E:/KomatsoAI")
+if str(ROOT) not in sys.path:
+    sys.path.append(str(ROOT))
+from integrations.hermes.shared_fast_core import (
+    Operation, NextAction, normalized, select_policy, coverage_next_action,
+    consume_attempt, remember_failure, start_sidecar, issue_receipt, claim_receipt,
+    bind_task, register_operations,
+)
 MARKER = "KOMATSO_MANUAL_TASK_V3 "
 PREPARED = "KOMATSO_MANUAL_PREPARED_V3"
 TOOL = "maintenance_manual_evidence"
@@ -25,10 +32,6 @@ _pending = {}
 _prepared_sessions = set()
 _child_sessions = set()
 
-
-
-def normalized(value):
-    return re.sub(r"\s+", " ", value).strip().casefold()
 
 
 def source_intent(question):
@@ -57,7 +60,6 @@ def select_rules(device_text, existing, question, presentation=False, part_enric
     mechanics replaced by the batches. Presentation is kept only for the agent
     that writes the user answer. Unknown substantive headings are retained.
     """
-    sections = re.split(r"(?m)(?=^#{2,3} )", device_text)
     diagnostic = bool(re.search(r"test|fault|fail|symptom|pressure|heavy|weak|slow|start|leak|\bnot\b|تست|خراب|خطا|نمی|علت|فشار|سنگینی|ضعف|ضعیف|کند|استارت|نشتی", question, re.I))
     parts = part_enrichment or source_intent(question) in {"part", "mixed"} or bool(re.search(r"order|سفارش", question, re.I))
     code = bool(re.search(r"code|کد|خطا", question, re.I))
@@ -65,34 +67,21 @@ def select_rules(device_text, existing, question, presentation=False, part_enric
     answer = ("سبک پاسخ", "قالب پاسخ", "تصویر و نقشه", "کامل بودن", "IMAGE DELIVERY")
     skip = mechanics if presentation else mechanics + answer
     test = ("روش توضیح", "تست برقی", "تست فشار", "بررسی ظاهری", "خطاهای سنسوری", "سؤال های غیر")
-    seen = normalized(existing)
-    output = []
-    headings = []
-    for section in sections:
-        heading = section.splitlines()[0] if section.strip() else ""
+    def keep_section(heading):
         if any(item.casefold() in heading.casefold() for item in skip):
-            continue
+            return False
         if any(item in heading for item in test) and not diagnostic:
-            continue
+            return False
         if "فقط کد خطا" in heading and not code:
-            continue
+            return False
         if ("PART" in heading.upper() or "قطعه" in heading) and not parts:
-            continue
-        paragraphs = re.split(r"\n\s*\n", section.strip())
-        kept = []
-        for paragraph in paragraphs:
-            key = normalized(paragraph)
-            if not key or key in seen:
-                continue
-            # Strip part-order instructions from a source section for diagnosis.
-            if not parts and re.search(r"part.?number|partbook|پارت بوک|شماره قطعه|اگر شماره قطعه|برای سفارش", paragraph, re.I):
-                continue
-            kept.append(paragraph)
-            seen += " " + key
-        if kept and any(not item.startswith("#") for item in kept):
-            output.append("\n\n".join(kept))
-            headings.append(heading)
-    return "\n\n".join(output), headings
+            return False
+        return True
+
+    def keep_paragraph(paragraph):
+        return parts or not re.search(r"part.?number|partbook|پارت بوک|شماره قطعه|اگر شماره قطعه|برای سفارش", paragraph, re.I)
+
+    return select_policy(device_text, existing, keep_section=keep_section, keep_paragraph=keep_paragraph)
 
 
 def is_maintenance(home):
@@ -163,13 +152,8 @@ def prepare_args(args, home, session_id=""):
         "Required matching skill maintenance-two-stream-evidence loaded by dispatcher; its Technical scope follows. No separate skill_view is needed.\n" + skill_delta,
         contract if normalized(contract) not in normalized(original) else "",
         "Prepared request file: " + request_file.as_posix(), question_context, "Background machine facts (preserve reported symptoms/codes; do not broaden the original question):\n" + original.strip() if original.strip() else "") if part)
-    token = secrets.token_hex(16)
-    with _registry_lock:
-        now = time.monotonic()
-        for stale in [key for key, when in _pending.items() if now - when > 3600]:
-            _pending.pop(stale, None)
-        _pending[token] = now
-    changed = dict(task, context=context, goal=(
+    token = issue_receipt(_pending, lock=_registry_lock, ttl=3600)
+    changed = bind_task(task, context=context, goal=(
         "Technical/Manual evidence for " + model + ". Answer the exact original question in context. "
         "Use the prepared indexed retrieve/finish batches. Fleet facts are background, not additional "
         "diagnostic questions. Preserve incomplete reported codes as uncertainty; require their full "
@@ -196,7 +180,7 @@ def subagent_start(child_session_id="", child_goal="", **kwargs):
     if child_session_id:
         with _registry_lock:
             _child_sessions.add(child_session_id)
-            if receipt and _pending.pop(receipt.group(1), None) is not None:
+            if claim_receipt(_pending, receipt.group(1) if receipt else None):
                 _prepared_sessions.add(child_session_id)
 
 
@@ -303,9 +287,9 @@ def run_batch(arguments, session_id):
 
 def evidence_followup(coverage, broad=False):
     """Tell the parent the next tool call. A complete topic is not a second retrieve."""
-    status = (coverage or {}).get("status")
+    action = coverage_next_action(coverage, exhausted=broad)
     reason = (coverage or {}).get("reason") or ""
-    if status == "complete":
+    if action == NextAction.FINISH:
         return (
             "evidence_coverage.status is complete. A documented troubleshooting or test topic in this packet "
             "already covers the requested component or generic symptom and its text is complete. Call phase=finish with this "
@@ -315,19 +299,19 @@ def evidence_followup(coverage, broad=False):
             "complete topic. If that text does not contain the specific procedure, say it is not documented; "
             "do not guess. " + reason
         )
-    if status == "truncated":
+    if action == NextAction.FINISH_READ:
         return (
             "evidence_coverage.status is truncated. The matching topic is already in this packet but the page "
             "limit cut it off. Do not retrieve again. Call phase=finish and pass read_pages for "
             "evidence_coverage.resume_at_pdf_pages. " + reason
         )
-    if status == "incomplete" and broad:
+    if action == NextAction.STOP:
         return (
             "evidence_coverage.status is incomplete after a whole-manual search. Do not retrieve again. "
             "Answer from the relevant pages only, and state what the manual does not document. "
             "Never invent values, procedures, or safety conditions. " + reason
         )
-    if status == "incomplete":
+    if action == NextAction.REFINE:
         missing = ", ".join((coverage or {}).get("missing_component_terms") or []) or "the requested component"
         return (
             "evidence_coverage.status is incomplete. No complete troubleshooting or test topic covers: "
@@ -412,20 +396,13 @@ def run_retrieval(command, session_id, model, part_query=None, request_id=""):
               "invalid_query" if not valid_part_query(part_query) else "")
     enrichment = {"status": "skipped", "reason": reason, "candidates": []}
     if not reason:
-        def work():
-            started = time.perf_counter()
-            try:
-                result = compact_enrichment(enrichment_lookup(model, part_query, session_id), part_query)
-            except subprocess.TimeoutExpired:
-                result = {"status": "timeout", "candidates": []}
-            except Exception:
-                # Fail-open includes malformed JSON/data. Never expose provider/path details.
-                result = {"status": "error", "candidates": []}
-            slot.update(result=result, started=started, finished=time.perf_counter())
-            ready.set()
-        try:
-            threading.Thread(target=work, name="maintenance-part-enrichment", daemon=True).start()
-        except RuntimeError:
+        launched = start_sidecar(
+            lambda: compact_enrichment(enrichment_lookup(model, part_query, session_id), part_query),
+            ready=ready, slot=slot,
+            on_timeout=lambda: {"status": "timeout", "candidates": []},
+            on_error=lambda: {"status": "error", "candidates": []},
+            name="maintenance-part-enrichment")
+        if not launched:
             enrichment = {"status": "error", "candidates": []}
             reason = "worker_unavailable"
     manual_started = time.perf_counter()
@@ -467,10 +444,8 @@ def retrieve(args, home, session_id):
     if not re.search(r"[A-Za-z]{3}", keywords):
         raise ValueError("English Shop Manual keywords for the system/component and symptom are required")
     count_key = (session_id, question.strip())
-    with _registry_lock:
-        if _retrieves.get(count_key, 0) >= MAX_RETRIEVES:
-            raise ValueError("Retrieval limit reached; answer from the evidence found, state the missing evidence or ask for clarification")
-        _retrieves[count_key] = _retrieves.get(count_key, 0) + 1
+    consume_attempt(_retrieves, count_key, limit=MAX_RETRIEVES, lock=_registry_lock,
+                    error="Retrieval limit reached; answer from the evidence found, state the missing evidence or ask for clarification")
     root_rules = (ROOT / "AGENTS.md").read_text(encoding="utf-8")
     rules, _ = select_rules(device.read_text(encoding="utf-8"), root_rules, question, presentation=True,
                             part_enrichment=model in INDEXED_PART_MODELS and valid_part_query(args.get("part_query")))
@@ -492,9 +467,8 @@ def retrieve(args, home, session_id):
     retrieval, enrichment, metrics = run_retrieval(command, session_id, model, args.get("part_query"), request_id)
     web = retrieval.get("web_search") or {}
     web_error = str(web.get("backend_error") or web.get("error") or "")
-    if re.search(r"(?<![0-9])403(?![0-9])", web_error):
-        with _registry_lock:
-            _web_failures.add(count_key)
+    remember_failure(_web_failures, count_key, web_error,
+                     pattern=r"(?<![0-9])403(?![0-9])", lock=_registry_lock)
     coverage = (retrieval.get("manual_packet") or {}).get("evidence_coverage")
     return {
         "evidence_coverage": coverage or {"status": "unknown", "action": "judge"},
@@ -670,8 +644,7 @@ def register(ctx):
     ctx.register_hook("subagent_stop", subagent_stop)
     ctx.register_system_prompt_section("komatso.maintenance.prepared-manual", prepared_policy, max_chars=1400)
     models = manual_models()
-    ctx.register_tool(name=TOOL, toolset="komatso_maintenance", schema=tool_schema(models),
-                      handler=manual_evidence, description=TOOL_DESCRIPTION)
-
-    ctx.register_tool(name=PART_TOOL, toolset="komatso_maintenance", schema=part_schema(part_model_names()),
-                      handler=part_lookup, description=PART_DESCRIPTION)
+    register_operations(ctx, [
+        Operation(TOOL, "komatso_maintenance", tool_schema(models), manual_evidence, TOOL_DESCRIPTION),
+        Operation(PART_TOOL, "komatso_maintenance", part_schema(part_model_names()), part_lookup, PART_DESCRIPTION),
+    ])

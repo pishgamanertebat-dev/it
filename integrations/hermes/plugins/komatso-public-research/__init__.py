@@ -1,5 +1,12 @@
 """Public web research surface; browser policy lives at the actual network dial."""
 from .browser import browser_action, runtime_paths
+from pathlib import Path
+import sys
+
+ROOT = Path("E:/KomatsoAI")
+if str(ROOT) not in sys.path:
+    sys.path.append(str(ROOT))
+from integrations.hermes.shared_fast_core import Operation, register_operations
 
 ACTIONS={
  "navigate": ("Open a public HTTP/HTTPS page, run its JavaScript, and read text/links.", {"url":{"type":"string"}}, ["url"]),
@@ -28,11 +35,13 @@ def available():
         return False
 
 def register(ctx):
+    operations = []
     for action,(description,properties,required) in ACTIONS.items():
         name="public_browser_"+action
         def handler(args, _action=action, **kw):
             return browser_action(_action,args,kw.get("session_id") or kw.get("task_id"))
-        ctx.register_tool(name=name,toolset="komatso_public_browser",
+        operations.append(Operation(name=name,toolset="komatso_public_browser",
             schema={"name":name,"description":description,"parameters":{
                 "type":"object","properties":properties,"required":required,"additionalProperties":False}},
-            handler=handler,check_fn=available,description=description)
+            handler=handler,check_fn=available,description=description))
+    register_operations(ctx, operations)

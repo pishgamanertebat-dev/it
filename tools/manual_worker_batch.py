@@ -5,7 +5,6 @@ runs independent operations concurrently, retaining each result/error/timing.
 """
 from __future__ import annotations
 import argparse
-from concurrent.futures import ThreadPoolExecutor
 import json
 import os
 from pathlib import Path
@@ -15,6 +14,9 @@ import time
 import manual_evidence_probe as probe
 
 ROOT = probe.ROOT
+if str(ROOT) not in sys.path:
+    sys.path.append(str(ROOT))
+from integrations.hermes.shared_fast_core import run_parallel, timed as _timed
 
 
 def prepared_request(path):
@@ -51,19 +53,11 @@ def run_probe(*args):
 
 
 def timed(operation, function):
-    start = time.perf_counter()
-    try:
-        result = function()
-        return operation,result,round(time.perf_counter()-start,3)
-    except (OSError, ValueError, subprocess.CalledProcessError):
-        return operation,{"success":False,"error":operation+" failed; required evidence must be reported missing."},round(time.perf_counter()-start,3)
+    return _timed(operation, function, recoverable_errors=(OSError, ValueError, subprocess.CalledProcessError))
 
 
 def batch(operations):
-    with ThreadPoolExecutor(max_workers=len(operations)) as pool:
-        futures=[pool.submit(timed,name,function) for name,function in operations]
-        completed=[future.result() for future in futures]
-    return {name:result for name,result,_ in completed}, {name:seconds for name,_,seconds in completed}
+    return run_parallel(operations, recoverable_errors=(OSError, ValueError, subprocess.CalledProcessError))
 
 
 def main():

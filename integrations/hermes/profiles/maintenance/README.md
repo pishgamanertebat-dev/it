@@ -126,9 +126,13 @@ after rebuilding.
 
 `SOUL.md` routes technical requests: greetings, clarification and trivial answers
 go to the Parent directly; a technical/manual question about a supported
-model uses the Parent fast path; a specific fleet unit's fault, or technical
-plus fleet/history evidence, uses two-stream delegation below. A pure
-technical question does not run fleet tools or delegate.
+model uses the Parent fast path. On messaging, a specific fleet unit uses
+its verified model and observations already supplied; ask for the model when
+unknown and do not claim live fleet history without an available scoped tool.
+The historical two-stream recipe below remains relevant only on a host that
+actually exposes its required scoped capabilities. Safe delegation cannot
+supply missing host access: Child Tools must remain a subset of Parent Tools.
+A pure technical question does not run fleet tools or delegate.
 
 The Maintenance plugin registers `maintenance_manual_evidence` in the
 `komatso_maintenance` plugin toolset. Plugin toolsets are enabled on a
@@ -137,8 +141,9 @@ platform unless listed in that platform's `known_plugin_toolsets`, so keep
 `tools.tool_search.enabled: off` in the Maintenance runtime config only
 (`hermes -p maintenance config set tools.tool_search.enabled off`): Hermes
 defers every plugin tool behind `tool_search`/`tool_describe`/`tool_call`
-otherwise, adding a discovery round trip. On this surface the only other
-deferred tool is `process_manage`, and the three bridge schemas disappear.
+otherwise, adding a discovery round trip. Phase 1 messaging supplies allowed
+schemas inline; no additional discovery turn is needed. `process_manage`
+and generic host tools are absent from the messaging surface.
 
 ```text
 retrieve: read device AGENTS.md in full -> applicable policy (presentation kept)
@@ -561,3 +566,32 @@ checks (80 unique tests). Runtime canonical/plugin and SOUL hashes match.
 The production pilot remains HD785-7 B1 only. Expansion is architecturally
 ready: enable a model in INDEXED_PART_MODELS only after its own index and
 source/coverage validation. No other model index was created by this change.
+
+
+## Shared Fast Core migration (2026-10-04)
+
+Canonical engine: `integrations/hermes/shared_fast_core`. The adapters import
+that one project library from `E:/KomatsoAI`; no runtime copy of the engine is
+maintained. The Maintenance plugin retains public tool names and schemas,
+English Shop Manual keyword validation, routing/index algorithms, device
+policy classification, next-action wording, MAX_RETRIEVES=3, request/session
+ownership and Part Book implementation. The batch CLI remains domain-specific.
+
+Shared primitives supply ordered parallel callbacks, recoverable error
+aggregation, coverage next-action decisions, prepared-policy splitting and
+deduplication, caller-configured attempt limits/failure state, daemon sidecar
+publication, one-use preparation receipts and direct operation registration.
+Retrieve still runs PDF || configured web; finish still runs selected render ||
+read || extract. Maintenance explicitly retains its original recoverable error
+boundary and process timeouts. Optional enrichment retains waiting_ms=0 and
+its existing collection boundary, budget and candidates; there is no new cap.
+
+DOMAIN-FIRST: Part identification starts with maintenance_partbook_lookup;
+technical requests start with maintenance_manual_evidence retrieve then finish.
+Public browser, standalone web, read-only skills and safe delegation remain
+available when evidence is insufficient or genuine external research is needed.
+Availability alone does not justify inserting them before the domain path.
+Default uses the same operation-registration infrastructure for public research,
+without receiving Maintenance tools, context, policy or a fabricated domain.
+Host messaging inline schemas, authorization and privilege ceilings remain in
+existing Hermes/Phase 1 code; this migration does not patch Hermes.
