@@ -1,6 +1,6 @@
 # ADMIN-1
 
-Identity, organizational role, resource capability and expert profile are independent. `business_admin` grants only `function.read_all`. `office_supervisor` may route to the independent Admin profile through the existing authorization store's additive `auth_role_profiles` extension. Maintenance users do not lose their expert profile when given business read permission.
+Identity, organizational role, resource capability and expert profile are independent. `business_admin` grants only `function.read_all`. `business_admin` routes to the existing Admin profile at priority 10; specialized `office_supervisor -> admin` and `mechanical_staff -> maintenance` mappings retain priority 100. The existing resolver selects the highest priority and fails closed on an ambiguous top priority. Routing uses the additive `auth_role_profiles` extension; it grants no capability. Maintenance users do not lose their expert profile when given business read permission.
 
 Canonical profile policy: `SOUL.md`, `config.template.yaml`. Runtime config is materialized from this policy with the existing inference model and public research backends; credentials are runtime-only. Native fresh-profile creation is used, without cloning Maintenance, conversations, memory, identity, pairing or refreshable OAuth grants. Shared bot transport remains owned by Default.
 

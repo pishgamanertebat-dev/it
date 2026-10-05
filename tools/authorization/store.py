@@ -16,6 +16,7 @@ OFFICE_SUPERVISOR = 'office_supervisor'
 OVERFLOW_READ = 'reports.overflow.read'
 DAILY_RECEIVE = 'reports.overflow.daily_receive'
 BUSINESS_ADMIN = 'business_admin'
+BUSINESS_ADMIN_PROFILE_PRIORITY = 10
 FUNCTION_READ = 'function.read_all'
 DRIVER_READ = 'reports.driver_daily.read'
 DRIVER_RECEIVE = 'reports.driver_daily.daily_receive'
@@ -334,20 +335,66 @@ class AuthorizationStore:
         with closing(self._connect(write=True)) as conn, conn:
             conn.execute('BEGIN IMMEDIATE')
             self._version(conn)
-            timestamp = now()
-            for user_id, role in assignments:
-                user_id = str(user_id)
-                identity = conn.execute("SELECT chat_id,registration_status FROM channel_users WHERE platform='bale' AND user_id=?", (user_id,)).fetchone()
-                if identity != (user_id, 'approved') or not re.fullmatch(r'[1-9][0-9]*',user_id):
+            self._assign_roles(conn, assignments, actor=actor)
+
+    @staticmethod
+    def _assign_roles(conn, assignments, *, actor):
+        timestamp = now()
+        for user_id, role in assignments:
+            user_id = str(user_id)
+            identity = conn.execute("SELECT chat_id,registration_status FROM channel_users WHERE platform='bale' AND user_id=?", (user_id,)).fetchone()
+            if identity != (user_id, 'approved') or not re.fullmatch(r'[1-9][0-9]*',user_id):
+                raise ValueError('Registered approved private Bale identity required')
+            if role == OFFICE_SUPERVISOR:
+                raise ValueError('Supervisor assignment requires the existing explicit replacement API')
+            conn.execute("""INSERT INTO auth_user_roles VALUES ('bale',?,?,1,?,?,?)
+                ON CONFLICT(platform,user_id,role) DO UPDATE SET active=1,
+                assigned_at=excluded.assigned_at,assigned_by=excluded.assigned_by,updated_at=excluded.updated_at""",
+                (user_id,role,timestamp,actor,timestamp))
+            conn.execute("""INSERT INTO auth_events(platform,user_id,role,event_type,actor,created_at)
+                VALUES ('bale',?,?,'assigned',?,?)""", (user_id,role,actor,timestamp))
+
+    def migrate_business_admin_profile(self, backup_directory=None, *, assignments=(), actor='business-admin-profile'):
+        """Add generic Admin routing and explicit assignments in one guarded transaction.
+
+        Schema v2 is retained for already-running readers. No role, resource,
+        capability, registration or scheduled grant is created. Specialized
+        mappings must already have strictly higher priority.
+        """
+        backup = self.backup(backup_directory)
+        with closing(self._connect(write=True)) as conn, conn:
+            conn.execute('BEGIN IMMEDIATE')
+            self._version(conn)
+            if conn.execute('SELECT MAX(version) FROM auth_migrations').fetchone()[0] != 2:
+                raise sqlite3.DatabaseError('ADMIN-1 authorization schema is required first')
+            caps = conn.execute('SELECT capability FROM auth_role_capabilities WHERE role=?', (BUSINESS_ADMIN,)).fetchall()
+            if caps != [(FUNCTION_READ,)]:
+                raise sqlite3.DatabaseError('Business Admin must carry only function.read_all')
+            if conn.execute('SELECT resource FROM auth_capabilities WHERE capability=?', (FUNCTION_READ,)).fetchone() != (r'E:\Function',):
+                raise sqlite3.DatabaseError('Conflicting Function resource root')
+            for role, profile in [(OFFICE_SUPERVISOR, 'admin'), (MECHANICAL_STAFF, MAINTENANCE_PROFILE)]:
+                row = conn.execute('SELECT profile,priority,active FROM auth_role_profiles WHERE role=?', (role,)).fetchone()
+                if not row or row[0] != profile or row[2] != 1 or type(row[1]) is not int or row[1] <= BUSINESS_ADMIN_PROFILE_PRIORITY:
+                    raise sqlite3.DatabaseError('Specialized profile must have higher priority')
+            conn.execute('INSERT OR IGNORE INTO auth_role_profiles VALUES (?,?,?,1)',
+                         (BUSINESS_ADMIN, 'admin', BUSINESS_ADMIN_PROFILE_PRIORITY))
+            if conn.execute('SELECT profile,priority,active FROM auth_role_profiles WHERE role=?', (BUSINESS_ADMIN,)).fetchone() != ('admin', BUSINESS_ADMIN_PROFILE_PRIORITY, 1):
+                raise sqlite3.DatabaseError('Conflicting Business Admin profile mapping')
+            pending = []
+            for user, role in assignments:
+                if role not in (BUSINESS_ADMIN, MECHANICAL_STAFF):
+                    raise ValueError('Only Business Admin or explicitly requested Mechanical Staff assignments allowed')
+                user = str(user)
+                if conn.execute("SELECT chat_id,registration_status FROM channel_users WHERE platform='bale' AND user_id=?", (user,)).fetchone() != (user, 'approved'):
                     raise ValueError('Registered approved private Bale identity required')
-                if role == OFFICE_SUPERVISOR:
-                    raise ValueError('Supervisor assignment requires the existing explicit replacement API')
-                conn.execute("""INSERT INTO auth_user_roles VALUES ('bale',?,?,1,?,?,?)
-                    ON CONFLICT(platform,user_id,role) DO UPDATE SET active=1,
-                    assigned_at=excluded.assigned_at,assigned_by=excluded.assigned_by,updated_at=excluded.updated_at""",
-                    (user_id,role,timestamp,actor,timestamp))
-                conn.execute("""INSERT INTO auth_events(platform,user_id,role,event_type,actor,created_at)
-                    VALUES ('bale',?,?,'assigned',?,?)""", (user_id,role,actor,timestamp))
+                if conn.execute("SELECT active FROM auth_user_roles WHERE platform='bale' AND user_id=? AND role=?", (user,role)).fetchone() != (1,):
+                    pending.append((user,role))
+            self._assign_roles(conn, pending, actor=actor)
+            conn.execute('CREATE TABLE IF NOT EXISTS auth_extensions (name TEXT PRIMARY KEY, applied_at TEXT NOT NULL)')
+            conn.execute('INSERT OR IGNORE INTO auth_extensions VALUES (?,?)', ('business_admin_profile_v1', now()))
+            if conn.execute('PRAGMA integrity_check').fetchall() != [('ok',)] or conn.execute('PRAGMA foreign_key_check').fetchall():
+                raise sqlite3.DatabaseError('Authorization integrity failed')
+        return backup
 
     def migrate_mechanical(self, backup_directory=None, *, assignments=(), actor='mechanical-migration'):
         """Mechanical Phase 1: additive roles, capabilities and the single Role->Profile row.
