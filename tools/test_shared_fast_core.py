@@ -202,7 +202,7 @@ class AdapterParityTests(unittest.TestCase):
             self.assertEqual(self.plugin.evidence_followup(case['coverage'],case['broad']),case['result'])
 
     def test_public_domain_schemas_unchanged(self):
-        self.assertEqual(self.plugin.tool_schema(self.plugin.manual_models()),self.frozen['manual_schema'])
+        self.assertEqual(self.plugin.tool_schema(self.plugin.manual_models()),dict(self.frozen['manual_schema'],description=self.frozen['manual_schema']['description'].replace('Maintenance Parent fast Shop Manual','Shared fast Shop Manual').replace('Not for delegated workers.','Delegated children may use only inherited parent tools.')))
         self.assertEqual(self.plugin.part_schema(self.plugin.part_model_names()),self.frozen['part_schema'])
         self.assertEqual(self.plugin.MAX_RETRIEVES,3)
 

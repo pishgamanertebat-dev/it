@@ -30,21 +30,16 @@ class ProfileSurfaces(unittest.TestCase):
                 homes={}
                 for profile in ("default","maintenance","admin"):
                     home=Path(tmp)/profile;home.mkdir()
-                    plugins=["komatso-public-research"]
-                    selected=["web","skills_readonly","komatso_public_browser","no_mcp"]
-                    if profile=="maintenance":
-                        plugins.append("komatso-maintenance-manual")
-                        selected+=["delegation","komatso_maintenance"]
+                    plugins=["komatso-public-research", "komatso-technical-docs"]
+                    selected=["web","skills_readonly","komatso_public_browser","delegation","komatso_technical_docs","no_mcp"]
                     if profile in {"admin", "maintenance"}:
                         plugins.append("komatso-function-domain")
-                    if profile=="admin":
-                        selected += ["delegation"]
                     (home/"plugins").mkdir()
                     for plugin in plugins:
                         shutil.copytree(ROOT/"integrations/hermes/plugins"/plugin,home/"plugins"/plugin,ignore=shutil.ignore_patterns("__pycache__"))
                     (home/"skills").mkdir()
                     config={
-                        "platform_toolsets":{"bale":selected,"telegram":selected if profile=="default" else ["search","no_mcp"]},
+                        "platform_toolsets":{"bale":selected,"telegram":selected},
                         "known_plugin_toolsets":{"telegram":["komatso_maintenance","komatso_public_browser"] if profile=="maintenance" else ["komatso_maintenance"]},
                         "plugins":{"enabled":plugins},
                         "skills":{"inline_shell":False},
@@ -53,9 +48,10 @@ class ProfileSurfaces(unittest.TestCase):
                     if profile in {"admin", "maintenance"}:
                         config["capability_toolsets_resolver"]="integrations.hermes.role_routing.resolve_toolsets"
                         config["known_plugin_toolsets"]["bale"]=["komatso_function"]
+                        config["known_plugin_toolsets"]["telegram"]=["komatso_function"]
                     (home/"config.yaml").write_text(json.dumps(config),encoding="utf-8")
                     homes[profile]=(home,config)
-                for profile,platform,capable in [("default","bale",False),("maintenance","bale",False),("maintenance","bale",True),("admin","bale",True),("default","telegram",False),("maintenance","bale",False),("admin","bale",False),("default","bale",False)]:
+                for profile,platform,capable in [("default","bale",False),("maintenance","bale",False),("maintenance","bale",True),("admin","bale",True),("default","telegram",False),("maintenance","bale",False),("maintenance","telegram",False),("admin","telegram",False),("admin","bale",False),("default","bale",False)]:
                     home,config=homes[profile]
                     token=set_hermes_home_override(home)
                     try:
@@ -71,11 +67,11 @@ class ProfileSurfaces(unittest.TestCase):
                             runner=SimpleNamespace(_delivery_adapter_for=lambda source:None)
                             source=SimpleNamespace(user_id="synthetic-user",chat_id="synthetic-user",chat_type="dm")
                             with patch("integrations.hermes.role_routing.AuthorizationStore") as store:
-                                store.return_value.has_capability.return_value=capable
+                                store.return_value.function_scope.return_value=object() if capable else None
                                 enabled=scope["_resolve_enabled_toolsets_for_source"](runner,config,source,platform)
                             definitions=get_tool_definitions(enabled,quiet_mode=True,skip_tool_search_assembly=True)
                             actual={d["function"]["name"] for d in definitions}
-                        expected=research|({"delegate_task","maintenance_manual_evidence","maintenance_partbook_lookup"} if profile=="maintenance" else set())
+                        expected=research|{"delegate_task","maintenance_manual_evidence","maintenance_partbook_lookup"}
                         if profile in {"admin","maintenance"} and platform=="bale" and capable:
                             expected |= {"function_list","function_search","function_metadata","function_read","function_attach","function_report"}
                         if profile=="admin":expected.add("delegate_task")

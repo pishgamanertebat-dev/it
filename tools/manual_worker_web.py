@@ -8,12 +8,16 @@ from pathlib import Path
 
 def main():
     home = Path(os.environ.get("HERMES_HOME", "")).resolve()
-    if home.name != "maintenance" or home.parent.name != "profiles":
-        raise ValueError("Maintenance profile required")
-    repo = home.parent.parent / "hermes-agent"
+    root = Path("E:/KomatsoAI")
+    sys.path.append(str(root))
+    from integrations.hermes.technical_docs_boundary import technical_docs_enabled, runtime_home
+    if not technical_docs_enabled(home):
+        raise ValueError("Technical Docs surface not enabled")
+    repo = runtime_home(home) / "hermes-agent"
     sys.path.insert(0, str(repo))
     from hermes_cli.env_loader import load_hermes_dotenv
     load_hermes_dotenv(hermes_home=home)
+    os.environ["HERMES_SESSION_PLATFORM"] = "bale"
     from tools.web_tools import web_search_tool, web_extract_tool
     request = json.load(sys.stdin)
     if request["operation"] == "search":

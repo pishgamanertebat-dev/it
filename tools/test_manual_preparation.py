@@ -27,6 +27,7 @@ class FakeRootTest(unittest.TestCase):
         self.home = hook.ROOT / "profiles/maintenance"
         skill = self.home / "skills/maintenance-two-stream-evidence/SKILL.md"
         skill.parent.mkdir(parents=True)
+        (self.home/"config.yaml").write_text(json.dumps({"plugins":{"enabled":["komatso-technical-docs"]},"platform_toolsets":{"bale":["komatso_technical_docs"]}}),encoding="utf-8")
         skill.write_text("1. **Technical** — Correct Shop Manual; no invented measurements.\n2. Fleet",encoding="utf-8")
         self.question = "Why does this device fail?"
         self.fleet = {"goal":"Fleet history","context":"Existing fleet contract"}
@@ -58,13 +59,13 @@ class PreparationTests(FakeRootTest):
         self.assertEqual(context.count(self.question),1)
         self.assertEqual(context.count("Release stored pressure"),1)
     def test_system_policy_requires_authenticated_prepared_child(self):
-        info = {"platform":"subagent", "profile_name":"maintenance", "session_id":"technical-test"}
+        info = {"platform":"subagent", "profile_name":"maintenance", "profile_home":str(self.home), "session_id":"technical-test"}
         self.assertEqual(hook.prepared_policy(info), "")
         result = hook.prepare_args(self.args,self.home)
         hook.subagent_start(child_session_id="technical-test",child_goal=result["tasks"][0]["goal"])
         self.assertIn("prerequisite is satisfied",hook.prepared_policy(info))
         self.assertEqual(hook.prepared_policy(dict(info,session_id="fleet-test")), "")
-        self.assertEqual(hook.prepared_policy(dict(info,profile_name="default")), "")
+        self.assertEqual(hook.prepared_policy(dict(info,profile_home=str(self.home.parent/"default"))), "")
         hook.subagent_stop(child_session_id="technical-test")
         self.assertEqual(hook.prepared_policy(info), "")
 
@@ -142,12 +143,13 @@ class ParentFastPathTests(FakeRootTest):
         self.assertFalse(limited["success"])
         self.assertIn("missing evidence", limited["error"])
 
-    def test_delegated_workers_and_other_profiles_cannot_use_parent_tool(self):
+    def test_leaf_can_use_inherited_domain_but_disabled_surface_stays_denied(self):
         hook.subagent_start(child_session_id="fleet-child", child_goal="Fleet history")
-        self.assertFalse(self.retrieve("fleet-child")["success"])
+        self.assertIn("prepared", self.retrieve("fleet-child"))
+        self.calls.clear()
         hook.subagent_stop(child_session_id="fleet-child")
         self.home = self.home.parent / "default"
-        self.assertIn("Maintenance", self.retrieve()["error"])
+        self.assertIn("surface", self.retrieve()["error"])
         self.assertEqual(self.calls, [])
 
     def test_coverage_decides_whether_another_retrieve_is_allowed(self):

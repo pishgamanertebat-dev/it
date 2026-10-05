@@ -17,6 +17,7 @@ ROOT = probe.ROOT
 if str(ROOT) not in sys.path:
     sys.path.append(str(ROOT))
 from integrations.hermes.shared_fast_core import run_parallel, timed as _timed
+from integrations.hermes.technical_docs_boundary import technical_docs_enabled, runtime_home
 
 
 def prepared_request(path):
@@ -30,7 +31,9 @@ def prepared_request(path):
 
 
 def web_operation(home, operation, **params):
-    executable = home.parent.parent / "hermes-agent/venv/Scripts/python.exe"
+    if not technical_docs_enabled(home):
+        return {"success":False,"error":"Technical Docs surface not enabled"}
+    executable = runtime_home(home) / "hermes-agent/venv/Scripts/python.exe"
     if not executable.is_file():
         return {"success":False,"error":"Existing Hermes interpreter unavailable; no retry."}
     try:
@@ -74,8 +77,8 @@ def main():
     args=ap.parse_args()
     request=prepared_request(args.request_file)
     home=Path(request.get("profile_home") or os.environ.get("HERMES_HOME", "")).resolve()
-    if home.name != "maintenance" or home.parent.name != "profiles":
-        ap.error("This batch is only enabled in Maintenance")
+    if not technical_docs_enabled(home):
+        ap.error("Technical Docs surface not enabled")
     operations=[]
     if args.phase=="retrieve":
         if args.render_pages or args.read_pages or args.web_url:

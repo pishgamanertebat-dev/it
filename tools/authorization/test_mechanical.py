@@ -128,7 +128,7 @@ class MechanicalAuthorization(MechanicalFixture,unittest.TestCase):
             for user in ['101','654806764','1732374823']:
                 tools=role_routing.resolve_toolsets(platform='bale',chat_type='dm',chat_id=user,user_id=user,base_toolsets=base)
                 self.assertEqual(set(tools),set(base)|{'komatso_function'})
-                self.assertTrue({'web','skills_readonly','delegation','komatso_public_browser','komatso_maintenance','no_mcp'}<=set(tools))
+                self.assertTrue({'web','skills_readonly','delegation','komatso_public_browser','komatso_technical_docs','no_mcp'}<=set(tools))
             denied=role_routing.resolve_toolsets(platform='bale',chat_type='group',chat_id='101',user_id='101',base_toolsets=base)
             self.assertNotIn('komatso_function',denied)
         plugin=module('mechanical_maintenance_fixture',ROOT/'integrations/hermes/plugins/komatso-maintenance-manual/__init__.py')
