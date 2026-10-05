@@ -1,13 +1,13 @@
 """Single SQLite authorization API; reads never create/migrate a database."""
 from __future__ import annotations
 
+import logging
+import re
+import sqlite3
 from contextlib import closing
 from dataclasses import dataclass
 from datetime import datetime, timezone
-import logging
 from pathlib import Path
-import re
-import sqlite3
 from uuid import uuid4
 
 ROOT = Path(__file__).resolve().parents[2]
