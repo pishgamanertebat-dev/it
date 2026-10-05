@@ -1,0 +1,154 @@
+--- a/gateway/profile_routing.py
++++ b/gateway/profile_routing.py
+@@ -14,6 +14,8 @@
+ from __future__ import annotations
+ 
+ import logging
++import importlib
++import re
+ from dataclasses import dataclass
+ from typing import Any, Dict, List, Optional
+ 
+@@ -65,11 +67,12 @@
+     enabled: bool = True
+     bot_profile: Optional[str] = None  # None = the default profile's bot
+     user_id: Optional[str] = None
++    resolver: Optional[str] = None  # Trusted operator-configured identity -> profile callback
+ 
+     @property
+     def specificity(self) -> int:
+         """Higher value = more specific match."""
+-        return 2 * bool(self.guild_id) + 4 * bool(self.chat_id) + 8 * bool(self.thread_id) + 16 * bool(self.user_id)
++        return 32 * bool(self.resolver) + 2 * bool(self.guild_id) + 4 * bool(self.chat_id) + 8 * bool(self.thread_id) + 16 * bool(self.user_id)
+ 
+     def matches(
+         self, platform: str, guild_id: Optional[str] = None, chat_id: Optional[str] = None,
+@@ -141,15 +144,20 @@
+         name = entry.get("name", "")
+         platform = entry.get("platform", "")
+         profile = entry.get("profile", "")
+-        if not platform or not profile:
++        resolver = entry.get("resolver")
++        if resolver is not None and (not isinstance(resolver, str) or not re.fullmatch(r"[A-Za-z_]\w*(?:\.[A-Za-z_]\w*)+", resolver)):
++            logger.warning("Skipping profile route %s: invalid trusted resolver", name)
++            continue
++        if not platform or not (profile or resolver):
+             logger.warning("Skipping profile route %s: missing platform or profile", name)
+             continue
+         # Validate profile name to prevent path traversal (lazy import: cycle).
+         try:
+             from hermes_cli.profiles import normalize_profile_name, validate_profile_name
+ 
+-            profile = normalize_profile_name(profile)
+-            validate_profile_name(profile)
++            if not resolver:
++                profile = normalize_profile_name(profile)
++                validate_profile_name(profile)
+         except (ValueError, ImportError):
+             logger.warning("Skipping profile route %s: invalid profile name %r", name, profile)
+             continue
+@@ -158,7 +166,7 @@
+             logger.warning("Skipping profile route %s: user_id cannot be null or empty", name)
+             continue
+         routes.append(ProfileRoute(
+-            name=name, platform=platform, profile=profile,
++            name=name, platform=platform, profile=profile, resolver=resolver,
+             guild_id=_coerce_route_id(entry.get("guild_id")),
+             chat_id=_coerce_route_id(entry.get("chat_id")),
+             thread_id=_coerce_route_id(entry.get("thread_id")),
+@@ -181,5 +189,24 @@
+         if route.matches(platform, guild_id=guild_id, chat_id=chat_id, thread_id=thread_id,
+                          parent_chat_id=parent_chat_id, adapter_profile=adapter_profile,
+                          user_id=user_id):
+-            return route
++            if not route.resolver:
++                return route
++            try:
++                module_name, function_name = route.resolver.rsplit('.', 1)
++                resolver = getattr(importlib.import_module(module_name), function_name)
++                profile = resolver(platform=platform, user_id=user_id, chat_id=chat_id,
++                                   guild_id=guild_id, thread_id=thread_id, parent_chat_id=parent_chat_id)
++                if profile is None:
++                    continue
++                from hermes_cli.profiles import normalize_profile_name, validate_profile_name
++                if not isinstance(profile, str):
++                    raise ValueError('Invalid resolved profile')
++                validate_profile_name(profile)
++                canonical = normalize_profile_name(profile)
++                if canonical != profile:
++                    raise ValueError('Resolved profile must be canonical')
++                return ProfileRoute(name=route.name, platform=platform, profile=canonical)
++            except Exception:
++                logger.warning('Identity profile resolver unavailable; no profile escalation')
++                continue
+     return None
+--- a/gateway/platforms/base.py
++++ b/gateway/platforms/base.py
+@@ -1093,6 +1093,22 @@
+     if resolved is None:
+         resolved = _resolve_path(expanded, strict=True)
+     if resolved is None or not resolved.is_file():
++        return None
++    # Optional exclusive operator roots for a restricted routed profile. Generic
++    # and opt-in: existing profile/cache/recency behavior remains byte-for-byte below.
++    from hermes_cli.config import load_config_readonly
++    try:
++        policy = (load_config_readonly().get("gateway") or {})
++    except Exception:
++        return None
++    if policy.get("media_delivery_exclusive_roots") is True:
++        roots = policy.get("media_delivery_allow_dirs")
++        if not isinstance(roots, list):
++            return None
++        for raw in roots:
++            root = _resolve_path(Path(raw), strict=True) if isinstance(raw, str) else None
++            if root is not None and _path_is_within(resolved, root):
++                return str(resolved)
+         return None
+     # Cache / operator allowlist is trusted unconditionally, regardless of mode.
+     for root in _media_delivery_allowed_roots():
+--- a/gateway/run_turn.py
++++ b/gateway/run_turn.py
+@@ -2372,6 +2372,28 @@
+             override = adapter.toolsets_for_source(source) if adapter is not None else None
+         except Exception:
+             override = None
++        # Trusted configuration may add per-identity capability toolsets. The
++        # result goes through the SAME platform validation as adapter overrides.
++        provider_path = user_config.get("capability_toolsets_resolver")
++        if provider_path:
++            from hermes_cli.tools_config import _get_platform_tools
++            base = override if isinstance(override, list) else list(_get_platform_tools(user_config, platform_key))
++            try:
++                import importlib
++                import re
++                if not isinstance(provider_path, str) or not re.fullmatch(r"[A-Za-z_]\w*(?:\.[A-Za-z_]\w*)+", provider_path):
++                    raise ValueError("Invalid capability toolsets resolver")
++                module, function = provider_path.rsplit(".", 1)
++                resolved = getattr(importlib.import_module(module), function)(
++                    platform=platform_key, user_id=getattr(source, "user_id", None),
++                    chat_id=getattr(source, "chat_id", None), chat_type=getattr(source, "chat_type", None),
++                    base_toolsets=tuple(base))
++                if not isinstance(resolved, (list, tuple)) or any(not isinstance(x, str) for x in resolved):
++                    raise ValueError("Invalid capability toolset selection")
++                override = list(resolved)
++            except Exception:
++                logger.warning("Capability toolsets resolver unavailable; retaining base surface")
++                override = base
+         if override and isinstance(override, list):
+             pts = dict(user_config.get("platform_toolsets") or {})
+             pts[platform_key] = [str(x) for x in override]
+--- a/gateway/run_profile_reconcile.py
++++ b/gateway/run_profile_reconcile.py
+@@ -113,7 +113,10 @@
+             for name in list(current):
+                 if name == active or name in known:
+                     continue
+-                if live_gateway_pid_for_home(current[name]) is not None:
++                # A status probe can identify this host through its control pipe.
++                # Never issue that synchronous self-RPC on the serving event loop.
++                owner_pid = await asyncio.to_thread(live_gateway_pid_for_home, current[name])
++                if owner_pid is not None and owner_pid != os.getpid():
+                     blocked.add(name)
+                     if name not in warned:
+                         logger.warning("[MULTIPLEX] Profile '%s' still runs its own gateway; "

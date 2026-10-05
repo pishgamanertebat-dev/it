@@ -15,6 +15,10 @@ DB_PATH = ROOT / 'reports/telegram_usage/telegram_users.db'
 OFFICE_SUPERVISOR = 'office_supervisor'
 OVERFLOW_READ = 'reports.overflow.read'
 DAILY_RECEIVE = 'reports.overflow.daily_receive'
+BUSINESS_ADMIN = 'business_admin'
+FUNCTION_READ = 'function.read_all'
+DRIVER_READ = 'reports.driver_daily.read'
+DRIVER_RECEIVE = 'reports.driver_daily.daily_receive'
 logger = logging.getLogger(__name__)
 
 SCHEMA = (
@@ -72,7 +76,7 @@ class AuthorizationStore:
 
     @staticmethod
     def _version(conn):
-        if conn.execute('SELECT MAX(version) FROM auth_migrations').fetchone()[0] != 1:
+        if conn.execute('SELECT MAX(version) FROM auth_migrations').fetchone()[0] not in (1, 2):
             raise sqlite3.DatabaseError('Unsupported authorization schema')
 
     def backup(self, directory=None):
@@ -95,7 +99,7 @@ class AuthorizationStore:
             for statement in SCHEMA:
                 conn.execute(statement)
             version = conn.execute('SELECT MAX(version) FROM auth_migrations').fetchone()[0]
-            if version not in (None, 1):
+            if version not in (None, 1, 2):
                 raise sqlite3.DatabaseError('Unsupported authorization schema')
             if version is None:
                 conn.execute('INSERT INTO auth_roles VALUES (?,?)', (OFFICE_SUPERVISOR, 'سرپرست دفتر'))
@@ -159,13 +163,13 @@ class AuthorizationStore:
             return False
         return self.has_capability(user_id, OVERFLOW_READ, platform)
 
-    def resolve_daily_recipient(self):
+    def resolve_daily_recipient(self, *, role=OFFICE_SUPERVISOR, capability=DAILY_RECEIVE):
         try:
             with closing(self._connect()) as conn, conn:
                 conn.execute('BEGIN')
                 self._version(conn)
                 holders = conn.execute('''SELECT user_id FROM auth_user_roles
-                    WHERE platform='bale' AND role=? AND active=1''', (OFFICE_SUPERVISOR,)).fetchall()
+                    WHERE platform='bale' AND role=? AND active=1''', (role,)).fetchall()
                 count = len(holders)
                 if count != 1:
                     return RecipientResolution('no_active_holder' if count == 0 else 'ambiguous_holders',
@@ -176,7 +180,7 @@ class AuthorizationStore:
                 if (not identity or identity[1] != 'approved' or identity[0] != user_id
                         or not re.fullmatch(r'[1-9][0-9]*', user_id)):
                     return RecipientResolution('recipient_not_approved', holder_count=1)
-                if not self._has_capability(conn, user_id, DAILY_RECEIVE, 'bale'):
+                if not self._has_capability(conn, user_id, capability, 'bale'):
                     return RecipientResolution('capability_missing', holder_count=1)
                 return RecipientResolution('ready', user_id, 1)
         except (sqlite3.Error, OSError):
@@ -215,3 +219,75 @@ class AuthorizationStore:
                 (user_id, role, timestamp, actor, timestamp))
             conn.execute('''INSERT INTO auth_events(platform,user_id,role,event_type,actor,created_at)
                 VALUES ('bale',?,?,'assigned',?,?)''', (user_id, role, actor, timestamp))
+
+
+    def migrate_admin(self, backup_directory=None):
+        """ADMIN-1 additive extension; no registration or overflow grant changes."""
+        backup = self.backup(backup_directory)
+        with closing(self._connect(write=True)) as conn, conn:
+            conn.execute('BEGIN IMMEDIATE')
+            self._version(conn)
+            conn.execute("""CREATE TABLE IF NOT EXISTS auth_role_profiles (
+                role TEXT PRIMARY KEY REFERENCES auth_roles(role),
+                profile TEXT NOT NULL, priority INTEGER NOT NULL CHECK(typeof(priority)='integer'),
+                active INTEGER NOT NULL CHECK(active IN (0,1)))""")
+            if conn.execute('SELECT 1 FROM auth_migrations WHERE version=2').fetchone():
+                return backup
+            conn.execute('INSERT INTO auth_roles VALUES (?,?)', (BUSINESS_ADMIN, 'مدیر / مسئول اداری'))
+            for cap, resource, role in [(FUNCTION_READ, r'E:\Function', BUSINESS_ADMIN),
+                    (DRIVER_READ, 'reports.driver_daily', OFFICE_SUPERVISOR),
+                    (DRIVER_RECEIVE, 'reports.driver_daily', OFFICE_SUPERVISOR)]:
+                conn.execute('INSERT INTO auth_capabilities VALUES (?,?)', (cap,resource))
+                conn.execute('INSERT INTO auth_role_capabilities VALUES (?,?)', (role,cap))
+            conn.execute('INSERT INTO auth_role_profiles VALUES (?,?,?,1)', (OFFICE_SUPERVISOR,'admin',100))
+            conn.execute('INSERT INTO auth_migrations VALUES (2,?)', (now(),))
+        return backup
+
+    def resolve_profile(self, user_id, chat_id, platform='bale'):
+        """Fresh role mapping per identity resolution; no profile-based permissions."""
+        if not user_id or str(user_id) != str(chat_id):
+            return None
+        try:
+            with closing(self._connect()) as conn, conn:
+                conn.execute('BEGIN')
+                self._version(conn)
+                rows = conn.execute("""SELECT rp.profile,rp.priority FROM auth_role_profiles rp
+                    JOIN auth_roles r ON r.role=rp.role
+                    JOIN auth_user_roles ur ON ur.role=r.role
+                    JOIN channel_users u USING(platform,user_id)
+                    WHERE ur.platform=? AND ur.user_id=? AND ur.active=1 AND rp.active=1
+                      AND u.registration_status='approved' AND u.chat_id=u.user_id
+                    ORDER BY rp.priority DESC""", (platform,str(user_id))).fetchall()
+                if not rows:
+                    return None
+                if any(not isinstance(p,str) or not re.fullmatch(r'[a-z][a-z0-9_-]{0,63}',p)
+                       or type(priority) is not int for p,priority in rows):
+                    return None
+                highest = {p for p,priority in rows if priority == rows[0][1]}
+                if len(highest) != 1:
+                    return None
+                return highest.pop()
+        except (sqlite3.Error, OSError, ValueError):
+            logger.error('Authorization profile mapping unavailable; fail closed')
+            return None
+
+
+    def assign_roles(self, assignments, *, actor):
+        """Atomic additive operator assignments; never modifies registration or other roles."""
+        with closing(self._connect(write=True)) as conn, conn:
+            conn.execute('BEGIN IMMEDIATE')
+            self._version(conn)
+            timestamp = now()
+            for user_id, role in assignments:
+                user_id = str(user_id)
+                identity = conn.execute("SELECT chat_id,registration_status FROM channel_users WHERE platform='bale' AND user_id=?", (user_id,)).fetchone()
+                if identity != (user_id, 'approved') or not re.fullmatch(r'[1-9][0-9]*',user_id):
+                    raise ValueError('Registered approved private Bale identity required')
+                if role == OFFICE_SUPERVISOR:
+                    raise ValueError('Supervisor assignment requires the existing explicit replacement API')
+                conn.execute("""INSERT INTO auth_user_roles VALUES ('bale',?,?,1,?,?,?)
+                    ON CONFLICT(platform,user_id,role) DO UPDATE SET active=1,
+                    assigned_at=excluded.assigned_at,assigned_by=excluded.assigned_by,updated_at=excluded.updated_at""",
+                    (user_id,role,timestamp,actor,timestamp))
+                conn.execute("""INSERT INTO auth_events(platform,user_id,role,event_type,actor,created_at)
+                    VALUES ('bale',?,?,'assigned',?,?)""", (user_id,role,actor,timestamp))

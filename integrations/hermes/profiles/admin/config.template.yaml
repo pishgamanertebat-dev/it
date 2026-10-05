@@ -1,0 +1,21 @@
+capability_toolsets_resolver: integrations.hermes.role_routing.resolve_toolsets
+platform_toolsets:
+  bale: [web, skills_readonly, komatso_public_browser, delegation, no_mcp]
+  telegram: [web, skills_readonly, komatso_public_browser, delegation, no_mcp]
+  cli: [web, skills_readonly, komatso_public_browser, delegation, no_mcp]
+plugins:
+  enabled: [komatso-public-research, komatso-function-domain, komatso-parallel, web/parallel, web/tavily]
+skills:
+  inline_shell: false
+tools:
+  tool_search:
+    enabled: 'off'
+gateway:
+  strict: true
+  trust_recent_files: false
+  media_delivery_exclusive_roots: true
+  media_delivery_allow_dirs: []
+agent:
+  skip_context_files: true
+terminal:
+  cwd: C:\Users\win-10\AppData\Local\hermes\profiles\admin

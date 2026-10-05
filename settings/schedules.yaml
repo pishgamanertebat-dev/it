@@ -14,7 +14,7 @@ schedules:
       minute: 0
     params: {}
   - id: repairs_daily
-    enabled: true
+    enabled: false
     task: repairs
     recipient: "654806764"
     trigger:
@@ -24,7 +24,7 @@ schedules:
     params:
       section: mechanical
   - id: metalwork_daily
-    enabled: true
+    enabled: false
     task: repairs
     recipient: "455740857"
     trigger:
@@ -33,3 +33,13 @@ schedules:
       minute: 0
     params:
       section: metalwork
+  - id: driver_daily_office_supervisor
+    enabled: true
+    task: driver_daily
+    recipient_role: office_supervisor
+    timezone: Asia/Tehran
+    trigger:
+      type: cron
+      hour: 10
+      minute: 0
+    params: {}

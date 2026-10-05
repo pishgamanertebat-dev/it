@@ -45,6 +45,20 @@ class BaleSender:
             # Request exceptions contain the token-bearing URL; never log them.
             raise RuntimeError('Bale photo delivery failed; outcome may be uncertain') from None
 
+    def photo_memory(self, recipient, data, filename, caption):
+        """Upload an operator-requested PNG directly from memory, without persistence."""
+        if not isinstance(data, bytes) or not data.startswith(b'\x89PNG\r\n\x1a\n'):
+            raise ValueError('PNG bytes required')
+        try:
+            response = self.session.post(
+                f'https://tapi.bale.ai/bot{self.token}/sendPhoto',
+                data={'chat_id': recipient, 'caption': caption},
+                files={'photo': (filename, data, 'image/png')}, timeout=(15,90))
+            if response.status_code != 200 or not response.json().get('ok'):
+                raise RuntimeError('Bale rejected the photo')
+        except Exception:
+            raise RuntimeError('Bale photo delivery failed; outcome may be uncertain') from None
+
     def close(self):
         self.session.close()
 
@@ -161,4 +175,44 @@ def repairs(recipient, params):
             sender.close()
 
 
-TASKS = {'overflow': (validate_overflow, overflow), 'repairs': (validate_repairs, repairs)}
+def driver_daily(recipient, params, *, authorization=None):
+    """Same scheduler and recipient invariant; PDF documents for the exact previous day."""
+    from tools.authorization import DRIVER_RECEIVE
+    from integrations.hermes.function_domain.driver_report import build_driver_pdf, SECTIONS
+    validate_overflow(params)
+    store = authorization if authorization is not None else AuthorizationStore()
+    def authorized():
+        resolution = store.resolve_daily_recipient(capability=DRIVER_RECEIVE)
+        if resolution.status != 'ready' or resolution.recipient != recipient:
+            reason = resolution.status if resolution.status != 'ready' else 'recipient_changed'
+            logger.warning('Driver daily no send: %s active_holders=%s', reason, resolution.holder_count)
+            return {'status':'skipped', 'reason':reason}
+        return None
+    denied = authorized()
+    if denied:
+        return denied
+    runtime = ROOT / 'runtime/scheduler'
+    runtime.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory(prefix='driver-', dir=runtime) as directory:
+        expected = validate_date(params['date']) if params.get('date') else overflow_report_date()
+        result = build_driver_pdf(expected, directory)
+        denied = authorized()
+        if denied:
+            return denied
+        if result['report']['date'] != expected or len(result['documents']) != 2:
+            raise ValueError('Driver output must contain two PDFs for the exact requested day')
+        sender = BaleSender()
+        try:
+            for section, path in zip(SECTIONS, result['documents']):
+                denied = authorized()
+                if denied:
+                    return denied
+                content = result['report']['sections'][section]
+                sender.document(recipient, path, content['title'] + ' ' + expected)
+                logger.info('Driver daily section=%s date=%s status=%s', section, expected, content['status'])
+        finally:
+            sender.close()
+
+
+TASKS = {'overflow': (validate_overflow, overflow), 'repairs': (validate_repairs, repairs),
+         'driver_daily': (validate_overflow, driver_daily)}

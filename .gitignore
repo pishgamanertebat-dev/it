@@ -109,6 +109,8 @@ cache/
 *.csv
 *.md
 *.mdc
+!integrations/hermes/profiles/admin/README.md
+!integrations/hermes/profiles/admin/SOUL.md
 !integrations/hermes/profiles/maintenance/README.md
 !integrations/hermes/profiles/maintenance/SOUL.md
 !integrations/hermes/profiles/maintenance/MANUAL_OPTIMIZATION.md

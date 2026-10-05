@@ -1343,12 +1343,36 @@ def _handle_overflow_report(event, gateway):
         project_tools = r"E:\KomatsoAI\tools"
         if project_tools not in tools_package.__path__:
             tools_package.__path__.append(project_tools)
+        from tools.authorization import store as auth_store_module
+        if not hasattr(auth_store_module.AuthorizationStore, 'migrate_admin'):
+            import importlib
+            import tools.authorization as auth_package
+            importlib.reload(auth_store_module)
+            importlib.reload(auth_package)
         from tools.fleet.overflow import bale as overflow_backend
+        if (hasattr(overflow_backend, 'AuthorizationStore') and
+                not hasattr(overflow_backend.AuthorizationStore, 'migrate_admin')):
+            import importlib
+            overflow_backend = importlib.reload(overflow_backend)
         if getattr(overflow_backend, "AUTHORIZATION_VERSION", 0) != 1:
             import importlib
             overflow_backend = importlib.reload(overflow_backend)
         if getattr(overflow_backend, "AUTHORIZATION_VERSION", 0) != 1:
             raise RuntimeError("Authorized overflow backend required")
+        # A business resource reader uses its own capability-gated domain tool.
+        # Keep the existing overflow authorization/backend unchanged for report
+        # capability holders and denied identities; do not intercept the broader
+        # resource reader's exact-date request before its expert agent sees it.
+        from tools.authorization import FUNCTION_READ, OVERFLOW_READ
+        authority = getattr(getattr(overflow_backend, '_handler', None), 'authorization', None)
+        source = event.source
+        user_id = str(getattr(source, 'user_id', '') or '')
+        chat_id = str(getattr(source, 'chat_id', '') or '')
+        if (authority is not None and _platform_name(source.platform) == 'bale'
+                and getattr(source, 'chat_type', None) == 'dm' and user_id and user_id == chat_id
+                and authority.has_capability(user_id, FUNCTION_READ)
+                and not authority.has_capability(user_id, OVERFLOW_READ)):
+            return None
         return overflow_backend.handle_overflow_message(event, gateway, send=_send)
     except Exception:
         import logging

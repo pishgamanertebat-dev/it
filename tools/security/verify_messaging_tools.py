@@ -23,6 +23,8 @@ ALLOWED = {
         "delegate_task", "maintenance_manual_evidence", "maintenance_partbook_lookup"
     },
     ("maintenance", "telegram"): {"web_search"},
+    ("admin", "bale"): RESEARCH | {"delegate_task", "function_list", "function_search", "function_metadata", "function_read", "function_attach", "function_report"},
+    ("admin", "telegram"): RESEARCH | {"delegate_task"},
 }
 FORBIDDEN = {
     "terminal", "process_manage", "execute_code", "read_file", "write_file",
@@ -31,7 +33,7 @@ FORBIDDEN = {
     "desktop_preview", "drive_preview", "read_window_below", "focus_pane",
 }
 
-def inspect(home: Path, platform: str, source: Path) -> dict:
+def inspect(home: Path, platform: str, source: Path, user_id=None, staged=False) -> dict:
     os.environ["HERMES_HOME"] = str(home.resolve())
     sys.path.insert(0, str(source.resolve()))
     from agent.skill_utils import parse_config_string_list
@@ -43,6 +45,12 @@ def inspect(home: Path, platform: str, source: Path) -> dict:
     discover_plugins()
     config = load_user_config_effective(home / "config.yaml")
     toolsets = sorted(_get_platform_tools(config, platform))
+    if user_id:
+        from integrations.hermes.role_routing import resolve_toolsets
+        selected=resolve_toolsets(platform=platform,user_id=user_id,chat_id=user_id,chat_type='dm',base_toolsets=toolsets)
+        copy=dict(config);copy['platform_toolsets']=dict(config.get('platform_toolsets') or {})
+        copy['platform_toolsets'][platform]=selected
+        toolsets=sorted(_get_platform_tools(copy,platform))
     disabled = parse_config_string_list(
         (config.get("agent") or {}).get("disabled_toolsets")
     ) or None
@@ -53,8 +61,12 @@ def inspect(home: Path, platform: str, source: Path) -> dict:
                                    skip_tool_search_assembly=platform in {"bale", "telegram"})
     names = sorted({item["function"]["name"] for item in raw})
     visible_names = sorted({item["function"]["name"] for item in visible})
-    profile = "maintenance" if home.name == "maintenance" else "default"
+    profile = home.name if home.name in {"maintenance", "admin"} else "default"
     allowed = ALLOWED.get((profile, platform))
+    domain={"function_list","function_search","function_metadata","function_read","function_attach","function_report"}
+    if allowed is not None:
+        allowed=set(allowed)-domain
+        if 'komatso_function' in toolsets:allowed |= domain
     forbidden = sorted(
         name for name in names
         if name in FORBIDDEN or name.startswith("browser_")
@@ -79,8 +91,9 @@ def main() -> int:
     parser.add_argument("--hermes-source", type=Path, required=True)
     parser.add_argument("--output", type=Path)
     parser.add_argument("--snapshot-only", action="store_true")
+    parser.add_argument("--user-id")
     args = parser.parse_args()
-    result = inspect(args.profile_home, args.platform, args.hermes_source)
+    result = inspect(args.profile_home, args.platform, args.hermes_source,args.user_id)
     rendered = json.dumps(result, ensure_ascii=False, indent=2) + "\n"
     if args.output:
         args.output.write_text(rendered, encoding="utf-8")

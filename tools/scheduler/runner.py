@@ -16,7 +16,7 @@ from apscheduler.triggers.date import DateTrigger
 from tzlocal import get_localzone
 import yaml
 
-from tools.authorization import AuthorizationStore, OFFICE_SUPERVISOR
+from tools.authorization import AuthorizationStore, OFFICE_SUPERVISOR, DRIVER_RECEIVE
 from .tasks import ROOT, TASKS, overflow_report_date
 
 CONFIG = ROOT / 'settings/schedules.yaml'
@@ -53,7 +53,7 @@ def load_config(path=CONFIG, registry=TASKS):
             raise ValueError(f'{name}: enabled must be true/false')
         if job.get('task') not in registry:
             raise ValueError(f'{name}: unknown task')
-        if job['task'] == 'overflow':
+        if job['task'] in {'overflow', 'driver_daily'}:
             if 'recipient' in job or job.get('recipient_role') != OFFICE_SUPERVISOR:
                 raise ValueError(f'{name}: overflow requires office_supervisor; fixed recipient forbidden')
             if job.get('timezone') != 'Asia/Tehran':
@@ -61,7 +61,7 @@ def load_config(path=CONFIG, registry=TASKS):
             job['recipient'] = 'role:' + OFFICE_SUPERVISOR
         else:
             if 'recipient_role' in job:
-                raise ValueError(f'{name}: role delivery is only defined for overflow')
+                raise ValueError(f'{name}: role delivery is only defined for supported reports')
             recipient = str(job.get('recipient', ''))
             if not re.fullmatch(r'[1-9][0-9]*', recipient):
                 raise ValueError(f'{name}: recipient must be a positive Bale user ID')
@@ -70,7 +70,7 @@ def load_config(path=CONFIG, registry=TASKS):
         params = job.get('params', {})
         if not isinstance(params, dict):
             raise ValueError(f'{name}: params must be a mapping')
-        if job['task'] == 'overflow' and params:
+        if job['task'] in {'overflow', 'driver_daily'} and params:
             raise ValueError(f'{name}: overflow schedule computes the previous day; params must be empty')
         registry[job['task']][0](params)
         job['params'] = params
@@ -140,17 +140,19 @@ def tick(config=CONFIG, state=STATE, now=None, registry=TASKS, authorization=Non
             try:
                 recipient = job['recipient']
                 params = dict(job['params'])
-                if job['task'] == 'overflow':
+                if job['task'] in {'overflow', 'driver_daily'}:
                     store = authorization if authorization is not None else AuthorizationStore()
-                    resolution = store.resolve_daily_recipient()
+                    resolution = (store.resolve_daily_recipient(capability=DRIVER_RECEIVE)
+                                  if job['task'] == 'driver_daily' else store.resolve_daily_recipient())
                     if resolution.status != 'ready':
                         status, error = 'skipped', resolution.status
-                        logger.warning('Overflow no send: %s active_holders=%s',
-                                       resolution.status, resolution.holder_count)
+                        logger.warning(('Overflow' if job['task'] == 'overflow' else 'Driver daily') +
+                                       ' no send: %s active_holders=%s', resolution.status, resolution.holder_count)
                     else:
                         recipient = resolution.recipient
                         params['date'] = overflow_report_date(due)
-                        logger.info('Overflow requested previous-day report: %s', params['date'])
+                        logger.info(('Overflow' if job['task'] == 'overflow' else 'Driver daily') +
+                                    ' requested previous-day report: %s', params['date'])
                 if status != 'skipped':
                     result = registry[job['task']][1](recipient, params)
                     if isinstance(result, dict) and result.get('status') == 'skipped':
