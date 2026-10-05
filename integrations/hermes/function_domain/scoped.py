@@ -14,9 +14,24 @@ class ScopeDenied(PermissionError):
     pass
 
 class ScopedReader:
-    def __init__(self, root=FUNCTION_ROOT):
+    def __init__(self, root=FUNCTION_ROOT, *, allowed_files=None):
         # Injectable only by trusted Python callers for fixtures, never the tool schema.
         self.root = Path(root).absolute()
+        self.allowed_files = None if allowed_files is None else frozenset(allowed_files)
+        if self.allowed_files is not None:
+            for name in self.allowed_files:
+                if self.relative(name) != [name]:
+                    raise ScopeDenied('Exact-file scope requires root filenames')
+
+    def restricted(self, files):
+        files = frozenset(files)
+        if self.allowed_files is not None:
+            files &= self.allowed_files
+        return ScopedReader(self.root, allowed_files=files)
+
+    def check_file_scope(self, parts, *, directory=False):
+        if self.allowed_files is not None and (directory or '/'.join(parts) not in self.allowed_files):
+            raise ScopeDenied('Resource is outside the identity file scope')
 
     def relative(self, value=''):
         if not isinstance(value,str) or len(value)>2048 or any(ord(c)<32 for c in value):
@@ -86,6 +101,7 @@ class ScopedReader:
     @contextmanager
     def open(self,relative='',*,directory=False):
         parts=self.relative(relative)
+        self.check_file_scope(parts, directory=directory)
         if not parts and not directory:raise ScopeDenied('A file path is required')
         with ExitStack() as stack:
             stack.enter_context(self._handle(self.root,True))
@@ -98,7 +114,9 @@ class ScopedReader:
             yield target,None if directory else resource
 
     def metadata(self,relative):
-        parts=self.relative(relative);target=self.root.joinpath(*parts)
+        parts=self.relative(relative)
+        self.check_file_scope(parts)
+        target=self.root.joinpath(*parts)
         with self.open(relative,directory=target.is_dir()) as (p,f):
             info=p.stat() if f is None else os.fstat(f.fileno())
             return {'path':'/'.join(parts),'directory':stat.S_ISDIR(info.st_mode),
@@ -107,6 +125,19 @@ class ScopedReader:
     def list(self,relative='',*,recursive=False,pattern='',offset=0,limit=200):
         if not isinstance(pattern,str) or len(pattern)>256:raise ValueError('Invalid filename search')
         if type(offset)!=int or offset<0 or type(limit)!=int or not 1<=limit<=500:raise ValueError('Invalid page')
+        if self.allowed_files is not None:
+            # Enumerate only fixed authorized names: no out-of-scope scandir or skipped-path leaks.
+            if self.relative(relative):
+                raise ScopeDenied('Directories are outside the identity file scope')
+            entries=[]
+            for name in sorted(self.allowed_files, key=str.casefold):
+                if pattern and pattern.casefold() not in name.casefold():continue
+                try:entries.append(self.metadata(name))
+                except (ScopeDenied,OSError):continue
+            total=len(entries);page=entries[offset:offset+limit]
+            return {'entries':page,'total':total,'offset':offset,
+                    'next_offset':offset+len(page) if offset+len(page)<total else None,
+                    'skipped_unreadable_or_links':[]}
         entries=[];skipped=[];total=0
         def visit(rel):
             nonlocal total

@@ -19,6 +19,44 @@ BUSINESS_ADMIN = 'business_admin'
 FUNCTION_READ = 'function.read_all'
 DRIVER_READ = 'reports.driver_daily.read'
 DRIVER_RECEIVE = 'reports.driver_daily.daily_receive'
+# Mechanical Phase 1 (additive). Profile = expertise, Role = responsibility, Capability = grant.
+MECHANICAL_STAFF = 'mechanical_staff'
+MECHANICAL_MANAGER = 'mechanical_manager'
+MECHANICAL_MANAGER_DEPUTY = 'mechanical_manager_deputy'
+MAINTENANCE_PROFILE = 'maintenance'
+MAINTENANCE_RECORDS_READ = 'maintenance.records.read'
+DRIVER_REPORT_READ = 'repairs.driver_report.read'
+MECH_OVERFLOW_RECEIVE = 'reports.overflow.mechanical_daily_receive'
+MECH_DRIVER_RECEIVE = 'reports.driver_daily.mechanical_daily_receive'
+# Exact-file resource capabilities. The path map is owned by code, never by DB rows:
+# a capability row can document a resource but cannot widen it.
+FILE_RESOURCES = {
+    MAINTENANCE_RECORDS_READ: 'تعمیرات 1405.xlsx',
+    DRIVER_REPORT_READ: 'گزارش روزانه رانندگان2.xlsx',
+}
+FUNCTION_CAPABILITIES = (FUNCTION_READ, *FILE_RESOURCES)
+MECHANICAL_ROLES = (
+    (MECHANICAL_STAFF, 'نیروی مکانیکی / تعمیرات'),
+    (MECHANICAL_MANAGER, 'مسئول مکانیکی'),
+    (MECHANICAL_MANAGER_DEPUTY, 'جانشین مسئول مکانیکی'),
+)
+MECHANICAL_CAPABILITIES = (
+    (MAINTENANCE_RECORDS_READ, 'E:\\Function\\' + FILE_RESOURCES[MAINTENANCE_RECORDS_READ]),
+    (DRIVER_REPORT_READ, 'E:\\Function\\' + FILE_RESOURCES[DRIVER_REPORT_READ]),
+    (MECH_OVERFLOW_RECEIVE, 'reports.overflow'),
+    (MECH_DRIVER_RECEIVE, 'reports.driver_daily.mechanical'),
+)
+_MANAGER_CAPABILITIES = (MAINTENANCE_RECORDS_READ, DRIVER_REPORT_READ, OVERFLOW_READ,
+                         MECH_OVERFLOW_RECEIVE, MECH_DRIVER_RECEIVE)
+# Staff gets only the technical-records read. Managers add data/report grants on top of
+# the base role; neither role maps to a profile (only mechanical_staff -> maintenance does).
+MECHANICAL_ROLE_CAPABILITIES = {
+    MECHANICAL_STAFF: (MAINTENANCE_RECORDS_READ,),
+    MECHANICAL_MANAGER: _MANAGER_CAPABILITIES,
+    MECHANICAL_MANAGER_DEPUTY: _MANAGER_CAPABILITIES,
+}
+MECHANICAL_PROFILE_MAP = ((MECHANICAL_STAFF, MAINTENANCE_PROFILE, 100),)
+MECHANICAL_EXTENSION = 'mechanical_roles_v1'
 logger = logging.getLogger(__name__)
 
 SCHEMA = (
@@ -56,6 +94,25 @@ class RecipientResolution:
     status: str
     recipient: str | None = None
     holder_count: int = 0
+
+
+@dataclass(frozen=True)
+class RecipientSetResolution:
+    """Multi-recipient counterpart of RecipientResolution (never an exactly-one invariant)."""
+    status: str
+    recipients: tuple = ()
+    holder_count: int = 0
+    skipped_count: int = 0
+
+
+@dataclass(frozen=True)
+class FunctionScope:
+    """What a verified identity may read below E:\\Function. Empty scope = nothing."""
+    all: bool = False
+    files: tuple = ()
+
+    def __bool__(self):
+        return self.all or bool(self.files)
 
 
 class AuthorizationStore:
@@ -291,3 +348,124 @@ class AuthorizationStore:
                     (user_id,role,timestamp,actor,timestamp))
                 conn.execute("""INSERT INTO auth_events(platform,user_id,role,event_type,actor,created_at)
                     VALUES ('bale',?,?,'assigned',?,?)""", (user_id,role,actor,timestamp))
+
+    def migrate_mechanical(self, backup_directory=None, *, assignments=(), actor='mechanical-migration'):
+        """Mechanical Phase 1: additive roles, capabilities and the single Role->Profile row.
+
+        Idempotent. It deliberately records an `auth_extensions` marker instead of a new
+        `auth_migrations` version: already-running readers accept only schema versions 1/2
+        and would fail closed for every identity if MAX(version) changed under them.
+        Existing roles, capabilities, assignments and registrations are never touched.
+        """
+        backup = self.backup(backup_directory)
+        with closing(self._connect(write=True)) as conn, conn:
+            conn.execute('BEGIN IMMEDIATE')
+            self._version(conn)
+            if conn.execute('SELECT MAX(version) FROM auth_migrations').fetchone()[0] != 2:
+                raise sqlite3.DatabaseError('ADMIN-1 authorization schema is required first')
+            conn.execute('''CREATE TABLE IF NOT EXISTS auth_extensions (
+                name TEXT PRIMARY KEY, applied_at TEXT NOT NULL)''')
+            for role, display in MECHANICAL_ROLES:
+                conn.execute('INSERT OR IGNORE INTO auth_roles VALUES (?,?)', (role, display))
+            for capability, resource in MECHANICAL_CAPABILITIES:
+                conn.execute('INSERT OR IGNORE INTO auth_capabilities VALUES (?,?)', (capability, resource))
+            for role, capabilities in MECHANICAL_ROLE_CAPABILITIES.items():
+                for capability in capabilities:
+                    conn.execute('INSERT OR IGNORE INTO auth_role_capabilities VALUES (?,?)', (role, capability))
+            for role, profile, priority in MECHANICAL_PROFILE_MAP:
+                conn.execute('INSERT OR IGNORE INTO auth_role_profiles VALUES (?,?,?,1)', (role, profile, priority))
+                if conn.execute('SELECT profile,priority,active FROM auth_role_profiles WHERE role=?',
+                                (role,)).fetchone() != (profile, priority, 1):
+                    raise sqlite3.DatabaseError('Conflicting existing Role->Profile mapping; refusing to override')
+            # No manager/deputy profile rows or unexpected grants may sneak into an existing seed.
+            for role, expected in MECHANICAL_ROLE_CAPABILITIES.items():
+                actual = {r[0] for r in conn.execute('SELECT capability FROM auth_role_capabilities WHERE role=?', (role,))}
+                if actual != set(expected):
+                    raise sqlite3.DatabaseError('Conflicting mechanical role capabilities')
+            if conn.execute('SELECT 1 FROM auth_role_profiles WHERE role IN (?,?)',
+                            (MECHANICAL_MANAGER, MECHANICAL_MANAGER_DEPUTY)).fetchone():
+                raise sqlite3.DatabaseError('Manager roles must not map to a profile')
+            for capability, resource in MECHANICAL_CAPABILITIES:
+                if conn.execute('SELECT resource FROM auth_capabilities WHERE capability=?',
+                                (capability,)).fetchone() != (resource,):
+                    raise sqlite3.DatabaseError('Conflicting fixed resource mapping')
+            timestamp = now()
+            for user_id, role in assignments:
+                user_id = str(user_id)
+                if role not in MECHANICAL_ROLE_CAPABILITIES:
+                    raise ValueError('Only mechanical roles may be assigned in this migration')
+                identity = conn.execute("SELECT chat_id,registration_status FROM channel_users WHERE platform='bale' AND user_id=?",
+                                        (user_id,)).fetchone()
+                if identity != (user_id, 'approved') or not re.fullmatch(r'[1-9][0-9]*',user_id):
+                    raise ValueError('Registered approved private Bale identity required')
+                conn.execute("""INSERT INTO auth_user_roles VALUES ('bale',?,?,1,?,?,?)
+                    ON CONFLICT(platform,user_id,role) DO UPDATE SET active=1,
+                    assigned_at=excluded.assigned_at,assigned_by=excluded.assigned_by,updated_at=excluded.updated_at""",
+                    (user_id,role,timestamp,actor,timestamp))
+                conn.execute("""INSERT INTO auth_events(platform,user_id,role,event_type,actor,created_at)
+                    VALUES ('bale',?,?,'assigned',?,?)""", (user_id,role,actor,timestamp))
+            conn.execute('INSERT OR IGNORE INTO auth_extensions VALUES (?,?)', (MECHANICAL_EXTENSION, timestamp))
+        return backup
+
+    def resolve_active_recipients(self, capability):
+        """Generic multi-recipient resolution for any push capability.
+
+        0 eligible -> not ready (caller skips + logs); N eligible -> all N, deduplicated.
+        A recipient needs an active role carrying the capability, approved registration
+        and a private Bale identity (chat_id == user_id). Ineligible holders are skipped
+        individually and never block the others. Fail closed on storage problems.
+        """
+        if not isinstance(capability, str) or not capability:
+            return RecipientSetResolution('invalid_capability')
+        try:
+            with closing(self._connect()) as conn, conn:
+                conn.execute('BEGIN')
+                self._version(conn)
+                holders = [row[0] for row in conn.execute('''SELECT DISTINCT ur.user_id
+                    FROM auth_user_roles ur JOIN auth_role_capabilities rc ON rc.role=ur.role
+                    WHERE ur.platform='bale' AND ur.active=1 AND rc.capability=?
+                    ORDER BY ur.user_id''', (capability,))]
+                if not holders:
+                    return RecipientSetResolution('no_active_holder')
+                ready = []
+                for user_id in holders:
+                    identity = conn.execute('''SELECT chat_id,registration_status FROM channel_users
+                        WHERE platform='bale' AND user_id=?''', (user_id,)).fetchone()
+                    if (identity and identity[1] == 'approved' and identity[0] == user_id
+                            and re.fullmatch(r'[1-9][0-9]*', user_id)
+                            and self._has_capability(conn, user_id, capability, 'bale')):
+                        ready.append(user_id)
+                if not ready:
+                    return RecipientSetResolution('no_eligible_recipient', holder_count=len(holders),
+                                                  skipped_count=len(holders))
+                return RecipientSetResolution('ready', tuple(ready), len(holders), len(holders) - len(ready))
+        except (sqlite3.Error, OSError):
+            logger.error('Authorization recipient set unavailable; fail closed')
+            return RecipientSetResolution('store_unavailable')
+
+    def function_scope(self, user_id, platform='bale'):
+        """Resource scope of an approved identity below E:\\Function.
+
+        function.read_all -> everything. Exact-file capabilities -> only their own file.
+        Paths come from code (FILE_RESOURCES); a DB resource that disagrees voids the grant.
+        """
+        try:
+            with closing(self._connect()) as conn, conn:
+                conn.execute('BEGIN')
+                self._version(conn)
+                rows = conn.execute('''SELECT DISTINCT c.capability,c.resource FROM channel_users u
+                    JOIN auth_user_roles ur USING(platform,user_id)
+                    JOIN auth_roles r ON r.role=ur.role
+                    JOIN auth_role_capabilities rc ON rc.role=r.role
+                    JOIN auth_capabilities c ON c.capability=rc.capability
+                    WHERE u.platform=? AND u.user_id=? AND u.registration_status='approved'
+                      AND u.chat_id=u.user_id AND ur.active=1''', (platform, str(user_id))).fetchall()
+        except (sqlite3.Error, OSError):
+            logger.error('Authorization function scope unavailable; fail closed')
+            return FunctionScope()
+        if any(capability == FUNCTION_READ for capability, _ in rows):
+            return FunctionScope(all=True)
+        files = sorted({FILE_RESOURCES[capability] for capability, resource in rows
+                        if capability in FILE_RESOURCES
+                        and resource == 'E:\\Function\\' + FILE_RESOURCES[capability]})
+        return FunctionScope(False, tuple(files))

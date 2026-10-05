@@ -5,6 +5,7 @@ ROOT=Path('E:/KomatsoAI')
 if str(ROOT) not in sys.path:sys.path.append(str(ROOT))
 from integrations.hermes.shared_fast_core import Operation,register_operations
 from integrations.hermes.role_routing import AuthorizationStore,FUNCTION_READ
+from tools.authorization import OVERFLOW_READ
 
 PROPERTIES={
  'path':{'type':'string','description':'Relative path under E:\\Function; absolute paths are rejected.'},
@@ -19,7 +20,7 @@ OPERATIONS={
  'metadata':(['path'],['path'],'Read existing business file or folder metadata.'),
  'read':(['path','sheet','offset','limit'],['path'],'Extract paged Excel, PDF, text and document data read-only. Excel: list sheets first, then choose one.'),
  'attach':(['path'],['path'],'Prepare an existing business file for native attachment; no conversion, execution or modification.'),
- 'report':(['kind','date'],['kind','date'],'Generate exact-date driver defect images or overflow images. Never use latest-sheet fallback.'),
+ 'report':(['kind','date'],['kind'],'Generate exact-date driver defect images or overflow images. Driver requires date; overflow defaults to the previous Tehran day. Never use latest-sheet fallback.'),
 }
 
 def identity():
@@ -29,11 +30,21 @@ def identity():
 
 def authorized(who):
     return (who['platform']=='bale' and who['chat_type']=='dm' and who['user_id'] and
-            who['user_id']==who['chat_id'] and AuthorizationStore().has_capability(who['user_id'],FUNCTION_READ,'bale'))
+            who['user_id']==who['chat_id'] and bool(AuthorizationStore().function_scope(who['user_id'],'bale')))
+
+def operation_authorized(who,op,args):
+    if op=='report' and isinstance(args,dict) and args.get('kind')=='overflow':
+        private=(who.get('platform')=='bale' and who.get('chat_type')=='dm'
+                 and who.get('user_id') and who.get('user_id')==who.get('chat_id'))
+        return bool(private and (AuthorizationStore().function_scope(who['user_id'],'bale').all
+                    or AuthorizationStore().can_read_overflow(
+                        who['user_id'],who['chat_id'],who['platform'],who['chat_type'])))
+    return authorized(who)
 
 def execute(op,args,**kwargs):
     who=identity()
-    if not authorized(who):return json.dumps({'ok':False,'error':'Resource capability required'})
+    if not operation_authorized(who,op,args):return json.dumps({'ok':False,'error':'Resource capability required'})
+    initial_scope=AuthorizationStore().function_scope(who['user_id'],'bale')
     allowed=OPERATIONS[op][0]
     if not isinstance(args,dict) or set(args)-set(allowed):return json.dumps({'ok':False,'error':'Unsupported arguments'})
     # Fixed executable/module, no shell, no supplied commands, no inherited secrets.
@@ -45,7 +56,10 @@ def execute(op,args,**kwargs):
             cwd=ROOT,env=clean,timeout=90,creationflags=flags)
         if result.returncode or len(result.stdout)>200000:raise RuntimeError('Domain worker failed')
         output=json.loads(result.stdout)
-        if not authorized(who):return json.dumps({'ok':False,'error':'Resource capability revoked'})
+        current=AuthorizationStore().function_scope(who['user_id'],'bale')
+        narrowed=(not (op=='report' and args.get('kind')=='overflow') and not current.all
+                  and (initial_scope.all or not set(initial_scope.files).issubset(current.files)))
+        if narrowed or not operation_authorized(who,op,args):return json.dumps({'ok':False,'error':'Resource capability revoked'})
         if output.get('ok'):
             data=output['result'];paths=data.get('images',[]) if isinstance(data,dict) else []
             if isinstance(data,dict) and data.get('attachment'):paths=[data['attachment']]
@@ -59,7 +73,10 @@ def business_context(info):
     # never grants tools; actual visibility and every operation recheck capability.
     who=identity()
     if not authorized(who):return ''
+    scope=AuthorizationStore().function_scope(who['user_id'],'bale')
+    resources='تمام E:\\Function' if scope.all else '، '.join(scope.files)
     return (
+        'scope خواندنی این identity: '+resources+'. فهرست و خواندن فقط در همین scope مجاز است. '
         'این identity علاوه بر تخصص اصلی profile مجوز خواندن داده‌های عملیاتی و اداری شرکت در E:\\Function دارد. '
         'برای پرسش درباره فایل‌ها، Excel، گزارش رانندگان، شرح خرابی یا سرریز، ابزارهای function_* را به‌کار ببر؛ '
         'پرسش اداری درباره این منبع نیازی به انتخاب مدل دستگاه ندارد. برای تاریخ دلخواه function_report را با تاریخ شمسی دقیق استفاده کن. '
@@ -69,6 +86,15 @@ def business_context(info):
     )
 
 def register(ctx):
+    import importlib
+    import tools.authorization.store as auth_store
+    import tools.authorization as auth_package
+    import integrations.hermes.role_routing as routing
+    importlib.reload(auth_store)
+    importlib.reload(auth_package)
+    importlib.reload(routing)
+    global AuthorizationStore
+    AuthorizationStore=routing.AuthorizationStore
     ctx.register_system_prompt_section("komatso.function.read-context",business_context,max_chars=1000)
     operations=[]
     for op,(keys,required,description) in OPERATIONS.items():

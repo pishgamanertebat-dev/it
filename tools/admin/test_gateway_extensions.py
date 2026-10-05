@@ -1,6 +1,7 @@
 """Exercise prepared generic Gateway boundaries against real isolated profile scopes."""
 from pathlib import Path
 import ast,importlib.util,json,os,sys,tempfile,unittest
+from tools.authorization import FunctionScope
 from unittest.mock import patch
 from types import SimpleNamespace
 ROOT=Path('E:/KomatsoAI');HOME=Path('C:/Users/win-10/AppData/Local/hermes')
@@ -41,10 +42,10 @@ class GatewayBoundaries(unittest.TestCase):
         tokens=set_session_vars(platform='bale',chat_type='dm',user_id='101',chat_id='101')
         try:
             with patch.object(module,'AuthorizationStore') as store,patch.object(module.subprocess,'run') as process:
-                store.return_value.has_capability.return_value=False
+                store.return_value.function_scope.return_value=FunctionScope()
                 self.assertEqual(module.business_context({'profile_name':'admin'}),'')
                 self.assertFalse(json.loads(module.execute('list',{},user_id='999'))['ok']);process.assert_not_called()
-                store.return_value.has_capability.return_value=True
+                store.return_value.function_scope.return_value=FunctionScope(all=True)
                 self.assertIn('Part Book',module.business_context({'profile_name':'maintenance'}))
                 self.assertIn('function_*',module.business_context({'profile_name':'maintenance'}))
                 self.assertFalse(json.loads(module.execute('read',{'path':'x','user_id':'999'}))['ok']);process.assert_not_called()

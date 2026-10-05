@@ -1,8 +1,8 @@
 """Fixed-operation worker; stdin JSON contains data, never code or shell instructions."""
 from pathlib import Path
 from tempfile import TemporaryDirectory
-import json,sys,secrets
-from tools.authorization import AuthorizationStore,FUNCTION_READ
+import json,sys,secrets,shutil
+from tools.authorization import AuthorizationStore,FUNCTION_READ,OVERFLOW_READ
 from .scoped import ScopedReader,MAX_ATTACH_BYTES
 from .extract import extract
 
@@ -17,15 +17,32 @@ ALLOWED={
     'report':{'kind','date'},
 }
 
-def authorized(identity,store):
+def private_identity(identity):
     return (identity.get('platform')=='bale' and identity.get('chat_type')=='dm'
-            and bool(identity.get('user_id')) and identity.get('chat_id')==identity.get('user_id')
-            and store.has_capability(identity['user_id'],FUNCTION_READ,'bale'))
+            and bool(identity.get('user_id')) and identity.get('chat_id')==identity.get('user_id'))
+
+def authorized(identity,store):
+    return private_identity(identity) and bool(store.function_scope(identity['user_id'],'bale'))
+
+def report_authorized(identity,store,kind):
+    if not private_identity(identity):return False
+    if kind=='overflow':
+        return (store.function_scope(identity['user_id'],'bale').all
+                or store.can_read_overflow(identity['user_id'],identity['chat_id']))
+    return bool(store.function_scope(identity['user_id'],'bale'))
+
 
 def run(request,*,store=None,reader=None,cache=CACHE):
     store=store or AuthorizationStore();reader=reader or ScopedReader()
     identity=request.get('identity',{});op=request.get('operation');args=request.get('args',{})
-    if not authorized(identity,store):raise PermissionError('Business resource capability required')
+    kind=args.get('kind') if isinstance(args,dict) and op=='report' else None
+    check=lambda: report_authorized(identity,store,kind) if op=='report' else authorized(identity,store)
+    if not check():raise PermissionError('Business resource capability required')
+    scope=store.function_scope(identity['user_id'],'bale')
+    # Overflow report permission grants only the existing report backend; never a raw-file tool.
+    if not scope.all and not (op=='report' and kind=='overflow'):
+        reader=reader.restricted(scope.files)
+    out=None
     if op not in ALLOWED or not isinstance(args,dict) or set(args)-ALLOWED[op]:raise ValueError('Unknown operation or fields')
     if op=='list':result=reader.list(args.get('path',''),recursive=args.get('recursive',False),offset=args.get('offset',0),limit=args.get('limit',200))
     elif op=='search':
@@ -44,7 +61,12 @@ def run(request,*,store=None,reader=None,cache=CACHE):
                 result={'path':args['path'],'attachment':str(target),'bytes':len(data)}
             else:
                 from tools.fleet.overflow.report import validate_date
-                date=validate_date(args['date'])
+                if args.get('date'):
+                    date=validate_date(args['date'])
+                elif kind=='overflow':
+                    from tools.scheduler.tasks import overflow_report_date
+                    date=overflow_report_date()
+                else:raise ValueError('An exact date is required for driver reports')
                 if args['kind']=='driver':
                     from .driver_report import build_driver
                     result=build_driver(date,out,reader)
@@ -62,7 +84,13 @@ def run(request,*,store=None,reader=None,cache=CACHE):
             if not any(out.iterdir()):out.rmdir()
             raise
     # Revocation while parsing/rendering never publishes operational content.
-    if not authorized(identity,store):raise PermissionError('Resource capability revoked during operation')
+    current=store.function_scope(identity['user_id'],'bale')
+    if not check() or (not (op=='report' and kind=='overflow') and not current.all
+                       and (scope.all or not set(scope.files).issubset(current.files))):
+        if out is not None:
+            # This random generated directory belongs to this operation.
+            shutil.rmtree(out)
+        raise PermissionError('Resource capability revoked during operation')
     return {'ok':True,'result':result,'source':'E:\\Function','read_only':True}
 
 def main():

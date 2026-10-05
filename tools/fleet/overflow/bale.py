@@ -10,12 +10,13 @@ import tempfile
 import time
 from pathlib import Path
 
-from tools.authorization import AuthorizationStore
+from tools.authorization import AuthorizationStore, MECH_OVERFLOW_RECEIVE
 from .report import DEFAULT_SOURCE, HELP, ReportError, parse_command
 
 ROOT = Path(__file__).resolve().parents[3]
 logger = logging.getLogger(__name__)
 AUTHORIZATION_VERSION = 1
+MECHANICAL_ROLES_VERSION = 1
 
 
 async def build_report(date, output_dir):
@@ -74,6 +75,9 @@ class OverflowHandler:
         if parse_error is not None:
             send(gateway, chat_id, parse_error)
             return {'action': 'skip', 'reason': 'overflow-invalid-date'}
+        if date is None and self.authorization.has_capability(user_id, MECH_OVERFLOW_RECEIVE):
+            from tools.scheduler.tasks import overflow_report_date
+            date = overflow_report_date()
         now = time.monotonic()
         self.processed = {k: expiry for k, expiry in self.processed.items() if expiry > now}
         message_id = getattr(event, 'message_id', None)

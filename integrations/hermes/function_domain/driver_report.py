@@ -111,8 +111,11 @@ def render_pdf_notice(report, section, output):
         doc.subset_fonts();doc.save(output,garbage=4,deflate=True)
 
 
-def build_driver_pdf(date, output_dir, reader=None):
-    """Two native Excel PDFs from one immutable snapshot of the exact requested day."""
+def build_driver_pdf(date, output_dir, reader=None, *, sections=None):
+    """Native Excel PDFs from one immutable snapshot of the exact requested day."""
+    selected=tuple(SECTIONS) if sections is None else tuple(sections)
+    if not selected or len(set(selected))!=len(selected) or any(s not in SECTIONS for s in selected):
+        raise ValueError('Invalid driver PDF sections')
     from tempfile import TemporaryDirectory
     from tools.fleet.repairs.report import export_pdf, section_columns
     reader=reader or ScopedReader()
@@ -123,8 +126,8 @@ def build_driver_pdf(date, output_dir, reader=None):
     with TemporaryDirectory(prefix='driver-excel-',dir=out) as directory:
         work=Path(directory);snapshot=work/'source.xlsx'
         # Only this private temporary copy is opened by Excel. Source is never edited.
-        if any(c['status']=='ready' for c in report['sections'].values()):snapshot.write_bytes(data)
-        for section in SECTIONS:
+        if any(report['sections'][section]['status']=='ready' for section in selected):snapshot.write_bytes(data)
+        for section in selected:
             path=out/f'driver-{section}-{report["date"].replace("/","-")}.pdf'
             content=report['sections'][section]
             if content['status']=='ready':
@@ -137,5 +140,5 @@ def build_driver_pdf(date, output_dir, reader=None):
                 if not pdf.page_count or not any(p.get_text().strip() for p in pdf):raise ValueError('Empty driver PDF')
             if path.stat().st_size>45*1024*1024:raise ValueError('Driver PDF exceeds document transport limit')
             documents.append(str(path))
-    if len(documents)!=2:raise ValueError('Exactly two driver PDFs required')
+    if len(documents)!=len(selected):raise ValueError('Missing requested driver PDFs')
     return {'ok':True,'report':report,'documents':documents,'format':'pdf'}

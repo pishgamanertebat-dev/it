@@ -19,6 +19,6 @@ def resolve_toolsets(*, platform, user_id, chat_id, chat_type, base_toolsets):
     """Add business reads by capability to any configured expert profile."""
     base=[x for x in base_toolsets if x!='komatso_function']
     if (platform=='bale' and chat_type=='dm' and user_id and str(user_id)==str(chat_id)
-            and AuthorizationStore().has_capability(user_id,FUNCTION_READ,platform)):
+            and AuthorizationStore().function_scope(user_id,platform)):
         base.append('komatso_function')
     return base

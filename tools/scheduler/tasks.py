@@ -214,5 +214,78 @@ def driver_daily(recipient, params, *, authorization=None):
             sender.close()
 
 
+def _mechanical_push(params, *, capability, read_capability, pdf=False, authorization=None):
+    """One generation, capability-based fan-out, recheck each recipient before every upload."""
+    from tools.authorization import DRIVER_REPORT_READ
+    from integrations.hermes.function_domain.driver_report import build_driver_pdf, SECTIONS
+    validate_overflow(params)
+    store = authorization if authorization is not None else AuthorizationStore()
+
+    def recipients():
+        resolution = store.resolve_active_recipients(capability)
+        return tuple(user for user in resolution.recipients
+                     if store.has_capability(user, read_capability))
+    initial = recipients()
+    if not initial:
+        logger.info('Mechanical delivery skipped: no eligible recipients capability=%s', capability)
+        return {'status':'skipped','reason':'no_eligible_recipient'}
+    runtime=ROOT/'runtime/scheduler';runtime.mkdir(parents=True,exist_ok=True)
+    sent=[];revoked=[];failed=[]
+    with tempfile.TemporaryDirectory(prefix='mechanical-',dir=runtime) as directory:
+        expected=validate_date(params['date']) if params.get('date') else overflow_report_date()
+        if pdf:
+            result=build_driver_pdf(expected,directory,sections=('mechanical',))
+            if (not result.get('ok') or result['report']['date']!=expected
+                    or len(result['documents'])!=1):
+                raise ValueError('One mechanical PDF for the exact requested day is required')
+            paths=result['documents']
+            caption=SECTIONS['mechanical']+' '+expected
+        else:
+            result=asyncio.run(build_report(expected,directory))
+            if not result.get('ok') or not result.get('images'):
+                raise RuntimeError('Mechanical overflow report unavailable')
+            paths=result['images']
+            caption=overflow_report_caption(result['report']['date'],expected)
+        sender=None
+        try:
+            for user in initial:
+                if user not in recipients():
+                    revoked.append(user);continue
+                if sender is None:sender=BaleSender()
+                try:
+                    for index,path in enumerate(paths):
+                        if user not in recipients():
+                            revoked.append(user);break
+                        if pdf:sender.document(user,path,caption)
+                        else:sender.photo(user,path,caption if index==0 else '')
+                    else:sent.append(user)
+                except Exception:
+                    # Continue other authorized recipients. Never retry an uncertain transport result.
+                    failed.append(user)
+                    logger.error('Mechanical delivery failed for one recipient capability=%s',capability)
+        finally:
+            if sender is not None:sender.close()
+    return {'status':'failed' if failed else ('succeeded' if sent else 'skipped'),
+            'reason':'delivery_failed' if failed else ('recipient_revoked' if not sent else ''),
+            'sent_count':len(sent),'revoked_count':len(revoked),'failed_count':len(failed)}
+
+
+def mechanical_overflow(recipient, params, *, authorization=None):
+    from tools.authorization import MECH_OVERFLOW_RECEIVE, OVERFLOW_READ
+    return _mechanical_push(params,capability=MECH_OVERFLOW_RECEIVE,
+                            read_capability=OVERFLOW_READ,authorization=authorization)
+
+
+def mechanical_driver_daily(recipient, params, *, authorization=None):
+    from tools.authorization import MECH_DRIVER_RECEIVE, DRIVER_REPORT_READ
+    return _mechanical_push(params,capability=MECH_DRIVER_RECEIVE,
+                            read_capability=DRIVER_REPORT_READ,pdf=True,authorization=authorization)
+
+
 TASKS = {'overflow': (validate_overflow, overflow), 'repairs': (validate_repairs, repairs),
-         'driver_daily': (validate_overflow, driver_daily)}
+         'driver_daily': (validate_overflow, driver_daily),
+         'mechanical_overflow':(validate_overflow,mechanical_overflow),
+         'mechanical_driver_daily':(validate_overflow,mechanical_driver_daily)}
+from tools.authorization import MECH_OVERFLOW_RECEIVE, MECH_DRIVER_RECEIVE
+MULTI_RECIPIENT_TASKS={'mechanical_overflow':MECH_OVERFLOW_RECEIVE,
+                      'mechanical_driver_daily':MECH_DRIVER_RECEIVE}

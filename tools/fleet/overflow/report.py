@@ -33,14 +33,20 @@ def validate_date(value):
     return f"{year:04d}/{month:02d}/{day:02d}"
 
 
-def parse_command(text):
+def parse_command(text, *, today=None):
     """Return (matched, date); malformed report commands stay out of the LLM."""
     match = re.fullmatch(r"سر\s*ریز(?:\s+روزانه)?(?:\s+(.*))?", normalize(text))
     if not match:
         return False, None
     tail = (match.group(1) or "").strip()
-    if tail in {"", "میخواهم", "می خواهم", "میخوام", "می خوام"}:
+    if tail in {"", "رو بده", "را بده", "بده", "میخواهم", "می خواهم", "میخوام", "می خوام"}:
         return True, None
+    if tail in {"امروز", "دیروز"}:
+        from datetime import datetime, timedelta
+        from zoneinfo import ZoneInfo
+        from tools.fleet.report_caption import jalali_today
+        day = today or datetime.now(ZoneInfo('Asia/Tehran')).date()
+        return True, jalali_today(day-timedelta(days=1 if tail=="دیروز" else 0))
     tail = re.sub(r"^(?:تاریخ|مورخ)\s+", "", tail)
     return True, validate_date(tail)
 

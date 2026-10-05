@@ -17,7 +17,7 @@ from tzlocal import get_localzone
 import yaml
 
 from tools.authorization import AuthorizationStore, OFFICE_SUPERVISOR, DRIVER_RECEIVE
-from .tasks import ROOT, TASKS, overflow_report_date
+from .tasks import ROOT, TASKS, MULTI_RECIPIENT_TASKS, overflow_report_date
 
 CONFIG = ROOT / 'settings/schedules.yaml'
 STATE = ROOT / 'runtime/scheduler/runs.sqlite3'
@@ -43,7 +43,7 @@ def load_config(path=CONFIG, registry=TASKS):
         raise ValueError('schedules must be a list')
     jobs, ids = [], set()
     for raw in config['schedules']:
-        only_keys(raw, ['id', 'enabled', 'task', 'recipient', 'recipient_role', 'timezone', 'trigger', 'params'], 'schedule')
+        only_keys(raw, ['id', 'enabled', 'task', 'recipient', 'recipient_role', 'recipient_capability', 'timezone', 'trigger', 'params'], 'schedule')
         job = dict(raw)
         name = job.get('id')
         if not isinstance(name, str) or not re.fullmatch(r'[A-Za-z0-9_-]{1,80}', name) or name in ids:
@@ -53,14 +53,24 @@ def load_config(path=CONFIG, registry=TASKS):
             raise ValueError(f'{name}: enabled must be true/false')
         if job.get('task') not in registry:
             raise ValueError(f'{name}: unknown task')
-        if job['task'] in {'overflow', 'driver_daily'}:
+        if job['task'] in MULTI_RECIPIENT_TASKS:
+            expected=MULTI_RECIPIENT_TASKS[job['task']]
+            if ('recipient' in job or 'recipient_role' in job
+                    or job.get('recipient_capability')!=expected):
+                raise ValueError(f'{name}: mechanical delivery requires its fixed recipient capability')
+            if job.get('timezone')!='Asia/Tehran':
+                raise ValueError(f'{name}: explicit Asia/Tehran timezone required')
+            job['recipient']='capability:'+expected
+        elif job['task'] in {'overflow', 'driver_daily'}:
+            if 'recipient_capability' in job:
+                raise ValueError(f'{name}: office supervisor uses the exactly-one role resolver')
             if 'recipient' in job or job.get('recipient_role') != OFFICE_SUPERVISOR:
                 raise ValueError(f'{name}: overflow requires office_supervisor; fixed recipient forbidden')
             if job.get('timezone') != 'Asia/Tehran':
                 raise ValueError(f'{name}: overflow requires explicit Asia/Tehran timezone')
             job['recipient'] = 'role:' + OFFICE_SUPERVISOR
         else:
-            if 'recipient_role' in job:
+            if 'recipient_role' in job or 'recipient_capability' in job:
                 raise ValueError(f'{name}: role delivery is only defined for supported reports')
             recipient = str(job.get('recipient', ''))
             if not re.fullmatch(r'[1-9][0-9]*', recipient):
@@ -70,7 +80,7 @@ def load_config(path=CONFIG, registry=TASKS):
         params = job.get('params', {})
         if not isinstance(params, dict):
             raise ValueError(f'{name}: params must be a mapping')
-        if job['task'] in {'overflow', 'driver_daily'} and params:
+        if job['task'] in {'overflow', 'driver_daily', *MULTI_RECIPIENT_TASKS} and params:
             raise ValueError(f'{name}: overflow schedule computes the previous day; params must be empty')
         registry[job['task']][0](params)
         job['params'] = params
@@ -153,8 +163,15 @@ def tick(config=CONFIG, state=STATE, now=None, registry=TASKS, authorization=Non
                         params['date'] = overflow_report_date(due)
                         logger.info(('Overflow' if job['task'] == 'overflow' else 'Driver daily') +
                                     ' requested previous-day report: %s', params['date'])
+                if job['task'] in MULTI_RECIPIENT_TASKS:
+                    params['date']=overflow_report_date(due)
                 if status != 'skipped':
-                    result = registry[job['task']][1](recipient, params)
+                    if job['task'] in MULTI_RECIPIENT_TASKS:
+                        result=registry[job['task']][1](recipient,params,
+                            authorization=authorization if authorization is not None else AuthorizationStore())
+                    else:result = registry[job['task']][1](recipient, params)
+                    if isinstance(result,dict) and result.get('status')=='failed':
+                        status,error,failed='failed',result.get('reason','delivery_failed'),True
                     if isinstance(result, dict) and result.get('status') == 'skipped':
                         status, error = 'skipped', result['reason']
             except Exception as exc:

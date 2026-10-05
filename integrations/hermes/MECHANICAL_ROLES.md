@@ -1,0 +1,30 @@
+# Phase Maintenance Roles
+
+این Phase روی baseline تمیز 210dd95421b4420500d117efaff9749774591dc0 تکمیل و در production فعال شد. Profile جدید، تغییر Hermes core، update یا restart انجام نشد.
+
+1. **بازبینی Sonnet:** فقط tools/authorization/store.py و __init__.py تغییر داشتند: 156 خط اضافه و یک خط حذف. فایل واقعی __init__.py syntax/import سالم داشت. constants، FunctionScope، RecipientSetResolution و طراحی additive migration نگه داشته شدند. کار قبلی هنوز به reader، toolsets، scheduler و assignmentها متصل نبود.
+2. **تکمیل و اصلاح:** scope به ScopedReader موجود وصل شد؛ هویت private در lookup بررسی شد؛ migration تعارض resource/grants/profile را رد می‌کند و چهار assignment را همراه seedها transactional انجام می‌دهد. backend و plugin کاهش scope/revoke را پیش از انتشار مجدد بررسی می‌کنند. reset/revert کلی انجام نشد.
+3. **Roleها و capabilityها:** mechanical_staff فقط maintenance.records.read دارد. mechanical_manager و mechanical_manager_deputy پنج capability دارند: maintenance.records.read، repairs.driver_report.read، reports.overflow.read، reports.overflow.mechanical_daily_receive، reports.driver_daily.mechanical_daily_receive. هیچ‌کدام function.read_all ندارند.
+4. **Assignmentهای production:** سعید شایسته، 654806764، approved با mechanical_staff + mechanical_manager؛ محسن کرمعلی، 1732374823، approved با mechanical_staff + mechanical_manager_deputy. هویت و approvalها تغییر نکردند.
+5. **Role→Profile:** فقط mechanical_staff → maintenance با priority 100. manager/deputy هیچ profile mapping ندارند. برای این دو identity هیچ fixed route اضافه نشد. مسیرهای legacy 455740857 و 1636934401 حفظ شدند.
+6. **Exact-file scope:** maintenance.records.read فقط تعمیرات 1405.xlsx؛ repairs.driver_report.read فقط گزارش روزانه رانندگان2.xlsx. نگاشت مسیر code-owned است؛ تغییر resource در DB scope را بزرگ نمی‌کند. list/search/read/metadata/attach همگی scope را رعایت می‌کنند. تمام containmentهای ADMIN-1 و handle verification باقی ماندند. خواندن workbook واقعی با 56 و 174 sheet از backend موجود تأیید شد.
+7. **Tool surfaces:** Maintenance production همان Manual، Part Book، public research/browser، readonly skills، safe delegation و Shared Fast Core را دارد. Function toolset بر اساس scope approved identity افزوده می‌شود. native registration و resolver واقعی در تست A→B→A بررسی شد؛ host/shell/arbitrary-code tool اضافه نشد.
+8. **Overflow on-demand:** backend موجود reuse شد. «سرریز رو بده»، «سرریز امروز»، «سرریز دیروز» و تاریخ دقیق پشتیبانی می‌شوند. درخواست بدون تاریخ برای مدیران مکانیکی previous Tehran day است؛ رفتار قبلی دفتر بدون تاریخ حفظ شد. مجوز قبل از generation و هر delivery recheck می‌شود. staff سرریز نمی‌گیرد.
+9. **09:00:** job مستقل overflow_daily_mechanical در Asia/Tehran، بر اساس reports.overflow.mechanical_daily_receive، previous calendar day را برای set فعال می‌فرستد. صفر گیرنده skip/log؛ N گیرنده deduped/private/approved؛ revoke پیش از ارسال حذف می‌شود. resolver exactly-one دفتر تغییر نکرد.
+10. **10:00:** driver_daily_mechanical فقط sections=('mechanical',) را به exporter فعلی می‌دهد. PDF آهنگری حتی برای این job تولید نمی‌شود. انتخاب تاریخ header، no fallback، dated no-data PDF، searchable/native Excel formatting و cleanup حفظ شدند. job دفتر همچنان Mechanical + Metalwork PDF می‌فرستد.
+11. **Legacy write:** settings/maintenance_entry.json بدون تغییر باقی ماند: 654806764 و 455740857. برای 1732374823 یا staff جدید write ایجاد نشد.
+12. **تست‌ها:** 169 تست hermetic پروژه و 47 تست native messaging boundary، بدون failure/error/skip. scope isolation، traversal/UNC/URI/ADS/device/junction، revoke، صفر/یک/چندگیرنده، dedup، staff deny، دفتر و maintenance parity بررسی شدند. smoke با Excel واقعی روی workbook مصنوعی، یک PDF searchable مکانیکی با print formatting و بدون متن آهنگری ساخت؛ source hash و cleanup تأیید شدند. هیچ production Bale send انجام نشد.
+13. **DB:** backup سازگار پیش از تغییر و پیش از migration؛ integrity_check=ok و foreign_key_check=[] قبل/بعد. schema versions 1/2 حفظ شدند و extension marker mechanical_roles_v1 ثبت شد تا readerهای قدیمی fail closed عمومی نکنند. seedها و چهار assignment در یک transaction اعمال شدند؛ تمام نقش‌ها و registrationهای قبلی حفظ شدند.
+14. **Hashes:** همه 159 hash محافظت‌شده، شامل 31 فایل Excel عملیاتی، legacy JSON، runtime configs/SOUL و Gateway modules، بدون تغییر ماندند. runtime plugin twins پس از backup به canonical برابر شدند. طبق درخواست کاربر .hermes.md به AGENTS.md rename شد؛ SHA-256 قبل/بعد یکسان: 09f3ffc9a5d101902ef632019cd56623ce6651d20d2934b0ae6ae378405576b8. فایل طبق convention قبلی پروژه ignored است.
+15. **Runtime:** چهار plugin twin منتشر شدند؛ reload رسمی default/maintenance/admin موفق بود. activation summary، pre_gateway_dispatch را active-now و Function tools/prompt را برای agent جدید ثبت‌شده نشان می‌دهد. adapters_rewired شمارنده null بود؛ این Phase platform adapter factory تغییر نمی‌دهد. Gateway با PID 9336، Hermes 0.21.4 و code SHA قبلی running/connected باقی ماند. Windows Scheduled Tasks و launcher تغییر نکردند. --check زمان‌بندی‌ها موفق بود.
+16. **ریسک باقی‌مانده:** مانع شناخته‌شده‌ای برای افزودن staff وجود ندارد. اولین delivery طبیعی زمان‌بندی جدید عمداً با پیام زنده تست نشده؛ سلامت شبکه Bale و Excel در زمان اجرا همچنان وابستگی عملیاتی موجود است. prompt افزونه طبق معماری native برای agent/session تازه اعمال می‌شود. اولین اجراهای بعدی 2026-10-06 ساعت 09:00 و 10:00 تهران هستند.
+
+Evidenceهای محلی در runtime/mechanical-20261005T091355Z ذخیره شده‌اند: partial/status/head، pre-completion snapshot، DB backups، hashes، hermetic-tests.json/log، native-boundary.xml، native-excel-smoke.json، plugin-reloads.json، activation.json و production-verification.json. DB backup، credentials و runtime evidence وارد Git نمی‌شوند.
+
+برای staff بعدی: identity باید قبلاً approved/private باشد؛ سپس operator از API موجود استفاده می‌کند:
+
+    .venv\Scripts\python.exe -m tools.authorization.manage assign --bale-user-id APPROVED_ID --role mechanical_staff --actor OPERATOR
+
+Role/profile mapping و capability toolsets تازه از DB خوانده می‌شوند؛ edit config یا restart برای هر شخص لازم نیست. این دستور هیچ write permission یا report-receive به staff اضافه نمی‌کند.
+
+READY TO ADD MECHANICAL STAFF

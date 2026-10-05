@@ -1344,17 +1344,18 @@ def _handle_overflow_report(event, gateway):
         if project_tools not in tools_package.__path__:
             tools_package.__path__.append(project_tools)
         from tools.authorization import store as auth_store_module
-        if not hasattr(auth_store_module.AuthorizationStore, 'migrate_admin'):
+        if not hasattr(auth_store_module.AuthorizationStore, 'migrate_mechanical'):
             import importlib
             import tools.authorization as auth_package
             importlib.reload(auth_store_module)
             importlib.reload(auth_package)
         from tools.fleet.overflow import bale as overflow_backend
         if (hasattr(overflow_backend, 'AuthorizationStore') and
-                not hasattr(overflow_backend.AuthorizationStore, 'migrate_admin')):
+                not hasattr(overflow_backend.AuthorizationStore, 'migrate_mechanical')):
             import importlib
             overflow_backend = importlib.reload(overflow_backend)
-        if getattr(overflow_backend, "AUTHORIZATION_VERSION", 0) != 1:
+        if (getattr(overflow_backend, "AUTHORIZATION_VERSION", 0) != 1
+                or not getattr(overflow_backend, 'MECHANICAL_ROLES_VERSION', 0)):
             import importlib
             overflow_backend = importlib.reload(overflow_backend)
         if getattr(overflow_backend, "AUTHORIZATION_VERSION", 0) != 1:
