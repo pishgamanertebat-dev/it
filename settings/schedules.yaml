@@ -75,3 +75,14 @@ schedules:
       hour: 9
       minute: 0
     params: {}
+
+  - id: maintenance_daily_report
+    enabled: true
+    task: maintenance_daily_report
+    recipient_capability: reports.maintenance.daily_receive
+    timezone: Asia/Tehran
+    trigger:
+      type: cron
+      hour: 9
+      minute: 0
+    params: {}

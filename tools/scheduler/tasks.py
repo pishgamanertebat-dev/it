@@ -351,3 +351,15 @@ from tools.authorization import MECH_OVERFLOW_RECEIVE, MECH_DRIVER_RECEIVE, META
 MULTI_RECIPIENT_TASKS={'mechanical_overflow':MECH_OVERFLOW_RECEIVE,
                       'mechanical_driver_daily':MECH_DRIVER_RECEIVE,
                       'metalwork_driver_daily':METALWORK_DRIVER_RECEIVE}
+
+
+# Independent receive-only report; existing report handlers stay unchanged.
+from tools.authorization.maintenance import CAPABILITY as MAINTENANCE_DAILY_RECEIVE
+from tools.fleet.maintenance_daily.delivery import validate_params as validate_maintenance_daily
+
+def maintenance_daily_report(recipient, params, *, authorization=None):
+    from tools.fleet.maintenance_daily.delivery import deliver
+    return deliver(recipient, params, authorization=authorization)
+
+TASKS['maintenance_daily_report'] = (validate_maintenance_daily, maintenance_daily_report)
+MULTI_RECIPIENT_TASKS['maintenance_daily_report'] = MAINTENANCE_DAILY_RECEIVE

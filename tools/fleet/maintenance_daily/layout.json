@@ -1,0 +1,2402 @@
+{
+  "version": 1,
+  "inspection_sha256": "cea100b17d4693b5baa4667662402ab6097b7f30d3c57f2057572e5bd708c45a",
+  "sheets": {
+    "متفرقه": {
+      "header_row": 2,
+      "columns": [
+        [
+          1,
+          "تاریخ"
+        ],
+        [
+          2,
+          "حفارها"
+        ],
+        [
+          3,
+          "نام مکانیک"
+        ],
+        [
+          4,
+          "نوع خرابی"
+        ],
+        [
+          5,
+          "قطعات مصرفی"
+        ]
+      ],
+      "title_cells": [
+        [
+          "A1",
+          "بیل 800"
+        ]
+      ],
+      "device": "بیل 800",
+      "exclude": true,
+      "exclude_reason": "General workshop and mixed equipment activities, not one device",
+      "date_merged_blocks": false
+    },
+    "801": {
+      "header_row": 2,
+      "columns": [
+        [
+          1,
+          "تاریخ"
+        ],
+        [
+          2,
+          "کد مکانیزم"
+        ],
+        [
+          3,
+          "نام مکانیک"
+        ],
+        [
+          4,
+          "نوع خرابی"
+        ],
+        [
+          5,
+          "قطعات مصرفی"
+        ]
+      ],
+      "title_cells": [
+        [
+          "A1",
+          "بیل 801"
+        ]
+      ],
+      "device": "بیل 801",
+      "exclude": false,
+      "exclude_reason": null,
+      "date_merged_blocks": false,
+      "report_columns": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "report_mapping_basis": "Exact inspected source header mapping"
+    },
+    "802": {
+      "header_row": 3,
+      "columns": [
+        [
+          1,
+          "تاریخ"
+        ],
+        [
+          2,
+          "کد مکانیزم"
+        ],
+        [
+          3,
+          "نام مکانیک"
+        ],
+        [
+          4,
+          "نوع خرابی"
+        ],
+        [
+          5,
+          "قطعات مصرفی"
+        ]
+      ],
+      "title_cells": [
+        [
+          "A2",
+          "بیل 802"
+        ]
+      ],
+      "device": "بیل 802",
+      "exclude": false,
+      "exclude_reason": null,
+      "date_merged_blocks": false,
+      "report_columns": [
+        1,
+        3,
+        2,
+        4,
+        5
+      ],
+      "report_mapping_basis": "Explicit source-data inspection and user-confirmed correction; source headers for code/mechanic are reversed"
+    },
+    "601": {
+      "header_row": 2,
+      "columns": [
+        [
+          1,
+          "تاریخ"
+        ],
+        [
+          2,
+          "تعمیرکار"
+        ],
+        [
+          3,
+          "کد مکانیزم"
+        ],
+        [
+          4,
+          "نوع خرابی"
+        ],
+        [
+          5,
+          "قطعات مصرفی"
+        ]
+      ],
+      "title_cells": [
+        [
+          "A1",
+          "بیل 601"
+        ]
+      ],
+      "device": "بیل 601",
+      "exclude": false,
+      "exclude_reason": null,
+      "date_merged_blocks": false,
+      "report_columns": [
+        1,
+        3,
+        2,
+        4,
+        5
+      ],
+      "report_mapping_basis": "Exact inspected source header mapping"
+    },
+    "521": {
+      "header_row": 2,
+      "columns": [
+        [
+          1,
+          "تاریخ"
+        ],
+        [
+          2,
+          "تعمیرکار"
+        ],
+        [
+          3,
+          "کد مکانیزم"
+        ],
+        [
+          4,
+          "نوع خرابی"
+        ],
+        [
+          5,
+          "قطعات مصرفی"
+        ]
+      ],
+      "title_cells": [
+        [
+          "A1",
+          "بیل 521"
+        ]
+      ],
+      "device": "بیل 521",
+      "exclude": false,
+      "exclude_reason": null,
+      "date_merged_blocks": false,
+      "report_columns": [
+        1,
+        3,
+        2,
+        4,
+        5
+      ],
+      "report_mapping_basis": "Exact inspected source header mapping"
+    },
+    "331": {
+      "header_row": 2,
+      "columns": [
+        [
+          1,
+          "تاریخ"
+        ],
+        [
+          2,
+          "تعمیرکار"
+        ],
+        [
+          3,
+          "کد مکانیزم"
+        ],
+        [
+          4,
+          "نوع خرابی"
+        ],
+        [
+          5,
+          "قطعات مصرفی"
+        ]
+      ],
+      "title_cells": [
+        [
+          "A1",
+          "بیل 331"
+        ]
+      ],
+      "device": "بیل 331",
+      "exclude": false,
+      "exclude_reason": null,
+      "date_merged_blocks": false,
+      "report_columns": [
+        1,
+        3,
+        2,
+        4,
+        5
+      ],
+      "report_mapping_basis": "Exact inspected source header mapping"
+    },
+    "332": {
+      "header_row": 2,
+      "columns": [
+        [
+          1,
+          "تاریخ"
+        ],
+        [
+          2,
+          "کد مکانیزم"
+        ],
+        [
+          3,
+          "نام مکانیک"
+        ],
+        [
+          4,
+          "نوع خرابی"
+        ],
+        [
+          5,
+          "قطعات مصرفی"
+        ]
+      ],
+      "title_cells": [
+        [
+          "A1",
+          "بیل 332"
+        ]
+      ],
+      "device": "بیل 332",
+      "exclude": false,
+      "exclude_reason": null,
+      "date_merged_blocks": false,
+      "report_columns": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "report_mapping_basis": "Exact inspected source header mapping"
+    },
+    "321": {
+      "header_row": 2,
+      "columns": [
+        [
+          1,
+          "تاریخ"
+        ],
+        [
+          2,
+          "کد مکانیزم"
+        ],
+        [
+          3,
+          "نام مکانیک"
+        ],
+        [
+          4,
+          "نوع خرابی"
+        ],
+        [
+          5,
+          "قطعات مصرفی"
+        ]
+      ],
+      "title_cells": [
+        [
+          "A1",
+          "بیل321"
+        ]
+      ],
+      "device": "بیل321",
+      "exclude": false,
+      "exclude_reason": null,
+      "date_merged_blocks": false,
+      "report_columns": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "report_mapping_basis": "Exact inspected source header mapping"
+    },
+    "231": {
+      "header_row": 2,
+      "columns": [
+        [
+          1,
+          "تاریخ"
+        ],
+        [
+          2,
+          "نام مکانیک"
+        ],
+        [
+          3,
+          "کد مکانیزم"
+        ],
+        [
+          4,
+          "نوع خرابی"
+        ],
+        [
+          5,
+          "قطعات مصرفی"
+        ]
+      ],
+      "title_cells": [
+        [
+          "A1",
+          "بیل 231"
+        ]
+      ],
+      "device": "بیل 231",
+      "exclude": false,
+      "exclude_reason": null,
+      "date_merged_blocks": false,
+      "report_columns": [
+        1,
+        3,
+        2,
+        4,
+        5
+      ],
+      "report_mapping_basis": "Exact inspected source header mapping"
+    },
+    "851": {
+      "header_row": 2,
+      "columns": [
+        [
+          2,
+          "تاریخ"
+        ],
+        [
+          3,
+          "نام مکانیک"
+        ],
+        [
+          4,
+          "کد مکانیزم"
+        ],
+        [
+          5,
+          "نوع خرابی"
+        ],
+        [
+          6,
+          "قطعات مصرفی"
+        ]
+      ],
+      "title_cells": [
+        [
+          "B1",
+          "بیل 851"
+        ]
+      ],
+      "device": "بیل 851",
+      "exclude": false,
+      "exclude_reason": null,
+      "date_merged_blocks": false,
+      "report_columns": [
+        2,
+        4,
+        3,
+        5,
+        6
+      ],
+      "report_mapping_basis": "Exact inspected source header mapping"
+    },
+    "852": {
+      "header_row": 3,
+      "columns": [
+        [
+          1,
+          "تاریخ"
+        ],
+        [
+          2,
+          "نام مکانیک"
+        ],
+        [
+          3,
+          "کد مکانیزم"
+        ],
+        [
+          4,
+          "نوع خرابی"
+        ],
+        [
+          5,
+          "قطعات مصرفی"
+        ]
+      ],
+      "title_cells": [
+        [
+          "A2",
+          852
+        ]
+      ],
+      "device": "852",
+      "exclude": false,
+      "exclude_reason": null,
+      "date_merged_blocks": false,
+      "report_columns": [
+        1,
+        3,
+        2,
+        4,
+        5
+      ],
+      "report_mapping_basis": "Exact inspected source header mapping"
+    },
+    "853": {
+      "header_row": 3,
+      "columns": [
+        [
+          1,
+          "تاریخ"
+        ],
+        [
+          2,
+          "نام مکانیک"
+        ],
+        [
+          3,
+          "کد مکانیزم"
+        ],
+        [
+          4,
+          "نوع خرابی"
+        ],
+        [
+          5,
+          "قطعات مصرفی"
+        ]
+      ],
+      "title_cells": [
+        [
+          "A2",
+          "بیل853"
+        ]
+      ],
+      "device": "بیل853",
+      "exclude": false,
+      "exclude_reason": null,
+      "date_merged_blocks": false,
+      "report_columns": [
+        1,
+        3,
+        2,
+        4,
+        5
+      ],
+      "report_mapping_basis": "Exact inspected source header mapping"
+    },
+    "1251": {
+      "header_row": 2,
+      "columns": [
+        [
+          1,
+          "تاریخ"
+        ],
+        [
+          2,
+          "تعمیرکار"
+        ],
+        [
+          3,
+          "کد مکانیزم"
+        ],
+        [
+          4,
+          "نوع خرابی"
+        ],
+        [
+          5,
+          "قطعات مصرفی"
+        ]
+      ],
+      "title_cells": [
+        [
+          "A1",
+          "بیل 1251"
+        ]
+      ],
+      "device": "بیل 1251",
+      "exclude": false,
+      "exclude_reason": null,
+      "date_merged_blocks": false,
+      "report_columns": [
+        1,
+        3,
+        2,
+        4,
+        5
+      ],
+      "report_mapping_basis": "Exact inspected source header mapping"
+    },
+    "1252": {
+      "header_row": 2,
+      "columns": [
+        [
+          1,
+          "تاریخ"
+        ],
+        [
+          2,
+          "تعمیرکار"
+        ],
+        [
+          3,
+          "کد مکانیزم"
+        ],
+        [
+          4,
+          "نوع خرابی"
+        ],
+        [
+          5,
+          "قطعات مصرفی"
+        ]
+      ],
+      "title_cells": [
+        [
+          "A1",
+          "بیل 1252"
+        ]
+      ],
+      "device": "بیل 1252",
+      "exclude": false,
+      "exclude_reason": null,
+      "date_merged_blocks": false,
+      "report_columns": [
+        1,
+        3,
+        2,
+        4,
+        5
+      ],
+      "report_mapping_basis": "Exact inspected source header mapping"
+    },
+    "1253": {
+      "header_row": 2,
+      "columns": [
+        [
+          1,
+          "تاریخ"
+        ],
+        [
+          2,
+          "تعمیرکار"
+        ],
+        [
+          3,
+          "کد مکانیزم"
+        ],
+        [
+          4,
+          "نوع خرابی"
+        ],
+        [
+          5,
+          "قطعات مصرفی"
+        ]
+      ],
+      "title_cells": [
+        [
+          "A1",
+          "بیل 1253"
+        ]
+      ],
+      "device": "بیل 1253",
+      "exclude": false,
+      "exclude_reason": null,
+      "date_merged_blocks": false,
+      "report_columns": [
+        1,
+        3,
+        2,
+        4,
+        5
+      ],
+      "report_mapping_basis": "Exact inspected source header mapping"
+    },
+    "1254": {
+      "header_row": 2,
+      "columns": [
+        [
+          1,
+          "تاریخ"
+        ],
+        [
+          2,
+          "تعمیرکار"
+        ],
+        [
+          3,
+          "کد مکانیزم"
+        ],
+        [
+          4,
+          "نوع خرابی"
+        ],
+        [
+          5,
+          "قطعات مصرفی"
+        ]
+      ],
+      "title_cells": [
+        [
+          "A1",
+          "بیل 1254"
+        ]
+      ],
+      "device": "بیل 1254",
+      "exclude": false,
+      "exclude_reason": null,
+      "date_merged_blocks": false,
+      "report_columns": [
+        1,
+        3,
+        2,
+        4,
+        5
+      ],
+      "report_mapping_basis": "Exact inspected source header mapping"
+    },
+    "1255": {
+      "header_row": 2,
+      "columns": [
+        [
+          1,
+          "تاریخ"
+        ],
+        [
+          2,
+          "تعمیرکار"
+        ],
+        [
+          3,
+          "کد مکانیزم"
+        ],
+        [
+          4,
+          "نوع خرابی"
+        ],
+        [
+          5,
+          "قطعات مصرفی"
+        ]
+      ],
+      "title_cells": [
+        [
+          "A1",
+          "بیل 1255"
+        ]
+      ],
+      "device": "بیل 1255",
+      "exclude": false,
+      "exclude_reason": null,
+      "date_merged_blocks": false,
+      "report_columns": [
+        1,
+        3,
+        2,
+        4,
+        5
+      ],
+      "report_mapping_basis": "Exact inspected source header mapping"
+    },
+    "471": {
+      "header_row": 2,
+      "columns": [
+        [
+          1,
+          "تاریخ"
+        ],
+        [
+          2,
+          "تعمیرکار"
+        ],
+        [
+          3,
+          "کد مکانیزم"
+        ],
+        [
+          4,
+          "نوع خرابی"
+        ],
+        [
+          5,
+          "قطعات مصرفی"
+        ]
+      ],
+      "title_cells": [
+        [
+          "A1",
+          "لودر 471"
+        ]
+      ],
+      "device": "لودر 471",
+      "exclude": false,
+      "exclude_reason": null,
+      "date_merged_blocks": false,
+      "report_columns": [
+        1,
+        3,
+        2,
+        4,
+        5
+      ],
+      "report_mapping_basis": "Exact inspected source header mapping"
+    },
+    "472": {
+      "header_row": 2,
+      "columns": [
+        [
+          1,
+          "تاریخ"
+        ],
+        [
+          2,
+          "تعمیرکار"
+        ],
+        [
+          3,
+          "کد مکانیزم"
+        ],
+        [
+          4,
+          "نوع خرابی"
+        ],
+        [
+          5,
+          "قطعات مصرفی"
+        ]
+      ],
+      "title_cells": [
+        [
+          "A1",
+          "لودر472"
+        ]
+      ],
+      "device": "لودر472",
+      "exclude": false,
+      "exclude_reason": null,
+      "date_merged_blocks": false,
+      "report_columns": [
+        1,
+        3,
+        2,
+        4,
+        5
+      ],
+      "report_mapping_basis": "Exact inspected source header mapping"
+    },
+    "473": {
+      "header_row": 2,
+      "columns": [
+        [
+          1,
+          "تاریخ"
+        ],
+        [
+          2,
+          "تعمیرکار"
+        ],
+        [
+          3,
+          "کد مکانیزم"
+        ],
+        [
+          4,
+          "نوع خرابی"
+        ],
+        [
+          5,
+          "قطعات مصرفی"
+        ]
+      ],
+      "title_cells": [
+        [
+          "A1",
+          "لودر 473"
+        ]
+      ],
+      "device": "لودر 473",
+      "exclude": false,
+      "exclude_reason": null,
+      "date_merged_blocks": false,
+      "report_columns": [
+        1,
+        3,
+        2,
+        4,
+        5
+      ],
+      "report_mapping_basis": "Exact inspected source header mapping"
+    },
+    "601.": {
+      "header_row": 2,
+      "columns": [
+        [
+          1,
+          "تاریخ"
+        ],
+        [
+          2,
+          "تعمیرکار"
+        ],
+        [
+          3,
+          "کد مکانیزم"
+        ],
+        [
+          4,
+          "نوع خرابی"
+        ],
+        [
+          5,
+          "قطعات مصرفی"
+        ]
+      ],
+      "title_cells": [
+        [
+          "A1",
+          "لودر 601"
+        ]
+      ],
+      "device": "لودر 601",
+      "exclude": false,
+      "exclude_reason": null,
+      "date_merged_blocks": false,
+      "report_columns": [
+        1,
+        3,
+        2,
+        4,
+        5
+      ],
+      "report_mapping_basis": "Exact inspected source header mapping"
+    },
+    "151": {
+      "header_row": 2,
+      "columns": [
+        [
+          1,
+          "تاریخ"
+        ],
+        [
+          2,
+          "تعمیرکار"
+        ],
+        [
+          3,
+          "کد مکانیزم"
+        ],
+        [
+          4,
+          "نوع خرابی"
+        ],
+        [
+          5,
+          "قطعات مصرفی"
+        ]
+      ],
+      "title_cells": [
+        [
+          "A1",
+          "بلدوزر 151"
+        ]
+      ],
+      "device": "بلدوزر 151",
+      "exclude": false,
+      "exclude_reason": null,
+      "date_merged_blocks": false,
+      "report_columns": [
+        1,
+        3,
+        2,
+        4,
+        5
+      ],
+      "report_mapping_basis": "Exact inspected source header mapping"
+    },
+    "152": {
+      "header_row": 2,
+      "columns": [
+        [
+          1,
+          "تاریخ"
+        ],
+        [
+          2,
+          "تعمیرکار"
+        ],
+        [
+          3,
+          "کد مکانیزم"
+        ],
+        [
+          4,
+          "نوع خرابی"
+        ],
+        [
+          5,
+          "قطعات مصرفی"
+        ]
+      ],
+      "title_cells": [
+        [
+          "A1",
+          "بلدوزر 152"
+        ]
+      ],
+      "device": "بلدوزر 152",
+      "exclude": false,
+      "exclude_reason": null,
+      "date_merged_blocks": false,
+      "report_columns": [
+        1,
+        3,
+        2,
+        4,
+        5
+      ],
+      "report_mapping_basis": "Exact inspected source header mapping"
+    },
+    "701": {
+      "header_row": 2,
+      "columns": [
+        [
+          1,
+          "تاریخ"
+        ],
+        [
+          2,
+          "کد مکانیزم"
+        ],
+        [
+          3,
+          "نام مکانیک"
+        ],
+        [
+          4,
+          "نوع خرابی"
+        ],
+        [
+          5,
+          "قطعات مصرفی"
+        ]
+      ],
+      "title_cells": [
+        [
+          "A1",
+          "تراک 701"
+        ]
+      ],
+      "device": "تراک 701",
+      "exclude": false,
+      "exclude_reason": null,
+      "date_merged_blocks": false,
+      "undated_placeholders": [
+        {
+          "column": 4,
+          "value": "."
+        }
+      ],
+      "report_columns": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "report_mapping_basis": "Exact inspected source header mapping"
+    },
+    "702": {
+      "header_row": 2,
+      "columns": [
+        [
+          1,
+          "تاریخ"
+        ],
+        [
+          2,
+          "کد مکانیزم"
+        ],
+        [
+          3,
+          "نام مکانیک"
+        ],
+        [
+          4,
+          "نوع خرابی"
+        ],
+        [
+          5,
+          "قطعات مصرفی"
+        ]
+      ],
+      "title_cells": [
+        [
+          "A1",
+          702
+        ]
+      ],
+      "device": "702",
+      "exclude": false,
+      "exclude_reason": null,
+      "date_merged_blocks": false,
+      "report_columns": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "report_mapping_basis": "Exact inspected source header mapping"
+    },
+    "703": {
+      "header_row": 2,
+      "columns": [
+        [
+          1,
+          "تاریخ"
+        ],
+        [
+          2,
+          "کد مکانیزم"
+        ],
+        [
+          3,
+          "نام مکانیک"
+        ],
+        [
+          4,
+          "نوع خرابی"
+        ],
+        [
+          5,
+          "قطعات مصرفی"
+        ]
+      ],
+      "title_cells": [
+        [
+          "A1",
+          "تراک 703"
+        ]
+      ],
+      "device": "تراک 703",
+      "exclude": false,
+      "exclude_reason": null,
+      "date_merged_blocks": false,
+      "report_columns": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "report_mapping_basis": "Exact inspected source header mapping"
+    },
+    "704": {
+      "header_row": 2,
+      "columns": [
+        [
+          1,
+          "تاریخ"
+        ],
+        [
+          2,
+          "کد مکانیزم"
+        ],
+        [
+          3,
+          "نام مکانیک"
+        ],
+        [
+          4,
+          "نوع خرابی"
+        ],
+        [
+          5,
+          "قطعات مصرفی"
+        ]
+      ],
+      "title_cells": [
+        [
+          "A1",
+          "تراک704"
+        ]
+      ],
+      "device": "تراک704",
+      "exclude": false,
+      "exclude_reason": null,
+      "date_merged_blocks": false,
+      "report_columns": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "report_mapping_basis": "Exact inspected source header mapping"
+    },
+    "705": {
+      "header_row": 2,
+      "columns": [
+        [
+          1,
+          "تاریخ"
+        ],
+        [
+          2,
+          "تعمیرکار"
+        ],
+        [
+          3,
+          "کد مکانیزم"
+        ],
+        [
+          4,
+          "نوع خرابی"
+        ],
+        [
+          5,
+          "قطعات مصرفی"
+        ]
+      ],
+      "title_cells": [
+        [
+          "A1",
+          409
+        ]
+      ],
+      "device": "705",
+      "exclude": false,
+      "exclude_reason": null,
+      "date_merged_blocks": false,
+      "identity_note": "عنوان منبع: 409؛ شناسه Sheet و کد رکوردها: 705",
+      "report_columns": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "report_mapping_basis": "Explicit source-data inspection and user-confirmed correction; source headers for code/mechanic are reversed"
+    },
+    "706": {
+      "header_row": 2,
+      "columns": [
+        [
+          1,
+          "تاریخ"
+        ],
+        [
+          2,
+          "تعمیرکار"
+        ],
+        [
+          3,
+          "کد مکانیزم"
+        ],
+        [
+          4,
+          "نوع خرابی"
+        ],
+        [
+          5,
+          "قطعات مصرفی"
+        ]
+      ],
+      "title_cells": [
+        [
+          "A1",
+          "تراک 706"
+        ]
+      ],
+      "device": "تراک 706",
+      "exclude": false,
+      "exclude_reason": null,
+      "date_merged_blocks": false,
+      "report_columns": [
+        1,
+        3,
+        2,
+        4,
+        5
+      ],
+      "report_mapping_basis": "Exact inspected source header mapping"
+    },
+    "707": {
+      "header_row": 2,
+      "columns": [
+        [
+          1,
+          "تاریخ"
+        ],
+        [
+          2,
+          "کد مکانیزم"
+        ],
+        [
+          3,
+          "نام مکانیک"
+        ],
+        [
+          4,
+          "نوع خرابی"
+        ],
+        [
+          5,
+          "قطعات مصرفی"
+        ]
+      ],
+      "title_cells": [
+        [
+          "A1",
+          "دامپتراک کوماتسو707"
+        ]
+      ],
+      "device": "دامپتراک کوماتسو707",
+      "exclude": false,
+      "exclude_reason": null,
+      "date_merged_blocks": false,
+      "report_columns": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "report_mapping_basis": "Exact inspected source header mapping"
+    },
+    "461": {
+      "header_row": 2,
+      "columns": [
+        [
+          1,
+          "تاریخ"
+        ],
+        [
+          2,
+          "کد مکانیزم"
+        ],
+        [
+          3,
+          "نام مکانیک"
+        ],
+        [
+          4,
+          "نوع خرابی"
+        ],
+        [
+          5,
+          "قطعات مصرفی"
+        ]
+      ],
+      "title_cells": [
+        [
+          "A1",
+          "دامپتراک 461"
+        ]
+      ],
+      "device": "دامپتراک 461",
+      "exclude": false,
+      "exclude_reason": null,
+      "date_merged_blocks": false,
+      "report_columns": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "report_mapping_basis": "Exact inspected source header mapping"
+    },
+    "462": {
+      "header_row": 2,
+      "columns": [
+        [
+          1,
+          "تاریخ"
+        ],
+        [
+          2,
+          "کد مکانیزم"
+        ],
+        [
+          3,
+          "نام مکانیک"
+        ],
+        [
+          4,
+          "نوع خرابی"
+        ],
+        [
+          5,
+          "قطعات مصرفی"
+        ]
+      ],
+      "title_cells": [
+        [
+          "A1",
+          "تراک 462"
+        ]
+      ],
+      "device": "تراک 462",
+      "exclude": false,
+      "exclude_reason": null,
+      "date_merged_blocks": false,
+      "report_columns": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "report_mapping_basis": "Exact inspected source header mapping"
+    },
+    "463": {
+      "header_row": 2,
+      "columns": [
+        [
+          1,
+          "تاریخ"
+        ],
+        [
+          2,
+          "کد مکانیزم"
+        ],
+        [
+          3,
+          "نام مکانیک"
+        ],
+        [
+          4,
+          "نوع خرابی"
+        ],
+        [
+          5,
+          "قطعات مصرفی"
+        ]
+      ],
+      "title_cells": [
+        [
+          "A1",
+          "تراک 463"
+        ]
+      ],
+      "device": "تراک 463",
+      "exclude": false,
+      "exclude_reason": null,
+      "date_merged_blocks": false,
+      "report_columns": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "report_mapping_basis": "Exact inspected source header mapping"
+    },
+    "464": {
+      "header_row": 2,
+      "columns": [
+        [
+          1,
+          "تاریخ"
+        ],
+        [
+          2,
+          "کد مکانیزم"
+        ],
+        [
+          3,
+          "نام مکانیک"
+        ],
+        [
+          4,
+          "نوع خرابی"
+        ],
+        [
+          5,
+          "قطعات مصرفی"
+        ]
+      ],
+      "title_cells": [
+        [
+          "A1",
+          "تراک 464"
+        ]
+      ],
+      "device": "تراک 464",
+      "exclude": false,
+      "exclude_reason": null,
+      "date_merged_blocks": false,
+      "report_columns": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "report_mapping_basis": "Exact inspected source header mapping"
+    },
+    "465": {
+      "header_row": 2,
+      "columns": [
+        [
+          1,
+          "تاریخ"
+        ],
+        [
+          2,
+          "کد مکانیزم"
+        ],
+        [
+          3,
+          "نام مکانیک"
+        ],
+        [
+          4,
+          "نوع خرابی"
+        ],
+        [
+          5,
+          "قطعات مصرفی"
+        ]
+      ],
+      "title_cells": [
+        [
+          "A1",
+          "تراک 465"
+        ]
+      ],
+      "device": "تراک 465",
+      "exclude": false,
+      "exclude_reason": null,
+      "date_merged_blocks": false,
+      "report_columns": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "report_mapping_basis": "Exact inspected source header mapping"
+    },
+    "466": {
+      "header_row": 2,
+      "columns": [
+        [
+          1,
+          "تاریخ"
+        ],
+        [
+          2,
+          "کد مکانیزم"
+        ],
+        [
+          3,
+          "نام مکانیک"
+        ],
+        [
+          4,
+          "نوع خرابی"
+        ],
+        [
+          5,
+          "قطعات مصرفی"
+        ]
+      ],
+      "title_cells": [
+        [
+          "A1",
+          "تراک 466"
+        ]
+      ],
+      "device": "تراک 466",
+      "exclude": false,
+      "exclude_reason": null,
+      "date_merged_blocks": false,
+      "report_columns": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "report_mapping_basis": "Exact inspected source header mapping"
+    },
+    "467": {
+      "header_row": 2,
+      "columns": [
+        [
+          1,
+          "تاریخ"
+        ],
+        [
+          2,
+          "کد مکانیزم"
+        ],
+        [
+          3,
+          "نام مکانیک"
+        ],
+        [
+          4,
+          "نوع خرابی"
+        ],
+        [
+          5,
+          "قطعات مصرفی"
+        ]
+      ],
+      "title_cells": [
+        [
+          "A1",
+          "تراک 467"
+        ]
+      ],
+      "device": "تراک 467",
+      "exclude": false,
+      "exclude_reason": null,
+      "date_merged_blocks": false,
+      "report_columns": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "report_mapping_basis": "Exact inspected source header mapping"
+    },
+    "468": {
+      "header_row": 2,
+      "columns": [
+        [
+          1,
+          "تاریخ"
+        ],
+        [
+          2,
+          "تعمیرکار"
+        ],
+        [
+          3,
+          "کد مکانیزم"
+        ],
+        [
+          4,
+          "نوع خرابی"
+        ],
+        [
+          5,
+          "قطعات مصرفی"
+        ]
+      ],
+      "title_cells": [
+        [
+          "A1",
+          "دامپ 468"
+        ]
+      ],
+      "device": "دامپ 468",
+      "exclude": false,
+      "exclude_reason": null,
+      "date_merged_blocks": false,
+      "report_columns": [
+        1,
+        3,
+        2,
+        4,
+        5
+      ],
+      "report_mapping_basis": "Exact inspected source header mapping"
+    },
+    "469": {
+      "header_row": 2,
+      "columns": [
+        [
+          1,
+          "تاریخ"
+        ],
+        [
+          2,
+          "تعمیرکار"
+        ],
+        [
+          3,
+          "کد مکانیزم"
+        ],
+        [
+          4,
+          "نوع خرابی"
+        ],
+        [
+          5,
+          "قطعات مصرفی"
+        ]
+      ],
+      "title_cells": [
+        [
+          "A1",
+          "دامپ 469"
+        ]
+      ],
+      "device": "دامپ 469",
+      "exclude": false,
+      "exclude_reason": null,
+      "date_merged_blocks": false,
+      "report_columns": [
+        1,
+        3,
+        2,
+        4,
+        5
+      ],
+      "report_mapping_basis": "Exact inspected source header mapping"
+    },
+    "708": {
+      "header_row": 2,
+      "columns": [
+        [
+          1,
+          "تاریخ"
+        ],
+        [
+          2,
+          "تعمیرکار"
+        ],
+        [
+          3,
+          "کد مکانیزم"
+        ],
+        [
+          4,
+          "نوع خرابی"
+        ],
+        [
+          5,
+          "قطعات مصرفی"
+        ]
+      ],
+      "title_cells": [
+        [
+          "A1",
+          "دامپ 708"
+        ]
+      ],
+      "device": "دامپ 708",
+      "exclude": false,
+      "exclude_reason": null,
+      "date_merged_blocks": false,
+      "report_columns": [
+        1,
+        3,
+        2,
+        4,
+        5
+      ],
+      "report_mapping_basis": "Exact inspected source header mapping"
+    },
+    "709": {
+      "header_row": 2,
+      "columns": [
+        [
+          1,
+          "تاریخ"
+        ],
+        [
+          2,
+          "تعمیرکار"
+        ],
+        [
+          3,
+          "کد مکانیزم"
+        ],
+        [
+          4,
+          "نوع خرابی"
+        ],
+        [
+          5,
+          "قطعات مصرفی"
+        ]
+      ],
+      "title_cells": [
+        [
+          "A1",
+          "دامپ 709"
+        ]
+      ],
+      "device": "دامپ 709",
+      "exclude": false,
+      "exclude_reason": null,
+      "date_merged_blocks": false,
+      "report_columns": [
+        1,
+        3,
+        2,
+        4,
+        5
+      ],
+      "report_mapping_basis": "Exact inspected source header mapping"
+    },
+    "710": {
+      "header_row": 2,
+      "columns": [
+        [
+          1,
+          "تاریخ"
+        ],
+        [
+          2,
+          "تعمیرکار"
+        ],
+        [
+          3,
+          "کد مکانیزم"
+        ],
+        [
+          4,
+          "نوع خرابی"
+        ],
+        [
+          5,
+          "قطعات مصرفی"
+        ]
+      ],
+      "title_cells": [
+        [
+          "A1",
+          "دامپ 710"
+        ]
+      ],
+      "device": "دامپ 710",
+      "exclude": false,
+      "exclude_reason": null,
+      "date_merged_blocks": false,
+      "report_columns": [
+        1,
+        3,
+        2,
+        4,
+        5
+      ],
+      "report_mapping_basis": "Exact inspected source header mapping"
+    },
+    "711": {
+      "header_row": 2,
+      "columns": [
+        [
+          1,
+          "تاریخ"
+        ],
+        [
+          2,
+          "تعمیرکار"
+        ],
+        [
+          3,
+          "کد مکانیزم"
+        ],
+        [
+          4,
+          "نوع خرابی"
+        ],
+        [
+          5,
+          "قطعات مصرفی"
+        ]
+      ],
+      "title_cells": [
+        [
+          "A1",
+          "دامپ 711"
+        ]
+      ],
+      "device": "دامپ 711",
+      "exclude": false,
+      "exclude_reason": null,
+      "date_merged_blocks": false,
+      "report_columns": [
+        1,
+        3,
+        2,
+        4,
+        5
+      ],
+      "report_mapping_basis": "Exact inspected source header mapping"
+    },
+    "712": {
+      "header_row": 2,
+      "columns": [
+        [
+          1,
+          "تاریخ"
+        ],
+        [
+          2,
+          "کد مکانیزم"
+        ],
+        [
+          3,
+          "نام مکانیک"
+        ],
+        [
+          4,
+          "نوع خرابی"
+        ],
+        [
+          5,
+          "قطعات مصرفی"
+        ]
+      ],
+      "title_cells": [
+        [
+          "A1",
+          "دامپ 712"
+        ]
+      ],
+      "device": "دامپ 712",
+      "exclude": false,
+      "exclude_reason": null,
+      "date_merged_blocks": false,
+      "report_columns": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "report_mapping_basis": "Exact inspected source header mapping"
+    },
+    "713": {
+      "header_row": 2,
+      "columns": [
+        [
+          1,
+          "تاریخ"
+        ],
+        [
+          2,
+          "کد مکانیزم"
+        ],
+        [
+          3,
+          "نام مکانیک"
+        ],
+        [
+          4,
+          "نوع خرابی"
+        ],
+        [
+          5,
+          "قطعات مصرفی"
+        ]
+      ],
+      "title_cells": [
+        [
+          "A1",
+          "دامپ 713"
+        ]
+      ],
+      "device": "دامپ 713",
+      "exclude": false,
+      "exclude_reason": null,
+      "date_merged_blocks": false,
+      "report_columns": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "report_mapping_basis": "Exact inspected source header mapping"
+    },
+    "714": {
+      "header_row": 2,
+      "columns": [
+        [
+          1,
+          "تاریخ"
+        ],
+        [
+          2,
+          "کد مکانیزم"
+        ],
+        [
+          3,
+          "نام مکانیک"
+        ],
+        [
+          4,
+          "نوع خرابی"
+        ],
+        [
+          5,
+          "قطعات مصرفی"
+        ]
+      ],
+      "title_cells": [
+        [
+          "A1",
+          "دامپ 714"
+        ]
+      ],
+      "device": "دامپ 714",
+      "exclude": false,
+      "exclude_reason": null,
+      "date_merged_blocks": false,
+      "report_columns": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "report_mapping_basis": "Exact inspected source header mapping"
+    },
+    "715": {
+      "header_row": 2,
+      "columns": [
+        [
+          1,
+          "تاریخ"
+        ],
+        [
+          2,
+          "کد مکانیزم"
+        ],
+        [
+          3,
+          "نام مکانیک"
+        ],
+        [
+          4,
+          "نوع خرابی"
+        ],
+        [
+          5,
+          "قطعات مصرفی"
+        ]
+      ],
+      "title_cells": [
+        [
+          "A1",
+          "دامپ 715"
+        ]
+      ],
+      "device": "دامپ 715",
+      "exclude": false,
+      "exclude_reason": null,
+      "date_merged_blocks": false,
+      "report_columns": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "report_mapping_basis": "Exact inspected source header mapping"
+    },
+    "716": {
+      "header_row": 2,
+      "columns": [
+        [
+          1,
+          "تاریخ"
+        ],
+        [
+          2,
+          "کد مکانیزم"
+        ],
+        [
+          3,
+          "نام مکانیک"
+        ],
+        [
+          4,
+          "نوع خرابی"
+        ],
+        [
+          5,
+          "قطعات مصرفی"
+        ]
+      ],
+      "title_cells": [
+        [
+          "A1",
+          "دامپ 716"
+        ]
+      ],
+      "device": "دامپ 716",
+      "exclude": false,
+      "exclude_reason": null,
+      "date_merged_blocks": false,
+      "report_columns": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "report_mapping_basis": "Exact inspected source header mapping"
+    },
+    "MZ10": {
+      "header_row": 2,
+      "columns": [
+        [
+          1,
+          "تاریخ"
+        ],
+        [
+          2,
+          "کد مکانیزم"
+        ],
+        [
+          3,
+          "نام مکانیک"
+        ],
+        [
+          4,
+          "نوع خرابی"
+        ],
+        [
+          5,
+          "قطعات مصرفی"
+        ]
+      ],
+      "title_cells": [
+        [
+          "A1",
+          "MZ10"
+        ]
+      ],
+      "device": "MZ10",
+      "exclude": false,
+      "exclude_reason": null,
+      "date_merged_blocks": false,
+      "report_columns": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "report_mapping_basis": "Exact inspected source header mapping"
+    },
+    "MZ6": {
+      "header_row": 2,
+      "columns": [
+        [
+          1,
+          "تاریخ"
+        ],
+        [
+          2,
+          "کد مکانیزم"
+        ],
+        [
+          3,
+          "نام مکانیک"
+        ],
+        [
+          4,
+          "نوع خرابی"
+        ],
+        [
+          5,
+          "قطعات مصرفی"
+        ]
+      ],
+      "title_cells": [
+        [
+          "A1",
+          "MZ6"
+        ]
+      ],
+      "device": "MZ6",
+      "exclude": false,
+      "exclude_reason": null,
+      "date_merged_blocks": false,
+      "report_columns": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "report_mapping_basis": "Exact inspected source header mapping"
+    },
+    "MZ4": {
+      "header_row": 2,
+      "columns": [
+        [
+          1,
+          "تاریخ"
+        ],
+        [
+          2,
+          "کد مکانیزم"
+        ],
+        [
+          3,
+          "نام مکانیک"
+        ],
+        [
+          4,
+          "نوع خرابی"
+        ],
+        [
+          5,
+          "قطعات مصرفی"
+        ]
+      ],
+      "title_cells": [
+        [
+          "A1",
+          "باطری سازی MZ4"
+        ]
+      ],
+      "device": "باطری سازی MZ4",
+      "exclude": false,
+      "exclude_reason": null,
+      "date_merged_blocks": false,
+      "report_columns": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "report_mapping_basis": "Exact inspected source header mapping"
+    },
+    "TA1": {
+      "header_row": 2,
+      "columns": [
+        [
+          1,
+          "تاریخ"
+        ],
+        [
+          2,
+          "کد مکانیزم"
+        ],
+        [
+          3,
+          "نام مکانیک"
+        ],
+        [
+          4,
+          "نوع خرابی"
+        ],
+        [
+          5,
+          "قطعات مصرفی"
+        ]
+      ],
+      "title_cells": [
+        [
+          "A1",
+          "TA1"
+        ]
+      ],
+      "device": "TA1",
+      "exclude": false,
+      "exclude_reason": null,
+      "date_merged_blocks": false,
+      "report_columns": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "report_mapping_basis": "Exact inspected source header mapping"
+    },
+    "TR1": {
+      "header_row": 2,
+      "columns": [
+        [
+          1,
+          "تاریخ"
+        ],
+        [
+          2,
+          "کد مکانیزم"
+        ],
+        [
+          3,
+          "نام مکانیک"
+        ],
+        [
+          4,
+          "نوع خرابی"
+        ],
+        [
+          5,
+          "قطعات مصرفی"
+        ]
+      ],
+      "title_cells": [
+        [
+          "A1",
+          "TR1"
+        ]
+      ],
+      "device": "TR1",
+      "exclude": false,
+      "exclude_reason": null,
+      "date_merged_blocks": false,
+      "report_columns": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "report_mapping_basis": "Exact inspected source header mapping"
+    },
+    "S1": {
+      "header_row": 2,
+      "columns": [
+        [
+          1,
+          "تاریخ"
+        ],
+        [
+          2,
+          "کد مکانیزم"
+        ],
+        [
+          3,
+          "نام مکانیک"
+        ],
+        [
+          4,
+          "نوع خرابی"
+        ],
+        [
+          5,
+          "قطعات مصرفی"
+        ]
+      ],
+      "title_cells": [],
+      "device": "S1",
+      "exclude": false,
+      "exclude_reason": null,
+      "date_merged_blocks": false,
+      "report_columns": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "report_mapping_basis": "Exact inspected source header mapping"
+    },
+    "S2": {
+      "header_row": 2,
+      "columns": [
+        [
+          1,
+          "تاریخ"
+        ],
+        [
+          2,
+          "کد مکانیزم"
+        ],
+        [
+          3,
+          "نام مکانیک"
+        ],
+        [
+          4,
+          "نوع خرابی"
+        ],
+        [
+          5,
+          "قطعات مصرفی"
+        ]
+      ],
+      "title_cells": [],
+      "device": "S2",
+      "exclude": false,
+      "exclude_reason": null,
+      "date_merged_blocks": false,
+      "report_columns": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "report_mapping_basis": "Exact inspected source header mapping"
+    },
+    "تعمیرگاه": {
+      "header_row": 2,
+      "columns": [
+        [
+          1,
+          "تاریخ"
+        ],
+        [
+          2,
+          "کد مکانیزم"
+        ],
+        [
+          3,
+          "نام مکانیک"
+        ],
+        [
+          4,
+          "نوع خرابی"
+        ],
+        [
+          5,
+          "قطعات مصرفی"
+        ]
+      ],
+      "title_cells": [
+        [
+          "A1",
+          "تعمیرگاه"
+        ]
+      ],
+      "device": "تعمیرگاه",
+      "exclude": true,
+      "exclude_reason": "Workshop history, not one device",
+      "date_merged_blocks": false
+    }
+  },
+  "report_column_order": [
+    "تاریخ",
+    "کد مکانیزم",
+    "نام مکانیک / تعمیرکار",
+    "نوع خرابی",
+    "قطعات مصرفی"
+  ]
+}

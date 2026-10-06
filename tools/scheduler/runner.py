@@ -99,6 +99,10 @@ def load_config(path=CONFIG, registry=TASKS):
             job['trigger'] = DateTrigger(run_date=spec['run_at'], timezone=job_tz)
         else:
             raise ValueError(f'{name}: trigger type must be cron or date')
+        if job['task'] == 'maintenance_daily_report':
+            if (job['id'] != 'maintenance_daily_report' or spec != {'type':'cron','hour':9,'minute':0}
+                    or any(j['task']=='maintenance_daily_report' for j in jobs)):
+                raise ValueError('Maintenance requires one daily 09:00 Tehran job with its canonical id')
         jobs.append(job)
     return tz, grace, jobs
 
@@ -165,6 +169,8 @@ def tick(config=CONFIG, state=STATE, now=None, registry=TASKS, authorization=Non
                                     ' requested previous-day report: %s', params['date'])
                 if job['task'] in MULTI_RECIPIENT_TASKS:
                     params['date']=overflow_report_date(due)
+                    if job['task']=='maintenance_daily_report':
+                        params['occurrence']=due.isoformat()
                 if status != 'skipped':
                     if job['task'] in MULTI_RECIPIENT_TASKS:
                         result=registry[job['task']][1](recipient,params,
