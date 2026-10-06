@@ -64,3 +64,14 @@ schedules:
       hour: 10
       minute: 0
     params: {}
+
+  - id: driver_daily_metalwork
+    enabled: true
+    task: metalwork_driver_daily
+    recipient_capability: reports.driver_daily.metalwork_daily_receive
+    timezone: Asia/Tehran
+    trigger:
+      type: cron
+      hour: 9
+      minute: 0
+    params: {}

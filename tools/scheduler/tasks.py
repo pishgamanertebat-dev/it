@@ -282,10 +282,72 @@ def mechanical_driver_daily(recipient, params, *, authorization=None):
                             read_capability=DRIVER_REPORT_READ,pdf=True,authorization=authorization)
 
 
+def metalwork_driver_daily(recipient, params, *, authorization=None):
+    """Scheduled metalwork PDF only; receive capability grants no on-demand reads."""
+    from tools.authorization import METALWORK_DRIVER_RECEIVE
+    from integrations.hermes.function_domain.driver_report import build_driver_pdf, SECTIONS
+    validate_overflow(params)
+    store = authorization if authorization is not None else AuthorizationStore()
+
+    def recipients():
+        return store.resolve_active_recipients(METALWORK_DRIVER_RECEIVE)
+
+    resolution = recipients()
+    if resolution.status != 'ready' or not resolution.recipients:
+        logger.info('Metalwork delivery skipped: %s', resolution.status)
+        return {'status': 'skipped', 'reason': resolution.status}
+    initial = tuple(dict.fromkeys(resolution.recipients))
+    runtime = ROOT / 'runtime/scheduler'
+    runtime.mkdir(parents=True, exist_ok=True)
+    sent, revoked, failed = [], [], []
+    with tempfile.TemporaryDirectory(prefix='metalwork-', dir=runtime) as directory:
+        expected = validate_date(params['date']) if params.get('date') else overflow_report_date()
+        result = build_driver_pdf(expected, directory, sections=('metalwork',))
+        report = result['report']
+        content = report['sections']['metalwork']
+        if not result.get('ok') or report['date'] != expected or len(result['documents']) != 1:
+            raise ValueError('One metalwork PDF for the exact requested day is required')
+        if content['status'] == 'date_missing':
+            logger.warning('Metalwork delivery skipped: date_missing target=%s', expected)
+            return {'status': 'skipped', 'reason': 'date_missing'}
+        if content['status'] not in {'ready', 'no_defects'}:
+            raise ValueError('Invalid metalwork report status')
+        path = Path(result['documents'][0])
+        if path.parent.resolve() != Path(directory).resolve() or path.name != f'driver-metalwork-{expected.replace("/", "-")}.pdf':
+            raise ValueError('Unexpected metalwork output path')
+        sender = None
+        try:
+            for user in initial:
+                if user not in recipients().recipients:
+                    revoked.append(user)
+                    continue
+                if sender is None:
+                    sender = BaleSender()
+                # Recheck after transport initialization, immediately before upload.
+                if user not in recipients().recipients:
+                    revoked.append(user)
+                    continue
+                try:
+                    sender.document(user, path, SECTIONS['metalwork'] + ' ' + expected)
+                    sent.append(user)
+                except Exception:
+                    failed.append(user)
+                    logger.error('Metalwork delivery failed for one recipient')
+        finally:
+            if sender is not None:
+                sender.close()
+    logger.info('Metalwork delivery date=%s sent=%s revoked=%s failed=%s', expected, len(sent), len(revoked), len(failed))
+    return {'status': 'failed' if failed else ('succeeded' if sent else 'skipped'),
+            'reason': 'delivery_failed' if failed else ('recipient_revoked' if not sent else ''),
+            'sent_count': len(sent), 'revoked_count': len(revoked), 'failed_count': len(failed)}
+
+
 TASKS = {'overflow': (validate_overflow, overflow), 'repairs': (validate_repairs, repairs),
          'driver_daily': (validate_overflow, driver_daily),
          'mechanical_overflow':(validate_overflow,mechanical_overflow),
-         'mechanical_driver_daily':(validate_overflow,mechanical_driver_daily)}
-from tools.authorization import MECH_OVERFLOW_RECEIVE, MECH_DRIVER_RECEIVE
+         'mechanical_driver_daily':(validate_overflow,mechanical_driver_daily),
+         'metalwork_driver_daily': (validate_overflow, metalwork_driver_daily)}
+from tools.authorization import MECH_OVERFLOW_RECEIVE, MECH_DRIVER_RECEIVE, METALWORK_DRIVER_RECEIVE
 MULTI_RECIPIENT_TASKS={'mechanical_overflow':MECH_OVERFLOW_RECEIVE,
-                      'mechanical_driver_daily':MECH_DRIVER_RECEIVE}
+                      'mechanical_driver_daily':MECH_DRIVER_RECEIVE,
+                      'metalwork_driver_daily':METALWORK_DRIVER_RECEIVE}

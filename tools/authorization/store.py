@@ -58,6 +58,9 @@ MECHANICAL_ROLE_CAPABILITIES = {
 }
 MECHANICAL_PROFILE_MAP = ((MECHANICAL_STAFF, MAINTENANCE_PROFILE, 100),)
 MECHANICAL_EXTENSION = 'mechanical_roles_v1'
+METALWORK_STAFF = 'metalwork_staff'
+METALWORK_DRIVER_RECEIVE = 'reports.driver_daily.metalwork_daily_receive'
+METALWORK_EXTENSION = 'metalwork_roles_v1'
 logger = logging.getLogger(__name__)
 
 SCHEMA = (
@@ -452,6 +455,66 @@ class AuthorizationStore:
                 conn.execute("""INSERT INTO auth_events(platform,user_id,role,event_type,actor,created_at)
                     VALUES ('bale',?,?,'assigned',?,?)""", (user_id,role,actor,timestamp))
             conn.execute('INSERT OR IGNORE INTO auth_extensions VALUES (?,?)', (MECHANICAL_EXTENSION, timestamp))
+        return backup
+
+    def migrate_metalwork(self, backup_directory=None, *, assignments=(), actor='metalwork-migration'):
+        """Minimal scheduled-delivery role; additive, atomic, idempotent schema-v2 extension.
+
+        No Function scope or on-demand data access. Existing seeds or effective
+        profile conflicts are rejected rather than overriding authorization.
+        """
+        backup = self.backup(backup_directory)
+        with closing(self._connect(write=True)) as conn, conn:
+            conn.execute('BEGIN IMMEDIATE')
+            self._version(conn)
+            if conn.execute('SELECT MAX(version) FROM auth_migrations').fetchone() != (2,):
+                raise sqlite3.DatabaseError('ADMIN-1 authorization schema is required first')
+            if conn.execute('PRAGMA integrity_check').fetchall() != [('ok',)] or conn.execute('PRAGMA foreign_key_check').fetchall():
+                raise sqlite3.DatabaseError('Authorization integrity failed before migration')
+            conn.execute('CREATE TABLE IF NOT EXISTS auth_extensions (name TEXT PRIMARY KEY, applied_at TEXT NOT NULL)')
+            conn.execute('INSERT OR IGNORE INTO auth_roles VALUES (?,?)', (METALWORK_STAFF, 'نیروی آهنگری'))
+            conn.execute('INSERT OR IGNORE INTO auth_capabilities VALUES (?,?)',
+                         (METALWORK_DRIVER_RECEIVE, 'reports.driver_daily.metalwork'))
+            conn.execute('INSERT OR IGNORE INTO auth_role_capabilities VALUES (?,?)',
+                         (METALWORK_STAFF, METALWORK_DRIVER_RECEIVE))
+            conn.execute('INSERT OR IGNORE INTO auth_role_profiles VALUES (?,?,?,1)',
+                         (METALWORK_STAFF, MAINTENANCE_PROFILE, 100))
+            if conn.execute('SELECT profile,priority,active FROM auth_role_profiles WHERE role=?',
+                            (METALWORK_STAFF,)).fetchone() != (MAINTENANCE_PROFILE, 100, 1):
+                raise sqlite3.DatabaseError('Conflicting metalwork profile mapping')
+            if conn.execute('SELECT capability FROM auth_role_capabilities WHERE role=?',
+                            (METALWORK_STAFF,)).fetchall() != [(METALWORK_DRIVER_RECEIVE,)]:
+                raise sqlite3.DatabaseError('Metalwork Staff must carry only its scheduled receive capability')
+            if conn.execute('SELECT resource FROM auth_capabilities WHERE capability=?',
+                            (METALWORK_DRIVER_RECEIVE,)).fetchone() != ('reports.driver_daily.metalwork',):
+                raise sqlite3.DatabaseError('Conflicting metalwork report resource')
+            pending = []
+            for user_id in dict.fromkeys(map(str, assignments)):
+                if (not re.fullmatch(r'[1-9][0-9]*', user_id) or
+                        conn.execute("SELECT chat_id,registration_status FROM channel_users WHERE platform='bale' AND user_id=?",
+                                     (user_id,)).fetchone() != (user_id, 'approved')):
+                    raise ValueError('Registered approved private Bale identity required')
+                # Calculate the proposed highest-priority profile before assignment.
+                rows = conn.execute("""SELECT rp.profile,rp.priority FROM auth_role_profiles rp
+                    WHERE rp.active=1 AND (rp.role=? OR rp.role IN (
+                        SELECT role FROM auth_user_roles WHERE platform='bale' AND user_id=? AND active=1))
+                    ORDER BY rp.priority DESC""", (METALWORK_STAFF, user_id)).fetchall()
+                if (any(not isinstance(profile, str) or not re.fullmatch(r'[a-z][a-z0-9_-]{0,63}', profile)
+                        or type(priority) is not int for profile, priority in rows)
+                        or {profile for profile, priority in rows if priority == rows[0][1]} != {MAINTENANCE_PROFILE}):
+                    raise ValueError('Conflicting effective profile; metalwork assignment refused')
+                existing = {r[0] for r in conn.execute("""SELECT rc.capability FROM auth_user_roles ur
+                    JOIN auth_role_capabilities rc ON rc.role=ur.role
+                    WHERE ur.platform='bale' AND ur.user_id=? AND ur.active=1""", (user_id,))}
+                if existing - {METALWORK_DRIVER_RECEIVE}:
+                    raise ValueError('Existing operational grants require review before minimal metalwork assignment')
+                if conn.execute("SELECT active FROM auth_user_roles WHERE platform='bale' AND user_id=? AND role=?",
+                                (user_id, METALWORK_STAFF)).fetchone() != (1,):
+                    pending.append((user_id, METALWORK_STAFF))
+            self._assign_roles(conn, pending, actor=actor)
+            conn.execute('INSERT OR IGNORE INTO auth_extensions VALUES (?,?)', (METALWORK_EXTENSION, now()))
+            if conn.execute('PRAGMA integrity_check').fetchall() != [('ok',)] or conn.execute('PRAGMA foreign_key_check').fetchall():
+                raise sqlite3.DatabaseError('Authorization integrity failed after migration')
         return backup
 
     def resolve_active_recipients(self, capability):
