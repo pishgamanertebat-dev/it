@@ -1,0 +1,287 @@
+{
+  "inspected_at": "2026-10-07T13:56:46.771788+03:30",
+  "target": "1405/07/14",
+  "sources": {
+    "overflow": {
+      "latest": "1405/07/14",
+      "rows": 14
+    },
+    "driver": {
+      "latest": "1405/07/14",
+      "sections": {
+        "mechanical": {
+          "status": "ready",
+          "rows": 9
+        },
+        "metalwork": {
+          "status": "ready",
+          "rows": 3
+        }
+      }
+    },
+    "maintenance": {
+      "latest": "1405/07/12",
+      "rows": 0,
+      "devices": 0
+    }
+  },
+  "runs": [
+    {
+      "schedule_id": "driver_daily_mechanical",
+      "due": "2026-10-07T06:30:00+00:00",
+      "recipient": "capability:reports.driver_daily.mechanical_daily_receive",
+      "task": "mechanical_driver_daily",
+      "status": "uncertain",
+      "started": "2026-10-07T06:30:06.766821+00:00",
+      "finished": "2026-10-07T06:30:11.369776+00:00",
+      "error": "legacy_artifact_unverified",
+      "attempt": 0,
+      "next_attempt_at": null,
+      "data_state": null,
+      "notice_delivery_state": null
+    },
+    {
+      "schedule_id": "driver_daily_metalwork",
+      "due": "2026-10-07T05:30:00+00:00",
+      "recipient": "capability:reports.driver_daily.metalwork_daily_receive",
+      "task": "metalwork_driver_daily",
+      "status": "succeeded",
+      "started": "2026-10-07T09:37:01+00:00",
+      "finished": "2026-10-07T09:39:25.743380+00:00",
+      "error": null,
+      "attempt": 1,
+      "next_attempt_at": null,
+      "data_state": null,
+      "notice_delivery_state": null
+    },
+    {
+      "schedule_id": "driver_daily_office_supervisor",
+      "due": "2026-10-07T06:30:00+00:00",
+      "recipient": "role:office_supervisor",
+      "task": "driver_daily",
+      "status": "succeeded",
+      "started": "2026-10-07T10:21:09+00:00",
+      "finished": "2026-10-07T10:23:20.443274+00:00",
+      "error": null,
+      "attempt": 1,
+      "next_attempt_at": null,
+      "data_state": "ready",
+      "notice_delivery_state": "sent"
+    },
+    {
+      "schedule_id": "maintenance_daily_report",
+      "due": "2026-10-07T05:30:00+00:00",
+      "recipient": "capability:reports.maintenance.daily_receive",
+      "task": "maintenance_daily_report",
+      "status": "waiting_for_data",
+      "started": "2026-10-07T10:26:02+00:00",
+      "finished": "2026-10-07T10:26:03.525355+00:00",
+      "error": "no_target_date_records",
+      "attempt": 7,
+      "next_attempt_at": "2026-10-07T10:41:02+00:00",
+      "data_state": "missing",
+      "notice_delivery_state": "sent"
+    },
+    {
+      "schedule_id": "overflow_daily_mechanical",
+      "due": "2026-10-07T05:30:00+00:00",
+      "recipient": "capability:reports.overflow.mechanical_daily_receive",
+      "task": "mechanical_overflow",
+      "status": "succeeded",
+      "started": "2026-10-07T09:37:02+00:00",
+      "finished": "2026-10-07T09:37:09.151961+00:00",
+      "error": null,
+      "attempt": 1,
+      "next_attempt_at": null,
+      "data_state": null,
+      "notice_delivery_state": null
+    },
+    {
+      "schedule_id": "overflow_daily_test",
+      "due": "2026-10-07T05:30:00+00:00",
+      "recipient": "role:office_supervisor",
+      "task": "overflow",
+      "status": "succeeded",
+      "started": "2026-10-07T09:37:01+00:00",
+      "finished": "2026-10-07T09:37:07.491080+00:00",
+      "error": null,
+      "attempt": 1,
+      "next_attempt_at": null,
+      "data_state": null,
+      "notice_delivery_state": null
+    }
+  ],
+  "receipts": [
+    {
+      "schedule_id": "driver_daily_mechanical",
+      "due": "2026-10-07T06:30:00+00:00",
+      "recipient_id": "1732374823",
+      "delivery_kind": "report",
+      "status": "uncertain",
+      "message_id": null,
+      "updated": "2026-10-07T10:21:09.348925+00:00"
+    },
+    {
+      "schedule_id": "driver_daily_mechanical",
+      "due": "2026-10-07T06:30:00+00:00",
+      "recipient_id": "654806764",
+      "delivery_kind": "report",
+      "status": "uncertain",
+      "message_id": null,
+      "updated": "2026-10-07T10:21:09.386982+00:00"
+    },
+    {
+      "schedule_id": "driver_daily_metalwork",
+      "due": "2026-10-07T05:30:00+00:00",
+      "recipient_id": "387679249",
+      "delivery_kind": "report",
+      "status": "sent",
+      "message_id": "4588",
+      "updated": "2026-10-07T09:39:25.707937+00:00"
+    },
+    {
+      "schedule_id": "driver_daily_office_supervisor",
+      "due": "2026-10-07T06:30:00+00:00",
+      "recipient_id": "397185913",
+      "delivery_kind": "notice",
+      "status": "sent",
+      "message_id": null,
+      "updated": "2026-10-07T10:21:09.300596+00:00"
+    },
+    {
+      "schedule_id": "driver_daily_office_supervisor",
+      "due": "2026-10-07T06:30:00+00:00",
+      "recipient_id": "397185913",
+      "delivery_kind": "report",
+      "status": "sent",
+      "message_id": "4591,4592",
+      "updated": "2026-10-07T10:23:20.407599+00:00"
+    },
+    {
+      "schedule_id": "maintenance_daily_report",
+      "due": "2026-10-07T05:30:00+00:00",
+      "recipient_id": "397185913",
+      "delivery_kind": "notice",
+      "status": "sent",
+      "message_id": "4589",
+      "updated": "2026-10-07T10:11:04.399231+00:00"
+    },
+    {
+      "schedule_id": "maintenance_daily_report",
+      "due": "2026-10-07T05:30:00+00:00",
+      "recipient_id": "514458396",
+      "delivery_kind": "notice",
+      "status": "sent",
+      "message_id": "4590",
+      "updated": "2026-10-07T10:11:04.857446+00:00"
+    },
+    {
+      "schedule_id": "overflow_daily_mechanical",
+      "due": "2026-10-07T05:30:00+00:00",
+      "recipient_id": "1732374823",
+      "delivery_kind": "report",
+      "status": "sent",
+      "message_id": "4586",
+      "updated": "2026-10-07T09:37:08.518034+00:00"
+    },
+    {
+      "schedule_id": "overflow_daily_mechanical",
+      "due": "2026-10-07T05:30:00+00:00",
+      "recipient_id": "654806764",
+      "delivery_kind": "report",
+      "status": "sent",
+      "message_id": "4587",
+      "updated": "2026-10-07T09:37:09.113758+00:00"
+    },
+    {
+      "schedule_id": "overflow_daily_test",
+      "due": "2026-10-07T05:30:00+00:00",
+      "recipient_id": "397185913",
+      "delivery_kind": "report",
+      "status": "sent",
+      "message_id": "4585",
+      "updated": "2026-10-07T09:37:07.456901+00:00"
+    }
+  ],
+  "recipients": {
+    "overflow_daily_test": [
+      "397185913"
+    ],
+    "driver_daily_office_supervisor": [
+      "397185913"
+    ],
+    "overflow_daily_mechanical": [
+      "1732374823",
+      "654806764"
+    ],
+    "driver_daily_mechanical": [
+      "1732374823",
+      "654806764"
+    ],
+    "driver_daily_metalwork": [
+      "387679249"
+    ],
+    "maintenance_daily_report": [
+      "397185913",
+      "514458396"
+    ]
+  },
+  "recovery_exit": 0,
+  "repeat_tick_exit": 0,
+  "config_unchanged": true,
+  "authorization_unchanged": true,
+  "source_hashes_before": {
+    "overflow": "7bb8cc8d3fc30704f6dedc9e1c43004a9f59ef5095c4117573850f2cf14e7ba5",
+    "driver": "eff5e35751d6c132d0ad2b6bebe55328ee93b689d62582a74e84cd16bbf3f617",
+    "maintenance": "cea100b17d4693b5baa4667662402ab6097b7f30d3c57f2057572e5bd708c45a"
+  },
+  "source_hashes_after": {
+    "overflow": "7bb8cc8d3fc30704f6dedc9e1c43004a9f59ef5095c4117573850f2cf14e7ba5",
+    "driver": "eff5e35751d6c132d0ad2b6bebe55328ee93b689d62582a74e84cd16bbf3f617",
+    "maintenance": "cea100b17d4693b5baa4667662402ab6097b7f30d3c57f2057572e5bd708c45a"
+  },
+  "sources_unchanged": true,
+  "legacy_office_notice_evidence": "scheduler.log 10:00:06 both sections date_missing; old sender did not retain IDs",
+  "legacy_mechanical_evidence": "10:00 succeeded without artifact status or message IDs; report receipt uncertain; no resend",
+  "notice_text_repair": {
+    "at": "2026-10-07T13:53:51.102884+03:30",
+    "text": "گزارش روزانه تعمیرات ماشین‌آلات مربوط به تاریخ 1405/07/14 ارسال نشد، زیرا اطلاعات این تاریخ هنوز ثبت یا به‌روز نشده است. آخرین اطلاعات معتبر موجود مربوط به تاریخ 1405/07/12 است. پس از ثبت اطلاعات تاریخ موردنظر، گزارش در بازه پیگیری هفت‌روزه به‌صورت خودکار ارسال خواهد شد.",
+    "results": [
+      {
+        "recipient": "397185913",
+        "message_id": "4589",
+        "edit_status": "confirmed",
+        "returned_message_id": "0"
+      },
+      {
+        "recipient": "514458396",
+        "message_id": "4590",
+        "edit_status": "confirmed",
+        "returned_message_id": "0"
+      }
+    ]
+  },
+  "validation": {
+    "full_suite": {
+      "tests": 137,
+      "status": "PASS",
+      "log": "runtime/scheduler-tests/no-data-final-tests.log"
+    },
+    "final_transport_scheduler_suite": {
+      "tests": 56,
+      "status": "PASS",
+      "log": "runtime/scheduler-tests/no-data-transport-tests.log"
+    },
+    "distinct_tests": 138
+  },
+  "automated_retry_verified": {
+    "at": "2026-10-07T13:56:46.771788+03:30",
+    "attempt": 7,
+    "state": "waiting_for_data",
+    "notice_ids": [
+      "4589",
+      "4590"
+    ],
+    "next_attempt_at": "2026-10-07T10:41:02+00:00"
+  }
+}

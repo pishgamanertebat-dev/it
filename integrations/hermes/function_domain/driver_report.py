@@ -25,7 +25,8 @@ def load_driver(date,reader=None,*,data=None):
             for row in sheet.iter_rows(max_row=1,max_col=100,values_only=True):
                 for cell in row:
                     for raw in re.findall(r'(?<!\d)1[34]\d{2}\s*[/.-]\s*\d{1,2}\s*[/.-]\s*\d{1,2}(?!\d)',normalize(cell)):
-                        found.add(validate_date(re.sub(r'\s+','',raw)))
+                        try:found.add(validate_date(re.sub(r'\s+','',raw)))
+                        except ValueError:continue
             if len(found)>1:
                 if date in found:raise ValueError('Ambiguous driver sheet header dates')
                 continue
@@ -33,7 +34,7 @@ def load_driver(date,reader=None,*,data=None):
                 actual=found.pop();dates.append(actual)
                 if actual==date:matches.append(sheet)
         if len(matches)>1:raise ValueError('Multiple driver sheets have the requested date')
-        base={'date':date,'latest_date':max(dates) if dates else None,'sections':{}}
+        base={'date':date,'latest_date':max((d for d in dates if dates.count(d)==1), default=None),'sections':{}}
         if not matches:
             for name,label in SECTIONS.items():base['sections'][name]={'title':label,'rows':[],'status':'date_missing','message':STALE}
             return base
@@ -111,7 +112,7 @@ def render_pdf_notice(report, section, output):
         doc.subset_fonts();doc.save(output,garbage=4,deflate=True)
 
 
-def build_driver_pdf(date, output_dir, reader=None, *, sections=None):
+def build_driver_pdf(date, output_dir, reader=None, *, sections=None, missing_result=False):
     """Native Excel PDFs from one immutable snapshot of the exact requested day."""
     selected=tuple(SECTIONS) if sections is None else tuple(sections)
     if not selected or len(set(selected))!=len(selected) or any(s not in SECTIONS for s in selected):
@@ -121,6 +122,8 @@ def build_driver_pdf(date, output_dir, reader=None, *, sections=None):
     reader=reader or ScopedReader()
     data=reader.snapshot(SOURCE_NAME)
     report=load_driver(date,reader,data=data)
+    if missing_result and all(report['sections'][section]['status']=='date_missing' for section in selected):
+        return {'ok':False,'reason':'date_missing','report':report,'documents':[]}
     out=Path(output_dir).resolve();out.mkdir(parents=True,exist_ok=True)
     documents=[]
     with TemporaryDirectory(prefix='driver-excel-',dir=out) as directory:

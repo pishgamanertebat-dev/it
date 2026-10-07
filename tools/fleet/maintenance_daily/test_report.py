@@ -169,7 +169,7 @@ class DeliveryTests(MaintenanceFixture,unittest.TestCase):
         self.sender.document.side_effect=[RuntimeError('uncertain'),None];r,b=self.run_delivery();self.assertEqual(r['status'],'failed');self.assertEqual(r['sent_count'],1);self.assertEqual(r['failed_count'],1);self.assertEqual(self.sender.document.call_count,2);self.assertTrue(all(not p.exists() for p in self.outputs))
     def test_zero_records_no_empty_pdf_send(self):
         r,b=self.run_delivery(lambda date,directory:{'status':'skipped','reason':'no_target_date_records','report':dict(self.r,devices=[],devices_matched=0,rows_matched=0)})
-        self.assertEqual(r['reason'],'no_target_date_records');self.sender.document.assert_not_called()
+        self.assertEqual(r['status'],'waiting_for_data');self.assertEqual(r['reason'],'no_target_date_records');self.sender.message.assert_called();self.sender.document.assert_not_called()
     def test_invalid_pdf_date_source_or_generation_failure_never_send_cleanup(self):
         for failure in ['date','pdf','source','generation']:
             with self.subTest(failure=failure):

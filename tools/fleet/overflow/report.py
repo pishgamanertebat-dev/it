@@ -13,7 +13,10 @@ HELP = "بنویسید: سرریز روزانه\nیا با تاریخ: سرری�
 
 
 class ReportError(ValueError):
-    pass
+    def __init__(self, message, *, reason=None, latest_date=None):
+        super().__init__(message)
+        self.reason = reason
+        self.latest_date = latest_date
 
 
 def normalize(value):
@@ -75,10 +78,13 @@ def load_report(date=None, source=None):
             if len(found) == 1:
                 dates.setdefault(found.pop(), []).append(sheet.title)
         if not dates:
-            raise ReportError("هیچ گزارش روزانه با تاریخ معتبر در فایل پیدا نشد.")
+            raise ReportError("هیچ گزارش روزانه با تاریخ معتبر در فایل پیدا نشد.", reason="date_missing")
+        valid_dates = [day for day, sheets in dates.items() if len(sheets) == 1]
+        latest_valid = max(valid_dates) if valid_dates else None
         selected = date or max(dates)
         if selected not in dates:
-            raise ReportError(f"برای تاریخ {selected} گزارش سرریز ثبت نشده است.\nآخرین گزارش موجود: {max(dates)}\n" + HELP)
+            raise ReportError(f"برای تاریخ {selected} گزارش سرریز ثبت نشده است.\n" + HELP,
+                              reason="date_missing", latest_date=latest_valid)
         if len(dates[selected]) != 1:
             raise ReportError(f"تاریخ {selected} در چند شیت تکرار شده است؛ ابتدا تاریخ‌های فایل اکسل باید اصلاح شوند.")
         sheet = workbook[dates[selected][0]]
@@ -96,7 +102,8 @@ def load_report(date=None, source=None):
             if any(value is not None for value in values):
                 records.append(values)
         if not records:
-            raise ReportError(f"گزارش تاریخ {selected} هنوز ردیف ثبت‌شده ندارد.")
+            raise ReportError(f"گزارش تاریخ {selected} هنوز ردیف ثبت‌شده ندارد.",
+                              reason="date_missing", latest_date=latest_valid)
         return {"date": selected, "latest_date": max(dates), "sheet": sheet.title,
                 "headers": headers, "rows": records, "totals": totals}
     finally:
@@ -160,7 +167,7 @@ def main():
         if args.output_dir:
             result["images"] = render_report(report, args.output_dir)
     except ReportError as exc:
-        result = {"ok": False, "message": str(exc)}
+        result = {"ok": False, "message": str(exc), "reason": exc.reason, "latest_date": exc.latest_date}
     print(json.dumps(result, ensure_ascii=False))
 
 

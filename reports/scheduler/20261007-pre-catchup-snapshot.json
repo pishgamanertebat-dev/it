@@ -1,0 +1,106 @@
+{
+  "inspected_at": "2026-10-07T12:40:00+03:30",
+  "incident_window": {
+    "gateway_stopped": "2026-10-07T01:46:35+03:30",
+    "gateway_evidence": "logs/agent.log CRITICAL gateway.shutdown_watchdog exit 75",
+    "scheduler_task": "KomatsoAI Schedules",
+    "scheduler_kept_ticking": true,
+    "ledger": "runtime/scheduler/runs.sqlite3",
+    "log": "runtime/scheduler/scheduler.log"
+  },
+  "target_date_from_original_due": {
+    "helper": "tools.scheduler.tasks.overflow_report_date",
+    "due_0900": "2026-10-07T09:00:00+03:30",
+    "due_1000": "2026-10-07T10:00:00+03:30",
+    "target": "1405/07/14"
+  },
+  "source_now": {
+    "overflow": {"exact_date": "1405/07/14", "present": true, "rows": 14, "latest": "1405/07/14"},
+    "driver": {"exact_date": "1405/07/14", "mechanical": "ready", "mechanical_rows": 9, "metalwork": "ready", "metalwork_rows": 3},
+    "maintenance": {"exact_date": "1405/07/14", "devices": 0, "rows": 0, "sha256_prefix": "cea100b17d4693b5"}
+  },
+  "recipients_now": {
+    "overflow_daily_test": ["397185913"],
+    "overflow_daily_mechanical": ["1732374823", "654806764"],
+    "driver_daily_office_supervisor": ["397185913"],
+    "driver_daily_mechanical": ["1732374823", "654806764"],
+    "driver_daily_metalwork": ["387679249"],
+    "maintenance_daily_report": ["397185913", "514458396"]
+  },
+  "occurrences": [
+    {
+      "schedule_id": "overflow_daily_test",
+      "enabled": true,
+      "scheduled_due": "2026-10-07T09:00:00+03:30",
+      "ledger_due": "2026-10-07T05:30:00+00:00",
+      "target": "1405/07/14",
+      "ledger_status": "failed",
+      "ledger_error": "RuntimeError",
+      "handler_evidence": "requested previous-day report then failed in about 4s, before a successful upload",
+      "send_evidence": "absent",
+      "classification": "unsent"
+    },
+    {
+      "schedule_id": "overflow_daily_mechanical",
+      "enabled": true,
+      "scheduled_due": "2026-10-07T09:00:00+03:30",
+      "ledger_due": "2026-10-07T05:30:00+00:00",
+      "target": "1405/07/14",
+      "ledger_status": "failed",
+      "ledger_error": "RuntimeError",
+      "handler_evidence": "RuntimeError propagated before per-recipient upload; not delivery_failed",
+      "send_evidence": "absent",
+      "classification": "unsent"
+    },
+    {
+      "schedule_id": "driver_daily_metalwork",
+      "enabled": true,
+      "scheduled_due": "2026-10-07T09:00:00+03:30",
+      "ledger_due": "2026-10-07T05:30:00+00:00",
+      "target": "1405/07/14",
+      "ledger_status": "skipped",
+      "ledger_error": "date_missing",
+      "handler_evidence": "Metalwork delivery skipped: date_missing target=1405/07/14",
+      "send_evidence": "absent",
+      "classification": "unsent_no_data_at_due_source_present_now"
+    },
+    {
+      "schedule_id": "maintenance_daily_report",
+      "enabled": true,
+      "scheduled_due": "2026-10-07T09:00:00+03:30",
+      "ledger_due": "2026-10-07T05:30:00+00:00",
+      "target": "1405/07/14",
+      "ledger_status": "skipped",
+      "ledger_error": "no_target_date_records",
+      "handler_evidence": "recipient_count=2 workbook had 0 device rows; sha unchanged at reinspection",
+      "send_evidence": "absent",
+      "classification": "no_data"
+    },
+    {
+      "schedule_id": "driver_daily_office_supervisor",
+      "enabled": true,
+      "scheduled_due": "2026-10-07T10:00:00+03:30",
+      "ledger_due": "2026-10-07T06:30:00+00:00",
+      "target": "1405/07/14",
+      "ledger_status": "succeeded",
+      "ledger_error": null,
+      "handler_evidence": "both sections logged date_missing after document()",
+      "send_evidence": "sent_date_missing_notice",
+      "classification": "sent"
+    },
+    {
+      "schedule_id": "driver_daily_mechanical",
+      "enabled": true,
+      "scheduled_due": "2026-10-07T10:00:00+03:30",
+      "ledger_due": "2026-10-07T06:30:00+00:00",
+      "target": "1405/07/14",
+      "ledger_status": "succeeded",
+      "ledger_error": null,
+      "handler_evidence": "completed in about 4s with succeeded, which requires a non-empty sent list",
+      "send_evidence": "sent",
+      "classification": "sent"
+    }
+  ],
+  "disabled_not_catching_up": ["repairs_daily", "metalwork_daily"],
+  "why_1005_restart_missed_them": "Windows task KomatsoAI Schedules already ran at 09:00 and 10:00 while the Gateway process was down. Occurrences were inserted. Later ticks use INSERT OR IGNORE and never retry failed or skipped rows. misfire_grace_seconds is 900 and only the latest due inside that window is considered, so a Gateway restart cannot recreate an occurrence the ledger already closed."
+}

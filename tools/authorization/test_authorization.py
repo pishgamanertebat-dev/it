@@ -331,15 +331,18 @@ class DailyTests(Fixture, unittest.TestCase):
         with self.assertRaises(ValueError):
             overflow_report_caption('1405/07/13', '1405/07/12')
 
-    def test_missing_previous_day_never_falls_back_or_sends(self):
+    def test_missing_previous_day_never_falls_back_and_sends_only_notice(self):
         self.assign()
         worker = AsyncMock(return_value={'ok': False, 'message': 'missing exact date'})
         with patch('tools.scheduler.tasks.overflow_report_date', return_value='1405/07/11'), \
              patch('tools.scheduler.tasks.build_report', worker), patch('tools.scheduler.tasks.BaleSender') as sender:
-            with self.assertRaises(RuntimeError):
-                overflow('101', {}, authorization=self.auth)
+            result = overflow('101', {}, authorization=self.auth)
+            self.assertEqual(result['status'], 'waiting_for_data')
+            self.assertEqual(result['reason'], 'date_missing')
             self.assertEqual(worker.call_args.args[0], '1405/07/11')
-            sender.assert_not_called()
+            sender.return_value.message.assert_called_once()
+            sender.return_value.photo.assert_not_called()
+            sender.return_value.document.assert_not_called()
 
     def test_wrong_day_worker_output_cannot_be_delivered(self):
         self.assign()

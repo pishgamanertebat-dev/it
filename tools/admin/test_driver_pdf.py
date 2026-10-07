@@ -42,6 +42,12 @@ class DriverPDFTests(AdminFixture,unittest.TestCase):
                 text=''.join(page.get_text() for page in doc)
                 self.assertIn('1405/07/10',text);self.assertNotIn('OLD_',text);self.assertEqual(doc[0].get_images(),[])
         self.assertTrue(all(s['status']=='date_missing' for s in result['report']['sections'].values()))
+    def test_scheduler_missing_day_creates_no_pdf(self):
+        self.workbook([('old','1405/07/09','OLD_MECH','OLD_METAL')])
+        with patch('tools.fleet.repairs.report.export_pdf') as export:
+            result=build_driver_pdf('1405/07/10',self.directory/'pdf',self.reader,missing_result=True)
+        export.assert_not_called();self.assertEqual(result['documents'],[])
+        self.assertFalse((self.directory/'pdf').exists())
     def test_empty_section_notice_other_section_native_excel_pdf(self):
         self.workbook([('requested','1405/07/10',None,'METAL_ONLY')]);self.original=(self.data/SOURCE_NAME).read_bytes()
         with patch('tools.fleet.repairs.report.export_pdf',side_effect=self.exporter) as export:
@@ -50,7 +56,7 @@ class DriverPDFTests(AdminFixture,unittest.TestCase):
         self.assertEqual(result['report']['sections']['mechanical']['status'],'no_defects')
     def test_permission_rechecked_after_pdf_generation_and_before_upload(self):
         self.assign()
-        def revoke(*args):
+        def revoke(*args, **kwargs):
             self.sql("UPDATE auth_user_roles SET active=0 WHERE user_id='101'")
             return {'report':{'date':'1405/07/10'},'documents':['unused.pdf','unused2.pdf']}
         with patch('integrations.hermes.function_domain.driver_report.build_driver_pdf',side_effect=revoke),patch('tools.scheduler.tasks.BaleSender') as sender:

@@ -82,9 +82,10 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\scheduler\instal
 
 - APScheduler 3 محاسبات cron/date را انجام می‌دهد و Windows Task Scheduler اجرای پایدار هر دقیقه را بر عهده دارد؛ daemon جداگانه‌ای لازم نیست.
 - سرور باید روشن و دارای اتصال اینترنت باشد. اجرا در اولین بررسی پس از موعد شروع می‌شود؛ تولید و ارسال تصویر چند ثانیه زمان می‌برد.
-- جبران تأخیر تا ۱۵ دقیقه است. برای چند موعد ازدست‌رفته فقط آخرین مورد معتبر بررسی می‌شود؛ قدیمی‌ترها ارسال نمی‌شوند.
-- سابقهٔ SQLite در `runtime/scheduler/runs.sqlite3` با کلید یکتای `(id, due)` پیش از ارسال ثبت می‌شود. اجرای مجدد همان موعد یا ری‌استارت باعث ارسال دوباره نمی‌شود.
-- در قطع ناگهانی یا شکست شبکه، نتیجه ممکن است نامشخص باشد. برنامه برای جلوگیری از تصویر تکراری، همان موعد را خودکار تکرار نمی‌کند. `failed` و `running` باقی‌مانده نیاز به بررسی دارند؛ موعد روز بعد مستقل اجرا می‌شود. تضمین تحویل دقیقاً یک‌باره در API بله وجود ندارد.
+- job بدون `misfire` همان رفتار قبلی را دارد: جبران تا ۱۵ دقیقه و فقط آخرین موعد داخل آن پنجره.
+- گزارش‌های انسانی `misfire.policy: replay` و `horizon_days` (پیش‌فرض ۷) دارند. due اصلی حفظ می‌شود و تاریخ گزارش از همان due حساب می‌شود، نه از ساعت بازیابی. موعد قدیمی‌تر از افق، و سوراخ‌های قبل از آخرین سابقه، خودکار ارسال نمی‌شوند.
+- `latest_only` فقط آخرین موعد داخل پنجره را اجرا می‌کند. `skip_missed` فقط اگر همان موعد هنوز داخل ۹۰ ثانیه باشد. `external_misfire` برای `mine-file-sync` سیاست `latest_only` است؛ این scheduler آن job را اجرا نمی‌کند و هر تیک دو دقیقه‌ای را replay نمی‌کند.
+- سابقه در `runtime/scheduler/runs.sqlite3` با کلید `(schedule_id, due)` است. رسید هر گیرنده کلید `(schedule_id, due, recipient_id)` دارد. وضعیت `succeeded` و `uncertain` دوباره ارسال نمی‌شوند. قطع قطعی بله `retry_wait` می‌ماند و با فاصلهٔ ۱، ۲، ۵، ۱۰ و سپس ۱۵ دقیقه دوباره تلاش می‌شود. timeout بعد از شروع ارسال `uncertain` است و کورکورانه تکرار نمی‌شود. نبودن تاریخ دقیق `no_data` است و به گزارش قدیمی‌تر fallback نمی‌شود؛ تا پایان افق، اگر منبع دیر برسد، همان due دوباره خوانده می‌شود.
 - خطای یک ارسال مانع اجراهای بعدی نمی‌شود. فایل تنظیمات نامعتبر کل بررسی را متوقف می‌کند و پس از اصلاح در بررسی بعدی دوباره خوانده می‌شود.
 - لاگ چرخشی: `runtime/scheduler/scheduler.log`. وضعیت ویندوز: `Get-ScheduledTaskInfo -TaskName 'KomatsoAI Schedules'`.
 - توکن در YAML ذخیره نمی‌شود؛ از `BALE_BOT_TOKEN` محیط یا `.env` موجود Hermes خوانده می‌شود. اتصال مستقیم مطابق تنظیم فعلی آداپتر بله است.
@@ -102,3 +103,34 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\scheduler\instal
 ```
 
 آزمون‌ها از گیرندهٔ ساختگی استفاده می‌کنند و پیام واقعی نمی‌فرستند.
+
+
+## Exact-day no-data contract
+
+All six enabled deterministic daily report families use the exact previous Tehran
+calendar day of their original due. No older report substitutes for it. A missing
+source day returns `waiting_for_data`, sends one Persian text notice to each
+currently authorized recipient, and keeps bounded source retries active for the
+existing seven-day horizon. Latest dates come from each domain parser, never file
+names. A driver day with a valid exact-date sheet and no defects remains a valid
+report; maintenance requires actual target-date activity rows.
+
+Receipts use `(schedule_id, due, recipient_id, delivery_kind)` with independent
+`notice` and `report` identities. `pending`, `sending`, `sent`, `failed`, `uncertain`
+and `revoked` track each delivery. Legacy receipts migrate as reports; a legacy
+missing-day PDF can only be reclassified with occurrence-specific evidence.
+`notice_delivery_state` distinguishes notice transport retry or uncertainty while
+`data_state=missing` keeps the occurrence waiting. An uncertain notice is never
+resent and does not block a later actual report. An uncertain report is never
+blindly resent. Current recipients are resolved again before each artifact send.
+
+Successful notices never derive report success. After an exact report is delivered,
+only report receipts determine terminal success. Expired missing-data occurrences
+become `no_data_final`; sent notices remain closed. A report whose source is ready
+but whose transport is unavailable uses `retry_wait`/`partial`. Recipient report
+receipts are reserved before generation so a crash after the first fanout send
+cannot incorrectly close unsent recipients. Disabled schedules and external
+high-frequency jobs keep their existing behavior.
+
+Fixture verification:
+`python -m unittest tools.scheduler.test_no_data tools.scheduler.test_misfire`

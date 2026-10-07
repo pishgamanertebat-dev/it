@@ -19,8 +19,9 @@ def verify_source_digest(expected):
     with source_snapshot() as (_,actual):
         if actual!=expected:raise RuntimeError('Workbook version changed before upload')
 
-def deliver(recipient, params, *, authorization=None):
-    from tools.scheduler.tasks import BaleSender
+def deliver(recipient, params, *, authorization=None, on_receipt=None, closed=None):
+    from tools.scheduler.tasks import (
+        BaleSender, TransportRejected, TransportUnavailable, closed_sets, note_receipt)
     validate_params(params)
     if not params.get('date'):raise ValueError('Scheduler must provide exact previous-day date')
     expected=exact_date(params['date'])
@@ -36,7 +37,8 @@ def deliver(recipient, params, *, authorization=None):
         logger.info('Maintenance workbook_sha256=not_read sheets_scanned=0 devices_matched=0 rows_matched=0 pdf_pages=0 pdf_bytes=0 skip_reason=%s cleanup=not_needed',resolution.status)
         return {'status':'skipped','reason':resolution.status}
     runtime=ROOT/'runtime/scheduler';runtime.mkdir(parents=True,exist_ok=True)
-    sent=[];revoked=[];failed=[];directory=None
+    sent=[];revoked=[];failed=[];uncertain=[];retryable=[];directory=None
+    sent_closed,uncertain_closed=closed_sets(closed)
     try:
         with tempfile.TemporaryDirectory(prefix='maintenance-',dir=runtime) as directory:
             eligible=recipients()
@@ -46,7 +48,12 @@ def deliver(recipient, params, *, authorization=None):
             report=result['report']
             logger.info('Maintenance workbook_sha256=%s sheets_scanned=%s devices_matched=%s rows_matched=%s',report['source_sha256'],report['sheets_scanned'],report['devices_matched'],report['rows_matched'])
             if result['status']=='skipped':
-                logger.info('Maintenance pdf_pages=0 pdf_bytes=0 skip_reason=%s',result['reason']);return {'status':'skipped','reason':result['reason']}
+                from tools.scheduler.no_data import notify_missing
+                logger.info('Maintenance pdf_pages=0 pdf_bytes=0 skip_reason=%s',result['reason'])
+                dates=report.get('available_dates', [])
+                return notify_missing('گزارش روزانه تعمیرات ماشین‌آلات', expected, max(dates) if dates else None,
+                                      lambda: recipients().recipients, on_receipt=on_receipt, closed=closed,
+                                      reason=result['reason'])
             if report['date']!=expected or result['status']!='ready':raise ValueError('Unexpected report date/status')
             path=Path(result['pdf'])
             if path.parent.resolve()!=Path(directory).resolve():raise ValueError('Unexpected output path')
@@ -55,23 +62,34 @@ def deliver(recipient, params, *, authorization=None):
             sender=None
             try:
                 for user in initial:
+                    if user in sent_closed or user in uncertain_closed:continue
                     current=recipients()
                     if current.status!='ready' or user not in current.recipients:
-                        revoked.append(user);logger.info('Maintenance recipient=%s send=revoked',user);continue
-                    if sender is None:sender=BaleSender()
+                        revoked.append(user);note_receipt(on_receipt,user,'revoked');logger.info('Maintenance recipient=%s send=revoked',user);continue
+                    if sender is None:
+                        sender=BaleSender();sender.check_connection()
                     verify_source_digest(report['source_sha256'])
                     current=recipients()
                     if current.status!='ready' or user not in current.recipients:
-                        revoked.append(user);logger.info('Maintenance recipient=%s send=revoked',user);continue
+                        revoked.append(user);note_receipt(on_receipt,user,'revoked');logger.info('Maintenance recipient=%s send=revoked',user);continue
+                    note_receipt(on_receipt,user,'sending')
                     try:
-                        sender.document(user,path,'گزارش روزانه تعمیرات ماشین‌آلات\nتاریخ گزارش: '+expected)
-                        sent.append(user);logger.info('Maintenance recipient=%s send=success',user)
+                        message_id=sender.document(user,path,'گزارش روزانه تعمیرات ماشین‌آلات\nتاریخ گزارش: '+expected)
+                        sent.append(user);note_receipt(on_receipt,user,'sent',None if message_id in (None,'') else str(message_id))
+                        logger.info('Maintenance recipient=%s send=success',user)
+                    except (TransportUnavailable,TransportRejected):
+                        failed.append(user);retryable.append(user);note_receipt(on_receipt,user,'failed')
+                        logger.error('Maintenance recipient=%s send=failure',user)
                     except Exception:
-                        failed.append(user);logger.error('Maintenance recipient=%s send=failure outcome_may_be_uncertain=true',user)
+                        failed.append(user);uncertain.append(user);note_receipt(on_receipt,user,'uncertain')
+                        logger.error('Maintenance recipient=%s send=failure outcome_may_be_uncertain=true',user)
             finally:
                 if sender is not None:sender.close()
-        return {'status':'failed' if failed else ('succeeded' if sent else 'skipped'),
+        result={'status':'failed' if failed else ('succeeded' if sent else 'skipped'),
                 'reason':'delivery_failed' if failed else ('recipient_revoked' if not sent else ''),
                 'sent_count':len(sent),'failed_count':len(failed),'revoked_count':len(revoked)}
+        if uncertain:result['uncertain_recipients']=uncertain
+        if retryable:result['retry_recipients']=retryable
+        return result
     finally:
         logger.info('Maintenance cleanup=%s', 'not_needed' if directory is None else ('success' if not Path(directory).exists() else 'failed'))

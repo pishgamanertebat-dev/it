@@ -8,6 +8,9 @@ schedules:
     task: overflow
     recipient_role: office_supervisor
     timezone: Asia/Tehran
+    misfire:
+      policy: replay
+      horizon_days: 7
     trigger:
       type: cron
       hour: 9
@@ -38,6 +41,9 @@ schedules:
     task: driver_daily
     recipient_role: office_supervisor
     timezone: Asia/Tehran
+    misfire:
+      policy: replay
+      horizon_days: 7
     trigger:
       type: cron
       hour: 10
@@ -49,6 +55,9 @@ schedules:
     task: mechanical_overflow
     recipient_capability: reports.overflow.mechanical_daily_receive
     timezone: Asia/Tehran
+    misfire:
+      policy: replay
+      horizon_days: 7
     trigger:
       type: cron
       hour: 9
@@ -59,6 +68,9 @@ schedules:
     task: mechanical_driver_daily
     recipient_capability: reports.driver_daily.mechanical_daily_receive
     timezone: Asia/Tehran
+    misfire:
+      policy: replay
+      horizon_days: 7
     trigger:
       type: cron
       hour: 10
@@ -70,6 +82,9 @@ schedules:
     task: metalwork_driver_daily
     recipient_capability: reports.driver_daily.metalwork_daily_receive
     timezone: Asia/Tehran
+    misfire:
+      policy: replay
+      horizon_days: 7
     trigger:
       type: cron
       hour: 9
@@ -81,8 +96,16 @@ schedules:
     task: maintenance_daily_report
     recipient_capability: reports.maintenance.daily_receive
     timezone: Asia/Tehran
+    misfire:
+      policy: replay
+      horizon_days: 7
     trigger:
       type: cron
       hour: 9
       minute: 0
     params: {}
+
+external_misfire:
+  - id: 3ccb658aed3c
+    name: mine-file-sync
+    policy: latest_only
