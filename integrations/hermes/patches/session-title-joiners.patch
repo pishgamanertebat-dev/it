@@ -1,0 +1,35 @@
+diff --git a/hermes_state_titles.py b/hermes_state_titles.py
+index 84d8f3e0cc..33c00e2dd1 100644
+--- a/hermes_state_titles.py
++++ b/hermes_state_titles.py
+@@ -15,8 +15,9 @@ logger = logging.getLogger("hermes_state")
+ 
+ # ASCII controls (keeping \t \n \r for the whitespace collapse), then zero-width,
+ # bidi override, object-replacement and interlinear-annotation code points.
++# Keep ZWNJ/ZWJ: Persian shaping and compound emoji depend on these joiners.
+ _TITLE_CONTROL_RE = re.compile(r'[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]')
+-_TITLE_INVISIBLE_RE = re.compile(r'[\u200b-\u200f\u2028-\u202e\u2060-\u2069\ufeff\ufffc\ufff9-\ufffb]')
++_TITLE_INVISIBLE_RE = re.compile(r'[\u200b\u200e-\u200f\u2028-\u202e\u2060-\u2069\ufeff\ufffc\ufff9-\ufffb]')
+ _NUMBERED_TITLE_RE = re.compile(r'^(.*?) #(\d+)$')
+ 
+ 
+diff --git a/tests/hermes_state/test_title_joiners.py b/tests/hermes_state/test_title_joiners.py
+new file mode 100644
+index 0000000000..55e5a9955f
+--- /dev/null
++++ b/tests/hermes_state/test_title_joiners.py
+@@ -0,0 +1,14 @@
++"""Unicode title persistence keeps shaping joiners, strips hostile bidi overrides."""
++from hermes_state import SessionDB
++
++
++def test_title_roundtrip_preserves_persian_and_emoji_joiners(tmp_path):
++    db = SessionDB(tmp_path / 'state.db')
++    try:
++        title = 'حمید هدایتی — می\u200cکند 👨\u200d👩\u200d👧\u200d👦'
++        db.create_session('unicode-title', 'bale')
++        db.set_session_title('unicode-title', '\u202e' + title + '\u202c')
++        assert db.get_session_title('unicode-title') == title
++        assert db.list_sessions_rich()[0]['title'] == title
++    finally:
++        db.close()

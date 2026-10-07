@@ -225,7 +225,7 @@ class RegistryCompatibilityTests(unittest.TestCase):
             self.telegram._observe(conn, "synthetic-existing", "Synthetic Telegram")
         db = SessionDB(db_path=self.home / "state.db")
         self.addCleanup(db.close)
-        for platform, user, label in (("bale", "synthetic-user", "بله | Synthetic Name"),
+        for platform, user, label in (("bale", "synthetic-user", "بله | Synthetic Name — offline"),
                                       ("telegram", "synthetic-existing", "تلگرام | Synthetic Telegram")):
             for number in (1, 2):
                 session = f"synthetic-{platform}-session-{number}"
@@ -238,7 +238,7 @@ class RegistryCompatibilityTests(unittest.TestCase):
                 self.assertEqual(db.get_session_title(session), expected)
         self.status("synthetic-user", "revoked")
         db.create_session("synthetic-blocked", "bale")
-        self.loop.run_until_complete(handler("agent:start", dict(platform="bale", user_id="synthetic-user", session_id="synthetic-blocked")))
+        self.loop.run_until_complete(handler("agent:end", dict(platform="bale", user_id="synthetic-user", chat_id="synthetic-user", chat_type="dm", session_id="synthetic-blocked")))
         self.assertIsNone(db.get_session_title("synthetic-blocked"))
         with patch.object(module, "_rename_session") as rename:
             for context in ({}, {"platform": "other", "user_id": "synthetic", "session_id": "synthetic"}):

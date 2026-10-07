@@ -164,6 +164,116 @@ def _send(gateway, chat_id: str, text: str) -> None:
     )
 
 
+def _requests_page_callback(data):
+    """Page number carried by the requests-list arrows, or None for every other callback."""
+    if not isinstance(data, str):
+        return None
+
+    parts = data.split(":")
+
+    if (
+        len(parts) != 4
+        or parts[0] != "ik"
+        or parts[1] != "reqpg"
+        or parts[2] != "p"
+    ):
+        return None
+
+    try:
+        page = int(parts[3])
+    except ValueError:
+        return None
+
+    if page < 1:
+        return None
+
+    return page
+
+
+def _requests_keyboard(page: int, total_pages: int):
+    """Left arrow goes to the previous page; right arrow goes to the next page."""
+    row = []
+
+    if page > 1:
+        row.append(
+            {
+                "text": "◀️",
+                "callback_data": f"ik:reqpg:p:{page - 1}",
+            }
+        )
+
+    if page < total_pages:
+        row.append(
+            {
+                "text": "▶️",
+                "callback_data": f"ik:reqpg:p:{page + 1}",
+            }
+        )
+
+    if not row:
+        return None
+
+    return {"inline_keyboard": [row]}
+
+
+def _send_requests_page(
+    gateway,
+    chat_id: str,
+    text: str,
+    markup,
+    edit_message_id=None,
+) -> None:
+    """Send the requests list, with the arrow row attached under the same message."""
+    adapter = _get_bale_adapter(gateway)
+    bot = getattr(adapter, "_bot", None)
+
+    async def deliver():
+        if bot is None:
+            await adapter.send(str(chat_id), text)
+            return
+
+        reply_markup = None
+
+        if markup is not None:
+            from telegram import InlineKeyboardMarkup
+
+            reply_markup = InlineKeyboardMarkup.de_json(markup, bot)
+
+        if edit_message_id:
+            try:
+                await bot.edit_message_text(
+                    chat_id=str(chat_id),
+                    message_id=int(edit_message_id),
+                    text=text,
+                    parse_mode=None,
+                    reply_markup=reply_markup,
+                )
+                return
+            except Exception as exc:
+                if "message is not modified" in str(exc).lower():
+                    return
+
+                import logging
+
+                logging.getLogger(__name__).warning(
+                    "Could not refresh requests page; sending a new message",
+                    exc_info=True,
+                )
+
+        if reply_markup is None:
+            await adapter.send(str(chat_id), text)
+            return
+
+        await bot.send_message(
+            chat_id=str(chat_id),
+            text=text,
+            parse_mode=None,
+            reply_markup=reply_markup,
+        )
+
+    asyncio.get_running_loop().create_task(deliver())
+
+
 def _send_to_admins(gateway, text: str) -> None:
     for admin_id in _admin_ids():
         _send(gateway, admin_id, text)
@@ -486,6 +596,7 @@ def _handle_admin_command(
     admin_id: str,
     admin_chat_id: str,
     text: str,
+    edit_message_id=None,
 ):
     normalized = (
         (text or "")
@@ -514,7 +625,7 @@ def _handle_admin_command(
         if page < 1:
             page = 1
 
-        per_page = 8
+        per_page = 20
 
         conn = _connect()
 
@@ -608,25 +719,12 @@ def _handle_admin_command(
                     ]
                 )
 
-            if page < total_pages:
-                lines.extend(
-                    [
-                        "",
-                        f"صفحه بعد: درخواستها {page + 1}",
-                    ]
-                )
-
-            if page > 1:
-                lines.extend(
-                    [
-                        f"صفحه قبل: درخواستها {page - 1}",
-                    ]
-                )
-
-            _send(
+            _send_requests_page(
                 gateway,
                 admin_chat_id,
                 "\n".join(lines),
+                _requests_keyboard(page, total_pages),
+                edit_message_id=edit_message_id,
             )
 
             return {
@@ -1474,11 +1572,23 @@ def _handle_bale(event, gateway, **kwargs):
             event.text = NEW_CHAT_COMMAND
             return None
 
+        command_text = text
+        edit_message_id = None
+        raw = getattr(event, "raw_message", None)
+
+        if isinstance(raw, dict) and raw.get("bale_inline_callback") is True:
+            callback_page = _requests_page_callback(raw.get("data") or text)
+
+            if callback_page is not None:
+                command_text = f"درخواستها {callback_page}"
+                edit_message_id = raw.get("origin_message_id")
+
         result = _handle_admin_command(
             gateway,
             user_id,
             chat_id,
-            text,
+            command_text,
+            edit_message_id=edit_message_id,
         )
 
         if result is not None:

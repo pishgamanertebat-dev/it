@@ -23,9 +23,12 @@ def _get_verified_name(
 ) -> str | None:
 
     if not USERS_DB.exists():
-        return None
+        return user_id if platform == "bale" else None
 
-    conn = sqlite3.connect(USERS_DB)
+    try:
+        conn = sqlite3.connect(USERS_DB.resolve().as_uri() + "?mode=ro", uri=True)
+    except sqlite3.Error:
+        return user_id if platform == "bale" else None
 
     try:
         if platform == "bale":
@@ -34,7 +37,6 @@ def _get_verified_name(
                 """
                 SELECT
                     verified_name,
-                    display_name,
                     registration_status
                 FROM channel_users
                 WHERE platform = 'bale'
@@ -45,16 +47,15 @@ def _get_verified_name(
             ).fetchone()
 
             if not row:
-                return None
+                return user_id  # e.g. an independently admitted admin
 
             verified_name = (row[0] or "").strip()
-            display_name = (row[1] or "").strip()
-            status = (row[2] or "").strip()
+            status = (row[1] or "").strip()
 
             if status != "approved":
                 return None
 
-            return verified_name or display_name or None
+            return verified_name or user_id
 
         if platform == "telegram":
 
@@ -81,6 +82,8 @@ def _get_verified_name(
 
         return None
 
+    except sqlite3.Error:
+        return user_id if platform == "bale" else None
     finally:
         conn.close()
 
@@ -96,10 +99,24 @@ def _platform_label(platform: str) -> str:
     return platform
 
 
+def _short_title(text: str, limit: int) -> str:
+    """Bound at whitespace boundaries so neither Persian nor an emoji is split."""
+    text = " ".join(str(text or "").split())
+    if len(text) <= limit:
+        return text
+    words = []
+    for word in text.split():
+        if len(" ".join(words + [word])) > limit - 1:
+            break
+        words.append(word)
+    return " ".join(words) + "…"
+
+
 def _rename_session(
     platform: str,
     user_id: str,
     session_id: str,
+    message: str = "",
 ) -> None:
 
     name = _get_verified_name(
@@ -110,9 +127,8 @@ def _rename_session(
     if not name:
         return
 
-    base_title = (
-        f"{_platform_label(platform)} | {name}"
-    )
+    label = SessionDB.sanitize_title(_short_title(name, 40)) if platform == "bale" else name
+    base_title = f"{_platform_label(platform)} | {label or user_id}"
 
     db_path = get_hermes_home() / "state.db"
     db = SessionDB(db_path=db_path)
@@ -120,32 +136,28 @@ def _rename_session(
     try:
         current = db.get_session_title(session_id)
 
+        if current == base_title or (current or "").startswith(base_title + " | "):
+            return
+        if platform == "bale":
+            if (current or "").startswith((base_title + " — ", name + " — ")):
+                return
+            # agent:end runs after Hermes' normal title pipeline. Keep its topic;
+            # never set a name at agent:start, which would suppress auto-titling.
+            opening = next((m.get("content") for m in db.get_messages(session_id, limit=20)
+                            if m.get("role") == "user"), None)
+            from agent.message_content import flatten_message_text
+            topic = current or flatten_message_text(opening) or message
+            budget = db.MAX_TITLE_LENGTH - len(base_title) - 3
+            base_title += " — " + _short_title(topic, budget) if topic else ""
         if current == base_title:
             return
-
-        # اول عنوان ساده و خوانا را امتحان می‌کنیم.
         try:
-            db.set_session_title(
-                session_id,
-                base_title,
-            )
-            return
-
+            db.set_session_title(session_id, base_title)
         except ValueError:
-            # عنوان Session باید unique باشد.
-            # اگر همین کاربر Session دیگری داشته باشد،
-            # یک شناسه کوتاه اضافه می‌کنیم.
-            unique_title = (
-                f"{base_title} | {session_id[-8:]}"
-            )
-
-            if current == unique_title:
-                return
-
-            db.set_session_title(
-                session_id,
-                unique_title,
-            )
+            suffix = f" | {session_id[-8:]}"
+            unique_title = _short_title(base_title, db.MAX_TITLE_LENGTH - len(suffix)) + suffix
+            if current != unique_title:
+                db.set_session_title(session_id, unique_title)
 
     finally:
         db.close()
@@ -172,6 +184,13 @@ async def handle(
     }:
         return
 
+    if platform == "bale":
+        # Group/thread titles cannot safely identify the entire chat as one sender.
+        if event_type != "agent:end" or context.get("chat_type") not in {"dm", "private"}:
+            return
+        if str(context.get("user_id") or "") != str(context.get("chat_id") or ""):
+            return
+
     user_id = str(
         context.get("user_id") or ""
     ).strip()
@@ -188,4 +207,5 @@ async def handle(
         platform,
         user_id,
         session_id,
+        context.get("message") or "",
     )
