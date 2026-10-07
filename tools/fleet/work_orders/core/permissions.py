@@ -17,6 +17,7 @@ class PermissionResult:
     reason: str
     bale_id: str | None = None
     role: str | None = None
+    source: str = "legacy"
 
     @property
     def allowed(self) -> bool:
@@ -39,7 +40,7 @@ def normalize_bale_id(value: str | int) -> str | None:
     return value
 
 
-def check_work_order_permission(
+def _legacy_work_order_permission(
     bale_id: str | int,
     *,
     db_path: Path | str | None = None,
@@ -83,12 +84,29 @@ def check_work_order_permission(
     return PermissionResult("ALLOWED", "AUTHORIZED", user_id, role)
 
 
+def check_work_order_permission(bale_id, *, db_path=None, capabilities=None):
+    """Common domain adapter; migrated central deny never falls through to W."""
+    user_id = normalize_bale_id(bale_id)
+    if user_id is None:
+        return PermissionResult("DENIED", "INVALID_BALE_ID", source="denied")
+    from tools.authorization.net import domain_decision, WO_DOMAIN
+    decision = domain_decision(user_id, WO_DOMAIN, capabilities)
+    if decision.source == "legacy":
+        return _legacy_work_order_permission(user_id, db_path=db_path)
+    # MAINTENANCE_MANAGER remains a UI context label for existing keyboards.
+    return PermissionResult("ALLOWED" if decision.allowed else "DENIED",
+                            decision.reason.upper(), user_id,
+                            MAINTENANCE_MANAGER if decision.allowed else None,
+                            decision.source)
+
+
 def require_work_order_permission(
     bale_id: str | int,
     *,
     db_path: Path | str | None = None,
+    capabilities=None,
 ) -> PermissionResult:
-    result = check_work_order_permission(bale_id, db_path=db_path)
+    result = check_work_order_permission(bale_id, db_path=db_path, capabilities=capabilities)
     if not result.allowed:
         raise WorkOrderPermissionDenied(result)
     return result

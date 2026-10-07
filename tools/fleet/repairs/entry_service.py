@@ -30,10 +30,18 @@ class EntryError(ValueError):
     pass
 
 
+class EntryAuthorizationDenied(PermissionError):
+    """Distinguish domain denial from an OS file-lock PermissionError."""
+    pass
+
+
 def permission(actor, config=CONFIG):
     settings = json.loads(Path(config).read_text(encoding='utf-8'))
-    if not actor or str(actor) not in settings['allowed_users']:
-        raise PermissionError('اجازهٔ ثبت شرح خرابی را ندارید.')
+    from tools.authorization.net import domain_decision, REPAIRS_DOMAIN
+    decision = domain_decision(actor, REPAIRS_DOMAIN)
+    if (not decision.allowed if decision.source != 'legacy' else
+            not actor or str(actor) not in settings['allowed_users']):
+        raise EntryAuthorizationDenied('اجازهٔ ثبت شرح خرابی را ندارید.')
     if not settings.get('template'):
         raise EntryError('قالب خالی گزارش روزانه تنظیم نشده است.')
     return settings
@@ -390,10 +398,11 @@ def commit(actor, request, *, config=CONFIG, runtime=RUNTIME, day=None, fleet_db
         selected = machine(book, request['code'], fleet_db)
         return set_description(book, selected, section, description, request['date'],
                                request['expected'], settings['template'])
-    return commit_workbook(actor, request, settings, mutate, runtime=runtime, day=day)
+    return commit_workbook(actor, request, settings, mutate, runtime=runtime, day=day,
+                           authorization_check=lambda: permission(actor, config))
 
 
-def commit_workbook(actor, request, settings, mutate, *, runtime, day=None, command='شرح خرابی'):
+def commit_workbook(actor, request, settings, mutate, *, runtime, day=None, command='شرح خرابی', authorization_check=None):
     """Journal and atomically replace an existing workbook for a confirmed operation."""
     operation = str(request.get('operation', ''))
     if not re.fullmatch(r'[a-f0-9]{32}', operation):
@@ -402,6 +411,8 @@ def commit_workbook(actor, request, settings, mutate, *, runtime, day=None, comm
     runtime = Path(runtime)
     fingerprint = hashlib.sha256(json.dumps([str(actor), str(source), request], sort_keys=True, ensure_ascii=False).encode()).hexdigest()
     with writer_lock(runtime):
+        if authorization_check:
+            authorization_check()
         db = sqlite3.connect(runtime / 'audit.sqlite3')
         db.row_factory = sqlite3.Row
         try:
@@ -454,7 +465,11 @@ def commit_workbook(actor, request, settings, mutate, *, runtime, day=None, comm
                         os.fsync(stream.fileno())
                     if hashlib.sha256(source.read_bytes()).hexdigest() != digest:
                         raise EntryError('فایل هم‌زمان تغییر کرد؛ فرم را دوباره باز کنید.')
+                    if authorization_check:
+                        authorization_check()
                     replace_source(temporary, source)
+                except EntryAuthorizationDenied:
+                    raise
                 except OSError as exc:
                     raise EntryError('ذخیرهٔ اکسل انجام نشد؛ فایل را ببندید و دوباره تأیید کنید.') from exc
                 finally:

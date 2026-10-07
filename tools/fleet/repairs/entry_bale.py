@@ -24,6 +24,10 @@ def normalized(text):
 
 def permitted(actor):
     try:
+        from tools.authorization.net import domain_decision, REPAIRS_DOMAIN
+        decision = domain_decision(actor, REPAIRS_DOMAIN)
+        if decision.source != 'legacy':
+            return decision.allowed
         return bool(actor) and str(actor) in json.loads(CONFIG.read_text(encoding='utf-8'))['allowed_users']
     except (OSError, ValueError, KeyError):
         return False
@@ -262,6 +266,8 @@ class RepairsEntryHandler:
         self.restore_keyboards(gateway)
         actor = str(getattr(source, 'user_id', '') or '')
         chat = str(getattr(source, 'chat_id', '') or '')
+        if actor and chat != actor:
+            return {'action': 'skip', 'reason': 'entry-identity-scope-denied'}
         key = (actor, chat)
         text = event.text or ''
         clean = normalized(text)

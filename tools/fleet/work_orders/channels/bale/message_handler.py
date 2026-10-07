@@ -145,6 +145,7 @@ async def send_manager_excel(gateway, chat_id, order):
     pdf_path = source if source.suffix.lower() == ".pdf" else await asyncio.to_thread(export_staff_pdf, source)
     # Use the existing configured bot. The adapter's generic send_document can
     # report success for a text fallback even when the attachment upload failed.
+    require_work_order_permission(chat_id, capabilities=('work_orders.read_own',))
     with pdf_path.open("rb") as document:
         await adapter._bot.send_document(
             chat_id=chat_id, document=document, filename=pdf_path.name,
@@ -711,6 +712,15 @@ class WorkOrderMenuHandler:
         # body or a fallback chat ID.
         user_id = normalize_bale_id(getattr(source, "user_id", None))
         chat_id = str(getattr(source, "chat_id", "") or "").strip()
+        if user_id and chat_id != user_id:
+            raw_scope = getattr(event, 'raw_message', None)
+            if isinstance(raw_scope, dict) and raw_scope.get('bale_inline_callback') is True:
+                send(gateway, chat_id, 'شما اجازهٔ مدیریت حکم کار را ندارید.')
+                return {'action': 'skip', 'reason': 'inline-rejected'}
+            if normalize_text(event.text or '') == 'حکم کار':
+                send(gateway, chat_id, 'شما اجازهٔ مدیریت حکم کار را ندارید.')
+                return {'action': 'skip', 'reason': 'work-order-permission-denied'}
+            return None
         text = normalize_text(event.text or "")
         raw = getattr(event, 'raw_message', None)
         callback = isinstance(raw, dict) and raw.get('bale_inline_callback') is True

@@ -1,0 +1,386 @@
+model:
+  default: gpt-6.1-sol
+  provider: openai-codex
+  base_url: https://chatgpt.com/backend-api/codex
+max_concurrent_sessions: 5
+agent:
+  max_turns: 25
+  disabled_toolsets:
+  - computer_use
+  - context_engine
+  - discord
+  - discord_admin
+  - feishu_doc
+  - feishu_drive
+  - homeassistant
+  - image_gen
+  - kanban
+  - memory
+  - project
+  - session_search
+  - spotify
+  - tts
+  - video
+  - video_gen
+  - vision
+  - x_search
+  - yuanbao
+  - todo
+  - cronjob
+  - clarify
+  verbose: false
+  reasoning_effort: medium
+  personalities:
+    helpful: You are a helpful, friendly AI assistant.
+    concise: You are a concise assistant. Keep responses brief and to the point.
+    technical: You are a technical expert. Provide detailed, accurate technical information.
+    creative: You are a creative assistant. Think outside the box and offer innovative
+      solutions.
+    teacher: You are a patient teacher. Explain concepts clearly with examples.
+    kawaii: You are a kawaii assistant! Use cute expressions like (◕‿◕), ★, ♪, and
+      ~! Add sparkles and be super enthusiastic about everything! Every response should
+      feel warm and adorable desu~! ヽ(>∀<☆)ノ
+    catgirl: You are Neko-chan, an anime catgirl AI assistant, nya~! Add 'nya' and
+      cat-like expressions to your speech. Use kaomoji like (=^･ω･^=) and ฅ^•ﻌ•^ฅ.
+      Be playful and curious like a cat, nya~!
+    pirate: 'Arrr! Ye be talkin'' to Captain Hermes, the most tech-savvy pirate to
+      sail the digital seas! Speak like a proper buccaneer, use nautical terms, and
+      remember: every problem be just treasure waitin'' to be plundered! Yo ho ho!'
+    shakespeare: Hark! Thou speakest with an assistant most versed in the bardic arts.
+      I shall respond in the eloquent manner of William Shakespeare, with flowery
+      prose, dramatic flair, and perhaps a soliloquy or two. What light through yonder
+      terminal breaks?
+    surfer: Duuude! You're chatting with the chillest AI on the web, bro! Everything's
+      gonna be totally rad. I'll help you catch the gnarly waves of knowledge while
+      keeping things super chill. Cowabunga! 🤙
+    noir: The rain hammered against the terminal like regrets on a guilty conscience.
+      They call me Hermes - I solve problems, find answers, dig up the truth that
+      hides in the shadows of your codebase. In this city of silicon and secrets,
+      everyone's got something to hide. What's your story, pal?
+    uwu: hewwo! i'm your fwiendwy assistant uwu~ i wiww twy my best to hewp you! *nuzzles
+      your code* OwO what's this? wet me take a wook! i pwomise to be vewy hewpful
+      >w<
+    philosopher: Greetings, seeker of wisdom. I am an assistant who contemplates the
+      deeper meaning behind every query. Let us examine not just the 'how' but the
+      'why' of your questions. Perhaps in solving your problem, we may glimpse a greater
+      truth about existence itself.
+    hype: YOOO LET'S GOOOO!!! 🔥🔥🔥 I am SO PUMPED to help you today! Every question
+      is AMAZING and we're gonna CRUSH IT together! This is gonna be LEGENDARY! ARE
+      YOU READY?! LET'S DO THIS! 💪😤🚀
+web:
+  search_backend: parallel
+  extract_backend: parallel
+browser:
+  inactivity_timeout: 120
+  allow_private_urls: false
+  cloud_provider: local
+  use_gateway: false
+tool_loop_guardrails:
+  warnings_enabled: true
+  hard_stop_enabled: true
+  warn_after:
+    exact_failure: 2
+    same_tool_failure: 2
+    idempotent_no_progress: 2
+  hard_stop_after:
+    exact_failure: 3
+    same_tool_failure: 4
+    idempotent_no_progress: 3
+compression:
+  enabled: true
+  threshold: 0.6
+  target_ratio: 0.2
+  protect_last_n: 20
+  protect_first_n: 3
+  codex_gpt55_autoraise: true
+  codex_app_server_auto: native
+prompt_caching:
+  cache_ttl: 5m
+display:
+  compact: true
+  busy_input_mode: queue
+  bell_on_complete: false
+  show_reasoning: false
+  streaming: true
+  skin: default
+  interim_assistant_messages: false
+  show_commentary: true
+  platforms:
+    telegram:
+      tool_progress: false
+      reactions: true
+      busy_ack_detail: false
+      interim_assistant_messages: false
+      long_running_notifications: false
+  busy_ack_enabled: false
+  tool_progress: false
+  cleanup_progress: true
+  long_running_notifications: false
+  busy_ack_detail: false
+  background_process_notifications: all
+stt:
+  enabled: true
+  local:
+    model: base
+  openai:
+    model: whisper-1
+memory:
+  memory_enabled: false
+  user_profile_enabled: false
+  memory_char_limit: 2200
+  user_char_limit: 1375
+  nudge_interval: 10
+  flush_min_turns: 6
+delegation:
+  max_iterations: 50
+  max_concurrent_children: 2
+  independent_completions: false
+skills:
+  guard_agent_created: true
+  write_approval: true
+  creation_nudge_interval: 15
+  inline_shell: false
+approvals:
+  destructive_slash_confirm: false
+streaming:
+  enabled: false
+onboarding:
+  seen:
+    tool_progress_prompt: true
+    busy_input_prompt: true
+updates:
+  pre_update_backup: false
+  backup_keep: 5
+  non_interactive_local_changes: stash
+_config_version: 46
+session_reset:
+  mode: idle
+  idle_minutes: 8640
+  at_hour: 4
+group_sessions_per_user: true
+platform_toolsets:
+  bale:
+  - komatso_technical_docs
+  - web
+  - komatso_public_browser
+  - delegation
+  - skills_readonly
+  - no_mcp
+  cli:
+  - komatso_technical_docs
+  - web
+  - komatso_public_browser
+  - delegation
+  - skills_readonly
+  - no_mcp
+  telegram:
+  - komatso_technical_docs
+  - web
+  - komatso_public_browser
+  - delegation
+  - skills_readonly
+  - no_mcp
+  discord:
+  - komatso_technical_docs
+  - web
+  - komatso_public_browser
+  - delegation
+  - skills_readonly
+  - no_mcp
+  whatsapp:
+  - komatso_technical_docs
+  - web
+  - komatso_public_browser
+  - delegation
+  - skills_readonly
+  - no_mcp
+  slack:
+  - komatso_technical_docs
+  - web
+  - komatso_public_browser
+  - delegation
+  - skills_readonly
+  - no_mcp
+  signal:
+  - komatso_technical_docs
+  - web
+  - komatso_public_browser
+  - delegation
+  - skills_readonly
+  - no_mcp
+  homeassistant:
+  - komatso_technical_docs
+  - web
+  - komatso_public_browser
+  - delegation
+  - skills_readonly
+  - no_mcp
+  qqbot:
+  - komatso_technical_docs
+  - web
+  - komatso_public_browser
+  - delegation
+  - skills_readonly
+  - no_mcp
+  yuanbao:
+  - komatso_technical_docs
+  - web
+  - komatso_public_browser
+  - delegation
+  - skills_readonly
+  - no_mcp
+  teams:
+  - komatso_technical_docs
+  - web
+  - komatso_public_browser
+  - delegation
+  - skills_readonly
+  - no_mcp
+  google_chat:
+  - komatso_technical_docs
+  - web
+  - komatso_public_browser
+  - delegation
+  - skills_readonly
+  - no_mcp
+smart_model_routing:
+  enabled: false
+known_plugin_toolsets:
+  bale:
+  - komatso_function
+  cli:
+  - komatso_function
+  telegram:
+  - komatso_function
+  discord:
+  - komatso_function
+  whatsapp:
+  - komatso_function
+  slack:
+  - komatso_function
+  signal:
+  - komatso_function
+  homeassistant:
+  - komatso_function
+  qqbot:
+  - komatso_function
+  yuanbao:
+  - komatso_function
+  teams:
+  - komatso_function
+  google_chat:
+  - komatso_function
+plugins:
+  enabled:
+  - bale-platform
+  - komatso-bale-registry
+  - komatso-user-registry
+  - komatso-parallel
+  - web/parallel
+  - web/tavily
+  - komatso-public-research
+  - komatso-function-domain
+  - komatso-technical-docs
+  disabled:
+  - browser/browser_use
+  - browser/browserbase
+  - browser/firecrawl
+  - cron_providers/chronos
+  - dashboard_auth/basic
+  - dashboard_auth/drain
+  - dashboard_auth/nous
+  - dashboard_auth/self_hosted
+  - disk-cleanup
+  - google_meet
+  - image_gen/deepinfra
+  - image_gen/fal
+  - image_gen/krea
+  - image_gen/openai
+  - image_gen/openai-codex
+  - image_gen/openrouter
+  - image_gen/xai
+  - model-providers/actual
+  - model-providers/ai-gateway
+  - model-providers/alibaba
+  - model-providers/alibaba-coding-plan
+  - model-providers/anthropic
+  - model-providers/arcee
+  - model-providers/azure-foundry
+  - model-providers/bedrock
+  - model-providers/copilot
+  - model-providers/copilot-acp
+  - model-providers/custom
+  - model-providers/deepinfra
+  - model-providers/deepseek
+  - model-providers/fireworks
+  - model-providers/gemini
+  - model-providers/gmi
+  - model-providers/huggingface
+  - model-providers/kilocode
+  - model-providers/kimi-coding
+  - model-providers/minimax
+  - model-providers/nous
+  - model-providers/novita
+  - model-providers/nvidia
+  - model-providers/ollama-cloud
+  - model-providers/openai-codex
+  - model-providers/opencode-zen
+  - model-providers/openrouter
+  - model-providers/qwen-oauth
+  - model-providers/stepfun
+  - model-providers/upstage
+  - model-providers/vertex
+  - model-providers/xai
+  - model-providers/xiaomi
+  - model-providers/zai
+  - observability/langfuse
+  - observability/nemo_relay
+  - platforms/a2a
+  - platforms/buzz
+  - platforms/dingtalk
+  - platforms/discord
+  - platforms/email
+  - platforms/feishu
+  - platforms/google_chat
+  - platforms/homeassistant
+  - platforms/irc
+  - platforms/line
+  - platforms/matrix
+  - platforms/mattermost
+  - platforms/ntfy
+  - platforms/photon
+  - platforms/raft
+  - platforms/simplex
+  - platforms/slack
+  - platforms/sms
+  - platforms/teams
+  - platforms/telegram
+  - platforms/wecom
+  - platforms/whatsapp
+  - security-guidance
+  - spotify
+  - teams_pipeline
+  - video_gen/deepinfra
+  - video_gen/fal
+  - video_gen/xai
+  - web/brave_free
+  - web/ddgs
+  - web/exa
+  - web/firecrawl
+  - web/searxng
+  - web/xai
+  entries:
+    komatso-user-registry:
+      allow_tool_override: false
+    bale-platform:
+      allow_tool_override: false
+    komatso-bale-registry:
+      allow_tool_override: false
+tools:
+  tool_search:
+    enabled: 'off'
+capability_toolsets_resolver: integrations.hermes.role_routing.resolve_toolsets
+bale:
+  enabled: false
+telegram:
+  enabled: false

@@ -298,8 +298,11 @@ def create_work_order(
     created_by: str,
     item_actions=None,
     notes: str | None = None,
+    authorization_check=None,
 ) -> dict:
 
+    if authorization_check:
+        authorization_check()
     spec = get_work_order_spec(
         work_order_type
     )
@@ -492,6 +495,8 @@ def create_work_order(
             )
         )
 
+        if authorization_check:
+            authorization_check()
         con.commit()
         cleanup_output = False
 

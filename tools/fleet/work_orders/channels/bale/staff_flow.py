@@ -8,7 +8,7 @@ from pathlib import Path
 from tools.fleet.work_orders.core import staff_dispatch as core
 from tools.fleet.work_orders.core.delivery import send_work_order
 from tools.fleet.work_orders.core.daily_archive import DailyArchiveError
-from tools.fleet.work_orders.core.permissions import normalize_bale_id
+from tools.fleet.work_orders.core.permissions import normalize_bale_id, require_work_order_permission
 from tools.fleet.work_orders.core.registry import get_work_order_spec
 from tools.fleet.work_orders.core.conversation import review_context
 
@@ -34,6 +34,12 @@ async def dispatch(gateway, number, actor, chat, staff_id, roster_id=None):
     bot = bot_for(gateway)
 
     async def upload(chat_id, file_path, file_name):
+        required = ['work_orders.send']
+        if order['work_order_type'] == 'AIR_FILTER':
+            required.append('work_orders.air_filter.archive_append')
+        elif order['work_order_type'] == 'GREASING':
+            required.append('work_orders.greasing.archive_append')
+        require_work_order_permission(actor, capabilities=required)
         caption = f"حکم کار {order_label(order)} تاریخ {order['jalali_date']} برای شما ارسال شد.\nتایید می‌کنید؟ بنویسید: تایید\nشماره حکم: {number}"
         with Path(file_path).open('rb') as document:
             return await bot.send_document(chat_id=chat_id, document=document, filename=file_name, caption=caption)
@@ -43,7 +49,7 @@ async def dispatch(gateway, number, actor, chat, staff_id, roster_id=None):
             return asyncio.run_coroutine_threadsafe(upload(**kwargs), loop).result()
 
     try:
-        await asyncio.to_thread(send_work_order, work_order_no=number, sender=Sender())
+        await asyncio.to_thread(send_work_order, work_order_no=number, sender=Sender(), actor=actor)
         await asyncio.to_thread(core.finish_send, number, 'SENT')
     except DailyArchiveError:
         await asyncio.to_thread(core.finish_send, number, 'FAILED')
@@ -125,7 +131,11 @@ def handle_staff_receipt(event, gateway, *, send):
         return None
     if is_entry:
         from tools.fleet.work_orders.core.permissions import check_work_order_permission
-        if check_work_order_permission(actor).allowed or not core.is_recipient(actor):
+        manager = check_work_order_permission(actor)
+        # A migrated manager can independently remain a staff recipient.
+        # Preserve the existing typed inbox command; the reply label enters
+        # the manager form later through reply_menu_step. Receipt policy is unchanged.
+        if (manager.allowed and manager.source != 'central') or not core.is_recipient(actor):
             return None
     if actor in busy:
         return {'action':'skip','reason':'staff-receipt-busy'}

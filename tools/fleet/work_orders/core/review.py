@@ -20,6 +20,8 @@ def normalize_shift(value: str) -> str:
 
 def confirm_document_review(work_order_no: str, bale_id: str) -> dict:
     """Called by the permission-checked worker; retain all existing notes."""
+    from tools.fleet.work_orders.core.permissions import require_work_order_permission
+    from tools.fleet.work_orders.core import db as work_order_db
     con = connect_db()
     try:
         with con:
@@ -29,6 +31,7 @@ def confirm_document_review(work_order_no: str, bale_id: str) -> dict:
                 raise ValueError("این حکم متعلق به حساب شما نیست یا پیدا نشد.")
             if row["status"] != "FILE_READY":
                 raise ValueError("این حکم دیگر در مرحلهٔ بررسی فایل نیست.")
+            require_work_order_permission(bale_id, db_path=work_order_db.DB_PATH, capabilities=('work_orders.review',))
             fingerprint = hashlib.sha256(Path(row["excel_path"]).read_bytes()).hexdigest()
             notes = row["notes"] or ""
             prefix = "MANAGER_DOCUMENT_REVIEW: "
@@ -42,6 +45,7 @@ def confirm_document_review(work_order_no: str, bale_id: str) -> dict:
                         return previous
             record = {"bale_id": bale_id, "sha256": fingerprint, "reviewed_at": datetime.now(timezone.utc).isoformat()}
             notes = notes + ("\n" if notes else "") + prefix + json.dumps(record)
+            require_work_order_permission(bale_id, db_path=work_order_db.DB_PATH, capabilities=('work_orders.review',))
             con.execute("UPDATE service_work_orders SET notes=?, updated_at=CURRENT_TIMESTAMP WHERE work_order_no=?", (notes, work_order_no))
             return record
     finally:

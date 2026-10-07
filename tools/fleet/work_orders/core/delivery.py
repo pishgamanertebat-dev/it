@@ -38,6 +38,7 @@ def send_work_order(
     *,
     work_order_no: str,
     sender,
+    actor=None,
 ) -> dict:
     """
     Generic work order delivery.
@@ -64,6 +65,7 @@ def send_work_order(
                 wo.excel_path,
                 wo.pdf_path,
                 wo.send_attempts,
+                wo.created_by,
                 s.display_name,
                 s.bale_id
             FROM service_work_orders wo
@@ -83,7 +85,21 @@ def send_work_order(
             )
 
 
+        def authorize_publish():
+            if actor is not None:
+                from tools.fleet.work_orders.core.permissions import require_work_order_permission
+                if order['created_by'] != f'bale:{actor}':
+                    raise PermissionError('Work order owner mismatch')
+                required = ['work_orders.send']
+                archive_cap = {'AIR_FILTER': 'work_orders.air_filter.archive_append',
+                               'GREASING': 'work_orders.greasing.archive_append'}.get(order['work_order_type'])
+                if archive_cap:
+                    required.append(archive_cap)
+                require_work_order_permission(actor, capabilities=required)
+        authorize_publish()
+
         if order["status"] == "SENT":
+            authorize_publish()
             archive_delivered_order(order)
             con.execute('UPDATE service_work_orders SET last_send_error=NULL WHERE id=?', (order['id'],))
             con.commit()
@@ -122,6 +138,7 @@ def send_work_order(
 
         file_path = reviewed_staff_pdf(order["pdf_path"], excel_path)
 
+        authorize_publish()
         result = sender.send_document(
             chat_id=order["bale_id"],
             file_path=str(file_path),
@@ -151,6 +168,7 @@ def send_work_order(
 
         con.commit()
 
+        authorize_publish()
         archive_delivered_order(order)
 
         return {

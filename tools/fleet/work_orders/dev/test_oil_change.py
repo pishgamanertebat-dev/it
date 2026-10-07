@@ -54,6 +54,9 @@ class OilChangeTests(WorkOrderCreateTests):
             await enter('اضافه');await enter('EX332')
             self.assertEqual(session.stage,'PROPOSAL')
             await enter('حذف');await enter('1')
+            # Current removal is MultiSelect: selection alone must not mutate the proposal.
+            self.assertEqual([i['machine_code'] for i in session.proposal['items']],['HD708','EX332'])
+            await enter('تایید حذف')
             self.assertEqual([i['machine_code'] for i in session.proposal['items']],['EX332'])
             await enter('اضافه');await enter('HD708')
             await enter('تایید')
@@ -64,7 +67,11 @@ class OilChangeTests(WorkOrderCreateTests):
                 self.assertEqual(len(order['items']),1)
                 self.assertEqual(order['status'],'FILE_READY')
                 self.assertIsNone(order['sent_at'])
-                self.assertTrue(any('ثبت تایید '+document['work_order_no'] in text for text in replies))
+                review_key=('bale','455740857','455740857',document['work_order_no'])
+                self.assertEqual(handler.reviews[review_key].stage,'REVIEW')
+                from tools.fleet.work_orders.channels.bale.keyboards import command_for
+                self.assertEqual(command_for('review_confirm',order_no=document['work_order_no']),
+                                 'ثبت تایید '+document['work_order_no'])
             self.assertIn('200 ساعتی',documents[0]['item_summary'])
             self.assertIn('400 ساعتی',documents[1]['item_summary'])
             handler.pending.clear()

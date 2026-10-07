@@ -30,7 +30,14 @@ def preview_order(order):
 
 def execute_request(request: dict, *, db_path=None) -> dict:
     try:
-        actor = require_work_order_permission(request.get("bale_id"), db_path=db_path)
+        action = request.get('action')
+        required = {'confirm_review': ('work_orders.review',),
+                    'preview': ('work_orders.read_own',),
+                    'preview_latest': ('work_orders.read_own',),
+                    'edit': ('work_orders.read_own', 'work_orders.create')}.get(action, ('work_orders.create',))
+        actor = require_work_order_permission(request.get("bale_id"), db_path=db_path, capabilities=required)
+        def authorize_create():
+            require_work_order_permission(actor.bale_id, db_path=db_path, capabilities=('work_orders.create',))
         if request['action'] == 'propose':
             if request.get('work_order_type') == 'OIL_CHANGE':
                 from tools.fleet.oil_change.proposal import build_proposal
@@ -144,6 +151,7 @@ def execute_request(request: dict, *, db_path=None) -> dict:
                 try:
                     # Each machine has its own number, workbook, review and dispatch.
                     order = service.create_work_order(
+                        authorization_check=authorize_create,
                         work_order_type='OIL_CHANGE', jalali_date=request['jalali_date'], shift='روزانه',
                         machine_codes=[item['machine_code']],created_by=f'bale:{actor.bale_id}',
                         item_actions={item['machine_code']:item['action_code']},
@@ -158,6 +166,7 @@ def execute_request(request: dict, *, db_path=None) -> dict:
                             '، '.join(i['machine_code'] for i in items[index:])}
             return {'ok':True, 'orders':orders}
         order = service.create_work_order(
+            authorization_check=authorize_create,
             work_order_type=work_order_type,
             jalali_date=request["jalali_date"],
             shift=("روزانه" if work_order_type in {"GREASING", "OIL_CHANGE"} and request.get("shift") == "روزانه"

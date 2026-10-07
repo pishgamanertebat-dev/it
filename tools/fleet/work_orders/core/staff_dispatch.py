@@ -52,7 +52,9 @@ def staff_menu(work_order_type=None):
 
 
 def prepare_dispatch(number, actor, chat, staff_id, roster_id=None):
-    require_work_order_permission(actor)
+    require_work_order_permission(actor, capabilities=('work_orders.assign','work_orders.approve','work_orders.send'))
+    if str(actor) != str(chat):
+        raise PermissionError('Private actor/chat mismatch')
     con = connect_db()
     try:
         row = con.execute("SELECT * FROM service_work_orders WHERE work_order_no=?", (number,)).fetchone()
@@ -74,8 +76,10 @@ def prepare_dispatch(number, actor, chat, staff_id, roster_id=None):
         if not any(r.get('bale_id') == actor and r.get('sha256') == fingerprint for r in reviews):
             raise ValueError('ابتدا فایل فعلی را بررسی و تایید کنید.')
         if row['status'] == 'FILE_READY':
+            require_work_order_permission(actor, capabilities=('work_orders.assign',))
             assign_work_order(work_order_no=number, staff_id=staff_id)
         if row['status'] in {'FILE_READY', 'ASSIGNED'}:
+            require_work_order_permission(actor, capabilities=('work_orders.approve',))
             approve_work_order(work_order_no=number, approved_by=f'bale:{actor}')
         with con:
             con.execute('INSERT OR IGNORE INTO service_work_order_dispatch(work_order_no,manager_chat_id,recipient_id,roster_id,staff_name) VALUES (?,?,?,?,?)', (number, chat, staff['bale_id'],roster_id,staff['display_name']))
