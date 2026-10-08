@@ -1,5 +1,6 @@
 """Organizational authorization, independent of registration and profiles."""
 
+from .delivery_alert import CAPABILITY as DELIVERY_FAILURE_RECEIVE
 from .store import (
     BUSINESS_ADMIN,
     DAILY_RECEIVE,
@@ -28,6 +29,7 @@ from .store import (
 __all__ = [
     "BUSINESS_ADMIN",
     "DAILY_RECEIVE",
+    "DELIVERY_FAILURE_RECEIVE",
     "DRIVER_READ",
     "DRIVER_RECEIVE",
     "DRIVER_REPORT_READ",

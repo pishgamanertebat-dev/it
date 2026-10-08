@@ -119,6 +119,20 @@ class FunctionScope:
         return self.all or bool(self.files)
 
 
+def valid_registry_name(value, user_id):
+    """A registry label may be shown to an operator. Anything else stays an id."""
+    if not isinstance(value, str):
+        return None
+    if any(ord(ch) < 32 or ch in '\\/' for ch in value):
+        return None
+    text = ' '.join(value.split())
+    if not text or len(text) > 80 or text == str(user_id) or text.isdigit():
+        return None
+    if not any(ch.isalpha() for ch in text):
+        return None
+    return text
+
+
 class AuthorizationStore:
     def __init__(self, path=DB_PATH):
         self.path = Path(path)
@@ -218,6 +232,33 @@ class AuthorizationStore:
         except (sqlite3.Error, OSError):
             logger.error('Authorization capability unavailable; fail closed')
             return False
+
+    def identity_label(self, user_id, platform='bale'):
+        """Approved private registry name. Falls back to the id; never invents one."""
+        user_id = str(user_id)
+        try:
+            with closing(self._connect()) as conn, conn:
+                conn.execute('BEGIN')
+                self._version(conn)
+                columns = {row[1] for row in conn.execute('PRAGMA table_info(channel_users)')}
+                selected = [name for name in ('verified_name', 'display_name') if name in columns]
+                if not selected:
+                    return user_id
+                row = conn.execute(
+                    f'''SELECT {", ".join(selected)} FROM channel_users
+                        WHERE platform=? AND user_id=? AND registration_status='approved'
+                          AND chat_id=user_id''',
+                    (platform, user_id)).fetchone()
+        except (sqlite3.Error, OSError):
+            logger.error('Authorization identity label unavailable; using id')
+            return user_id
+        if not row:
+            return user_id
+        for value in row:
+            label = valid_registry_name(value, user_id)
+            if label:
+                return label
+        return user_id
 
     def can_read_overflow(self, user_id, chat_id, platform='bale', chat_type='dm'):
         if platform != 'bale' or chat_type != 'dm' or not user_id or str(chat_id) != str(user_id):

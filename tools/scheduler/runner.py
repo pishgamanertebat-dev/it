@@ -451,6 +451,7 @@ def tick(config=CONFIG, state=STATE, now=None, registry=TASKS, authorization=Non
     failed = False
     conn = connect(state)
     try:
+        _delivery_notifier(conn, jobs, now, authorization, activate=True)
         for job in jobs:
             if not job.get('enabled', True):
                 continue
@@ -480,6 +481,7 @@ def tick(config=CONFIG, state=STATE, now=None, registry=TASKS, authorization=Non
                 if not _claim_replay(conn, job, due, row, now):
                     continue
                 failed = _execute(conn, job, due, now, registry, authorization, True, row) or failed
+        _delivery_notifier(conn, jobs, now, authorization, scan=True)
         # Copies retry from their own outbox, never through the staff send/archive flow.
         try:
             from tools.fleet.work_orders.core.final_copy import drain_pending
@@ -490,6 +492,18 @@ def tick(config=CONFIG, state=STATE, now=None, registry=TASKS, authorization=Non
     finally:
         conn.close()
     return 1 if failed else 0
+
+
+def _delivery_notifier(conn, jobs, now, authorization, *, activate=False, scan=False):
+    """Failure alerts stay outside report state. A notifier error cannot fail the reports."""
+    try:
+        from .delivery_alert import ensure_activation, scan_delivery_exceptions
+        if activate:
+            ensure_activation(conn, now)
+        if scan:
+            scan_delivery_exceptions(conn, jobs, now, authorization)
+    except Exception as exc:
+        logger.error('Delivery exception notifier failed: %s', type(exc).__name__)
 
 
 def plan_replay(config=CONFIG, state=STATE, now=None, registry=TASKS):
