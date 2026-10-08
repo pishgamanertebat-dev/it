@@ -6,7 +6,7 @@ schedules:
   - id: overflow_daily_test
     enabled: true
     task: overflow
-    recipient_role: office_supervisor
+    recipient_capability: reports.overflow.daily_receive
     timezone: Asia/Tehran
     misfire:
       policy: replay
@@ -39,7 +39,7 @@ schedules:
   - id: driver_daily_office_supervisor
     enabled: true
     task: driver_daily
-    recipient_role: office_supervisor
+    recipient_capability: reports.driver_daily.daily_receive
     timezone: Asia/Tehran
     misfire:
       policy: replay

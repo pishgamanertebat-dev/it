@@ -373,8 +373,8 @@ class ProductionScheduleTests(unittest.TestCase):
         self.assertFalse(jobs['metalwork_daily']['enabled'])
         self.assertNotIn('misfire', jobs['repairs_daily'])
         self.assertNotIn('misfire', jobs['metalwork_daily'])
-        self.assertEqual(jobs['overflow_daily_test']['recipient_role'], 'office_supervisor')
-        self.assertEqual(jobs['driver_daily_office_supervisor']['recipient_role'], 'office_supervisor')
+        self.assertEqual(jobs['overflow_daily_test']['recipient_capability'], 'reports.overflow.daily_receive')
+        self.assertEqual(jobs['driver_daily_office_supervisor']['recipient_capability'], 'reports.driver_daily.daily_receive')
         self.assertEqual(jobs['overflow_daily_mechanical']['recipient_capability'],
                          'reports.overflow.mechanical_daily_receive')
         self.assertEqual(jobs['driver_daily_mechanical']['recipient_capability'],

@@ -208,7 +208,7 @@ class MechanicalPush(MechanicalFixture,unittest.TestCase):
         return {'ok':True,'report':{'date':day,'rows':[]},'images':[str(image)]}
     def pdf_fixture(self,day,out,**kw):
         p=Path(out)/'mechanical.pdf';p.write_bytes(b'fixture')
-        return {'ok':True,'report':{'date':day},'documents':[str(p)]}
+        return {'ok':True,'report':{'date':day,'sections':{'mechanical':{'status':'ready'}}},'documents':[str(p)]}
     def test_overflow_fanout_same_build_all_managers_no_staff_cleanup(self):
         with patch('tools.scheduler.tasks.build_report',AsyncMock(side_effect=self.overflow_fixture)) as builder,patch('tools.scheduler.tasks.BaleSender') as sender:
             result=mechanical_overflow(None,{'date':'1405/07/10'},authorization=self.auth)
@@ -240,7 +240,7 @@ class MechanicalPush(MechanicalFixture,unittest.TestCase):
     def test_only_mechanical_pdf_export_and_upload_office_still_both(self):
         with patch('integrations.hermes.function_domain.driver_report.build_driver_pdf',side_effect=self.pdf_fixture) as build,patch('tools.scheduler.tasks.BaleSender') as sender:
             self.assertEqual(mechanical_driver_daily(None,{'date':'1405/07/10'},authorization=self.auth)['sent_count'],2)
-            self.assertEqual(build.call_args.kwargs,{'sections':('mechanical',)})
+            self.assertEqual(build.call_args.kwargs,{'sections':('mechanical',), 'missing_result':True})
             self.assertEqual(sender.return_value.document.call_count,2);self.assertFalse(sender.return_value.photo.called)
             self.assertFalse(Path(build.call_args.args[1]).exists())
         self.assign('202')
@@ -248,15 +248,15 @@ class MechanicalPush(MechanicalFixture,unittest.TestCase):
         with patch('integrations.hermes.function_domain.driver_report.build_driver_pdf',return_value={'report':report,'documents':['mechanical.pdf','metalwork.pdf']}) as build,patch('tools.scheduler.tasks.BaleSender') as sender:
             driver_daily('202',{'date':'1405/07/10'},authorization=self.auth)
             self.assertEqual(sender.return_value.document.call_count,2)
-            self.assertEqual(build.call_args.kwargs,{})
+            self.assertEqual(build.call_args.kwargs,{'missing_result':True})
     def test_pdf_revocation_wrong_date_or_count_no_upload(self):
         def revoke(day,out,**kw):
             result=self.pdf_fixture(day,out);self.sql("UPDATE auth_user_roles SET active=0 WHERE role LIKE 'mechanical_%'");return result
         with patch('integrations.hermes.function_domain.driver_report.build_driver_pdf',side_effect=revoke),patch('tools.scheduler.tasks.BaleSender') as sender:
             self.assertEqual(mechanical_driver_daily(None,{'date':'1405/07/10'},authorization=self.auth)['status'],'skipped');sender.assert_not_called()
         self.auth.assign_role('654806764',MECHANICAL_MANAGER,actor='fixture')
-        for data in [{'ok':True,'report':{'date':'1405/07/09'},'documents':['a']},
-                     {'ok':True,'report':{'date':'1405/07/10'},'documents':['a','metal']}]:
+        for data in [{'ok':True,'report':{'date':'1405/07/09','sections':{'mechanical':{'status':'ready'}}},'documents':['a']},
+                     {'ok':True,'report':{'date':'1405/07/10','sections':{'mechanical':{'status':'ready'}}},'documents':['a','metal']}]:
             with patch('integrations.hermes.function_domain.driver_report.build_driver_pdf',return_value=data),patch('tools.scheduler.tasks.BaleSender') as sender:
                 with self.assertRaises(ValueError):mechanical_driver_daily(None,{'date':'1405/07/10'},authorization=self.auth)
                 sender.assert_not_called()

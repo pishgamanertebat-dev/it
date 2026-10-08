@@ -104,10 +104,10 @@ class BaleSender:
     def close(self):
         self.session.close()
 
-    def document(self, recipient, path, caption):
+    def document(self, recipient, path, caption, *, file_name=None):
         with open(path, 'rb') as document:
             return self._post('sendDocument', {'chat_id': recipient, 'caption': caption},
-                              {'document': (Path(path).name, document, 'application/pdf')}, (15, 120))
+                              {'document': (file_name or Path(path).name, document, 'application/pdf')}, (15, 120))
 
     def check_connection(self):
         try:
@@ -174,7 +174,10 @@ def validate_overflow(params):
         validate_date(params['date'])
 
 
-def overflow(recipient, params, *, authorization=None, on_receipt=None, closed=None):
+def overflow(recipient, params, *, authorization=None, on_receipt=None, closed=None, on_artifact_receipt=None):
+    if str(recipient).startswith('capability:'):
+        from .office_delivery import deliver
+        return deliver('overflow', params, authorization=authorization or AuthorizationStore(), on_receipt=on_receipt, closed=closed, on_artifact_receipt=on_artifact_receipt)
     validate_overflow(params)
     store = authorization if authorization is not None else AuthorizationStore()
     sent_closed, uncertain_closed = closed_sets(closed)
@@ -274,7 +277,10 @@ def repairs(recipient, params):
             sender.close()
 
 
-def driver_daily(recipient, params, *, authorization=None, on_receipt=None, closed=None):
+def driver_daily(recipient, params, *, authorization=None, on_receipt=None, closed=None, on_artifact_receipt=None):
+    if str(recipient).startswith('capability:'):
+        from .office_delivery import deliver
+        return deliver('driver_daily', params, authorization=authorization or AuthorizationStore(), on_receipt=on_receipt, closed=closed, on_artifact_receipt=on_artifact_receipt)
     """Same scheduler and recipient invariant; PDF documents for the exact previous day."""
     from tools.authorization import DRIVER_RECEIVE
     from integrations.hermes.function_domain.driver_report import build_driver_pdf, SECTIONS

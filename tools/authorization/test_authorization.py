@@ -393,7 +393,8 @@ class DailyTests(Fixture, unittest.TestCase):
         jobs = [j for j in raw['schedules'] if j['task']=='overflow']
         self.assertEqual(len(jobs), 1)
         self.assertNotIn('recipient', jobs[0])
-        self.assertEqual(jobs[0]['recipient_role'], OFFICE_SUPERVISOR)
+        self.assertEqual(jobs[0]['recipient_capability'], DAILY_RECEIVE)
+        self.assertNotIn('recipient_role', jobs[0])
         self.assertEqual(jobs[0]['timezone'], 'Asia/Tehran')
         self.assertEqual(jobs[0]['trigger'], {'type': 'cron', 'hour': 9, 'minute': 0})
 

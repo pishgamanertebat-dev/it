@@ -1,6 +1,10 @@
 from __future__ import annotations
 
 from pathlib import Path
+import logging
+from tools.fleet.work_orders.core import final_copy
+
+logger = logging.getLogger(__name__)
 
 from tools.fleet.work_orders.core.db import connect_db
 from tools.fleet.work_orders.core.pdf_document import export_staff_pdf
@@ -66,6 +70,8 @@ def send_work_order(
                 wo.pdf_path,
                 wo.send_attempts,
                 wo.created_by,
+                wo.approved_by,
+                wo.jalali_date,
                 s.display_name,
                 s.bale_id
             FROM service_work_orders wo
@@ -138,10 +144,16 @@ def send_work_order(
 
         file_path = reviewed_staff_pdf(order["pdf_path"], excel_path)
 
+        # Pin the exact final PDF before staff transport; no copy is queued yet.
+        artifact = None
+        try:
+            artifact = final_copy.prepare(con, order, file_path)
+        except Exception as exc:
+            logger.error('Final copy preparation failed: %s', type(exc).__name__)
         authorize_publish()
         result = sender.send_document(
             chat_id=order["bale_id"],
-            file_path=str(file_path),
+            file_path=artifact['path'] if artifact and artifact['path'] else str(file_path),
             file_name=file_path.name,
         )
 
@@ -166,6 +178,15 @@ def send_work_order(
         )
 
 
+        # Atomic with SENT, but copy failures must never roll back the staff operation.
+        con.execute('SAVEPOINT final_copy_enqueue')
+        try:
+            final_copy.enqueue(con, order, artifact, result)
+        except Exception as exc:
+            con.execute('ROLLBACK TO final_copy_enqueue')
+            logger.error('Final copy enqueue failed: %s', type(exc).__name__)
+        finally:
+            con.execute('RELEASE final_copy_enqueue')
         con.commit()
 
         authorize_publish()

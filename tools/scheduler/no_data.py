@@ -69,9 +69,9 @@ def current_recipients(task, store):
     from .tasks import MULTI_RECIPIENT_TASKS
     from tools.authorization import DRIVER_RECEIVE, DRIVER_REPORT_READ, OVERFLOW_READ
     if task in {'overflow', 'driver_daily'}:
-        result = (store.resolve_daily_recipient(capability=DRIVER_RECEIVE)
-                  if task == 'driver_daily' else store.resolve_daily_recipient())
-        return (result.recipient,) if result.status == 'ready' else ()
+        from tools.authorization.office_delivery import OFFICE_TASKS
+        result = store.resolve_active_recipients(OFFICE_TASKS[task])
+        return tuple(result.recipients) if result.status == 'ready' else ()
     result = store.resolve_active_recipients(MULTI_RECIPIENT_TASKS[task])
     users = result.recipients if result.status == 'ready' else ()
     if task in {'mechanical_driver_daily', 'mechanical_overflow'}:

@@ -153,6 +153,7 @@ class CoreLifecycleRegressionTests(PermissionDatabaseTestCase):
             patch("tools.fleet.work_orders.core.db.DB_PATH", self.db_path),
             patch.object(service, "WORK_ORDER_OUTPUT_ROOT", self.db_path.parent / "orders"),
             patch('tools.fleet.work_orders.core.delivery.export_staff_pdf', side_effect=export_pdf),
+            patch('tools.fleet.work_orders.core.delivery.archive_delivered_order'),
             patch.object(service.importlib, "import_module", return_value=builder),
         ):
             order = service.create_work_order(work_order_type="AIR_FILTER", jalali_date="1405/06/11", shift="TEST", machine_codes=["714"], created_by="TEST")

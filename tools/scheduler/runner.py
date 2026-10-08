@@ -17,6 +17,8 @@ from tzlocal import get_localzone
 import yaml
 
 from tools.authorization import AuthorizationStore, OFFICE_SUPERVISOR, DRIVER_RECEIVE
+from tools.authorization.office_delivery import OFFICE_TASKS
+from . import office_receipts
 from .misfire import (
     RETRYABLE_FAILURE, RETRYABLE_SKIP, SKIP_MISSED_SLACK_SECONDS, TERMINAL_FAILURE,
     backoff_delay, due_storage_key, latest_due, outcome_from_receipts, replay_plan)
@@ -109,12 +111,13 @@ def load_config(path=CONFIG, registry=TASKS):
             job['recipient']='capability:'+expected
         elif job['task'] in {'overflow', 'driver_daily'}:
             if 'recipient_capability' in job:
-                raise ValueError(f'{name}: office supervisor uses the exactly-one role resolver')
-            if 'recipient' in job or job.get('recipient_role') != OFFICE_SUPERVISOR:
-                raise ValueError(f'{name}: overflow requires office_supervisor; fixed recipient forbidden')
+                if ('recipient' in job or 'recipient_role' in job or job['recipient_capability'] != OFFICE_TASKS[job['task']]):
+                    raise ValueError(f'{name}: office delivery requires its fixed receive capability')
+            elif 'recipient' in job or job.get('recipient_role') != OFFICE_SUPERVISOR:
+                raise ValueError(f'{name}: legacy office delivery requires office_supervisor')
             if job.get('timezone') != 'Asia/Tehran':
                 raise ValueError(f'{name}: overflow requires explicit Asia/Tehran timezone')
-            job['recipient'] = 'role:' + OFFICE_SUPERVISOR
+            job['recipient'] = ('capability:' + job['recipient_capability']) if 'recipient_capability' in job else 'role:' + OFFICE_SUPERVISOR
         else:
             if 'recipient_role' in job or 'recipient_capability' in job:
                 raise ValueError(f'{name}: role delivery is only defined for supported reports')
@@ -186,6 +189,7 @@ def connect(path):
             conn.execute("""INSERT INTO receipts
                 SELECT schedule_id,due,recipient_id,'report',status,message_id,updated FROM receipts_legacy""")
             conn.execute('DROP TABLE receipts_legacy')
+    office_receipts.create_schema(conn)
     conn.commit()
     return conn
 
@@ -210,6 +214,7 @@ def _closed(conn, key, kind="report"):
     result = {'sent': sent, 'uncertain': uncertain}
     if kind == 'report':
         result['notice'] = _closed(conn, key, 'notice')
+        result['artifacts'] = office_receipts.states(conn, key)
     return result
 
 
@@ -236,6 +241,7 @@ def _receipt_states(conn, key):
 
 
 def _freeze_sending(conn, key):
+    office_receipts.recover(conn, key)
     with conn:
         conn.execute('''UPDATE receipts SET status='uncertain', updated=?
             WHERE schedule_id=? AND due=? AND status='sending' ''',
@@ -322,7 +328,9 @@ def _execute(conn, job, due, now, registry, authorization, replay, previous):
     try:
         recipient = job['recipient']
         params = dict(job['params'])
-        if job['task'] in {'overflow', 'driver_daily'}:
+        if job['task'] in OFFICE_TASKS and 'recipient_capability' in job:
+            params['date'] = overflow_report_date(due)
+        elif job['task'] in {'overflow', 'driver_daily'}:
             store = authorization if authorization is not None else AuthorizationStore()
             resolution = (store.resolve_daily_recipient(capability=DRIVER_RECEIVE)
                           if job['task'] == 'driver_daily' else store.resolve_daily_recipient())
@@ -342,6 +350,9 @@ def _execute(conn, job, due, now, registry, authorization, replay, previous):
         if replay and job['task'] in REPORT_TASKS and registry[job['task']][1] is TASKS[job['task']][1]:
             from .no_data import current_recipients
             store = authorization if authorization is not None else AuthorizationStore()
+            if (job['task'] in OFFICE_TASKS and 'recipient_capability' in job
+                    and store.resolve_active_recipients(OFFICE_TASKS[job['task']]).status == 'store_unavailable'):
+                raise TransportUnavailable('Office authorization temporarily unavailable')
             current = set(current_recipients(job['task'], store))
             for user in current:
                 if conn.execute("SELECT 1 FROM receipts WHERE schedule_id=? AND due=? AND recipient_id=? AND delivery_kind='report'", (*key, user)).fetchone() is None:
@@ -354,6 +365,8 @@ def _execute(conn, job, due, now, registry, authorization, replay, previous):
                 def on_receipt(recipient_id, receipt_status, message_id=None, delivery_kind="report"):
                     _save_receipt(conn, key, recipient_id, receipt_status, message_id, delivery_kind)
                 kwargs = {'on_receipt': on_receipt, 'closed': _closed(conn, key)}
+                if job['task'] in OFFICE_TASKS and 'recipient_capability' in job:
+                    kwargs['on_artifact_receipt'] = lambda user, artifact, state, mid=None, digest=None: office_receipts.save(conn, key, user, artifact, state, mid, digest)
                 if job['task'] in REPORT_TASKS:
                     kwargs['authorization'] = authorization if authorization is not None else AuthorizationStore()
                 result = registry[job['task']][1](recipient, params, **kwargs)
@@ -467,6 +480,13 @@ def tick(config=CONFIG, state=STATE, now=None, registry=TASKS, authorization=Non
                 if not _claim_replay(conn, job, due, row, now):
                     continue
                 failed = _execute(conn, job, due, now, registry, authorization, True, row) or failed
+        # Copies retry from their own outbox, never through the staff send/archive flow.
+        try:
+            from tools.fleet.work_orders.core.final_copy import drain_pending
+            if Path(state).resolve() == STATE.resolve() and Path(config).resolve() == CONFIG.resolve():
+                drain_pending()
+        except Exception as exc:
+            logger.error('Final copy drain failed: %s', type(exc).__name__)
     finally:
         conn.close()
     return 1 if failed else 0

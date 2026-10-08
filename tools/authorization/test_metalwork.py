@@ -43,10 +43,10 @@ class MetalworkFixture(AdminFixture):
                 ['channel_users','auth_roles','auth_capabilities','auth_role_capabilities',
                  'auth_role_profiles','auth_user_roles','auth_events','auth_extensions','auth_migrations']}
 
-    def build(self, date, directory, *, sections):
+    def build(self, date, directory, *, sections, missing_result=False):
         self.assertEqual(sections, ('metalwork',))
         with patch('tools.fleet.repairs.report.export_pdf', side_effect=lambda *a: pdf_fixture.DriverPDFTests.exporter(self, *a)):
-            result = build_driver_pdf(date, directory, self.reader, sections=sections)
+            result = build_driver_pdf(date, directory, self.reader, sections=sections, missing_result=missing_result)
         self.outputs.extend(result['documents'])
         return result
 
@@ -166,8 +166,11 @@ class MetalworkDelivery(MetalworkFixture, unittest.TestCase):
 
     def test_missing_date_safely_skips_no_old_fallback_no_transport(self):
         result,factory=self.deliver('1405/07/11')
-        self.assertEqual(result,{'status':'skipped','reason':'date_missing'})
-        factory.assert_not_called()
+        self.assertEqual(result['status'],'waiting_for_data')
+        self.assertEqual(result['reason'],'date_missing')
+        self.sender.document.assert_not_called()
+        self.sender.message.assert_called_once()
+        factory.assert_called_once()
 
     def test_zero_recipients_skips_before_export(self):
         self.sql('UPDATE auth_user_roles SET active=0 WHERE user_id=?',(TARGET,))
@@ -196,7 +199,9 @@ class MetalworkDelivery(MetalworkFixture, unittest.TestCase):
         self.auth.assign_role(TARGET,'synthetic_push',actor='fixture')
         self.assertEqual(self.auth.resolve_active_recipients(METALWORK_DRIVER_RECEIVE).recipients,('202',TARGET))
         def fail_one(user,*args):
-            if user=='202':raise RuntimeError('synthetic transport failure')
+            if user=='202':
+                from tools.scheduler.tasks import TransportUnavailable
+                raise TransportUnavailable('synthetic definite pre-send failure')
         self.sender.document.side_effect=fail_one
         result,_=self.deliver()
         self.assertEqual([c.args[0] for c in self.sender.document.call_args_list],['202',TARGET])
