@@ -39,7 +39,7 @@ class ConfiguredMenuTests(unittest.TestCase):
     def menu(self, *, work=False, repairs=False, approved=True):
         role = MAINTENANCE_MANAGER if work else None
         with patch.object(runtime, '_reply_menu_role', return_value=role), \
-             patch('tools.fleet.repairs.entry_bale.permitted', return_value=repairs):
+             patch('tools.fleet.repairs.entry_bale.menu_permitted', return_value=repairs):
             return runtime._main_menu('42', bale_approved=approved)
 
     def test_layout_has_capabilities_without_a_person_list(self):
@@ -72,7 +72,7 @@ class ConfiguredMenuTests(unittest.TestCase):
         registry = ReplyMenuRegistry([template])
         with patch.object(runtime, 'reply_menus', registry), \
              patch.object(runtime, '_reply_menu_role', return_value=MAINTENANCE_MANAGER), \
-             patch('tools.fleet.repairs.entry_bale.permitted', return_value=True):
+             patch('tools.fleet.repairs.entry_bale.menu_permitted', return_value=True):
             menu = runtime._main_menu('42', bale_approved=True)
         self.assertEqual([[b.command for b in row] for row in menu.rows], [['/new']])
 
@@ -114,7 +114,7 @@ class LabelRoutingTests(unittest.TestCase):
                                side_effect=lambda user: MAINTENANCE_MANAGER if user == MANAGER else None)
         self.addCleanup(patcher.stop)
         patcher.start()
-        repairs = patch('tools.fleet.repairs.entry_bale.permitted',
+        repairs = patch('tools.fleet.repairs.entry_bale.menu_permitted',
                         side_effect=lambda user: user == MANAGER)
         repairs.start()
         self.addCleanup(repairs.stop)
@@ -184,7 +184,7 @@ class DispatchIntegrationTests(unittest.TestCase):
                                side_effect=lambda user: MAINTENANCE_MANAGER if user == MANAGER else None)
         self.addCleanup(patcher.stop)
         patcher.start()
-        repairs = patch('tools.fleet.repairs.entry_bale.permitted',
+        repairs = patch('tools.fleet.repairs.entry_bale.menu_permitted',
                         side_effect=lambda user: user == MANAGER)
         repairs.start()
         self.addCleanup(repairs.stop)
@@ -428,7 +428,7 @@ class ExistingRoleAndRevokeTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(runtime._reply_menu_role('42'), MAINTENANCE_MANAGER)
         self.assertIsNone(runtime._reply_menu_role('43'))
         self.assertIsNone(runtime._reply_menu_role('44'))
-        with patch('tools.fleet.repairs.entry_bale.permitted', return_value=False):
+        with patch('tools.fleet.repairs.entry_bale.menu_permitted', return_value=False):
             self.assertEqual([[b.command for b in row]
                               for row in runtime._main_menu('42', bale_approved=True).rows],
                              [[runtime.reply_menus.get('maintenance_manager').buttons[0].command], ['/new']])
@@ -438,14 +438,14 @@ class ExistingRoleAndRevokeTests(unittest.IsolatedAsyncioTestCase):
                                  [['/new']])
 
     def test_repairs_only_uses_existing_repair_permission(self):
-        with patch('tools.fleet.repairs.entry_bale.permitted', return_value=True):
+        with patch('tools.fleet.repairs.entry_bale.menu_permitted', return_value=True):
             menu = runtime._main_menu('44', bale_approved=True)
         self.assertEqual([[b.command for b in row] for row in menu.rows],
                          [[runtime.reply_menus.get('maintenance_manager').buttons[1].command], ['/new']])
 
     async def test_permission_change_refreshes_fingerprint_without_duplicate_loop(self):
         presenter = self.presenter()
-        with patch('tools.fleet.repairs.entry_bale.permitted', return_value=False):
+        with patch('tools.fleet.repairs.entry_bale.menu_permitted', return_value=False):
             before = runtime._main_menu('42', bale_approved=True)
             await presenter.present(None, '42', '42', before)
             self.assertIsNone(presenter.present(None, '42', '42', before))
@@ -464,7 +464,7 @@ class ExistingRoleAndRevokeTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_unapproved_event_removes_a_stale_menu(self):
         presenter = self.presenter()
-        with patch('tools.fleet.repairs.entry_bale.permitted', return_value=False):
+        with patch('tools.fleet.repairs.entry_bale.menu_permitted', return_value=False):
             menu = runtime._main_menu('42', bale_approved=True)
         await presenter.present(None, '42', '42', menu)
         self.bot.send_message.reset_mock()
@@ -477,7 +477,7 @@ class ExistingRoleAndRevokeTests(unittest.IsolatedAsyncioTestCase):
 
     def test_delivery_targets_authenticated_events_chat(self):
         presenter = self.presenter()
-        with patch('tools.fleet.repairs.entry_bale.permitted', return_value=False), \
+        with patch('tools.fleet.repairs.entry_bale.menu_permitted', return_value=False), \
              patch.object(runtime, 'reply_presenter', presenter), \
              patch.object(presenter, 'present', return_value=None) as present:
             runtime.reply_menu_step(event('hi', '42', chat_id='99'), None,

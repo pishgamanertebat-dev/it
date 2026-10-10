@@ -245,12 +245,15 @@ class EntryServiceTests(unittest.TestCase):
         self.assertEqual(self.source.read_bytes(), saved)
 
     def test_revocation_checked_again_at_commit(self):
-        request = self.request()
-        config = json.loads(self.config.read_text())
-        config['allowed_users'] = []
-        self.config.write_text(json.dumps(config))
-        with self.assertRaises(PermissionError):
-            self.save(request)
+        # Exercise legacy revocation independently of live NET central grants.
+        from tools.authorization.net import DomainDecision
+        with patch('tools.authorization.net.domain_decision', return_value=DomainDecision(False, 'legacy', 'unmigrated')):
+            request = self.request()
+            config = json.loads(self.config.read_text())
+            config['allowed_users'] = []
+            self.config.write_text(json.dumps(config))
+            with self.assertRaises(PermissionError):
+                self.save(request)
 
     def test_new_day_has_only_devices_entered_that_day(self):
         request = self.request(text='updated-mechanical')

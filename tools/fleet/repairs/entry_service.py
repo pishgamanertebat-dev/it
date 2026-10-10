@@ -35,12 +35,11 @@ class EntryAuthorizationDenied(PermissionError):
     pass
 
 
-def permission(actor, config=CONFIG):
+def permission(actor, config=CONFIG, *, section=None, clearing=False):
     settings = json.loads(Path(config).read_text(encoding='utf-8'))
-    from tools.authorization.net import domain_decision, REPAIRS_DOMAIN
-    decision = domain_decision(actor, REPAIRS_DOMAIN)
-    if (not decision.allowed if decision.source != 'legacy' else
-            not actor or str(actor) not in settings['allowed_users']):
+    from tools.authorization.net import repairs_sections
+    sections = repairs_sections(actor, settings)
+    if not sections or (section is not None and section not in sections) or (clearing and len(sections) != 2):
         raise EntryAuthorizationDenied('اجازهٔ ثبت شرح خرابی را ندارید.')
     if not settings.get('template'):
         raise EntryError('قالب خالی گزارش روزانه تنظیم نشده است.')
@@ -135,7 +134,7 @@ def text_value(value):
 
 
 def preview(actor, code, section, *, config=CONFIG, day=None, fleet_db=FLEET_DB):
-    settings = permission(actor, config)
+    settings = permission(actor, config, section=section)
     if section not in SECTIONS:
         raise EntryError('بخش انتخاب‌شده معتبر نیست.')
     day = day or jalali_today()
@@ -180,10 +179,6 @@ def source_reader(path):
 def writer_lock(runtime):
     runtime.mkdir(parents=True, exist_ok=True)
     with (runtime / 'writer.lock').open('a+b') as stream:
-        stream.seek(0)
-        if not stream.read(1):
-            stream.write(b'0')
-            stream.flush()
         if os.name == 'nt':
             import msvcrt
             deadline = time.monotonic() + 30
@@ -197,6 +192,12 @@ def writer_lock(runtime):
                         raise EntryError('ثبت دیگری در حال انجام است؛ کمی بعد دوباره تأیید کنید.')
                     time.sleep(.1)
             try:
+                # Windows permits a byte-range lock beyond EOF. Initialize only
+                # after acquiring it: reading a byte held by another writer fails.
+                stream.seek(0, os.SEEK_END)
+                if stream.tell() == 0:
+                    stream.write(b'0')
+                    stream.flush()
                 yield
             finally:
                 stream.seek(0)
@@ -312,8 +313,8 @@ def create_blank_template(source, destination):
         output.close()
 
 
-def clone_day(book, day, template_path):
-    if dated_sheets(book)[0][0] > day:
+def clone_day(book, day, template_path, *, restoring_confirmed=False):
+    if not restoring_confirmed and dated_sheets(book)[0][0] > day:
         raise EntryError('فایل شامل تاریخی بعد از امروز است؛ ابتدا تاریخ‌ها بررسی شوند.')
     title = 'گزارش روزانه ' + day.replace('/', '.')
     if title in book.sheetnames:
@@ -352,12 +353,24 @@ def set_description(book, selected, section, description, day, expected, templat
         default_height = template.row_dimensions[3].height or 20
         if row is None:
             occupied = machine_rows(sheet, cols)
-            row = max(occupied) + 1 if occupied else 3
+            # Mine sheets may contain additional data below the machine table.
+            # Append after actual content rather than overwriting a non-machine row.
+            content = [cell.row for cell in sheet._cells.values() if cell.value is not None]
+            row = max(content, default=2) + 1
             apply_template_row_style(sheet, row, template)
-            sheet.cell(row, cols['number'], row - 2)
+            sheet.cell(row, cols['number'], len(occupied) + 1)
             sheet.cell(row, cols['code'], selected['code']).data_type = 's'
             sheet.cell(row, cols['name'], selected['name']).data_type = 's'
-            sheet.print_area = f'A1:{openpyxl.utils.get_column_letter(max(cols.values()))}{row}'
+            from openpyxl.worksheet.print_settings import PrintArea
+            ranges = list(PrintArea.from_string(sheet.print_area).ranges) if sheet.print_area else []
+            if ranges:
+                area = min(ranges, key=lambda value: (value.min_row, value.min_col))
+                area.max_row = max(area.max_row, row)
+                area.max_col = max(area.max_col, max(cols.values()))
+                sheet.print_area = [str(value) for value in ranges]
+            else:
+                last_column = max(cell.column for cell in sheet._cells.values() if cell.value is not None)
+                sheet.print_area = f'A1:{openpyxl.utils.get_column_letter(last_column)}{row}'
         cell = sheet.cell(row, cols[section])
         cell.value = description or None
         if description:
@@ -387,19 +400,75 @@ def set_description(book, selected, section, description, day, expected, templat
 
 
 def commit(actor, request, *, config=CONFIG, runtime=RUNTIME, day=None, fleet_db=FLEET_DB):
-    settings = permission(actor, config)
+    settings = permission(actor, config, section=request.get('section'), clearing=not request.get('description'))
     operation = str(request.get('operation', ''))
     if not re.fullmatch(r'[a-f0-9]{32}', operation):
         raise EntryError('شناسهٔ تأیید معتبر نیست.')
     section, description = request.get('section'), request.get('description')
-    if section not in SECTIONS or not isinstance(description, str) or len(description) > 1800:
+    if section not in SECTIONS or not isinstance(description, str) or len(description) > 1800 or '\x00' in description or (description and not description.strip()):
         raise EntryError('شرح باید حداکثر ۱۸۰۰ نویسه باشد.')
     def mutate(book):
         selected = machine(book, request['code'], fleet_db)
         return set_description(book, selected, section, description, request['date'],
                                request['expected'], settings['template'])
     return commit_workbook(actor, request, settings, mutate, runtime=runtime, day=day,
-                           authorization_check=lambda: permission(actor, config))
+                           authorization_check=lambda: permission(actor, config, section=section, clearing=not description))
+
+
+def open_audit(runtime):
+    db = sqlite3.connect(Path(runtime) / 'audit.sqlite3')
+    db.row_factory = sqlite3.Row
+    db.execute('CREATE TABLE IF NOT EXISTS edits (operation TEXT PRIMARY KEY, fingerprint TEXT,\n                actor TEXT, source TEXT, request TEXT, before_hash TEXT, after_hash TEXT, backup TEXT,\n                status TEXT, result TEXT, created TEXT)')
+    return db
+
+
+def recover_prepared(db, source, digest):
+    for pending in db.execute("SELECT * FROM edits WHERE status='prepared' AND source=?", (str(source),)).fetchall():
+        if digest == pending['after_hash']:
+            status = 'succeeded'
+        elif digest == pending['before_hash']:
+            status = 'not_applied'
+        else:
+            raise EntryError('نتیجهٔ ثبت قبلی نیاز به بررسی دارد؛ برای جلوگیری از بازنویسی، ثبت متوقف شد.')
+        db.execute('UPDATE edits SET status=? WHERE operation=?', (status, pending['operation']))
+    db.commit()
+
+
+def publish_candidate(source, original, candidate, db, actor, request, result, *, runtime, authorization_check=None):
+    """The shared backup/journal/atomic-replacement writer; caller holds writer lock and source_reader."""
+    operation = request['operation']
+    digest = hashlib.sha256(original).hexdigest()
+    fingerprint = hashlib.sha256(json.dumps([str(actor), str(source), request], sort_keys=True, ensure_ascii=False).encode()).hexdigest()
+    backup = runtime / 'backups' / (digest + '.xlsx')
+    backup.parent.mkdir(exist_ok=True)
+    if not backup.exists():
+        backup.write_bytes(original)
+    after = hashlib.sha256(candidate).hexdigest()
+    with db:
+        db.execute('INSERT OR REPLACE INTO edits VALUES (?,?,?,?,?,?,?,?,?,?,?)',
+            (operation, fingerprint, str(actor), str(source), json.dumps(request, ensure_ascii=False),
+             digest, after, str(backup), 'prepared', json.dumps(result, ensure_ascii=False),
+             datetime.now(timezone.utc).isoformat()))
+    temporary = source.with_name('.repairs-' + uuid.uuid4().hex + '.xlsx')
+    try:
+        with temporary.open('xb') as stream:
+            stream.write(candidate)
+            stream.flush()
+            os.fsync(stream.fileno())
+        if hashlib.sha256(source.read_bytes()).hexdigest() != digest:
+            raise EntryError('فایل هم‌زمان تغییر کرد؛ فرم را دوباره باز کنید.')
+        if authorization_check:
+            authorization_check()
+        replace_source(temporary, source)
+    except EntryAuthorizationDenied:
+        raise
+    except OSError as exc:
+        raise EntryError('ذخیرهٔ اکسل انجام نشد؛ فایل را ببندید و دوباره تأیید کنید.') from exc
+    finally:
+        temporary.unlink(missing_ok=True)
+    with db:
+        db.execute("UPDATE edits SET status='succeeded' WHERE operation=?", (operation,))
+    return result
 
 
 def commit_workbook(actor, request, settings, mutate, *, runtime, day=None, command='شرح خرابی', authorization_check=None):
@@ -413,24 +482,12 @@ def commit_workbook(actor, request, settings, mutate, *, runtime, day=None, comm
     with writer_lock(runtime):
         if authorization_check:
             authorization_check()
-        db = sqlite3.connect(runtime / 'audit.sqlite3')
-        db.row_factory = sqlite3.Row
+        db = open_audit(runtime)
         try:
-            db.execute('''CREATE TABLE IF NOT EXISTS edits (operation TEXT PRIMARY KEY, fingerprint TEXT,
-                actor TEXT, source TEXT, request TEXT, before_hash TEXT, after_hash TEXT, backup TEXT,
-                status TEXT, result TEXT, created TEXT)''')
             with source_reader(source) as locked:
                 original = locked.read()
                 digest = hashlib.sha256(original).hexdigest()
-                for pending in db.execute("SELECT * FROM edits WHERE status='prepared' AND source=?", (str(source),)).fetchall():
-                    if digest == pending['after_hash']:
-                        status = 'succeeded'
-                    elif digest == pending['before_hash']:
-                        status = 'not_applied'
-                    else:
-                        raise EntryError('نتیجهٔ ثبت قبلی نیاز به بررسی دارد؛ برای جلوگیری از بازنویسی، ثبت متوقف شد.')
-                    db.execute('UPDATE edits SET status=? WHERE operation=?', (status, pending['operation']))
-                db.commit()
+                recover_prepared(db, source, digest)
                 previous = db.execute('SELECT * FROM edits WHERE operation=?', (operation,)).fetchone()
                 if previous:
                     if previous['fingerprint'] != fingerprint:
@@ -447,36 +504,8 @@ def commit_workbook(actor, request, settings, mutate, *, runtime, day=None, comm
                     candidate = output.getvalue()
                 finally:
                     book.close()
-                backup = runtime / 'backups' / (digest + '.xlsx')
-                backup.parent.mkdir(exist_ok=True)
-                if not backup.exists():
-                    backup.write_bytes(original)
-                after = hashlib.sha256(candidate).hexdigest()
-                with db:
-                    db.execute('INSERT OR REPLACE INTO edits VALUES (?,?,?,?,?,?,?,?,?,?,?)',
-                        (operation, fingerprint, str(actor), str(source), json.dumps(request, ensure_ascii=False),
-                         digest, after, str(backup), 'prepared', json.dumps(result, ensure_ascii=False),
-                         datetime.now(timezone.utc).isoformat()))
-                temporary = source.with_name('.repairs-' + uuid.uuid4().hex + '.xlsx')
-                try:
-                    with temporary.open('xb') as stream:
-                        stream.write(candidate)
-                        stream.flush()
-                        os.fsync(stream.fileno())
-                    if hashlib.sha256(source.read_bytes()).hexdigest() != digest:
-                        raise EntryError('فایل هم‌زمان تغییر کرد؛ فرم را دوباره باز کنید.')
-                    if authorization_check:
-                        authorization_check()
-                    replace_source(temporary, source)
-                except EntryAuthorizationDenied:
-                    raise
-                except OSError as exc:
-                    raise EntryError('ذخیرهٔ اکسل انجام نشد؛ فایل را ببندید و دوباره تأیید کنید.') from exc
-                finally:
-                    temporary.unlink(missing_ok=True)
-                with db:
-                    db.execute("UPDATE edits SET status='succeeded' WHERE operation=?", (operation,))
-                return result
+                return publish_candidate(source, original, candidate, db, actor, request, result,
+                                         runtime=runtime, authorization_check=authorization_check)
         finally:
             db.close()
 

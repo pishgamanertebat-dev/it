@@ -28,7 +28,7 @@ def _main_menu(user_id, *, bale_approved):
     """Filter configured buttons through current domain permissions."""
     if not bale_approved:
         return None
-    from tools.fleet.repairs.entry_bale import permitted as repairs_permitted
+    from tools.fleet.repairs.entry_bale import menu_permitted as repairs_permitted
 
     capabilities = set()
     if _reply_menu_role(user_id):

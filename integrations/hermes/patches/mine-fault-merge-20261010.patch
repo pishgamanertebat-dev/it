@@ -1,0 +1,33 @@
+--- scripts/mine_file_sync.py
++++ scripts/mine_file_sync.py
+@@ -188,0 +189,20 @@
++FAULT_REPORT = Path("E:/Function/گزارش روزانه رانندگان2.xlsx")
++
++
++def publish_fault_report(staged, destination):
++    """The single shared fault workbook uses the project journal and atomic writer."""
++    project = Path('E:/KomatsoAI')
++    try:
++        result = subprocess.run([str(project / '.venv/Scripts/python.exe'),
++            '-E', '-s', '-B', '-X', 'utf8', '-m', 'tools.fleet.repairs.sync_service',
++            '--staged', str(staged), '--destination', str(destination)],
++            cwd=project, capture_output=True, timeout=180,
++            creationflags=subprocess.CREATE_NO_WINDOW)
++    except subprocess.TimeoutExpired as exc:
++        raise OSError('FAULT_SYNC_TIMEOUT: outcome will be recovered from journal on retry') from exc
++    if result.returncode:
++        message = result.stdout.decode('utf8', errors='replace').strip()
++        raise OSError(message or 'FAULT_SYNC_WORKER_FAILED: current local file preserved')
++    LOG.info('fault_merge %s', result.stdout.decode('utf8', errors='replace').strip())
++
++
+@@ -215 +235,4 @@
+-            os.replace(temporary, destination)
++            if destination.resolve() == FAULT_REPORT.resolve():
++                publish_fault_report(temporary, destination)
++            else:
++                os.replace(temporary, destination)
+@@ -377 +400,2 @@
+-            if local is not None and signature(local) == signature(before):
++            if (local is not None and signature(local) == signature(before)
++                    and dst.resolve() != FAULT_REPORT.resolve()):

@@ -38,6 +38,41 @@ DOMAINS = {WO_DOMAIN: WO_CAPABILITIES, REPAIRS_DOMAIN: REPAIRS_CAPABILITIES}
 logger = logging.getLogger(__name__)
 
 
+def repairs_sections(actor, settings, *, store=None):
+    """Existing NET/legacy authority plus explicit, role-bound departmental scope.
+
+    Department users never enter the general allowlist. Approved private identity
+    and the existing organizational role are checked fresh on every boundary.
+    """
+    decision = domain_decision(actor, REPAIRS_DOMAIN, store=store)
+    if decision.source == 'denied':
+        return ()
+    section = settings.get('department_sections', {}).get(str(actor))
+    if section is not None:
+        if decision.source != 'legacy':
+            return ()  # A central revocation must never fall back to configuration.
+        roles = {'mechanical': ('mechanical_manager', 'mechanical_manager_deputy'),
+                 'metalwork': ('metalwork_staff',)}.get(section)
+        if not roles:
+            return ()
+        store = store or AuthorizationStore()
+        try:
+            with closing(store._connect()) as con, con:
+                con.execute('BEGIN')
+                store._version(con)
+                if con.execute("SELECT 1 FROM auth_domain_authority WHERE platform='bale' AND user_id=? AND domain=?", (str(actor), REPAIRS_DOMAIN)).fetchone():
+                    return ()
+                identity = con.execute("SELECT chat_id,registration_status FROM channel_users WHERE platform='bale' AND user_id=?", (str(actor),)).fetchone()
+                active = {r[0] for r in con.execute("SELECT role FROM auth_user_roles WHERE platform='bale' AND user_id=? AND active=1", (str(actor),))}
+                if identity == (str(actor), 'approved') and active.intersection(roles):
+                    return (section,)
+        except (sqlite3.Error, OSError, ValueError):
+            pass
+        return ()
+    allowed = decision.allowed if decision.source != 'legacy' else str(actor) in settings.get('allowed_users', ())
+    return ('mechanical', 'metalwork') if allowed else ()
+
+
 @dataclass(frozen=True)
 class DomainDecision:
     allowed: bool

@@ -1,5 +1,11 @@
 {
   "allowed_users": ["641220453", "455740857", "1294822197"],
+  "reply_menu_hidden_users": ["641220453", "1294822197"],
+  "department_sections": {
+    "654806764": "mechanical",
+    "1732374823": "mechanical",
+    "387679249": "metalwork"
+  },
   "source": "E:\\Function\\گزارش روزانه رانندگان2.xlsx",
   "template": "E:\\KomatsoAI\\templates\\repairs\\daily_report.xlsx"
 }

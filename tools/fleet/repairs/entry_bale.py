@@ -22,29 +22,38 @@ def normalized(text):
     return ' '.join(str(text or '').translate(str.maketrans('كي', 'کی')).replace('\u200c', ' ').split())
 
 
-def permitted(actor):
+def sections_for(actor):
     try:
-        from tools.authorization.net import domain_decision, REPAIRS_DOMAIN
-        decision = domain_decision(actor, REPAIRS_DOMAIN)
-        if decision.source != 'legacy':
-            return decision.allowed
-        return bool(actor) and str(actor) in json.loads(CONFIG.read_text(encoding='utf-8'))['allowed_users']
+        from tools.authorization.net import repairs_sections
+        return repairs_sections(actor, json.loads(CONFIG.read_text(encoding='utf-8')))
     except (OSError, ValueError, KeyError):
+        return ()
+
+
+def permitted(actor):
+    return bool(sections_for(actor))
+
+
+def menu_permitted(actor):
+    try:
+        settings = json.loads(CONFIG.read_text(encoding='utf-8'))
+        return permitted(actor) and str(actor) not in settings.get('reply_menu_hidden_users', ())
+    except (OSError, ValueError):
         return False
 
 
-def keyboard(stage):
+def keyboard(stage, sections=tuple(LABELS)):
     def button(name, label):
         return Action(name, label, 'repairs.edit', frozenset({stage}))
     if stage == 'SECTION':
-        rows = [(button(s, label),) for s, label in LABELS.items()]
+        rows = [(button(s, LABELS[s]),) for s in sections]
     elif stage == 'CONFIRM':
         rows = [(button('confirm', '✅ تأیید و ذخیره'), button('edit', '✏️ ویرایش متن'))]
     elif stage == 'DESCRIPTION':
-        rows = [(button('clear', 'پاک‌کردن شرح این بخش'),)]
+        rows = [(button('clear', 'پاک‌کردن شرح این بخش'),)] if len(sections) == 2 else []
     else:
-        rows = [(button('sections', 'انتخاب بخش دیگر'),)]
-    rows.append((button('finish', 'انصراف'),))
+        rows = [(button('sections', 'انتخاب بخش دیگر'),)] if len(sections) == 2 else []
+    rows.append((button('finish', '🚪 خروج'),))
     return InlineKeyboardBuilder('repairs_entry', rows)
 
 
@@ -70,15 +79,16 @@ class RepairsEntryHandler:
     namespace = 'repairs_entry'
     initial_stage = 'CODE'
     keyboard = staticmethod(keyboard)
-    commands = {'شرح خرابی': 'entry', 'پایان': 'finish', 'انصراف': 'finish', 'لغو': 'finish',
+    commands = {'شرح خرابی': 'entry', 'خروج': 'finish', '🚪 خروج': 'finish', 'پایان': 'finish', 'انصراف': 'finish', 'لغو': 'finish',
                 '/cancel': 'finish', 'تایید': 'confirm', 'تأیید': 'confirm', 'ویرایش': 'edit',
                 'شرح معایب مکانیکی': 'mechanical', 'شرح معایب آهنگری': 'metalwork', 'شرح معایب اهنگری': 'metalwork'}
     exit_commands = {'حکم کار', 'تعمیرات'}
 
-    def __init__(self, *, state_store=None, run=worker, authorize=permitted, clock=time.time):
+    def __init__(self, *, state_store=None, run=worker, authorize=permitted, clock=time.time, sections=sections_for):
         self.store = state_store
         self.run = run
         self.authorize = authorize
+        self.sections = sections
         self.clock = clock
         self.sessions = {}
         self.busy = set()
@@ -125,6 +135,12 @@ class RepairsEntryHandler:
         session = self.sessions.get(key)
         return key in self.busy or bool(session and session.get('expires', 0) > self.clock())
 
+    def actor_keyboard(self, stage, actor):
+        # Maintenance inherits lifecycle only and retains its own keyboard.
+        if self.namespace != 'repairs_entry':
+            return self.keyboard(stage)
+        return keyboard(stage, self.sections(actor))
+
     async def reply(self, key, gateway, send, text, *, replace=False):
         session = self.sessions.get(key)
         bot = self.lifecycle.bot(gateway)
@@ -147,7 +163,7 @@ class RepairsEntryHandler:
         if session and session['stage'] != 'BUSY':
             session['revision'] = secrets.token_hex(8)
             session['expires'] = self.clock() + 1800
-            markup = self.keyboard(session['stage']).build(session['revision'], stage=session['stage'],
+            markup = self.actor_keyboard(session['stage'], key[0]).build(session['revision'], stage=session['stage'],
                         role='', permits=lambda p: p == 'repairs.edit' and self.authorize(key[0]))
         self.persist()
         kwargs = {}
@@ -185,7 +201,20 @@ class RepairsEntryHandler:
             await self.reply(key, gateway, send, f'اجازهٔ ثبت {self.entry_command} را ندارید.')
             return
         session = self.sessions.get(key)
+        sections = self.sections(key[0])
+        if (not sections or (command in LABELS and command not in sections)
+                or (command == 'clear' and len(sections) != 2)
+                or (session and any(value not in sections for value in
+                    [session.get('section'), session.get('selection', {}).get('section'),
+                     session.get('request', {}).get('section')] if value is not None))):
+            await self.reply(key, gateway, send, 'اجازهٔ ثبت یا تغییر این بخش را ندارید.')
+            return
         if command in {'entry', 'sections'}:
+            if len(sections) == 1:
+                self.sessions[key] = {'stage': 'CODE', 'section': sections[0], 'expires': self.clock()+1800, 'revision': ''}
+                self.persist()
+                await self.reply(key, gateway, send, 'کد دستگاه را وارد کنید.')
+                return
             self.sessions[key] = {'stage': 'SECTION', 'expires': self.clock()+1800, 'revision': ''}
             self.persist()
             await self.reply(key, gateway, send, 'شرح خرابی را برای کدام بخش ثبت می‌کنید؟\nپس از انتخاب بخش، کد دستگاه را وارد کنید.')
@@ -250,14 +279,14 @@ class RepairsEntryHandler:
                     session.update(stage='CODE')
                     session.pop('request', None)
                     session.pop('selection', None)
-                    message = f"✅ شرح {saved['code']} در تاریخ {saved['date']} ذخیره شد.\nکد دستگاه بعدی را وارد کنید؛ برای ویرایش نیز کد همان دستگاه را بفرستید."
+                    message = f"✅ شرح خرابی دستگاه {saved['code']} در بخش {LABELS[saved['section']]} برای تاریخ {saved['date']} ثبت شد.\nکد دستگاه بعدی را وارد کنید؛ برای ویرایش نیز کد همان دستگاه را بفرستید."
                 else:
                     session['stage'] = 'CONFIRM'
                     message = result['message']
                 self.persist()
                 await self.reply(key, gateway, send, message)
             else:
-                await self.reply(key, gateway, send, 'برای ذخیره، تأیید را بزنید؛ یا ویرایش متن / انصراف را انتخاب کنید.')
+                await self.reply(key, gateway, send, 'برای ذخیره، تأیید را بزنید؛ یا ویرایش متن / خروج را انتخاب کنید.')
 
     def handle(self, event, gateway, *, send):
         source = event.source
@@ -297,7 +326,7 @@ class RepairsEntryHandler:
             try:
                 if not session:
                     raise ValueError('No active form')
-                command = self.keyboard(session['stage']).resolve(raw.get('data', ''), session.get('revision', ''),
+                command = self.actor_keyboard(session['stage'], actor).resolve(raw.get('data', ''), session.get('revision', ''),
                     stage=session['stage'], role='', permits=lambda p: p == 'repairs.edit' and self.authorize(actor))
                 if session.get('message_id') and str(raw.get('origin_message_id')) != session['message_id']:
                     raise ValueError('Wrong message')

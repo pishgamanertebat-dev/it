@@ -97,7 +97,7 @@ class EntryBaleTests(unittest.IsolatedAsyncioTestCase):
         await self.deliver(self.event('شرح خرابی'))
         section_id = len(self.messages)
         labels = [button['text'] for row in self.messages[-1]['reply_markup']['inline_keyboard'] for button in row]
-        self.assertIn('انصراف', labels)
+        self.assertIn('🚪 خروج', labels)
         self.assertNotIn('پایان', labels)
         self.assertIn('کدام بخش', self.messages[-1]['text'])
         await self.deliver(self.action_event('mechanical'))
