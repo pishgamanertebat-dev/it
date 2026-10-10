@@ -1,8 +1,8 @@
-"""Exact-date extraction over an inspected, explicit workbook schema, and vector A4 PDF."""
+"""Exact-date extraction over inspected schemas and discovered equipment sheets."""
 from __future__ import annotations
 from pathlib import Path
 from contextlib import contextmanager
-import hashlib,html,io,json,os,re,unicodedata
+import hashlib,html,io,json,logging,os,re,unicodedata
 import openpyxl
 from integrations.hermes.function_domain.scoped import ScopedReader,MAX_PARSE_BYTES
 from integrations.hermes.function_domain.extract import zip_safe
@@ -13,6 +13,7 @@ DIGITS=str.maketrans('۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩','012345678901234
 COMPANY='شرکت صنعتی و معدنی پیشگامان ارتباط هشت بهشت'
 TITLE='گزارش روزانه تعمیرات ماشین‌آلات'
 REPORT_COLUMNS=['تاریخ','کد مکانیزم','نام مکانیک / تعمیرکار','نوع خرابی','قطعات مصرفی']
+logger=logging.getLogger(__name__)
 
 def output_columns(columns, rule):
     """One human-facing order from explicit inspected source coordinates.
@@ -43,6 +44,55 @@ def exact_date(v):
     if not re.fullmatch(r'1[34]\d{2}/\d{1,2}/\d{1,2}',v):raise ValueError('Unsupported or ambiguous workbook date')
     return validate_date(v)
 
+def mechanism_code(value):
+    """Normalize explicit identifiers only; dates, booleans and prose are not codes."""
+    if isinstance(value,bool):return None
+    if isinstance(value,(int,float)):
+        if value<=0 or value!=int(value):return None
+        value=str(int(value))
+    if not isinstance(value,str):return None
+    value=value.strip().translate(DIGITS).upper()
+    return value if re.fullmatch(r'(?:[A-Z]+)?[0-9]+',value) else None
+
+def sheet_code(name, rule=None):
+    code=mechanism_code(name)
+    # Inspected legacy sheet 601. is distinct from sheet 601; retain its section.
+    if code is None and rule and name.endswith('.'):
+        candidate=mechanism_code(name[:-1])
+        if candidate and title_code(rule['device'])==candidate:code=candidate
+    if code is None:raise ValueError('Worksheet name is not an unambiguous equipment code: '+name)
+    return code
+
+def title_code(value):
+    tokens=re.findall(r'[A-Za-z]*[0-9]+',display(value).translate(DIGITS))
+    return mechanism_code(tokens[0]) if len(tokens)==1 else None
+
+def title_cells(sheet, header_row):
+    cells=[c for row in sheet.iter_rows(max_row=header_row-1) for c in row if c.value is not None]
+    if any(c.data_type in {'f','e'} or len(display(c.value))>20000 for c in cells):
+        raise ValueError('Formula/error or oversized device title: '+sheet.title)
+    return [[c.coordinate,c.value] for c in cells]
+
+def discover_rule(sheet, rules):
+    """Recognize an inspected header shape, without inheriting per-device exceptions."""
+    code=sheet_code(sheet.title)
+    shapes={(r['header_row'],tuple((c,label) for c,label in r['columns']))
+            for r in rules.values() if not r.get('exclude')}
+    matches=[]
+    for h,columns in sorted(shapes):
+        actual={c.column:c.value for c in sheet[h] if c.value is not None}
+        if actual==dict(columns):matches.append((h,columns))
+    if len(matches)!=1:
+        observed={h:{c.column:display(c.value)[:100] for c in sheet[h] if c.value is not None} for h,_ in shapes}
+        raise ValueError(f'New sheet requires one exact inspected header shape: {sheet.title}; observed headers {observed}')
+    h,columns=matches[0]
+    columns=[list(c) for c in columns]
+    titles=title_cells(sheet,h)
+    # Header semantics, never a legacy sheet's corrected B/C mapping, define new columns.
+    return {'header_row':h,'columns':columns,'report_columns':output_columns(columns,{}),
+            'title_cells':titles,'device':display(titles[0][1]) if len(titles)==1 and title_code(titles[0][1])==code else sheet.title,
+            'date_merged_blocks':False}
+
 @contextmanager
 def source_snapshot(reader=None):
     reader=reader or ScopedReader(allowed_files=[SOURCE_NAME])
@@ -65,21 +115,33 @@ def scan(data, target, *, layout=None):
     rules=(layout or json.loads(LAYOUT.read_text(encoding='utf-8')))['sheets']
     zip_safe(data)
     book=openpyxl.load_workbook(io.BytesIO(data),data_only=False,keep_links=False)
-    devices=[];dates=set();excluded=[];undated=0
+    devices=[];dates=set();excluded=[];undated=0;warnings=[];discovered=[]
+    def warn(kind, sheet, **details):
+        item={'kind':kind,'sheet':sheet,**details};warnings.append(item)
+        logger.warning('Maintenance validation %s',json.dumps(item,ensure_ascii=False,default=str))
     try:
         if not 1<=len(book.sheetnames)<=256:raise ValueError('Sheet count exceeds limit')
-        if set(book.sheetnames)!=set(rules):raise ValueError('Workbook sheets differ from inspected layout; inspect before updating manifest')
+        missing=[name for name in rules if name not in book.sheetnames]
+        for name in missing:warn('missing_inspected_sheet',name)
         for s in book:
-            rule=rules[s.title]
-            if s.max_row>10000 or s.max_column>32:raise ValueError('Worksheet dimensions exceed reporting bounds')
+            if s.max_row>10000 or s.max_column>32:raise ValueError('Worksheet dimensions exceed reporting bounds: '+s.title)
+            new=s.title not in rules
+            rule=discover_rule(s,rules) if new else rules[s.title]
+            if new:discovered.append(s.title)
             if rule.get('exclude'):
                 excluded.append(s.title);continue
+            code=sheet_code(s.title,rule)
             h=rule['header_row'];columns=rule['columns'];indices=[c for c,_ in columns]
             expected={c:label for c,label in columns}
             actual={c.column:c.value for c in s[h] if c.value is not None}
             if actual!=expected:raise ValueError('Header differs from inspected schema: '+s.title)
-            titles=[[c.coordinate,c.value] for r in range(1,h) for c in s[r] if c.value is not None]
-            if titles!=rule['title_cells']:raise ValueError('Device header changed: '+s.title)
+            titles=title_cells(s,h)
+            identity_note=rule.get('identity_note','')
+            title_mismatch=(titles!=rule['title_cells'] or any(title_code(v)!=code for _,v in titles))
+            if title_mismatch:
+                warn('device_title_mismatch',s.title,source_titles=titles,expected_code=code)
+                if not identity_note:
+                    identity_note='عنوان منبع: '+ ' / '.join(display(v) for _,v in titles)+'؛ شناسه Sheet و کد رکوردها: '+code
             date_cols=[c for c,label in columns if label=='تاریخ']
             if len(date_cols)!=1:raise ValueError('One exact date column is required')
             dc=date_cols[0];merged_dates={}
@@ -96,26 +158,37 @@ def scan(data, target, *, layout=None):
                 if not values:continue
                 if values==expected:continue  # Exact repeated header only.
                 if set(values)-set(indices):raise ValueError('Uninspected nonempty helper column: '+s.title)
-                if any(c.data_type in {'f','e'} for c in cells if c.value is not None):raise ValueError('Formula/error requires separate inspection')
+                if any(c.data_type in {'f','e'} for c in cells if c.value is not None):raise ValueError(f'Formula/error requires separate inspection: {s.title} row {r}')
                 raw=s.cell(r,dc).value
                 if raw is None and r not in merged_dates:
                     placeholders=rule.get('undated_placeholders',[])
                     if any(values=={p['column']:p['value']} for p in placeholders):undated+=1;continue
                     raise ValueError('Undated activity cannot be associated safely: '+s.title)
-                day=merged_dates[r] if r in merged_dates else exact_date(raw)
+                try:day=merged_dates[r] if r in merged_dates else exact_date(raw)
+                except ValueError as exc:raise ValueError(f'{s.title} row {r}: {exc}') from exc
                 # A date-only template row is not a recorded activity.
                 if not any(display(values.get(c)) for c in indices if c!=dc):continue
+                raw_code=values.get(report_indices[1])
+                if mechanism_code(raw_code)!=code:
+                    detail=f'{s.title} row {r}, column {report_indices[1]}: mechanism code {raw_code!r} does not match sheet code {code} (date {day})'
+                    if new or day==target:raise ValueError(detail)
+                    # Legacy unrelated dates are never included or reassigned in this report.
+                    warn('non_target_record_identity_mismatch',s.title,source_row=r,date=day,reason=detail)
                 dates.add(day)
                 if day==target:
                     vals=[day if c==dc else display(values.get(c)) for c in report_indices]
                     if any(len(v)>20000 for v in vals):raise ValueError('Cell text exceeds rendering bounds')
                     matched.append({'source_row':r,'values':vals})
             if matched:
-                devices.append({'sheet':s.title,'device':rule['device'],'identity_note':rule.get('identity_note',''),
+                devices.append({'sheet':s.title,'device':rule['device'],'identity_note':identity_note,
                     'columns':list(REPORT_COLUMNS),'rows':matched})
         return {'date':target,'devices':devices,'devices_matched':len(devices),'rows_matched':sum(len(d['rows']) for d in devices),
             'sheets_scanned':len(book.sheetnames),'excluded_sheets':excluded,'undated_placeholders_skipped':undated,
-            'source_sha256':hashlib.sha256(data).hexdigest(),'available_dates':sorted(dates)}
+            'source_sha256':hashlib.sha256(data).hexdigest(),'available_dates':sorted(dates),
+            'discovered_sheets':discovered,'missing_inspected_sheets':missing,'validation_warnings':warnings}
+    except ValueError as exc:
+        logger.error('Maintenance workbook validation failed: %s',exc)
+        raise
     finally:book.close()
 
 FONT_DIR=Path('C:/Windows/Fonts')

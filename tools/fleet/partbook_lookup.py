@@ -26,6 +26,9 @@ import sys
 import time
 from pathlib import Path
 
+from partbook_resolver import (resolve_model, select_books, book_serial_match,
+                               candidate_provenance, load_registry, DIGITS)
+
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_DB = ROOT / "runtime" / "partbook" / "partbook_index.sqlite"
 PYTHON = ROOT / ".venv" / "Scripts" / "python.exe"
@@ -44,7 +47,7 @@ def norm_pn(raw: str) -> str:
 def parse_user_serial(raw: str | None):
     if not raw:
         return None
-    m = re.match(r"^\s*([A-Za-z]*)\s*-?\s*(\d+)\s*$", raw)
+    m = re.match(r"^\s*([A-Za-z]*)\s*-?\s*(\d+)\s*$", raw.translate(DIGITS))
     if not m:
         raise SystemExit(json.dumps({"error": f"unparseable serial: {raw}"}))
     return m.group(1).upper(), int(m.group(2))
@@ -102,12 +105,14 @@ def applicability(con, occ_ids):
     return out
 
 
-def serial_match(apps, kind, serial):
+def serial_match(apps, kind, serial, prefix=None):
     """True / False / None(unknown)."""
     rel = [a for a in apps if a["kind"] == kind]
     if not rel:
         return None
     for a in rel:
+        if prefix is not None and (a.get("prefix") or "").upper() != prefix:
+            continue
         if a["from_num"] is None:
             return None
         if a["from_num"] <= serial and (a["to_num"] is None or serial <= a["to_num"]):
@@ -118,7 +123,12 @@ def serial_match(apps, kind, serial):
 def search(con, a):
     where, params, order = ["o.status != 'rejected'"], [], "o.book_id, o.pdf_page, o.row_ordinal"
     join_fts = False
-    if a.book:
+    if hasattr(a, "resolved_book_ids"):
+        if not a.resolved_book_ids:
+            return []
+        where.append("o.book_id IN (" + ",".join("?" for _ in a.resolved_book_ids) + ")")
+        params.extend(a.resolved_book_ids)
+    elif a.book:
         where.append("o.book_id = ?"); params.append(a.book)
     else:
         where.append("o.book_id IN (SELECT book_id FROM books WHERE model=?)"); params.append(a.model)
@@ -196,6 +206,8 @@ def verified_view_candidates(cands):
     if not cands or any(
         (c.get("pdf_verification") or {}).get("status") != "VERIFIED"
         or "serial_applicability_unknown" in c.get("flags", ())
+        or "row_serial_mismatch" in c.get("flags", ())
+        or "engine_serial_mismatch" in c.get("flags", ())
         or any(str(flag).startswith("ambiguous") for flag in c.get("flags", ()))
         for c in cands
     ):
@@ -240,6 +252,8 @@ def render(cands, label):
 
 
 def main(argv=None):
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--model", default="HD785-7")
     ap.add_argument("--query")
@@ -261,8 +275,21 @@ def main(argv=None):
     if not any([a.query, a.part_number, a.part_number_prefix, a.figure, a.group]):
         ap.error("give --part-number, --part-number-prefix, --query, --figure or --group")
     t0 = time.perf_counter()
+    registry = load_registry()
+    resolution = resolve_model(a.model, registry)
+    if resolution["resolution_status"] != "RESOLVED":
+        result = dict(resolution, found=0, candidates=[], coverage_complete=False,
+                      indexed_lookup_available=False)
+        print(json.dumps(result, ensure_ascii=False, indent=1))
+        return result
     con = connect(Path(a.db))
-    books = coverage(con, a.model)
+    try:
+        books = select_books(con, resolution, a.book, registry)
+    except ValueError:
+        con.close()
+        raise
+    a.resolved_book_ids = [b["book_id"] for b in books if b["index_status"] == "indexed_partial"]
+    book_by_id = {b["book_id"]: b for b in books}
     book_pdf = {b["book_id"]: b["source_pdf"] for b in books}
     notes = []
     serial = parse_user_serial(a.serial)
@@ -272,26 +299,36 @@ def main(argv=None):
             notes.append(f"{b['book_id']} NOT indexed ({b['index_status']}): {b['source_pdf']}")
     if serial:
         inb = [b for b in books if b["index_status"] == "indexed_partial"
-               and b["machine_serial_from"] <= serial[1] <= (b["machine_serial_to"] or 10**9)]
+               and book_serial_match(b, serial) is True]
         if not inb:
             notes.append(f"serial {a.serial} is outside indexed book coverage; check the scanned book manually")
     rows = search(con, a)
     apps = applicability(con, [r["occ_id"] for r in rows])
+    if serial or eng:
+        def serial_priority(row):
+            row_apps = apps.get(row["occ_id"], [])
+            matches = [serial_match(row_apps, kind, value[1], value[0])
+                       for kind, value in (("machine", serial), ("engine", eng)) if value]
+            return (any(match is False for match in matches),
+                    any(match is None for match in matches))
+        rows.sort(key=serial_priority)
     cands = []
+    engine_matches = []
     for r in rows:
         ap_rows = apps.get(r["occ_id"], [])
         flags = json.loads(r["flags"])
         ok_serial = None
         if serial:
-            ok_serial = serial_match(ap_rows, "machine", serial[1])
+            ok_serial = serial_match(ap_rows, "machine", serial[1], serial[0])
             if ok_serial is False:
-                continue
+                flags.append("row_serial_mismatch")
             if ok_serial is None:
                 flags.append("serial_applicability_unknown")
+        m = None
         if eng:
-            m = serial_match(ap_rows, "engine", eng[1])
+            m = serial_match(ap_rows, "engine", eng[1], eng[0])
             if m is False:
-                continue
+                flags.append("engine_serial_mismatch")
             if m is None and any(x["kind"] == "engine" for x in ap_rows) is False:
                 flags.append("engine_serial_not_applicable_to_row")
         vp = view_pages(con, r["book_id"], r["fig_no"])
@@ -317,17 +354,25 @@ def main(argv=None):
             "coverage_complete": False, "requires_pdf_verification": True,
             "_source_pdf": book_pdf[r["book_id"]], "_row_bbox": r["row_bbox"],
         })
+        engine_matches.append(m)
         if len(cands) >= a.limit:
             break
     t_lookup = time.perf_counter() - t0
     pages_read = 0
     if a.verify and cands:
         pages_read = verify_rows(cands, con)
+    for candidate, engine_match in zip(cands, engine_matches):
+        candidate.update(candidate_provenance(candidate, book_by_id[candidate["book_id"]],
+                                              resolution, serial, engine_match))
     t_verify = time.perf_counter() - t0
     if a.auto_render_verified and not a.verify:
         ap.error("--auto-render-verified requires --verify")
     if a.auto_render_verified:
-        render_candidates = (verified_view_candidates(cands)
+        # Keep nonmatching rows as source facts, while preserving the historical
+        # image selection for rows matching a supplied machine/engine serial.
+        matching = [c for c in cands if "row_serial_mismatch" not in c["flags"]
+                    and "engine_serial_mismatch" not in c["flags"]]
+        render_candidates = (verified_view_candidates(matching)
                              if all(c.get("part_number") for c in cands) else [])
     else:
         render_candidates = cands
@@ -341,8 +386,17 @@ def main(argv=None):
             c["requires_pdf_verification"] = False
     result = {
         "model": a.model, "found": len(cands),
+        "requested_model": a.model, "resolution": resolution,
+        "resolved_fleet_asset": resolution["fleet_asset"],
+        "selected_part_books": [{key: b[key] for key in (
+            "book_id", "model", "index_status", "machine_serial_prefix",
+            "machine_serial_from", "machine_serial_to", "source_pdf", "source_identity")} for b in books],
+        "indexed_lookup_available": bool(a.resolved_book_ids),
+        "part_found_in_source": any(c["part_found_status"] == "PART_FOUND_IN_SOURCE" for c in cands),
+        "part_applicability_confirmed": False,
+        "applicability_status": "PART_APPLICABILITY_UNCONFIRMED",
         "coverage_complete": False,
-        "coverage_note": coverage_note(a.model, books),
+        "coverage_note": coverage_note(resolution["fleet_asset"]["display_model"], books),
         "notes": notes,
         "candidates": cands,
         "timing_ms": {"lookup": round(t_lookup * 1000, 1),
@@ -354,9 +408,8 @@ def main(argv=None):
         result["rendered"] = rendered
     if not cands:
         result["miss"] = "no indexed candidate; NOT evidence of absence (check this model's book coverage, supersession and spelling)"
-    if hasattr(sys.stdout, "reconfigure"):
-        sys.stdout.reconfigure(encoding="utf-8")
     print(json.dumps(result, ensure_ascii=False, indent=1))
+    con.close()
     return result
 
 

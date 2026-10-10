@@ -48,6 +48,26 @@ class Directory:
 
 
 class AlertTests(unittest.TestCase):
+    def test_maintenance_generation_failure_is_not_labelled_as_bale_send_failure(self):
+        from tools.scheduler.delivery_alert import _problems, format_exception
+        self.arm()
+        self.add_run('failed','ValueError')
+        self.add_receipt('A','report','pending')
+        self.add_receipt('B','report','pending')
+        conn=connect(self.state)
+        try:
+            run=conn.execute('SELECT * FROM runs').fetchone()
+            problems=_problems(conn,dict(self.job(),task='maintenance_daily_report'),run,('A','B'),self.store)
+        finally:conn.close()
+        text=format_exception('تعمیرات',self.target,'09:00',problems)
+        self.assertIn('خطای تولید گزارش',text)
+        self.assertIn('تولید گزارش کامل نشد',text)
+        self.assertNotIn('خطای ارسال در بله',text)
+        for item in problems:item['klass']='uncertain'
+        text=format_exception('تعمیرات',self.target,'09:00',problems)
+        self.assertIn('بررسی رسید ارسال',text)
+        self.assertNotIn('خطای تولید گزارش',text)
+
     def setUp(self):
         root = ROOT / 'runtime/scheduler-tests'
         root.mkdir(parents=True, exist_ok=True)

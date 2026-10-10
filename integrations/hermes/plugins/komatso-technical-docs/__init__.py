@@ -10,7 +10,7 @@ import threading
 import time
 from pathlib import Path
 
-ROOT = Path("E:/KomatsoAI")
+ROOT = Path(__file__).resolve().parents[4]
 if str(ROOT) not in sys.path:
     sys.path.append(str(ROOT))
 from integrations.hermes.shared_fast_core import (
@@ -86,6 +86,12 @@ def select_rules(device_text, existing, question, presentation=False, part_enric
 
 
 from integrations.hermes.technical_docs_boundary import technical_docs_enabled, runtime_home
+# Import by path: Hermes owns a different top-level `tools` package.
+import importlib.util
+_resolver_spec = importlib.util.spec_from_file_location(__name__ + "_fleet_resolver", ROOT / "tools/fleet/partbook_resolver.py")
+_resolver = importlib.util.module_from_spec(_resolver_spec)
+_resolver_spec.loader.exec_module(_resolver)
+resolve_model, load_registry = _resolver.resolve_model, _resolver.load_registry
 
 # Historical symbol retained for integrations; permission is the explicit technical surface.
 is_maintenance = technical_docs_enabled
@@ -105,6 +111,16 @@ def verified_device(model, question):
 def part_model_names():
     """Part tool models. Shop Manual registration stays in manual_models.json."""
     return set(manual_models()) | set(INDEXED_PART_MODELS)
+
+
+def indexed_part_available(model):
+    resolution = resolve_model(model)
+    if resolution["resolution_status"] != "RESOLVED":
+        return False
+    registry = load_registry()
+    asset = resolution["fleet_asset"]
+    return any(registry.get("sources", {}).get(book, {}).get("expected_model", asset["display_model"])
+               in INDEXED_PART_MODELS for book in asset["book_ids"])
 
 
 def write_request(home, seed, model, question):
@@ -371,10 +387,14 @@ def compact_enrichment(packet, query):
                 or not terms or not any(word.startswith(terms[-1]) for word in words)):
             continue
         candidates.append({key: row.get(key) for key in (
-            "figure", "figure_title", "item", "part_number", "description", "quantity", "applicability")}
+            "book_id", "actual_source_model", "cover_model", "model_match_status", "source_citation",
+            "source_serial_coverage", "part_found_status", "part_applicability_confirmed",
+            "applicability_status", "applicability_reasons", "figure", "figure_title", "item",
+            "part_number", "description", "quantity", "applicability")}
                           | {"verification": "VERIFIED"})
     return {"status": "verified" if candidates else "miss" if not packet.get("found") else "unusable",
             "query": query, "candidates": candidates[:PART_ENRICHMENT_LIMIT],
+            "resolution": packet.get("resolution"), "selected_part_books": packet.get("selected_part_books"),
             "coverage_complete": bool(packet.get("coverage_complete")),
             "coverage_note": packet.get("coverage_note", "Coverage unknown; index miss is not evidence of absence."),
             "lookup_timing_ms": packet.get("timing_ms"),
@@ -393,7 +413,7 @@ def run_retrieval(command, session_id, model, part_query=None, request_id=""):
     origin = time.perf_counter()
     ready = threading.Event()
     slot = {}
-    reason = ("unindexed_model" if model not in INDEXED_PART_MODELS else
+    reason = ("unindexed_model" if not indexed_part_available(model) else
               "no_query" if part_query is None or part_query == "" else
               "invalid_query" if not valid_part_query(part_query) else "")
     enrichment = {"status": "skipped", "reason": reason, "candidates": []}
@@ -450,7 +470,7 @@ def retrieve(args, home, session_id):
                     error="Retrieval limit reached; answer from the evidence found, state the missing evidence or ask for clarification")
     root_rules = (ROOT / "AGENTS.md").read_text(encoding="utf-8")
     rules, _ = select_rules(device.read_text(encoding="utf-8"), root_rules, question, presentation=True,
-                            part_enrichment=model in INDEXED_PART_MODELS and valid_part_query(args.get("part_query")))
+                            part_enrichment=indexed_part_available(model) and valid_part_query(args.get("part_query")))
     fault_code = str(args.get("fault_code") or "").strip()
     seed = "|".join((session_id, question, keywords, fault_code, str(bool(args.get("broad"))), str(time.time_ns())))
     request_id, request_file = write_request(home, seed, model, question)
@@ -541,7 +561,10 @@ PART_DESCRIPTION = (
     "before one targeted partbook_lookup.py --verify; verifies actual PDF rows. Use part_number for "
     "a supplied PN, query for English component name, or figure/item. HD785-7 B1, HD785-5, WA600-6 2010, "
     "HD465-7R, PC1250SP-8R and PC800-8 have indexed text-layer books; HD785-7 B2 remains unindexed. "
-    "PC800-8R is not the indexed PC800-8 Parts Book. Confirm only VERIFIED candidates "
+    "Fleet aliases (Persian/Arabic digits, بیل, خط as dash) resolve through the approved registry. "
+    "PC1250-8R uses the PC1250SP-8R source; PC800-8R uses PC800-8 with visible variant limits. "
+    "PART_FOUND_IN_SOURCE is independent of PART_APPLICABILITY_CONFIRMED; never claim fit from a verified row alone. "
+    "Report only VERIFIED source candidates "
     "with quantity and applicability. Simple verified "
     "local lookup needs no Shop Manual/web. Mixed diagnosis + PN needs this FIRST plus "
     "maintenance_manual_evidence. Miss, incomplete coverage, serial outside coverage, ambiguity, "
@@ -552,7 +575,7 @@ PART_DESCRIPTION = (
 def part_schema(models):
     return {"name": PART_TOOL, "description": PART_DESCRIPTION, "parameters": {
         "type": "object", "required": ["model", "question"], "properties": {
-            "model": {"type": "string", "enum": sorted(models)},
+            "model": {"type": "string", "description": "Approved fleet model/alias or source name, e.g. ۱۲۵۰, بیل ۸۰۰, 1250 خط 8; exact historical model names remain accepted. Resolver rejects unknown/ambiguous models."},
             "question": {"type": "string", "description": "Exact original question; model may come from session"},
             "part_number": {"type": "string", "description": "Exact user PN; never guess"},
             "query": {"type": "string", "description": "English Part Book component name; no guessed PN"},
@@ -567,7 +590,19 @@ def part_lookup(args, session_id="", **kwargs):
     try:
         if not is_maintenance(get_hermes_home().resolve()):
             raise ValueError("Technical Docs surface is not enabled in this profile")
-        model, question = args.get("model"), args.get("question")
+        requested_model, question = args.get("model"), args.get("question")
+        if not isinstance(question, str) or not question.strip():
+            raise ValueError("Original question required")
+        resolution = resolve_model(requested_model)
+        if resolution["resolution_status"] != "RESOLVED":
+            return json.dumps(dict(resolution, found=0, candidates=[], coverage_complete=False,
+                                   indexed_lookup_available=False), ensure_ascii=False)
+        asset = resolution["fleet_asset"]
+        model = asset["display_model"]
+        # A literal source name retains the historical source-only preparation;
+        # fleet aliases load the fleet device policy before reading the linked PDF.
+        if resolution["matched_identity"] == "partbook_source" and requested_model == "PC800-8":
+            model = "PC800-8"
         shop_models = manual_models()
         if model in shop_models:
             device = verified_device(model, question)
@@ -585,8 +620,13 @@ def part_lookup(args, session_id="", **kwargs):
                         "applicable_device_policy": "", "shop_manual_identity": None}
         else:
             raise ValueError("Verified model and original question required")
-        if model not in INDEXED_PART_MODELS:
-            return json.dumps({"prepared": prepared, "coverage_complete": False,
+        if not asset["book_ids"]:
+            return json.dumps({"resolution": resolution, "requested_model": requested_model,
+                               "resolved_fleet_asset": asset, "selected_part_books": [],
+                               "part_found_in_source": False, "part_applicability_confirmed": False,
+                               "applicability_status": "PART_APPLICABILITY_UNCONFIRMED",
+                               "found": 0, "candidates": [],
+                               "prepared": prepared, "coverage_complete": False,
                                "indexed_lookup_available": False,
                                "next": "No production Part Book index for this model. Use its permitted local Part Book fallback; do not infer absence or borrow another model PN."}, ensure_ascii=False)
         pn = str(args.get("part_number") or "").strip()
@@ -597,7 +637,7 @@ def part_lookup(args, session_id="", **kwargs):
         if not any((pn, args.get("query"), args.get("figure"))):
             raise ValueError("Supply user PN, English component query or figure/item; never guess a PN")
         command = [str(ROOT / ".venv/Scripts/python.exe"),
-                   str(ROOT / "tools/fleet/partbook_lookup.py"), "--model", model, "--verify"]
+                   str(ROOT / "tools/fleet/partbook_lookup.py"), "--model", requested_model, "--verify"]
         if os.environ.get("PARTBOOK_TEST_DB"):
             command += ["--db", os.environ["PARTBOOK_TEST_DB"]]
         for option, value in (("--part-number", pn), ("--query", args.get("query")),
@@ -625,6 +665,10 @@ def part_lookup(args, session_id="", **kwargs):
                  if item.get("ok") and str(item.get("output", "")).startswith("MEDIA:")]
         result["media"] = media
         result["next"] = (
+            "Report requested model, resolved fleet asset, actual book model and model_match_status separately. "
+            "PART_FOUND_IN_SOURCE means the PDF row was verified; PART_APPLICABILITY_UNCONFIRMED means "
+            "fit for ordering/installation is NOT established. Unknown/outside serial or variant differences "
+            "do not suppress documented source facts. Preserve source_citation and applicability_reasons. "
             "Answer identification only from VERIFIED PDF candidates with figure/item/quantity/applicability. "
             "Simple verified local lookup needs no Shop Manual/web. Mixed intent also needs Shop Manual technical "
             "evidence. Coverage is partial: miss/MISMATCH/outside serial/ambiguity needs appropriate Part Book "
@@ -637,14 +681,15 @@ def part_lookup(args, session_id="", **kwargs):
 
 
 def model_aliases():
-    # A unique curated family can be retrieved under an explicit variant assumption.
-    # Collision handling is shared policy, never a prompt/model/fault special case.
-    families = {}
-    for model in sorted(part_model_names()):
-        match = re.search(r"[0-9]+", model)
-        if match:
-            families.setdefault(match.group(), []).append(model)
-    return {key: models[0] for key, models in families.items() if len(models) == 1}
+    """Curated numeric aliases come from the same authoritative fleet registry."""
+    result = {}
+    for asset in load_registry()["assets"]:
+        for alias in asset["aliases"]:
+            if alias.isascii() and alias.isdigit():
+                resolution = resolve_model(alias)
+                if resolution["resolution_status"] == "RESOLVED":
+                    result[alias] = asset["display_model"]
+    return result
 
 
 def shared_routing(info):
@@ -653,7 +698,7 @@ def shared_routing(info):
         return ""
     routing = (Path(__file__).parent / "ROUTING.md").read_text(encoding="utf-8")
     aliases = ", ".join(key + "=" + value for key, value in model_aliases().items())
-    return routing + ("\nCurated unambiguous family shorthand: " + aliases + ". Use these for evidence without an extra model-confirmation turn; state the exact variant assumption and require variant/serial verification before applying values or confirming fit. For an ambiguous family ask for the model/variant. Missing optional serial alone does not block Manual retrieval.")
+    return routing + ("\nApproved fleet Part Book aliases (Persian/Arabic/English digits; بیل; خط means -): " + aliases + ". Use these for Part Book evidence without an extra model-confirmation turn. Fleet identity and actual source model remain separate; disclose PC1250 cover/internal SP discrepancy and PC800-8 versus PC800-8R. Never treat an alias or verified source row as confirmed fleet fit. For Shop Manual evidence retain its separate device policy. For an ambiguous family ask for the model/variant. Missing optional serial alone does not block Manual retrieval.")
 
 
 def register(ctx):
@@ -661,7 +706,7 @@ def register(ctx):
     ctx.register_hook("subagent_start", subagent_start)
     ctx.register_hook("subagent_stop", subagent_stop)
     ctx.register_system_prompt_section("komatso.technical.prepared-manual", prepared_policy, max_chars=1400)
-    ctx.register_system_prompt_section("komatso.technical.routing", shared_routing, max_chars=2000)
+    ctx.register_system_prompt_section("komatso.technical.routing", shared_routing, max_chars=3000)
     models = manual_models()
     register_operations(ctx, [
         Operation(TOOL, TOOLSET, tool_schema(models), manual_evidence, TOOL_DESCRIPTION),

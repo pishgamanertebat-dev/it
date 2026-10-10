@@ -237,6 +237,9 @@ def _problems(conn, job, run, expected, store):
             continue
         found.append({
             'recipient': user, 'kind': kind, 'klass': klass,
+            'maintenance_report': job.get('task') == 'maintenance_daily_report',
+            'generation_failed': (job.get('task') == 'maintenance_daily_report' and kind == 'report'
+                and run['error'] in {'ValueError', 'invalid_source'} and _column(run, 'data_state') != 'ready'),
             'retrying': klass != 'uncertain' and run['status'] in RETRYING_RUN,
             'label': _label(store, user)})
     found.sort(key=lambda item: (item['label'], item['recipient']))
@@ -291,13 +294,18 @@ def format_exception(title, target, due_clock, problems):
         header = '⚠️ وضعیت ارسال گزارش نامشخص است'
     elif kinds == {'notice'}:
         header = '⚠️ ارسال اعلان گزارش کامل نشد'
+    elif all(item.get('generation_failed') for item in problems):
+        header = '⚠️ تولید گزارش کامل نشد'
     else:
         header = '⚠️ ارسال گزارش کامل نشد'
     lines = [header, '', f'گزارش: {title}', f'تاریخ گزارش: {target}', f'موعد: {due_clock}']
     for item in problems:
         if item['klass'] == 'uncertain':
             state = UNCERTAIN_SENTENCE
-            reason = 'نتیجه ارسال از بله تأیید نشد'
+            reason = ('بررسی رسید ارسال؛ ' if item.get('maintenance_report') else '')+'نتیجه ارسال از بله تأیید نشد'
+        elif item.get('generation_failed'):
+            state = 'بررسی دستی لازم است'
+            reason = 'خطای تولید گزارش'
         elif item['retrying']:
             state = 'تلاش مجدد ادامه دارد'
             reason = 'اعلان نبود اطلاعات به گیرنده نرسید' if item['kind'] == 'notice' else 'خطای ارسال در بله'

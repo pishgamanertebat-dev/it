@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "approval": "User-approved fleet scope, 2026-10-09. Logical registry identities; inventory codes and plate serials are not yet supplied. Aliases do not assert technical variant equivalence.",
+  "assets": [
+    {"asset_id": "company-pc1250", "display_model": "PC1250-8R", "identity_scope": "approved_unique_fleet_family", "aliases": ["1250", "PC1250", "1250-8", "1250-8R", "PC1250-8", "PC1250-8R"], "source_aliases": {"PC1250SP-8R": "PC1250SP-8R"}, "book_ids": ["PC1250SP-8R"], "verified_serial": null},
+    {"asset_id": "company-pc800", "display_model": "PC800-8R", "identity_scope": "approved_unique_fleet_family", "aliases": ["800", "PC800", "800-8", "800-8R", "PC800-8R"], "source_aliases": {"PC800-8": "PC800-8"}, "book_ids": ["PC800-8"], "verified_serial": null},
+    {"asset_id": "model:HD785-5", "display_model": "HD785-5", "identity_scope": "model_group", "aliases": ["HD785-5", "785-5", "HD785", "785"], "source_aliases": {}, "book_ids": ["HD785-5"], "verified_serial": null},
+    {"asset_id": "model:HD785-7", "display_model": "HD785-7", "identity_scope": "model_group", "aliases": ["HD785-7", "785-7", "HD785", "785"], "source_aliases": {}, "book_ids": ["HD785-7-B1", "HD785-7-B2"], "verified_serial": null},
+    {"asset_id": "model:HD465-7R", "display_model": "HD465-7R", "identity_scope": "model_group", "aliases": ["HD465-7R", "465-7R", "HD465", "465"], "source_aliases": {}, "book_ids": ["HD465-7R"], "verified_serial": null},
+    {"asset_id": "model:HD605-7R", "display_model": "HD605-7R", "identity_scope": "model_group", "aliases": ["HD605-7R", "605-7R", "HD605", "605"], "source_aliases": {}, "book_ids": [], "verified_serial": null},
+    {"asset_id": "model:WA600-6", "display_model": "WA600-6", "identity_scope": "model_group", "aliases": ["WA600-6", "600-6", "WA600", "600"], "source_aliases": {}, "book_ids": ["WA600-6-2010"], "verified_serial": null},
+    {"asset_id": "model:R330LC-9S", "display_model": "R330LC-9S", "identity_scope": "model_group", "aliases": ["R330LC-9S", "R330", "330"], "source_aliases": {}, "book_ids": [], "verified_serial": null},
+    {"asset_id": "model:PC850-8R", "display_model": "PC850-8R", "identity_scope": "model_group", "aliases": ["PC850-8R", "850-8R", "PC850", "850"], "source_aliases": {}, "book_ids": [], "verified_serial": null}
+  ],
+  "sources": {
+    "PC1250SP-8R": {"expected_model": "PC1250SP-8R", "cover_model": "PC1250-8R", "identity_status": "COVER_INTERNAL_MODEL_DISCREPANCY", "applicability_evidence": null, "note": "Cover PC1250-8R, 35001-UP; internal indexed banners PC1250SP-8R. Preserve both; do not rename the fleet asset to SP."},
+    "PC800-8": {"expected_model": "PC800-8", "cover_model": "PC800-8", "identity_status": "BOOK_VARIANT_DIFFERS_FROM_FLEET", "applicability_evidence": null, "note": "PC800-8, 50001-UP is a linked source for the approved PC800 family. Fit to PC800-8R remains unconfirmed."}
+  }
+}

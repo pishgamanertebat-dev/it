@@ -58,12 +58,11 @@ class ExtractionTests(unittest.TestCase):
         r=report.scan(package(w),DATE,layout=l);self.assertEqual(r['devices_matched'],1);self.assertEqual(r['excluded_sheets'],['helper'])
     def test_exact_repeated_headers_skip_without_record_creation(self):
         r=self.extract([('801',[[DATE,801,None,'FIRST',None],HEAD,[DATE,801,None,'SECOND',None]])]);self.assertEqual(r['rows_matched'],2)
-    def test_unexpected_formula_header_identity_extra_column_unknown_sheet_fail(self):
-        for mutation in ['formula','header','title','column','sheet']:
+    def test_unexpected_formula_header_extra_column_unknown_sheet_fail(self):
+        for mutation in ['formula','header','column','sheet']:
             w,l=workbook([('801',[[DATE,801,None,'FIRST',None]])]);s=w['801']
             if mutation=='formula':s['E3']='=1+1'
             if mutation=='header':s['C2']='غير معروف'
-            if mutation=='title':s['A1']='OTHER'
             if mutation=='column':s['F3']='SECRET'
             if mutation=='sheet':w.create_sheet('unexpected')
             with self.subTest(mutation=mutation),self.assertRaises(ValueError):report.scan(package(w),DATE,layout=l)
@@ -94,15 +93,103 @@ class ExtractionTests(unittest.TestCase):
         r=report.scan(package(w),DATE,layout=l)
         self.assertEqual(r['devices'][0]['rows'][0]['values'],[DATE,'802','شاهین','REPAIR_802','PART_802'])
         self.assertEqual(r['devices'][1]['rows'][0]['values'],[DATE,'705','رحمان-جباری','REPAIR_705','PART_705'])
-        # An alphanumeric code and a missing name remain source values; no invention.
+        # A foreign mechanism is never assigned to this sheet, even with no name.
         w['802'].cell(3,3,'MZ10');w['802'].cell(3,2).value=None
-        r=report.scan(package(w),DATE,layout=l)
-        self.assertEqual(r['devices'][0]['rows'][0]['values'][1:3],['MZ10',''])
+        with self.assertRaisesRegex(ValueError,'802 row 3.*MZ10'):
+            report.scan(package(w),DATE,layout=l)
 
     def test_invalid_explicit_map_does_not_duplicate_drop_or_move_date(self):
         for mapping in [[1,2,2,4,5],[1,2,3,4,6],[2,1,3,4,5],[1,2,3,4],[True,2,3,4,5]]:
             w,l=workbook([('801',[[DATE,801,'رحمان','REPAIR','PART']])]);l['sheets']['801']['report_columns']=mapping
             with self.subTest(mapping=mapping),self.assertRaises(ValueError):report.scan(package(w),DATE,layout=l)
+
+class DynamicSheetTests(unittest.TestCase):
+    """Separate synthetic fixtures use the real inspected 56-sheet contract."""
+    def setUp(self):
+        self.layout=json.loads(report.LAYOUT.read_text(encoding='utf-8'))
+        self.book=openpyxl.Workbook();self.book.remove(self.book.active)
+        self.addCleanup(self.book.close)
+        self.expected=[]
+        for name,rule in self.layout['sheets'].items():
+            s=self.book.create_sheet(name)
+            for coordinate,value in rule['title_cells']:s[coordinate]=value
+            for c,label in rule['columns']:s.cell(rule['header_row'],c,label)
+            if rule.get('exclude'):continue
+            code=report.sheet_code(name,rule)
+            values=[DATE,code,'مکانیک','REPAIR_'+name,'PART_'+name]
+            for c,value in zip(report.output_columns(rule['columns'],rule),values):s.cell(rule['header_row']+1,c,value)
+            self.expected.append({'sheet':name,'device':rule['device'],'identity_note':rule.get('identity_note',''),
+                'columns':report.REPORT_COLUMNS,'rows':[{'source_row':rule['header_row']+1,'values':values}]})
+    def scan(self):return report.scan(package(self.book),DATE,layout=self.layout)
+    def add_sheet(self,name,*,title=None,code=None,date=DATE,kind='repairer'):
+        s=self.book.create_sheet(name);s['A1']=title or 'دستگاه '+name
+        headers=['تاریخ','تعمیرکار','کد مکانیزم','نوع خرابی','قطعات مصرفی'] if kind=='repairer' else HEAD
+        s.append(headers)
+        values=[date,'مکانیک',code or int(name),'NEW_'+name,'PART_'+name] if kind=='repairer' else [date,code or int(name),'مکانیک','NEW_'+name,'PART_'+name]
+        s.append(values);return s
+    def test_old_56_sheets_preserve_all_sections_fields_and_order(self):
+        r=self.scan();self.assertEqual(r['sheets_scanned'],56);self.assertEqual(r['devices'],self.expected)
+        self.assertEqual(r['discovered_sheets'],[])
+    def test_58_and_future_numeric_sheet_discovered_once_in_workbook_order(self):
+        self.add_sheet('717',kind='mechanic');self.add_sheet('1256')
+        initial=self.scan();self.assertEqual(initial['sheets_scanned'],58)
+        self.assertEqual(initial['devices'][:54],self.expected)
+        self.assertEqual(initial['devices_matched'],56)
+        self.add_sheet('9901')
+        r=self.scan();self.assertEqual(r['devices'][:54],self.expected)
+        self.assertEqual(r['discovered_sheets'],['717','1256','9901']);self.assertEqual(r['rows_matched'],57)
+        self.assertEqual([d['sheet'] for d in r['devices'][-3:]],['717','1256','9901'])
+        self.assertEqual(r['devices'][-1]['rows'][0]['values'],[DATE,'9901','مکانیک','NEW_9901','PART_9901'])
+        data=package(self.book)
+        again=report.scan(data,DATE,layout=self.layout)
+        self.assertEqual(report.scan(data,DATE,layout=self.layout),again)
+        self.assertEqual(again['devices'],r['devices'])
+    def test_copied_title_warns_uses_verified_identity_and_does_not_modify_cells(self):
+        s=self.add_sheet('1256',title='بیل 1255');self.book['801']['A1']='بیل 999'
+        data=package(self.book);r=report.scan(data,DATE,layout=self.layout)
+        d=r['devices'][-1];self.assertEqual(d['device'],'1256');self.assertIn('1255',d['identity_note'])
+        self.assertEqual(d['rows'][0]['values'][1],'1256')
+        self.assertEqual({w['sheet'] for w in r['validation_warnings'] if w['kind']=='device_title_mismatch'},{'801','705','1256'})
+        self.assertEqual(s['A1'].value,'بیل 1255');self.assertEqual(s['C3'].value,1256)
+    def test_true_code_conflict_or_missing_or_wrong_cell_type_fails_with_location(self):
+        s=self.add_sheet('1256')
+        for value in [1255,None,True,'مکانیک']:
+            s['C3']=value
+            with self.subTest(value=value),self.assertRaisesRegex(ValueError,'1256 row 3, column 3'):
+                self.scan()
+    def test_new_wrong_headers_extra_columns_formulas_dates_and_merges_fail(self):
+        for mutation in ['header','column','formula','date','merge','swapped_values']:
+            s=self.add_sheet('9901')
+            if mutation=='header':s['C2']='کد اشتباه'
+            if mutation=='column':s['F3']='EXTRA'
+            if mutation=='formula':s['E3']='=1+1'
+            if mutation=='date':s['A3']='yesterday'
+            if mutation=='merge':s.merge_cells('B3:C3')
+            if mutation=='swapped_values':s['B3']=9901;s['C3']='مکانیک'
+            with self.subTest(mutation=mutation),self.assertLogs(report.logger,level='ERROR') as logs:
+                with self.assertRaisesRegex(ValueError,'9901'):self.scan()
+            self.assertIn('9901',logs.output[-1])
+            self.book.remove(s)
+    def test_deleted_sheet_is_explicit_warning_without_count_failure(self):
+        self.book.remove(self.book['801']);r=self.scan()
+        self.assertEqual(r['missing_inspected_sheets'],['801']);self.assertEqual(r['devices'],self.expected[1:])
+        self.assertIn({'kind':'missing_inspected_sheet','sheet':'801'},r['validation_warnings'])
+    def test_exact_jalali_target_no_carry_forward_or_repeated_extraction(self):
+        s=self.add_sheet('717',date='۱۴۰۵/۰۷/۱۳',kind='mechanic')
+        s.append(['1405/07/12',717,'مکانیک','OLD',None]);s.append(HEAD)
+        r=self.scan();d=r['devices'][-1];self.assertEqual(len(d['rows']),1)
+        self.assertEqual(d['rows'][0]['values'][0],DATE);self.assertEqual(d['rows'][0]['source_row'],3)
+        absent=report.scan(package(self.book),'1405/07/17',layout=self.layout)
+        self.assertEqual(absent['devices'],[])
+    def test_legacy_non_target_conflict_warns_but_target_conflict_blocks(self):
+        s=self.book['801'];s.append(['1403/05/18',101,'مکانیک','OLD',None])
+        r=self.scan();self.assertEqual(r['devices'],self.expected)
+        self.assertTrue(any(w['kind']=='non_target_record_identity_mismatch' for w in r['validation_warnings']))
+        s['A4']=DATE
+        with self.assertRaisesRegex(ValueError,'801 row 4.*101'):self.scan()
+    def test_new_non_target_conflict_is_not_accepted_as_valid_template(self):
+        self.add_sheet('9901',date='1405/07/12',code=9902)
+        with self.assertRaisesRegex(ValueError,'9901 row 3.*9902'):self.scan()
 
 class MaintenanceFixture(AdminFixture):
     def setUp(self):
@@ -187,6 +274,39 @@ class DeliveryTests(MaintenanceFixture,unittest.TestCase):
             with self.subTest(params=params),self.assertRaises(ValueError):maintenance_daily_report(None,params,authorization=self.auth)
 
 class SchedulerTests(MaintenanceFixture,unittest.TestCase):
+    def test_failed_generation_recovered_in_same_ledger_then_tick_cannot_duplicate(self):
+        from tools.scheduler import runner
+        p,base=self.config();p,_=self.config(dict(base,misfire={'policy':'replay','horizon_days':7}))
+        state=self.directory/'recovery.db';now=datetime(2026,10,6,9,5,tzinfo=ZoneInfo('Asia/Tehran'))
+        due=now.replace(minute=0);key=('maintenance_daily_report',runner.due_storage_key(due))
+        with patch.object(delivery,'build',side_effect=ValueError('invalid workbook')):
+            self.assertEqual(tick(p,state,now=now,authorization=self.auth),1)
+        self.sender.document.assert_not_called()
+        conn=runner.connect(state)
+        try:
+            previous=dict(conn.execute('SELECT * FROM runs').fetchone())
+            self.assertEqual(previous['status'],'failed');self.assertEqual(previous['error'],'ValueError')
+            job=runner.load_config(p)[2][0]
+            self.assertTrue(runner._claim_replay(conn,job,due,previous,now))
+            self.sender.document.side_effect=['501','502']
+            with patch.object(delivery,'build',side_effect=self.fake_build),patch.object(delivery,'validate_pdf',return_value={'pages':1,'bytes':12}),patch.object(delivery,'verify_source_digest'),patch('tools.scheduler.tasks.BaleSender',return_value=self.sender):
+                self.assertFalse(runner._execute(conn,job,due,now,runner.TASKS,self.auth,True,previous))
+            self.assertEqual([tuple(r) for r in conn.execute('SELECT status,attempt FROM runs')],[('succeeded',2)])
+            self.assertEqual([tuple(r) for r in conn.execute('SELECT recipient_id,status,message_id FROM receipts ORDER BY recipient_id')],[('101','sent','501'),('202','sent','502')])
+            self.assertEqual(conn.execute('SELECT COUNT(*) FROM runs WHERE schedule_id=? AND due=?',key).fetchone()[0],1)
+        finally:conn.close()
+        with patch.object(delivery,'build',side_effect=AssertionError('Already delivered')):
+            self.assertEqual(tick(p,state,now=now,authorization=self.auth),0)
+        self.assertEqual(self.sender.document.call_count,2)
+    def test_recovery_respects_existing_sent_and_uncertain_recipient_receipts(self):
+        for status in ['sent','uncertain']:
+            self.sender.reset_mock();receipts=[]
+            with patch.object(delivery,'build',side_effect=self.fake_build),patch.object(delivery,'validate_pdf',return_value={'pages':1,'bytes':12}),patch.object(delivery,'verify_source_digest'),patch('tools.scheduler.tasks.BaleSender',return_value=self.sender):
+                result=maintenance_daily_report(None,{'date':DATE},authorization=self.auth,
+                    on_receipt=lambda *args:receipts.append(args),closed={status:{'101'}})
+            self.assertEqual([c.args[0] for c in self.sender.document.call_args_list],['202'])
+            self.assertTrue(all(args[0]=='202' for args in receipts));self.assertEqual(result['sent_count'],1)
+
     def config(self,job=None):
         job=job or {'id':'maintenance_daily_report','enabled':True,'task':'maintenance_daily_report','recipient_capability':CAPABILITY,'timezone':'Asia/Tehran','trigger':{'type':'cron','hour':9,'minute':0},'params':{}}
         p=self.directory/'schedule.yaml';p.write_text(yaml.safe_dump({'version':1,'timezone':'Asia/Tehran','misfire_grace_seconds':900,'schedules':[job]}),encoding='utf-8');return p,job
@@ -212,6 +332,19 @@ class SchedulerTests(MaintenanceFixture,unittest.TestCase):
         with closing(sqlite3.connect(state)) as c:self.assertEqual(c.execute('SELECT status,error FROM runs').fetchall(),[('failed','delivery_failed')])
 
 class PDFTests(AdminFixture,unittest.TestCase):
+    def test_discovered_devices_and_typo_are_present_in_searchable_pdf(self):
+        w,l=workbook([('801',[[DATE,801,'رحمان','ORIGINAL',None]])])
+        for name,title in [('717','دامپ 717'),('1256','بیل 1255'),('9901','دستگاه 9901')]:
+            s=w.create_sheet(name);s.append([title]);s.append(HEAD)
+            s.append([DATE,int(name),'مکانیک','NEW_'+name,'PART_'+name])
+        data=package(w);source=self.directory/'fixture.xlsx';source.write_bytes(data)
+        r=report.scan(source.read_bytes(),DATE,layout=l);p=self.directory/'dynamic.pdf'
+        with patch('requests.sessions.Session.request',side_effect=AssertionError('Network forbidden')):v=report.render(r,p)
+        self.assertEqual(v['devices'],4);self.assertEqual(v['rows'],4)
+        with fitz.open(p) as pdf:
+            text=''.join(page.get_text() for page in pdf)
+            for value in ['ORIGINAL','NEW_717','NEW_1256','NEW_9901',DATE]:self.assertIn(value,text)
+        self.assertEqual(source.read_bytes(),data);w.close()
     def test_offline_combined_a4_searchable_vector_multiple_pages_source_unchanged(self):
         w,l=workbook([('801',[[DATE,801,'رحمان',('هیدرولیک گلدسته فیلتر قالب ماشین‌آلات '*5)+str(i),'قطعه'] for i in range(13)]),('802',[[DATE,802,'شاهین','تعویض قطعه',None]])]);data=package(w);h=hashlib.sha256(data).hexdigest();r=report.scan(data,DATE,layout=l);p=self.directory/'combined.pdf'
         with patch('requests.sessions.Session.request',side_effect=AssertionError('Network forbidden')):v=report.render(r,p,test_sample=True)
