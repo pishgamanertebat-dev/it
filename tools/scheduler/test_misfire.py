@@ -1,4 +1,5 @@
 """Catch-up, transport retry, and high-frequency misfire policy."""
+from contextlib import closing
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 import sqlite3
@@ -123,6 +124,63 @@ class CatchUpTests(unittest.TestCase):
         self.tick_at(start + timedelta(seconds=61))
         self.assertEqual(len(self.calls), 2)
         self.assertEqual(self.rows()[0]['status'], 'succeeded')
+
+    def test_move_to_noon_keeps_sent_day_closed_and_sends_next_day_once(self):
+        self.write([self.overflow()])
+        self.tick_at(datetime(2026, 10, 7, 9, 0, tzinfo=TZ))
+        self.write([self.overflow(trigger=dict(type='cron', hour=12, minute=0))])
+        self.tick_at(datetime(2026, 10, 7, 13, 0, tzinfo=TZ))
+        self.assertEqual(len(self.calls), 1)
+        self.assertEqual(len(self.rows()), 1)
+        self.tick_at(datetime(2026, 10, 8, 11, 59, tzinfo=TZ))
+        self.assertEqual(len(self.calls), 1)
+        self.tick_at(datetime(2026, 10, 8, 12, 0, tzinfo=TZ))
+        self.tick_at(datetime(2026, 10, 8, 12, 1, tzinfo=TZ))
+        self.assertEqual([call[1] for call in self.calls], ['1405/07/14', '1405/07/15'])
+        self.assertEqual(self.rows()[-1]['due'], '2026-10-08T08:30:00+00:00')
+
+    def test_move_to_nine_preserves_pending_day_and_notice_receipt(self):
+        self.write([self.driver()])
+        ready = {'value': False}
+
+        def send(recipient, params, **kwargs):
+            self.calls.append(params['date'])
+            if not ready['value']:
+                kwargs['on_receipt'](recipient, 'sent', 'notice-42', 'notice')
+                return {'status': 'waiting_for_data', 'reason': 'date_missing'}
+            self.assertEqual(kwargs['closed']['notice']['sent'], {'101'})
+            kwargs['on_receipt'](recipient, 'sent', 'report-42')
+
+        self.registry = lambda: {'driver_daily': (lambda p: None, send)}
+        self.tick_at(datetime(2026, 10, 7, 10, 0, tzinfo=TZ))
+        original_due = self.rows()[0]['due']
+        self.write([self.driver(trigger=dict(type='cron', hour=9, minute=0))])
+        ready['value'] = True
+        self.tick_at(datetime(2026, 10, 7, 13, 0, tzinfo=TZ))
+        self.tick_at(datetime(2026, 10, 7, 13, 1, tzinfo=TZ))
+        self.assertEqual(self.calls, ['1405/07/14', '1405/07/14'])
+        self.assertEqual(len(self.rows()), 1)
+        self.assertEqual(self.rows()[0]['due'], original_due)
+        self.assertEqual(self.rows()[0]['status'], 'succeeded')
+        with closing(sqlite3.connect(self.state)) as conn:
+            self.assertEqual(conn.execute('SELECT delivery_kind,message_id FROM receipts ORDER BY delivery_kind').fetchall(),
+                             [('notice', 'notice-42'), ('report', 'report-42')])
+
+    def test_move_to_noon_never_retries_uncertain_report(self):
+        self.write([self.overflow()])
+
+        def send(recipient, params, **kwargs):
+            self.calls.append(recipient)
+            kwargs['on_receipt'](recipient, 'uncertain', None)
+            return {'status': 'uncertain', 'reason': 'uncertain'}
+
+        self.registry = lambda: {'overflow': (lambda p: None, send)}
+        self.tick_at(datetime(2026, 10, 7, 9, 0, tzinfo=TZ))
+        self.write([self.overflow(trigger=dict(type='cron', hour=12, minute=0))])
+        self.tick_at(datetime(2026, 10, 7, 13, 0, tzinfo=TZ))
+        self.assertEqual(self.calls, ['101'])
+        self.assertEqual(len(self.rows()), 1)
+        self.assertEqual(self.rows()[0]['status'], 'uncertain')
 
     def test_reconnect_does_not_duplicate_a_sent_recipient(self):
         self.write([self.overflow()])

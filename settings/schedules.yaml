@@ -1,6 +1,6 @@
 # Reloaded automatically each tick. Overflow resolves its organizational role at runtime.
 version: 1
-timezone: local
+timezone: Asia/Tehran
 misfire_grace_seconds: 900
 schedules:
   - id: overflow_daily_test
@@ -13,7 +13,7 @@ schedules:
       horizon_days: 7
     trigger:
       type: cron
-      hour: 9
+      hour: 12
       minute: 0
     params: {}
   - id: repairs_daily
@@ -22,7 +22,7 @@ schedules:
     recipient: "654806764"
     trigger:
       type: cron
-      hour: 8
+      hour: 9
       minute: 0
     params:
       section: mechanical
@@ -32,7 +32,7 @@ schedules:
     recipient: "455740857"
     trigger:
       type: cron
-      hour: 8
+      hour: 9
       minute: 0
     params:
       section: metalwork
@@ -46,7 +46,7 @@ schedules:
       horizon_days: 7
     trigger:
       type: cron
-      hour: 10
+      hour: 9
       minute: 0
     params: {}
 
@@ -60,7 +60,7 @@ schedules:
       horizon_days: 7
     trigger:
       type: cron
-      hour: 9
+      hour: 12
       minute: 0
     params: {}
   - id: driver_daily_mechanical
@@ -73,7 +73,7 @@ schedules:
       horizon_days: 7
     trigger:
       type: cron
-      hour: 10
+      hour: 9
       minute: 0
     params: {}
 
@@ -101,7 +101,7 @@ schedules:
       horizon_days: 7
     trigger:
       type: cron
-      hour: 9
+      hour: 12
       minute: 0
     params: {}
 

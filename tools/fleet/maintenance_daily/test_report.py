@@ -317,15 +317,27 @@ class SchedulerTests(MaintenanceFixture,unittest.TestCase):
         _,_,jobs=load_config(p,registry);due=jobs[0]['trigger'].get_next_fire_time(None,now);self.assertEqual(due.hour,9);self.assertEqual(due.day,7)
         self.assertEqual(overflow_report_date(datetime(2026,10,5,20,29,tzinfo=timezone.utc)),'1405/07/12')
         self.assertEqual(overflow_report_date(datetime(2026,10,5,20,30,tzinfo=timezone.utc)),DATE)
-    def test_duplicate_wrong_time_profile_fixed_recipient_or_params_refused(self):
+    def test_duplicate_variable_time_profile_fixed_recipient_or_params_refused(self):
         p,base=self.config()
-        cases=[dict(base,trigger={'type':'cron','hour':10,'minute':0}),dict(base,recipient='101'),dict(base,recipient_role='business_admin'),dict(base,params={'date':DATE}),dict(base,timezone='UTC'),dict(base,id='other')]
+        cases=[dict(base,trigger={'type':'cron','hour':'*/2','minute':0}),dict(base,trigger={'type':'cron','hour':12,'minute':0,'day_of_week':'mon'}),dict(base,recipient='101'),dict(base,recipient_role='business_admin'),dict(base,params={'date':DATE}),dict(base,timezone='UTC'),dict(base,id='other')]
         for job in cases:
             with self.subTest(job=job):
                 p,_=self.config(job)
                 with self.assertRaises(ValueError):load_config(p)
         doc=yaml.safe_load(p.read_text());doc['schedules']=[base,dict(base,id='other')];p.write_text(yaml.safe_dump(doc),encoding='utf-8')
         with self.assertRaises(ValueError):load_config(p)
+    def test_noon_schedule_dispatches_only_at_noon_with_previous_day(self):
+        p,base=self.config()
+        p,_=self.config(dict(base,trigger={'type':'cron','hour':12,'minute':0}))
+        handler=Mock(return_value={'status':'succeeded'})
+        registry={'maintenance_daily_report':(delivery.validate_params,handler)}
+        state=self.directory/'noon.db'
+        tick(p,state,now=datetime(2026,10,6,9,5,tzinfo=ZoneInfo('Asia/Tehran')),registry=registry,authorization=self.auth)
+        handler.assert_not_called()
+        tick(p,state,now=datetime(2026,10,6,12,0,tzinfo=ZoneInfo('Asia/Tehran')),registry=registry,authorization=self.auth)
+        tick(p,state,now=datetime(2026,10,6,12,1,tzinfo=ZoneInfo('Asia/Tehran')),registry=registry,authorization=self.auth)
+        self.assertEqual(handler.call_count,1)
+        self.assertEqual(handler.call_args.args[1],{'date':DATE,'occurrence':'2026-10-06T12:00:00+03:30'})
     def test_failed_dispatch_persisted_and_not_replayed(self):
         p,_=self.config();handler=Mock(return_value={'status':'failed','reason':'delivery_failed'});registry={'maintenance_daily_report':(delivery.validate_params,handler)};state=self.directory/'runs.db';now=datetime(2026,10,6,9,5,tzinfo=ZoneInfo('Asia/Tehran'))
         self.assertEqual(tick(p,state,now=now,registry=registry,authorization=self.auth),1);self.assertEqual(tick(p,state,now=now,registry=registry,authorization=self.auth),0);self.assertEqual(handler.call_count,1)

@@ -149,9 +149,11 @@ def load_config(path=CONFIG, registry=TASKS):
         else:
             raise ValueError(f'{name}: trigger type must be cron or date')
         if job['task'] == 'maintenance_daily_report':
-            if (job['id'] != 'maintenance_daily_report' or spec != {'type':'cron','hour':9,'minute':0}
+            if (job['id'] != 'maintenance_daily_report' or set(spec) != {'type', 'hour', 'minute'}
+                    or spec['type'] != 'cron' or type(spec['hour']) is not int
+                    or type(spec['minute']) is not int
                     or any(j['task']=='maintenance_daily_report' for j in jobs)):
-                raise ValueError('Maintenance requires one daily 09:00 Tehran job with its canonical id')
+                raise ValueError('Maintenance requires one fixed daily Tehran job with its canonical id')
         jobs.append(job)
     return tz, grace, jobs
 
@@ -472,7 +474,8 @@ def tick(config=CONFIG, state=STATE, now=None, registry=TASKS, authorization=Non
                      due_storage_key(now-timedelta(days=job['misfire']['horizon_days']))))
             rows = _rows_for(conn, job['id'])
             dues, flooded, _gaps = replay_plan(
-                job['trigger'], now, job['misfire']['horizon_days'], rows)
+                job['trigger'], now, job['misfire']['horizon_days'], rows,
+                daily_identity=job['task'] in REPORT_TASKS)
             if flooded:
                 logger.error('catch-up refused schedule_id=%s reason=frequency_flood', job['id'])
                 continue
@@ -517,7 +520,9 @@ def plan_replay(config=CONFIG, state=STATE, now=None, registry=TASKS):
             if not job.get('enabled', True) or job['misfire']['policy'] != 'replay':
                 continue
             rows = _rows_for(conn, job['id'])
-            dues, flooded, gaps = replay_plan(job['trigger'], now, job['misfire']['horizon_days'], rows)
+            dues, flooded, gaps = replay_plan(
+                job['trigger'], now, job['misfire']['horizon_days'], rows,
+                daily_identity=job['task'] in REPORT_TASKS)
             for due in dues:
                 key = due_storage_key(due)
                 row = rows.get(key)

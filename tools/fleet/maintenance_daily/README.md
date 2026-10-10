@@ -1,6 +1,6 @@
 # Daily maintenance report
 
-The canonical `maintenance_daily_report` job runs daily at 09:00 Asia/Tehran through the existing minute-based scheduler. Its target is the previous Tehran calendar day of the actual due occurrence, using `overflow_report_date`. YAML parameters must be empty. The handler never chooses a latest available date. No records or no eligible recipients causes a logged skip with no document upload.
+The canonical `maintenance_daily_report` job runs daily at 12:00 Asia/Tehran through the existing minute-based scheduler. Its target is the previous Tehran calendar day of the actual due occurrence, using `overflow_report_date`. YAML parameters must be empty. The handler never chooses a latest available date. No records or no eligible recipients causes a logged skip with no document upload.
 
 `report.py` opens only `E:\Function\تعمیرات 1405.xlsx`, through the existing exact-file `ScopedReader`. Its Windows file handle shares READ only and pins parent paths; active writers, reparse points and unsafe snapshots fail closed. Bytes are parsed in memory and hashed before/after. The source is never saved or exported by Excel. ZIP, worksheet dimensions, date strings and cell lengths have explicit bounds.
 

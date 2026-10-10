@@ -89,7 +89,8 @@ def row_actionable(row, now, stale_seconds=STALE_RUNNING_SECONDS):
     return False
 
 
-def replay_plan(trigger, now, horizon_days, rows, stale_seconds=STALE_RUNNING_SECONDS):
+def replay_plan(trigger, now, horizon_days, rows, stale_seconds=STALE_RUNNING_SECONDS, *,
+                daily_identity=False):
     """Return ``(dues, flooded, historical_gaps)``.
 
     A schedule that has never run catches up only its latest due, so enabling replay cannot
@@ -102,6 +103,15 @@ def replay_plan(trigger, now, horizon_days, rows, stale_seconds=STALE_RUNNING_SE
     found, flooded = _occurrences(trigger, floor, now, horizon_days + 2)
     if flooded:
         return [], True, 0
+    if daily_identity:
+        # A clock change must reuse the original due and its recipient receipts.
+        # Report content is identified by the Tehran calendar day, not the hour.
+        by_day = {}
+        for key in sorted(rows):
+            original = datetime.fromisoformat(key).astimezone(trigger.timezone)
+            by_day.setdefault(original.date(), original)
+        found = [by_day.get(item.date(), item) for item in found]
+        found = [item for item in found if floor <= item <= now]
     known = set(rows)
     watermark = max(known) if known else None
     selected = []

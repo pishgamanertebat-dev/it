@@ -1,10 +1,10 @@
 # زمان‌بندی ارسال‌های بله
 
 فایل اصلی: `E:\KomatsoAI\settings\schedules.yaml`.
-job موجود سرریز `overflow_daily_test` هر روز ساعت **09:00 Asia/Tehran** اجرا می‌شود؛ گیرنده از Role فعال `office_supervisor` و `reports.overflow.daily_receive` resolve می‌شود. برای تغییر سرپرست فقط assignment در Authorization Store را تغییر دهید. هیچ recipient ID در job سرریز مجاز نیست.
+job موجود سرریز `overflow_daily_test` هر روز ساعت **12:00 Asia/Tehran** اجرا می‌شود؛ گیرنده از Role فعال `office_supervisor` و `reports.overflow.daily_receive` resolve می‌شود. برای تغییر سرپرست فقط assignment در Authorization Store را تغییر دهید. هیچ recipient ID در job سرریز مجاز نیست.
 صفر holder، چند holder، identity تأییدنشده یا store خراب/در دسترس نبودن، ارسال را با وضعیت `skipped` و علت روشن متوقف می‌کند. انتخاب خودکار یک نفر انجام نمی‌شود. generator deterministic سرریز موجود reuse می‌شود؛ Agent/LLM ندارد. تاریخ درخواستی دقیقاً روز قبل موعد به وقت تهران است؛ اجرای 1405/07/13 گزارش 1405/07/12 را درخواست می‌کند. روز ناموجود به آخرین شیت fallback نمی‌کند.
 دستور دستی نیز registration تأییدشده و `reports.overflow.read` می‌خواهد. منبع worker ثابت `E:\Function\سرریز روزانه.xlsx` است. [schema و مدیریت assignment](../authorization/README.md).
-گزارش‌های تعمیرات و تنظیمات مستقل قبلی آن‌ها در این Phase تغییر نکرده‌اند.
+زمان‌بندی مشترک همه گیرندگان و پروفایل‌ها به وقت تهران: سرریزها و تعمیرات ۱۴۰۵ ساعت ۱۲:۰۰؛ گزارش روزانه رانندگان شامل مکانیکی و آهنگری ساعت ۰۹:۰۰. ارسال‌های مستقیم قدیمی همچنان غیرفعال‌اند. با تغییر ساعت، سابقه و رسیدهای همان روز حفظ می‌شوند تا گزارش یا اعلان دوباره ارسال نشود؛ موعدهای باز با شناسه و تاریخ اصلی پیگیری می‌شوند.
 
 ## گزارش تعمیرات
 
@@ -15,22 +15,22 @@ job موجود سرریز `overflow_daily_test` هر روز ساعت **09:00 Asi
 
 ```yaml
   - id: repairs_daily
-    enabled: true
+    enabled: false
     task: repairs
     recipient: "654806764"
     trigger:
       type: cron
-      hour: 8
+      hour: 9
       minute: 0
     params:
       section: mechanical
   - id: metalwork_daily
-    enabled: true
+    enabled: false
     task: repairs
     recipient: "455740857"
     trigger:
       type: cron
-      hour: 8
+      hour: 9
       minute: 0
     params:
       section: metalwork
@@ -54,7 +54,7 @@ job موجود سرریز `overflow_daily_test` هر روز ساعت **09:00 Asi
     timezone: Asia/Tehran
     trigger:
       type: cron
-      hour: 9
+      hour: 12
       minute: 0
     params: {}
 ```
