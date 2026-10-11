@@ -14,6 +14,7 @@ from zoneinfo import ZoneInfo
 
 from tools.authorization.delivery_alert import CAPABILITY as DELIVERY_FAILURE_RECEIVE
 from tools.authorization.store import AuthorizationStore, RecipientSetResolution
+from .report_errors import REPORT_FAILURES, public_reason
 
 logger = logging.getLogger(__name__)
 GRACE = timedelta(minutes=15)
@@ -139,6 +140,8 @@ def _required_kind(run):
     error = run['error'] or ''
     if status in {'running', 'skipped'}:
         return None
+    if error in REPORT_FAILURES:
+        return 'report'
     missing = (status in {'waiting_for_data', 'no_data_final'}
                or _column(run, 'data_state') == 'missing' or error in MISSING_ERRORS)
     if missing and status != 'succeeded' and error not in TRANSPORT_ERRORS and _column(run, 'data_state') != 'ready':
@@ -244,6 +247,9 @@ def _problems(conn, job, run, expected, store):
                 and run['error'] in {'ValueError', 'invalid_source'} and _column(run, 'data_state') != 'ready'),
             'retrying': klass != 'uncertain' and run['status'] in RETRYING_RUN,
             'label': _label(store, user)})
+        if public_reason(run['error'], _column(run,'error_detail')):
+            found[-1]['failure_code']=run['error']
+            found[-1]['failure_detail']=_column(run,'error_detail')
     found.sort(key=lambda item: (item['label'], item['recipient']))
     return found
 
@@ -276,7 +282,8 @@ def _sync_watches(conn, schedule_id, due, waiting, now):
 def _split(problems, run, watches, now):
     actionable, watching = [], []
     for item in problems:
-        if item['klass'] == 'uncertain' or run['status'] == 'no_data_final':
+        if (item['klass'] == 'uncertain' or run['status'] == 'no_data_final'
+                or item.get('failure_code') in REPORT_FAILURES):
             actionable.append(item)
             continue
         seen = watches.get((item['recipient'], item['kind']))
@@ -296,7 +303,7 @@ def format_exception(title, target, due_clock, problems):
         header = '⚠️ وضعیت ارسال گزارش نامشخص است'
     elif kinds == {'notice'}:
         header = '⚠️ ارسال اعلان گزارش کامل نشد'
-    elif all(item.get('generation_failed') for item in problems):
+    elif all(item.get('generation_failed') or item.get('failure_code') in REPORT_FAILURES for item in problems):
         header = '⚠️ تولید گزارش کامل نشد'
     else:
         header = '⚠️ ارسال گزارش کامل نشد'
@@ -305,6 +312,9 @@ def format_exception(title, target, due_clock, problems):
         if item['klass'] == 'uncertain':
             state = UNCERTAIN_SENTENCE
             reason = ('بررسی رسید ارسال؛ ' if item.get('maintenance_report') else '')+'نتیجه ارسال از بله تأیید نشد'
+        elif item.get('failure_code'):
+            state = 'تلاش مجدد ادامه دارد' if item['retrying'] else 'بررسی دستی لازم است'
+            reason = public_reason(item['failure_code'],item.get('failure_detail'))
         elif item.get('generation_failed'):
             state = 'بررسی دستی لازم است'
             reason = 'خطای تولید گزارش'
@@ -332,7 +342,9 @@ def format_recovery(title, target):
 
 
 def _fingerprint(problems):
-    return '\n'.join(sorted(f"{item['recipient']}|{item['kind']}|{item['klass']}" for item in problems))
+    return '\n'.join(sorted(f"{item['recipient']}|{item['kind']}|{item['klass']}"
+        + (f"|{item['failure_code']}|{item.get('failure_detail') or ''}" if item.get('failure_code') else '')
+        for item in problems))
 
 
 def _operators(store):

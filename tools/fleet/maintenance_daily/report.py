@@ -7,6 +7,7 @@ import openpyxl
 from integrations.hermes.function_domain.scoped import ScopedReader,MAX_PARSE_BYTES
 from integrations.hermes.function_domain.extract import zip_safe
 from tools.fleet.overflow.report import validate_date
+from tools.scheduler.report_errors import ReportFailure, classify
 SOURCE_NAME='تعمیرات 1405.xlsx'
 LAYOUT=Path(__file__).with_name('layout.json')
 DIGITS=str.maketrans('۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩','01234567890123456789')
@@ -107,7 +108,7 @@ def source_snapshot(reader=None):
         finally:
             f.seek(0)
             after=hashlib.sha256(f.read(MAX_PARSE_BYTES+1)).hexdigest()
-            if after!=digest:raise RuntimeError('Source workbook changed during reporting')
+            if after!=digest:raise ReportFailure('source_changed',stage='source')
 
 def scan(data, target, *, layout=None):
     """Scan every sheet and validate even non-matching rows; never carry a blank date."""
@@ -124,6 +125,7 @@ def scan(data, target, *, layout=None):
         missing=[name for name in rules if name not in book.sheetnames]
         for name in missing:warn('missing_inspected_sheet',name)
         for s in book:
+            r=None
             if s.max_row>10000 or s.max_column>32:raise ValueError('Worksheet dimensions exceed reporting bounds: '+s.title)
             new=s.title not in rules
             rule=discover_rule(s,rules) if new else rules[s.title]
@@ -187,6 +189,7 @@ def scan(data, target, *, layout=None):
             'source_sha256':hashlib.sha256(data).hexdigest(),'available_dates':sorted(dates),
             'discovered_sheets':discovered,'missing_inspected_sheets':missing,'validation_warnings':warnings}
     except ValueError as exc:
+        exc.report_location={'sheet':s.title if 's' in locals() else None,'row':r if 'r' in locals() else None}
         logger.error('Maintenance workbook validation failed: %s',exc)
         raise
     finally:book.close()
@@ -194,43 +197,81 @@ def scan(data, target, *, layout=None):
 FONT_DIR=Path('C:/Windows/Fonts')
 CSS='''@font-face{font-family:Maintenance;src:url(tahoma.ttf)} @font-face{font-family:Maintenance;src:url(tahomabd.ttf);font-weight:bold} body{font-family:Maintenance;font-size:10px;color:#173448;margin:0} h1{font-size:18px;margin:4px 0} h2{font-size:13px;margin:4px 0} p{margin:3px 0} table{border-collapse:collapse;width:100%;table-layout:fixed} td,th{border:0.6px solid #c3ced5;padding:6px 4px;vertical-align:top;text-align:right} th{background:#173448;color:white;font-size:10px}'''
 WIDTHS=[17,16,14,36,17]
+
+def wrap_cell(value, width, font):
+    """Wrap every column, including tokens without spaces, without changing source cells."""
+    def length(text):return font.text_length(text,fontsize=10)
+    lines=[]
+    for paragraph in value.split('\n'):
+        line=''
+        for token in re.findall(r'\s+|\S+',paragraph):
+            if token.isspace():
+                if line:line+=' '
+                continue
+            while token:
+                if length(line+token)<=width:
+                    line+=token;break
+                if line.strip():
+                    lines.append(line.rstrip());line='';continue
+                lo,hi=1,len(token)
+                while lo<hi:
+                    mid=(lo+hi+1)//2
+                    if length(token[:mid])<=width:lo=mid
+                    else:hi=mid-1
+                # Prefer a punctuation boundary, then preserve combining marks.
+                cut=lo
+                boundary=max(token.rfind('+',0,cut),token.rfind('/',0,cut),token.rfind('-',0,cut))
+                if boundary>=0:cut=boundary+1
+                while cut<len(token) and unicodedata.combining(token[cut]):cut+=1
+                lines.append(token[:cut]);token=token[cut:]
+        lines.append(line.rstrip())
+    return '\n'.join(lines)
 def render(report, output, *, test_sample=False):
     import fitz
     if not report['devices'] or report['rows_matched']<1:raise ValueError('Empty PDF prohibited')
     output=Path(output);output.parent.mkdir(parents=True,exist_ok=True)
     temporary=output.with_suffix('.partial.pdf')
     if not all((FONT_DIR/n).is_file() for n in ["tahoma.ttf","tahomabd.ttf"]):raise ValueError("Required Persian fonts unavailable")
+    fonts={False:fitz.Font(fontfile=str(FONT_DIR/'tahoma.ttf')),True:fitz.Font(fontfile=str(FONT_DIR/'tahomabd.ttf'))}
+    location={}
     archive=fitz.Archive(str(FONT_DIR))
     doc=fitz.open();page=None;y=0;bottom=790
+    fragments=[]
     def insert(p,body,top,height,left=30,right=565):
         spare,scale=p.insert_htmlbox(fitz.Rect(left,top,right,top+height),body,css=CSS,archive=archive,scale_low=1)
-        if spare<0 or scale!=1:raise ValueError('PDF text cannot fit without truncation/scaling')
+        if spare<0 or scale!=1:raise ReportFailure('pdf_layout',stage='layout',**location)
         return height-spare
     def height(body):
         with fitz.open() as probe:
             p=probe.new_page(width=595.276,height=841.89)
             return insert(p,body,0,680)
-    def cell_body(value,header=False):
-        return '<p dir="auto" style="margin:0;text-align:right;'+('color:white;font-weight:bold' if header else '')+'">'+(html.escape(value).replace(chr(10),'<br>') or '—')+'</p>'
+    def cell_body(value,header=False,width=535):
+        wrapped=wrap_cell(value,width-2,fonts[header])
+        return '<p dir="auto" style="margin:0;text-align:right;'+('color:white;font-weight:bold' if header else '')+'">'+(html.escape(wrapped).replace(chr(10),'<br>') or '—')+'</p>'
     height_cache={}
     def row_height(values,header=False):
         cache_key=(tuple(values),header)
         if cache_key in height_cache:return height_cache[cache_key]
         heights=[]
-        for value,width in zip(values,WIDTHS):
+        for index,(value,width) in enumerate(zip(values,WIDTHS),1):
+            location['column']=index
             with fitz.open() as probe:
                 p=probe.new_page(width=595.276,height=841.89)
-                heights.append(insert(p,cell_body(value,header),0,680,left=0,right=535*width/100-8))
+                heights.append(insert(p,cell_body(value,header,535*width/100-8),0,680,left=0,right=535*width/100-8))
         height_cache[cache_key]=max(heights)+12
         return height_cache[cache_key]
-    def draw_row(values,top,rh,header=False,shaded=False):
+    def draw_row(values,top,rh,header=False,shaded=False,record=None):
         x=565
+        rects=[]
         for value,width in zip(values,WIDTHS):
             left=x-535*width/100
             fill=(.09,.20,.28) if header else ((.94,.96,.98) if shaded else (1,1,1))
             page.draw_rect(fitz.Rect(left,top,x,top+rh),color=(.76,.81,.84),fill=fill,width=.5)
-            insert(page,cell_body(value,header),top+5,rh-10,left=left+4,right=x-4)
+            rects.append([left+2,top+2,x-2,top+rh-2])
+            insert(page,cell_body(value,header,535*width/100-8),top+5,rh-10,left=left+4,right=x-4)
             x=left
+        if record is not None:
+            fragments.append(dict(record,page=page.number,rects=rects,display_values=list(values)))
         return rh
     def new_page():
         nonlocal page,y
@@ -241,23 +282,45 @@ def render(report, output, *, test_sample=False):
     try:
         new_page()
         for device in report['devices']:
+            location.clear();location.update(sheet=device['sheet'])
             title='<h2 dir="rtl">دستگاه: '+html.escape(device['device'])+'</h2><p dir="rtl">Sheet: '+html.escape(device['sheet'])+'</p>'
             if device['identity_note']:title+='<p dir="rtl">'+html.escape(device['identity_note'])+'</p>'
             th=height(title);hh=row_height(device['columns'],True)
-            first=row_height(device['rows'][0]['values'])
+            location['row']=device['rows'][0]['source_row']
+            first=row_height([wrap_cell(v,535*w/100-10,fonts[False]).split('\n')[0]
+                              for v,w in zip(device['rows'][0]['values'],WIDTHS)])
             if y+th+hh+first>bottom:new_page()
             y+=insert(page,title,y,th+0.2);y+=draw_row(device['columns'],y,hh,header=True)
             for i,row in enumerate(device['rows']):
-                rh=row_height(row['values'])
-                if y+rh>bottom:
-                    new_page();y+=insert(page,title,y,th+0.2);y+=draw_row(device['columns'],y,hh,header=True)
-                if y+rh>bottom:raise ValueError('Single record exceeds A4 page; no data truncated')
-                y+=draw_row(row['values'],y,rh,shaded=i%2==0)
+                location['row']=row['source_row']
+                lines=[wrap_cell(v,535*w/100-10,fonts[False]).split('\n') for v,w in zip(row['values'],WIDTHS)]
+                offset=0;total=max(map(len,lines))
+                while offset<total:
+                    def chunk(count):
+                        raw=['\n'.join(v[offset:offset+count]) for v in lines]
+                        shown=list(raw)
+                        if offset:
+                            shown[:2]=row['values'][:2] # Repeat the record identity on continuation pages.
+                        return raw,shown
+                    lo,hi=0,min(36,total-offset)
+                    while lo<hi:
+                        mid=(lo+hi+1)//2
+                        if y+row_height(chunk(mid)[1])<=bottom:lo=mid
+                        else:hi=mid-1
+                    if not lo:
+                        new_page();y+=insert(page,title,y,th+0.2);y+=draw_row(device['columns'],y,hh,header=True)
+                        if y+row_height(chunk(1)[1])>bottom:raise ReportFailure('pdf_layout',stage='layout',**location)
+                        continue
+                    raw,shown=chunk(lo);rh=row_height(shown)
+                    y+=draw_row(shown,y,rh,shaded=i%2==0,record={
+                        'sheet':device['sheet'],'source_row':row['source_row'],'values':raw})
+                    offset+=lo
             y+=12
         for i,p in enumerate(doc):
             insert(p,f'<p dir="rtl">صفحه {i+1} از {len(doc)} | {report["date"]}</p>',810,20)
         doc.set_metadata({'title':TITLE+' '+report['date'],'subject':'test sample' if test_sample else 'maintenance daily','author':COMPANY})
         doc.subset_fonts();canonical_unicode_maps(doc);doc.save(temporary,garbage=4,deflate=True,no_new_id=True);doc.close()
+        report['pdf_layout']=fragments
         validation=validate_pdf(temporary,report,test_sample=test_sample)
         os.replace(temporary,output);return validation
     finally:
@@ -301,7 +364,7 @@ def text_key(v):
     v=unicodedata.normalize('NFKC',v).replace('ي','ی').replace('ك','ک').replace('\u00ad','-')
     return re.sub(r'[\s()\u200c\u200e\u200f]+','',v)
 
-def validate_pdf(path,report,*,test_sample=False):
+def _validate_pdf(path,report,*,test_sample=False):
     import fitz
     path=Path(path)
     if not path.is_file() or not 0<path.stat().st_size<45*1024*1024:raise ValueError('Unreadable or oversized PDF')
@@ -315,20 +378,41 @@ def validate_pdf(path,report,*,test_sample=False):
             # Force renderer to validate page resources as well as searchable content.
             p.get_pixmap(matrix=fitz.Matrix(.5,.5));texts.append(t)
         combined=text_key('\n'.join(texts))
+        layout=report.get('pdf_layout')
+        if layout is not None:
+            for fragment in layout:
+                for value,rect in zip(fragment['display_values'],fragment['rects']):
+                    actual=text_key(pdf[fragment['page']].get_text(clip=fitz.Rect(rect)))
+                    if value and text_key(value) not in actual:
+                        raise ReportFailure('pdf_validation',stage='validation',sheet=fragment['sheet'],row=fragment['source_row'])
         for d in report['devices']:
             if text_key(d['device']) not in combined or text_key('Sheet: '+d['sheet']) not in combined:raise ValueError('Device section missing')
             for row in d['rows']:
-                for value in row['values']:
-                    if value and text_key(value) not in combined:raise ValueError('Source text missing from searchable PDF')
+                if layout is not None:
+                    parts=[f for f in layout if f['sheet']==d['sheet'] and f['source_row']==row['source_row']]
+                    if not parts:raise ValueError('Source record missing from PDF layout')
+                    for column,value in enumerate(row['values']):
+                        if text_key(value)!=text_key(''.join(p['values'][column] for p in parts)):
+                            raise ReportFailure('pdf_validation',stage='validation',sheet=d['sheet'],row=row['source_row'],column=column+1)
+                else:
+                    for value in row['values']:
+                        if value and text_key(value) not in combined:raise ValueError('Source text missing from searchable PDF')
         if text_key(TITLE) not in combined:raise ValueError('Persian text is not searchable')
         if test_sample and text_key('نمونه آزمایشی قالب گزارش') not in combined:raise ValueError('Test label missing')
         return {'pages':pdf.page_count,'bytes':path.stat().st_size,'searchable':True,'vector':True,'devices':report['devices_matched'],'rows':report['rows_matched'],'date':report['date'],'pdf_sha256':hashlib.sha256(path.read_bytes()).hexdigest()}
 
+def validate_pdf(path,report,*,test_sample=False):
+    try:return _validate_pdf(path,report,test_sample=test_sample)
+    except ReportFailure:raise
+    except ValueError as exc:raise ReportFailure('pdf_validation',stage='validation') from exc
+
 def build(date, output_dir, reader=None):
     date=exact_date(date)
     with source_snapshot(reader) as (data,digest):
-        report=scan(data,date)
+        try:report=scan(data,date)
+        except Exception as exc:raise classify(exc,'source') from exc
         if not report['devices']:return {'status':'skipped','reason':'no_target_date_records','report':report}
         path=Path(output_dir)/('maintenance-daily-'+date.replace('/','-')+'.pdf')
-        validation=render(report,path)
+        try:validation=render(report,path)
+        except Exception as exc:raise classify(exc,'layout') from exc
         return {'status':'ready','report':report,'pdf':str(path),'validation':validation}

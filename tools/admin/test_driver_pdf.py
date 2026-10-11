@@ -62,14 +62,15 @@ class DriverPDFTests(AdminFixture,unittest.TestCase):
         with patch('integrations.hermes.function_domain.driver_report.build_driver_pdf',side_effect=revoke),patch('tools.scheduler.tasks.BaleSender') as sender:
             result=driver_daily('101',{'date':'1405/07/10'},authorization=self.auth)
         self.assertEqual(result['status'],'skipped');sender.assert_not_called()
-    def test_eight_disabled_and_nine_ten_preserved(self):
+    def test_report_times_and_one_hour_preflight(self):
         import yaml
         config=yaml.safe_load(Path('settings/schedules.yaml').read_text(encoding='utf-8'))
         jobs={job['id']:job for job in config['schedules']}
         for name in ('repairs_daily','metalwork_daily'):self.assertFalse(jobs[name]['enabled'])
-        for name,hour in [('overflow_daily_test',9),('driver_daily_office_supervisor',10)]:
+        self.assertEqual(config['preflight'],{'enabled':True,'hours':[8,11]})
+        for name,hour,cap in [('overflow_daily_test',12,'reports.overflow.daily_receive'),('driver_daily_office_supervisor',9,'reports.driver_daily.daily_receive')]:
             self.assertTrue(jobs[name]['enabled']);self.assertEqual(jobs[name]['trigger']['hour'],hour)
-            self.assertEqual(jobs[name]['recipient_role'],'office_supervisor')
+            self.assertEqual(jobs[name]['recipient_capability'],cap)
             self.assertEqual(jobs[name]['timezone'],'Asia/Tehran')
             self.assertNotIn('recipient',jobs[name])
     def test_wrong_day_or_wrong_document_count_cannot_be_sent(self):

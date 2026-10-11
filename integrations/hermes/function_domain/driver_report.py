@@ -119,9 +119,11 @@ def build_driver_pdf(date, output_dir, reader=None, *, sections=None, missing_re
         raise ValueError('Invalid driver PDF sections')
     from tempfile import TemporaryDirectory
     from tools.fleet.repairs.report import export_pdf, section_columns
+    from tools.scheduler.report_errors import ReportFailure,classify
     reader=reader or ScopedReader()
     data=reader.snapshot(SOURCE_NAME)
-    report=load_driver(date,reader,data=data)
+    try:report=load_driver(date,reader,data=data)
+    except Exception as exc:raise classify(exc,'source') from exc
     if missing_result and all(report['sections'][section]['status']=='date_missing' for section in selected):
         return {'ok':False,'reason':'date_missing','report':report,'documents':[]}
     out=Path(output_dir).resolve();out.mkdir(parents=True,exist_ok=True)
@@ -134,8 +136,10 @@ def build_driver_pdf(date, output_dir, reader=None, *, sections=None, missing_re
             path=out/f'driver-{section}-{report["date"].replace("/","-")}.pdf'
             content=report['sections'][section]
             if content['status']=='ready':
-                columns=section_columns(snapshot,report['sheet'],section)
-                export_pdf(snapshot,report['sheet'],path,work,columns)
+                try:columns=section_columns(snapshot,report['sheet'],section)
+                except Exception as exc:raise classify(exc,'source') from exc
+                try:export_pdf(snapshot,report['sheet'],path,work,columns)
+                except Exception as exc:raise ReportFailure('pdf_export',stage='export',sheet=report['sheet']) from exc
             else:
                 render_pdf_notice(report,section,path)
             import fitz

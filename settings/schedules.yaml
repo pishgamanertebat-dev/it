@@ -2,6 +2,9 @@
 version: 1
 timezone: Asia/Tehran
 misfire_grace_seconds: 900
+preflight:
+  enabled: true
+  hours: [8, 11]
 schedules:
   - id: overflow_daily_test
     enabled: true

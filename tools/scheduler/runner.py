@@ -19,6 +19,7 @@ import yaml
 from tools.authorization import AuthorizationStore, OFFICE_SUPERVISOR, DRIVER_RECEIVE
 from tools.authorization.office_delivery import OFFICE_TASKS
 from . import office_receipts
+from .report_errors import REPORT_FAILURES, ReportFailure, classify as classify_report_failure
 from .misfire import (
     RETRYABLE_FAILURE, RETRYABLE_SKIP, SKIP_MISSED_SLACK_SECONDS, TERMINAL_FAILURE,
     backoff_delay, due_storage_key, latest_due, outcome_from_receipts, replay_plan)
@@ -76,7 +77,9 @@ def validate_external_misfire(entries):
 
 def load_config(path=CONFIG, registry=TASKS):
     config = yaml.safe_load(Path(path).read_text(encoding='utf-8'))
-    only_keys(config, ['version', 'timezone', 'misfire_grace_seconds', 'schedules', 'external_misfire'], 'config')
+    only_keys(config, ['version', 'timezone', 'misfire_grace_seconds', 'schedules', 'external_misfire', 'preflight'], 'config')
+    from .preflight import validate_config as validate_preflight
+    preflight_hours=validate_preflight(config.get('preflight'))
     if type(config.get('version')) is not int or config['version'] != 1:
         raise ValueError('version must be 1')
     tz = config.get('timezone', 'local')
@@ -92,6 +95,7 @@ def load_config(path=CONFIG, registry=TASKS):
         only_keys(raw, ['id', 'enabled', 'task', 'recipient', 'recipient_role', 'recipient_capability',
                         'timezone', 'trigger', 'params', 'misfire'], 'schedule')
         job = dict(raw)
+        job['preflight_hours']=preflight_hours if job.get('task') in REPORT_TASKS else ()
         name = job.get('id')
         if not isinstance(name, str) or not re.fullmatch(r'[A-Za-z0-9_-]{1,80}', name) or name in ids:
             raise ValueError('Every schedule needs a unique, stable ASCII id')
@@ -173,7 +177,7 @@ def connect(path):
         conn.execute('ALTER TABLE runs ADD COLUMN attempt INTEGER NOT NULL DEFAULT 0')
     if 'next_attempt_at' not in columns:
         conn.execute('ALTER TABLE runs ADD COLUMN next_attempt_at TEXT')
-    for name in ('data_state', 'notice_delivery_state'):
+    for name in ('data_state', 'notice_delivery_state', 'error_detail'):
         if name not in columns:
             conn.execute(f'ALTER TABLE runs ADD COLUMN {name} TEXT')
     # Transactional migration: legacy receipts retain their report identity. Known
@@ -327,6 +331,7 @@ def _execute(conn, job, due, now, registry, authorization, replay, previous):
     key = (job['id'], due_storage_key(due))
     logger.info('Starting %s due=%s recipient=%s', *key, job['recipient'])
     status, error, process_failed, result = 'succeeded', None, False, None
+    error_detail = None
     try:
         recipient = job['recipient']
         params = dict(job['params'])
@@ -381,10 +386,15 @@ def _execute(conn, job, due, now, registry, authorization, replay, previous):
                 status, error = 'waiting_for_data', result['reason']
             if isinstance(result, dict) and result.get('status') == 'failed':
                 status, error, process_failed = 'failed', result.get('reason', 'delivery_failed'), True
+                if error=='invalid_source':
+                    failure=ReportFailure('source_invalid',stage='source')
+                    error,error_detail=failure.code,failure.serialized()
             if isinstance(result, dict) and result.get('status') == 'skipped':
                 status, error = 'skipped', result['reason']
             if isinstance(result, dict) and result.get('status') == 'uncertain':
                 status, error, process_failed = 'uncertain', result.get('reason', 'uncertain'), True
+    except ReportFailure as exc:
+        status, error, error_detail, process_failed = 'failed', exc.code, exc.serialized(), True
     except TransportUncertain:
         status, error, process_failed = 'uncertain', 'TransportUncertain', True
     except (TransportUnavailable, TransportRejected, OSError) as exc:
@@ -392,6 +402,11 @@ def _execute(conn, job, due, now, registry, authorization, replay, previous):
     except Exception as exc:
         # Persist the exception class only: third-party errors can contain secrets.
         status, error, process_failed = 'failed', type(exc).__name__, True
+        if job['task'] in REPORT_TASKS and registry[job['task']][1] is TASKS[job['task']][1]:
+            failure = classify_report_failure(exc, 'source' if isinstance(exc,ValueError) else 'generation')
+            error, error_detail = failure.code, failure.serialized()
+    if error_detail is not None:
+        logger.error('Report failure schedule=%s code=%s detail=%s',job['id'],error,error_detail)
     if replay:
         status, error, process_failed = _adjust_replay(status, error, result)
         states = _receipt_states(conn, key)
@@ -416,14 +431,16 @@ def _execute(conn, job, due, now, registry, authorization, replay, previous):
         finished = datetime.now(timezone.utc).isoformat()
         with conn:
             conn.execute('''UPDATE runs SET status=?,finished=?,error=?,attempt=?,next_attempt_at=?,
-                            data_state=COALESCE(?,data_state),notice_delivery_state=COALESCE(?,notice_delivery_state) WHERE schedule_id=? AND due=?''',
+                            data_state=COALESCE(?,data_state),notice_delivery_state=COALESCE(?,notice_delivery_state),error_detail=? WHERE schedule_id=? AND due=?''',
                          (status, finished, error, attempt, next_at,
                           'missing' if status == 'waiting_for_data' else ('ready' if status == 'succeeded' or error in {'TransportUnavailable','TransportRejected','transport_unavailable','delivery_failed'} else None),
-                          (result or {}).get('notice_delivery_state') if isinstance(result, dict) else None, *key))
+                          (result or {}).get('notice_delivery_state') if isinstance(result, dict) else None, error_detail, *key))
         target = overflow_report_date(due) if job['task'] in REPORT_TASKS else ''
         previous_status = (previous or {}).get('status')
         previous_error = (previous or {}).get('error')
-        if previous_error in RETRYABLE_SKIP or previous_status in {None, 'skipped'}:
+        if previous_error in REPORT_FAILURES:
+            reason = 'source_retry' if previous_error.startswith('source_') else 'generation_retry'
+        elif previous_error in RETRYABLE_SKIP or previous_status in {None, 'skipped'}:
             reason = 'misfire'
         elif previous_status in {'failed', 'retry_wait', 'partial', 'running'}:
             reason = 'transport_retry'
@@ -441,8 +458,8 @@ def _execute(conn, job, due, now, registry, authorization, replay, previous):
                 job['id'], due.isoformat(), receipt['recipient_id'], receipt['delivery_kind'], receipt['status'], receipt['message_id'] or '')
     else:
         with conn:
-            conn.execute('UPDATE runs SET status=?,finished=?,error=? WHERE schedule_id=? AND due=?',
-                         (status, datetime.now(timezone.utc).isoformat(), error, *key))
+            conn.execute('UPDATE runs SET status=?,finished=?,error=?,error_detail=? WHERE schedule_id=? AND due=?',
+                         (status, datetime.now(timezone.utc).isoformat(), error, error_detail, *key))
     logger.info('Completed %s status=%s error=%s', job['id'], status, error)
     return process_failed
 
@@ -454,6 +471,11 @@ def tick(config=CONFIG, state=STATE, now=None, registry=TASKS, authorization=Non
     conn = connect(state)
     try:
         _delivery_notifier(conn, jobs, now, authorization, activate=True)
+        try:
+            from .preflight import run_preflights
+            run_preflights(conn,jobs,now,authorization if authorization is not None else AuthorizationStore())
+        except Exception as exc:
+            logger.error('Report preflight failed: %s',type(exc).__name__)
         for job in jobs:
             if not job.get('enabled', True):
                 continue

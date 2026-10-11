@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
+from .report_errors import REPORT_FAILURES
 
 BACKOFF_SECONDS = (60, 120, 300, 600, 900)
 SKIP_MISSED_SLACK_SECONDS = 90
@@ -11,7 +12,7 @@ RETRYABLE_SKIP = frozenset({
 TERMINAL_FAILURE = frozenset({'invalid_source', 'ValueError'})
 RETRYABLE_FAILURE = frozenset({
     'transport_unavailable', 'delivery_failed', 'TimeoutError', 'OSError', 'PermissionError',
-    'RuntimeError', 'TransportUnavailable', 'TransportRejected', 'ConnectionError', 'ConnectTimeout'})
+    'RuntimeError', 'TransportUnavailable', 'TransportRejected', 'ConnectionError', 'ConnectTimeout'}) | REPORT_FAILURES
 
 
 def backoff_delay(attempt):

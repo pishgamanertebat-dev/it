@@ -4,6 +4,7 @@ import logging,tempfile
 from tools.authorization import AuthorizationStore
 from tools.authorization.maintenance import CAPABILITY
 from .report import build,exact_date,source_snapshot,validate_pdf
+from tools.scheduler.report_errors import ReportFailure
 ROOT=Path(__file__).resolve().parents[3]
 logger=logging.getLogger(__name__)
 
@@ -17,7 +18,7 @@ def validate_params(params):
 
 def verify_source_digest(expected):
     with source_snapshot() as (_,actual):
-        if actual!=expected:raise RuntimeError('Workbook version changed before upload')
+        if actual!=expected:raise ReportFailure('source_changed',stage='source')
 
 def deliver(recipient, params, *, authorization=None, on_receipt=None, closed=None):
     from tools.scheduler.tasks import (

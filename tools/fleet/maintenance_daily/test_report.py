@@ -4,7 +4,7 @@ Synthetic workbooks/identities and fake transports; no real messages.
 """
 from pathlib import Path
 from contextlib import closing
-from datetime import datetime,timezone
+from datetime import datetime,timezone,timedelta
 import ast,copy,hashlib,io,json,sqlite3,unittest
 from unittest.mock import Mock,patch
 from zoneinfo import ZoneInfo
@@ -274,20 +274,39 @@ class DeliveryTests(MaintenanceFixture,unittest.TestCase):
             with self.subTest(params=params),self.assertRaises(ValueError):maintenance_daily_report(None,params,authorization=self.auth)
 
 class SchedulerTests(MaintenanceFixture,unittest.TestCase):
+    def test_layout_error_retries_automatically_at_same_due_and_cannot_duplicate(self):
+        from tools.scheduler import runner
+        from tools.scheduler.report_errors import ReportFailure
+        p,base=self.config();p,_=self.config(dict(base,misfire={'policy':'replay','horizon_days':7}))
+        state=self.directory/'automatic-recovery.db';now=datetime(2026,10,6,9,0,tzinfo=ZoneInfo('Asia/Tehran'))
+        with patch.object(delivery,'build',side_effect=ReportFailure('pdf_layout',stage='layout',sheet='461',row=11,column=3)):
+            self.assertEqual(tick(p,state,now=now,authorization=self.auth),0)
+        with closing(sqlite3.connect(state)) as c:
+            row=c.execute('SELECT status,error,error_detail,next_attempt_at FROM runs').fetchone()
+            self.assertEqual(row[:2],('retry_wait','pdf_layout'));self.assertIn('461',row[2]);self.assertIsNotNone(row[3])
+        self.sender.document.side_effect=['501','502']
+        with patch.object(delivery,'build',side_effect=self.fake_build),patch.object(delivery,'validate_pdf',return_value={'pages':1,'bytes':12}),patch.object(delivery,'verify_source_digest'),patch('tools.scheduler.tasks.BaleSender',return_value=self.sender):
+            tick(p,state,now=now+timedelta(seconds=61),authorization=self.auth)
+            tick(p,state,now=now+timedelta(seconds=182),authorization=self.auth)
+        self.assertEqual(self.sender.document.call_count,2)
+        with closing(sqlite3.connect(state)) as c:
+            self.assertEqual(c.execute('SELECT status,error,error_detail FROM runs').fetchone(),('succeeded',None,None))
+            self.assertEqual(c.execute('SELECT count(*) FROM runs').fetchone()[0],1)
+
     def test_failed_generation_recovered_in_same_ledger_then_tick_cannot_duplicate(self):
         from tools.scheduler import runner
         p,base=self.config();p,_=self.config(dict(base,misfire={'policy':'replay','horizon_days':7}))
         state=self.directory/'recovery.db';now=datetime(2026,10,6,9,5,tzinfo=ZoneInfo('Asia/Tehran'))
         due=now.replace(minute=0);key=('maintenance_daily_report',runner.due_storage_key(due))
         with patch.object(delivery,'build',side_effect=ValueError('invalid workbook')):
-            self.assertEqual(tick(p,state,now=now,authorization=self.auth),1)
+            self.assertEqual(tick(p,state,now=now,authorization=self.auth),0)
         self.sender.document.assert_not_called()
         conn=runner.connect(state)
         try:
             previous=dict(conn.execute('SELECT * FROM runs').fetchone())
-            self.assertEqual(previous['status'],'failed');self.assertEqual(previous['error'],'ValueError')
+            self.assertEqual(previous['status'],'retry_wait');self.assertEqual(previous['error'],'source_invalid')
             job=runner.load_config(p)[2][0]
-            self.assertTrue(runner._claim_replay(conn,job,due,previous,now))
+            self.assertTrue(runner._claim_replay(conn,job,due,previous,now+timedelta(seconds=61)))
             self.sender.document.side_effect=['501','502']
             with patch.object(delivery,'build',side_effect=self.fake_build),patch.object(delivery,'validate_pdf',return_value={'pages':1,'bytes':12}),patch.object(delivery,'verify_source_digest'),patch('tools.scheduler.tasks.BaleSender',return_value=self.sender):
                 self.assertFalse(runner._execute(conn,job,due,now,runner.TASKS,self.auth,True,previous))
@@ -344,6 +363,35 @@ class SchedulerTests(MaintenanceFixture,unittest.TestCase):
         with closing(sqlite3.connect(state)) as c:self.assertEqual(c.execute('SELECT status,error FROM runs').fetchall(),[('failed','delivery_failed')])
 
 class PDFTests(AdminFixture,unittest.TestCase):
+    def test_plus_joined_names_and_unspaced_text_wrap_in_every_text_column(self):
+        names='امیر رضا خراسانی+علیرضا جهانبخش+سهیل بسحاق'
+        defect='خرابیهیدرولیک'*12
+        parts='PART0123456789'*12
+        w,l=workbook([('461',[[DATE,461,names,defect,parts]])]);data=package(w);w.close()
+        r=report.scan(data,DATE,layout=l);p=self.directory/'wrapped.pdf'
+        v=report.render(r,p)
+        self.assertEqual(v['rows'],1);self.assertEqual(v['devices'],1)
+        for column,value in enumerate([DATE,'461',names,defect,parts]):
+            self.assertEqual(report.text_key(''.join(f['values'][column] for f in r['pdf_layout'])),report.text_key(value))
+        self.assertTrue(any('\n' in f['display_values'][2] for f in r['pdf_layout']))
+        self.assertTrue(any('\n' in f['display_values'][3] for f in r['pdf_layout']))
+        self.assertTrue(any('\n' in f['display_values'][4] for f in r['pdf_layout']))
+        self.assertTrue(report.validate_pdf(p,r)['searchable'])
+
+    def test_single_record_continues_on_next_page_without_losing_text(self):
+        value=' '.join('شرح عملیات '+str(i) for i in range(300))
+        w,l=workbook([('461',[[DATE,461,'مکانیک',value,'قطعه']])]);data=package(w);w.close()
+        r=report.scan(data,DATE,layout=l);p=self.directory/'continued.pdf'
+        v=report.render(r,p)
+        self.assertGreater(v['pages'],1)
+        self.assertGreater(len(r['pdf_layout']),1)
+        self.assertEqual(report.text_key(''.join(f['values'][3] for f in r['pdf_layout'])),report.text_key(value))
+        with fitz.open(p) as pdf:
+            self.assertTrue(all(DATE in page.get_text() and '461' in page.get_text() for page in pdf))
+        # Coverage validation must reject a lost fragment, even when a PDF remains readable.
+        broken=copy.deepcopy(r);broken['pdf_layout'].pop()
+        with self.assertRaises(report.ReportFailure):report.validate_pdf(p,broken)
+
     def test_discovered_devices_and_typo_are_present_in_searchable_pdf(self):
         w,l=workbook([('801',[[DATE,801,'رحمان','ORIGINAL',None]])])
         for name,title in [('717','دامپ 717'),('1256','بیل 1255'),('9901','دستگاه 9901')]:
