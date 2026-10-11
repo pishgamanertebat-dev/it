@@ -89,6 +89,8 @@ def _parse(value):
 def ensure_activation(conn, now):
     """Snapshot unresolved deliveries once, before this tick creates new ones."""
     ensure_schema(conn)
+    from .source_notice_alert import ensure_activation as activate_source_notices
+    activate_source_notices(conn, now)
     if conn.execute("SELECT 1 FROM notifier_meta WHERE key='activated_at'").fetchone():
         return False
     with conn:
@@ -612,6 +614,8 @@ def scan_delivery_exceptions(conn, jobs, now, authorization=None, *, sender_fact
     store = AuthorizationStore() if authorization is None else authorization
     operators = _operators(store)
     factory = sender_factory or _default_sender
+    from .source_notice_alert import scan_source_notices
+    scan_source_notices(conn, selected, now, store, sender_factory=factory)
     for job in selected:
         try:
             runs = list(conn.execute('SELECT * FROM runs WHERE schedule_id=?', (job['id'],)))

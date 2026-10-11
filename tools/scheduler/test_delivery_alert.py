@@ -111,8 +111,10 @@ class AlertTests(unittest.TestCase):
     def scan(self, moment):
         conn = connect(self.state)
         try:
-            scan_delivery_exceptions(
-                conn, [self.job()], moment, self.store, sender_factory=self.sender)
+            # These cases isolate transport failures; source notices have their own suite.
+            with patch('tools.scheduler.source_notice_alert.scan_source_notices'):
+                scan_delivery_exceptions(
+                    conn, [self.job()], moment, self.store, sender_factory=self.sender)
         finally:
             conn.close()
 
