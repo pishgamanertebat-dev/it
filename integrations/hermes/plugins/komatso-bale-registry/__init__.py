@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 import asyncio
+import json
 import os
 import secrets
 import sqlite3
-from gateway.pairing import PairingStore
 from datetime import datetime
 from pathlib import Path
 
@@ -535,15 +535,52 @@ def _create_request(
 
     return request_id, code
 
+def _transport_pairing_store(gateway, source):
+    """Use Gateway's live transport authority, never the processing profile home."""
+    from gateway.session_identity import identity_of
+
+    identity = identity_of(source)
+    owner = gateway._transport_owner(source)
+    primary = getattr(gateway, "_primary_profile_name", None) or "default"
+    if (identity is None or identity.transport_inferred or owner is None
+            or identity.adapter() is not owner[0]
+            or identity.transport_profile != (owner[1] or primary)
+            or _platform_name(source.platform) != "bale"
+            or source.chat_type != "dm"
+            or not source.user_id or str(source.user_id) != str(source.chat_id)):
+        raise PermissionError("Verified live Bale transport required")
+    store = gateway._pairing_store_for(source)
+    if store is None:
+        raise PermissionError("Transport pairing store unavailable")
+    return store
+
+
+def _pairing_approved(store, user_id):
+    # Admission tolerates unreadable JSON as empty; a revoke success must not.
+    try:
+        approved = json.loads(store._approved_path("bale").read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        return False
+    if not isinstance(approved, dict):
+        raise ValueError("Invalid pairing approval file")
+    return str(user_id) in approved
+
+
+def _revoke_bale_user_in_hermes(user_id, *, store):
+    _pairing_approved(store, user_id)  # Refuse corrupt/unreadable state before mutation.
+    store.revoke("bale", user_id)
+    return not _pairing_approved(store, user_id)
+
+
 def _approve_bale_user_in_hermes(
     user_id: str,
     user_name: str,
+    *,
+    store,
 ) -> bool:
 
-    store = PairingStore()
-
     # اگر قبلاً در Hermes تأیید شده باشد، کار تمام است.
-    if store.is_approved("bale", user_id):
+    if _pairing_approved(store, user_id):
         return True
 
     # اگر از تست‌های قبلی Pairing pending داشته باشد،
@@ -570,7 +607,7 @@ def _approve_bale_user_in_hermes(
         )
 
         if result:
-            return True
+            return _pairing_approved(store, user_id)
 
     # اگر هیچ pending قدیمی وجود نداشت،
     # یک Pairing داخلی می‌سازیم و همان لحظه تأییدش می‌کنیم.
@@ -588,7 +625,7 @@ def _approve_bale_user_in_hermes(
         code,
     )
 
-    return result is not None
+    return result is not None and _pairing_approved(store, user_id)
 
 
 def _handle_admin_command(
@@ -597,6 +634,8 @@ def _handle_admin_command(
     admin_chat_id: str,
     text: str,
     edit_message_id=None,
+    *,
+    source=None,
 ):
     normalized = (
         (text or "")
@@ -917,6 +956,13 @@ def _handle_admin_command(
             user_name = verified_name or display_name or user_id
 
             if reg_status == "revoked":
+                try:
+                    unpaired = not _pairing_approved(_transport_pairing_store(gateway, source), user_id)
+                except Exception:
+                    unpaired = False
+                if not unpaired:
+                    _send(gateway, admin_chat_id, "❌ وضعیت لغو در Hermes تأیید نشد؛ موفقیت اعلام نمی‌شود.")
+                    return {"action": "skip", "reason": "bale-admin-hermes-revoke-failed"}
                 _send(
                     gateway,
                     admin_chat_id,
@@ -948,10 +994,13 @@ def _handle_admin_command(
                 }
 
             try:
-                store = PairingStore()
-                store.revoke("bale", user_id)
+                hermes_ok = _revoke_bale_user_in_hermes(
+                    user_id, store=_transport_pairing_store(gateway, source))
             except Exception:
-                pass
+                hermes_ok = False
+            if not hermes_ok:
+                _send(gateway, admin_chat_id, "❌ لغو دسترسی در Hermes تأیید نشد؛ Registry تغییری نکرد.")
+                return {"action": "skip", "reason": "bale-admin-hermes-revoke-failed"}
 
             now = _now()
             conn.execute(
@@ -1014,6 +1063,10 @@ def _handle_admin_command(
                 "action": "skip",
                 "reason": "bale-admin-user-deleted",
             }
+        except sqlite3.Error:
+            conn.rollback()
+            _send(gateway, admin_chat_id, "❌ ثبت لغو در Registry انجام نشد؛ وضعیت Pairing ممکن است تغییر کرده باشد. دوباره تلاش کنید.")
+            return {"action": "skip", "reason": "bale-admin-registry-revoke-failed"}
         finally:
             conn.close()
 
@@ -1274,6 +1327,13 @@ def _handle_admin_command(
             }
 
         if status == "approved":
+            try:
+                paired = _pairing_approved(_transport_pairing_store(gateway, source), target_user_id)
+            except Exception:
+                paired = False
+            if not paired:
+                _send(gateway, admin_chat_id, "❌ تأیید Registry با Pairing هم‌خوان نیست؛ موفقیت اعلام نمی‌شود.")
+                return {"action": "skip", "reason": "bale-admin-hermes-approval-failed"}
             _send(
                 gateway,
                 admin_chat_id,
@@ -1302,10 +1362,12 @@ def _handle_admin_command(
             _send(gateway, admin_chat_id, "❌ نام کاربر ثبت نشده است؛ ابتدا از دستور اصلاح استفاده کنید.")
             return {"action": "skip", "reason": "bale-admin-name-required"}
 
-        hermes_ok = _approve_bale_user_in_hermes(
-            target_user_id,
-            candidate_name,
-        )
+        try:
+            hermes_ok = _approve_bale_user_in_hermes(
+                target_user_id, candidate_name,
+                store=_transport_pairing_store(gateway, source))
+        except Exception:
+            hermes_ok = False
 
         if not hermes_ok:
             _send(
@@ -1394,6 +1456,10 @@ def _handle_admin_command(
             "reason": "bale-admin-request-approved",
         }
 
+    except sqlite3.Error:
+        conn.rollback()
+        _send(gateway, admin_chat_id, "❌ ثبت عملیات در Registry انجام نشد؛ وضعیت Pairing ممکن است تغییر کرده باشد. دوباره تلاش کنید.")
+        return {"action": "skip", "reason": "bale-admin-registry-approval-failed"}
     finally:
         conn.close()
 
@@ -1589,6 +1655,7 @@ def _handle_bale(event, gateway, **kwargs):
             chat_id,
             command_text,
             edit_message_id=edit_message_id,
+            source=source,
         )
 
         if result is not None:

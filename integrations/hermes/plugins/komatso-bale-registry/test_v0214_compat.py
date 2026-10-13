@@ -5,6 +5,7 @@ Run this file directly with Python -B; all state is temporary, all IDs synthetic
 No gateway is constructed and operational report/menu handlers are mocked.
 """
 import asyncio
+import json
 from contextlib import closing
 import os
 from pathlib import Path
@@ -12,6 +13,7 @@ import socket
 import sqlite3
 import sys
 import tempfile
+import weakref
 from types import SimpleNamespace
 import unittest
 from unittest.mock import AsyncMock, Mock, patch
@@ -50,7 +52,6 @@ class RegistryCompatibilityTests(unittest.TestCase):
         platform_registry.register(PlatformEntry(name="bale", label="Bale",
             adapter_factory=lambda config: None, check_fn=lambda: True))
         self.addCleanup(platform_registry.unregister, "bale")
-        self.patch(patch.object(pairing, "PAIRING_DIR", self.home / "pairing"))
         self.PairingStore = pairing.PairingStore
         self.MessageEvent, self.MessageType = MessageEvent, MessageType
         self.SessionSource, self.Platform = SessionSource, Platform
@@ -71,8 +72,28 @@ class RegistryCompatibilityTests(unittest.TestCase):
         for name in ("_handle_overflow_report", "_handle_work_order_menu"):
             self.patch(patch.object(self.bale, name, return_value=None))
         self.patch(patch.object(self.bale, "_revoke_reply_keyboard"))
-        self.adapter = SimpleNamespace(send=AsyncMock())
-        self.gateway = SimpleNamespace(adapters={"bale": self.adapter, "telegram": self.adapter})
+        from gateway.authz_mixin import GatewayAuthorizationMixin
+        from gateway.profile_routing import ProfileRoute, match_profile_route
+        class Adapter:
+            send = AsyncMock()
+        class TestGateway(GatewayAuthorizationMixin):
+            pass
+        self.adapter = Adapter()
+        self.gateway = TestGateway()
+        self.gateway.adapters = {self.Platform("bale"): self.adapter, self.Platform("telegram"): self.adapter}
+        self.gateway._primary_profile_name = "default"
+        self.gateway.config = SimpleNamespace(multiplex_profiles=True)
+        self.gateway._profile_adapters = {}
+        self.gateway.pairing_store = self.PairingStore(profile="default")
+        self.gateway.pairing_stores = {"default": self.gateway.pairing_store}
+        routes = [ProfileRoute(name="test-admin", platform="bale", user_id="synthetic-admin", profile="maintenance")]
+        def route(source, adapter_profile=None):
+            found = match_profile_route(routes, str(source.platform.value), user_id=source.user_id,
+                                        chat_id=source.chat_id, adapter_profile=adapter_profile)
+            return found.profile if found else None
+        self.gateway._profile_name_for_source = route
+        self.gateway._resolve_profile_home_for_source = lambda source: self.home / "profiles" / source.profile
+        (self.home / "profiles/maintenance").mkdir(parents=True)
 
     def patch(self, patcher):
         value = patcher.start()
@@ -80,10 +101,14 @@ class RegistryCompatibilityTests(unittest.TestCase):
         return value
 
     def event(self, text="hello", user="synthetic-user", platform="bale", chat_type="dm"):
-        return self.MessageEvent(text=text, message_type=self.MessageType.TEXT,
+        from gateway.session_identity import resolve_identity
+        event = self.MessageEvent(text=text, message_type=self.MessageType.TEXT,
             source=self.SessionSource(platform=self.Platform(platform), user_id=user,
                 chat_id=user, chat_type=chat_type, user_name="Synthetic Name"),
             channel_prompt="existing policy")
+        event.source._transport_adapter_ref = weakref.ref(self.adapter)
+        resolve_identity(event.source, runner=self.gateway, primary_home=self.home)
+        return event
 
     def dispatch(self, event):
         async def run():
@@ -115,18 +140,18 @@ class RegistryCompatibilityTests(unittest.TestCase):
             code = self.bale._active_request(conn, "synthetic-user")[1]
         result = self.dispatch(self.event("تایید " + code, user="synthetic-admin"))
         self.assertEqual(result[0]["reason"], "bale-admin-request-approved")
-        self.assertTrue(self.PairingStore().is_approved("bale", "synthetic-user"))
+        self.assertTrue(self.gateway.pairing_store.is_approved("bale", "synthetic-user"))
         self.assertEqual(self.dispatch(self.event()), [])
         event = self.event(self.bale.NEW_CHAT_LABEL)
         self.assertEqual(self.dispatch(event), [])
         self.assertEqual(event.text, "/new")
 
     def test_pairing_existing_and_pending_contract(self):
-        store = self.PairingStore()
+        store = self.gateway.pairing_store
         store.generate_code("bale", "synthetic-pending", "Synthetic")
-        self.assertTrue(self.bale._approve_bale_user_in_hermes("synthetic-pending", "Synthetic"))
+        self.assertTrue(self.bale._approve_bale_user_in_hermes("synthetic-pending", "Synthetic", store=store))
         self.assertTrue(store.is_approved("bale", "synthetic-pending"))
-        self.assertTrue(self.bale._approve_bale_user_in_hermes("synthetic-pending", "Synthetic"))
+        self.assertTrue(self.bale._approve_bale_user_in_hermes("synthetic-pending", "Synthetic", store=store))
         self.assertTrue(store.revoke("bale", "synthetic-pending"))
         self.assertFalse(store.is_approved("bale", "synthetic-pending"))
 
@@ -140,6 +165,158 @@ class RegistryCompatibilityTests(unittest.TestCase):
         self.assertEqual(result[0]["reason"], "bale-admin-hermes-approval-failed")
         with closing(self.bale._connect()) as conn:
             self.assertNotEqual(self.bale._user_status(conn, "synthetic-user"), "approved")
+
+    def pending_command(self):
+        self.dispatch(self.event("درخواست"))
+        self.dispatch(self.event("Synthetic Full Name"))
+        with closing(self.bale._connect()) as conn:
+            code = self.bale._active_request(conn, "synthetic-user")[1]
+        return "تایید " + code
+
+    def admin(self, command, *, event=None):
+        self.patch(patch.object(self.bale, "_send"))
+        return self.bale._handle_bale(event or self.event(command, user="synthetic-admin"), self.gateway)
+
+    def registry_status(self):
+        with closing(self.bale._connect()) as conn:
+            return self.bale._user_status(conn, "synthetic-user")
+
+    def test_routed_maintenance_approve_revoke_alternating_homes_preserves_other_users(self):
+        from hermes_constants import set_hermes_home_override, reset_hermes_home_override
+        store = self.gateway.pairing_store
+        code = store.generate_code("bale", "synthetic-existing", "Existing")
+        store.approve_code("bale", code)
+        existing = json.loads(store._approved_path("bale").read_text())["synthetic-existing"]
+        command = self.pending_command()
+        for home in (self.home / "profiles/maintenance", self.home, self.home / "profiles/maintenance"):
+            token = set_hermes_home_override(home)
+            try:
+                event = self.event(command, user="synthetic-admin")
+                self.assertEqual(event.source.profile, "maintenance")
+                self.assertIs(self.bale._transport_pairing_store(self.gateway, event.source), store)
+                self.assertEqual(self.admin(command, event=event)["reason"], "bale-admin-request-approved")
+                self.assertTrue(store.is_approved("bale", "synthetic-user"))
+                self.assertEqual(self.registry_status(), "approved")
+                self.assertEqual(self.admin("حذف synthetic-user")["reason"], "bale-admin-user-deleted")
+                self.assertFalse(store.is_approved("bale", "synthetic-user"))
+                self.assertEqual(self.registry_status(), "revoked")
+                self.assertEqual(json.loads(store._approved_path("bale").read_text())["synthetic-existing"], existing)
+                self.assertFalse((home / "platforms/pairing/bale-approved.json").exists() if home != self.home else False)
+                store._rate_limit_path().unlink(missing_ok=True)
+            finally:
+                reset_hermes_home_override(token)
+            command = self.pending_command()
+
+    def test_independent_transport_uses_its_own_store_not_primary_or_runtime(self):
+        from gateway.session_identity import clear_identity, resolve_identity
+        from hermes_constants import set_hermes_home_override, reset_hermes_home_override
+        class Adapter:
+            pass
+        adapter = Adapter()
+        (self.home / "profiles/net").mkdir()
+        store = self.PairingStore(profile="net")
+        self.gateway.pairing_stores["net"] = store
+        self.gateway._profile_adapters["net"] = {self.Platform("bale"): adapter}
+        command = self.pending_command()
+        for text, reason in [(command, "bale-admin-request-approved"), ("حذف synthetic-user", "bale-admin-user-deleted")]:
+            event = self.event(text, user="synthetic-admin")
+            clear_identity(event.source)
+            event.source.profile = "maintenance"
+            event.source._transport_adapter_ref = weakref.ref(adapter)
+            resolve_identity(event.source, runner=self.gateway, primary_home=self.home)
+            token = set_hermes_home_override(self.home / "profiles/maintenance")
+            try:
+                self.assertIs(self.bale._transport_pairing_store(self.gateway, event.source), store)
+                self.assertEqual(self.admin(text, event=event)["reason"], reason)
+            finally:
+                reset_hermes_home_override(token)
+        self.assertFalse(self.gateway.pairing_store.is_approved("bale", "synthetic-user"))
+        self.assertFalse(store.is_approved("bale", "synthetic-user"))
+
+    def test_untrusted_inferred_mismatched_or_missing_transport_denied(self):
+        from dataclasses import replace
+        command = self.pending_command()
+        for kind in ("dictionary", "inferred", "mismatched", "unregistered", "no-store"):
+            event = self.event(command, user="synthetic-admin")
+            event.source.transport_profile = "default"  # Free text is never authority.
+            if kind == "dictionary":
+                event.source._identity = {"transport_profile": "default"}
+            elif kind == "inferred":
+                event.source._identity = replace(event.source._identity, transport_inferred=True)
+            elif kind == "mismatched":
+                event.source._identity = replace(event.source._identity, transport_profile="net")
+            elif kind == "unregistered":
+                self.gateway.adapters = {}
+            else:
+                self.gateway.pairing_store = None
+            self.assertEqual(self.admin(command, event=event)["reason"], "bale-admin-hermes-approval-failed")
+            self.assertEqual(self.registry_status(), "pending_approval")
+            self.gateway.adapters = {self.Platform("bale"): self.adapter}
+
+    def test_pairing_write_failure_or_false_success_never_approves_registry(self):
+        command = self.pending_command()
+        store = self.gateway.pairing_store
+        for failure in (OSError("fixture write failure"), {"user_id": "synthetic-user"}):
+            with patch.object(store, "approve_code", side_effect=failure if isinstance(failure, Exception) else None,
+                              return_value=failure if isinstance(failure, dict) else None):
+                self.assertEqual(self.admin(command)["reason"], "bale-admin-hermes-approval-failed")
+            self.assertEqual(self.registry_status(), "pending_approval")
+            store.clear_pending("bale")
+            store._rate_limit_path().unlink(missing_ok=True)
+
+    def test_pairing_revoke_failure_or_false_success_never_revokes_registry(self):
+        command = self.pending_command()
+        self.admin(command)
+        store = self.gateway.pairing_store
+        for failure in (OSError("fixture revoke failure"), True):
+            with patch.object(store, "revoke", side_effect=failure if isinstance(failure, Exception) else None,
+                              return_value=True):
+                self.assertEqual(self.admin("حذف synthetic-user")["reason"], "bale-admin-hermes-revoke-failed")
+            self.assertEqual(self.registry_status(), "approved")
+            self.assertTrue(store.is_approved("bale", "synthetic-user"))
+
+    def test_corrupt_or_unreadable_pairing_never_reports_revoke_success(self):
+        command = self.pending_command()
+        self.admin(command)
+        store = self.gateway.pairing_store
+        path = store._approved_path("bale")
+        path.write_text("not-json", encoding="utf8")
+        self.assertEqual(self.admin("حذف synthetic-user")["reason"], "bale-admin-hermes-revoke-failed")
+        self.assertEqual(self.registry_status(), "approved")
+        with patch.object(Path, "read_text", side_effect=PermissionError("fixture read failure")):
+            self.assertEqual(self.admin("حذف synthetic-user")["reason"], "bale-admin-hermes-revoke-failed")
+
+    def test_registry_commit_failure_never_reports_success_and_retry_converges(self):
+        command = self.pending_command()
+        connect = self.bale._connect
+        class CommitFailure:
+            def __init__(self):
+                self.conn = connect()
+            def __getattr__(self, name):
+                return getattr(self.conn, name)
+            def commit(self):
+                raise sqlite3.OperationalError("fixture commit failure")
+        with patch.object(self.bale, "_connect", side_effect=CommitFailure):
+            self.assertEqual(self.admin(command)["reason"], "bale-admin-registry-approval-failed")
+        self.assertEqual(self.registry_status(), "pending_approval")
+        self.assertTrue(self.gateway.pairing_store.is_approved("bale", "synthetic-user"))
+        self.assertEqual(self.admin(command)["reason"], "bale-admin-request-approved")
+        with patch.object(self.bale, "_connect", side_effect=CommitFailure):
+            self.assertEqual(self.admin("حذف synthetic-user")["reason"], "bale-admin-registry-revoke-failed")
+        self.assertEqual(self.registry_status(), "approved")
+        self.assertFalse(self.gateway.pairing_store.is_approved("bale", "synthetic-user"))
+        self.assertEqual(self.admin("حذف synthetic-user")["reason"], "bale-admin-user-deleted")
+        self.assertEqual(self.registry_status(), "revoked")
+
+    def test_already_status_does_not_mask_pairing_disagreement(self):
+        command = self.pending_command()
+        self.admin(command)
+        self.gateway.pairing_store.revoke("bale", "synthetic-user")
+        self.assertEqual(self.admin(command)["reason"], "bale-admin-hermes-approval-failed")
+        self.status("synthetic-user", "revoked")
+        self.gateway.pairing_store._rate_limit_path().unlink(missing_ok=True)
+        self.bale._approve_bale_user_in_hermes("synthetic-user", "Synthetic", store=self.gateway.pairing_store)
+        self.assertEqual(self.admin("حذف synthetic-user")["reason"], "bale-admin-hermes-revoke-failed")
 
     def test_rejected_revoked_and_callback_gates(self):
         for status, reason in (("rejected", "bale-registration-rejected"),

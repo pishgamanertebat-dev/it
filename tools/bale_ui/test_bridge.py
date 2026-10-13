@@ -95,6 +95,8 @@ class BridgeTests(unittest.IsolatedAsyncioTestCase):
         finally:
             conn.close()
         with patch.object(plugin, '_send') as send, \
+             patch.object(plugin, '_transport_pairing_store', return_value=object()), \
+             patch.object(plugin, '_revoke_bale_user_in_hermes', return_value=True), \
              patch('tools.bale_ui.runtime.revoke_reply_menu') as revoke:
             result = plugin._handle_admin_command(None, '9', '9', 'حذف 42')
         self.assertEqual(result['reason'], 'bale-admin-user-deleted')
@@ -169,7 +171,7 @@ class ApprovedMenuRenderingTests(unittest.TestCase):
                          patch.object(plugin, '_admin_ids', return_value=set()), \
                          patch.object(plugin, '_send'), \
                          patch.object(runtime, '_reply_menu_role', return_value=role), \
-                         patch('tools.fleet.repairs.entry_bale.permitted', return_value=bool(role)), \
+                         patch('tools.fleet.repairs.entry_bale.menu_permitted', return_value=bool(role)), \
                          patch.object(runtime.reply_presenter, 'present') as present, \
                          patch.object(runtime, 'revoke_reply_menu'), \
                          patch.object(runtime.router, 'dispatch', return_value=None), \
