@@ -1,0 +1,161 @@
+--- scripts/mine_file_sync.py
++++ scripts/mine_file_sync.py
+@@ -189,21 +189,38 @@
+ FAULT_REPORT = Path("E:/Function/گزارش روزانه رانندگان2.xlsx")
+ 
+ 
+-def publish_fault_report(staged, destination):
++def publish_fault_report(staged, destination, pulse=lambda **kw: None):
+     """The single shared fault workbook uses the project journal and atomic writer."""
+     project = Path('E:/KomatsoAI')
+-    try:
+-        result = subprocess.run([str(project / '.venv/Scripts/python.exe'),
+-            '-E', '-s', '-B', '-X', 'utf8', '-m', 'tools.fleet.repairs.sync_service',
++    # Launch the native project interpreter, not the Windows venv redirector;
++    # a timeout must terminate the process that actually performs the merge.
++    cfg = dict(line.split(' = ', 1) for line in (project / '.venv/pyvenv.cfg').read_text().splitlines() if ' = ' in line)
++    interpreter = Path(cfg['home']) / 'python.exe'
++    bootstrap = ('import sys,runpy;sys.path.insert(0,' + repr(str(project / '.venv/Lib/site-packages')) +
++                 ');runpy.run_module("tools.fleet.repairs.sync_service",run_name="__main__")')
++    process = subprocess.Popen([str(interpreter),
++            '-E', '-s', '-B', '-X', 'utf8', '-c', bootstrap,
+             '--staged', str(staged), '--destination', str(destination)],
+-            cwd=project, capture_output=True, timeout=180,
++            cwd=project, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+             creationflags=subprocess.CREATE_NO_WINDOW)
+-    except subprocess.TimeoutExpired as exc:
+-        raise OSError('FAULT_SYNC_TIMEOUT: outcome will be recovered from journal on retry') from exc
+-    if result.returncode:
+-        message = result.stdout.decode('utf8', errors='replace').strip()
++    deadline = time.monotonic() + 180
++    try:
++        while True:
++            pulse(force=True)
++            try:
++                stdout, stderr = process.communicate(timeout=min(1, max(.01, deadline-time.monotonic())))
++                break
++            except subprocess.TimeoutExpired:
++                if time.monotonic() >= deadline:
++                    raise OSError('FAULT_SYNC_TIMEOUT: outcome will be recovered from journal on retry')
++    finally:
++        if process.poll() is None:
++            process.kill()
++            process.wait(timeout=REAP_SECONDS)
++    if process.returncode:
++        message = stdout.decode('utf8', errors='replace').strip()
+         raise OSError(message or 'FAULT_SYNC_WORKER_FAILED: current local file preserved')
+-    LOG.info('fault_merge %s', result.stdout.decode('utf8', errors='replace').strip())
++    LOG.info('fault_merge %s', stdout.decode('utf8', errors='replace').strip())
+ 
+ 
+ def atomic_copy(source, destination, before, pulse):
+@@ -233,7 +250,7 @@
+                 raise SourceChanged(str(source))
+             os.utime(temporary, ns=(before.st_atime_ns, before.st_mtime_ns))
+             if destination.resolve() == FAULT_REPORT.resolve():
+-                publish_fault_report(temporary, destination)
++                publish_fault_report(temporary, destination, pulse=pulse)
+             else:
+                 os.replace(temporary, destination)
+     finally:
+@@ -241,6 +258,7 @@
+             temporary.unlink(missing_ok=True)
+         except OSError:
+             LOG.warning("staging_cleanup_retry path=%s", temporary)
++            pulse(force=True, cleanup_temporary=str(temporary))
+ 
+ 
+ def empty_result():
+@@ -434,6 +452,9 @@
+ 
+     def pulse(force=False, **values):
+         nonlocal last_pulse
++        pending = values.pop('cleanup_temporary', None)
++        if pending:
++            result.setdefault('cleanup_pending', []).append(pending)
+         result.update(values)
+         now = time.monotonic()
+         if force or now - last_pulse >= 1.0:
+@@ -564,6 +585,49 @@
+         api.CloseHandle(handle)
+ 
+ 
++def cleanup_report(args, record):
++    """Remove only this proven-ended attempt's registered, contained staging files.
++
++    On sharing violations retain both report and lifecycle reference for retry.
++    No wildcard deletes and no cleanup while worker identity is unknown/alive.
++    """
++    if prior_worker_status(record) not in {'terminated', 'identity_replaced'}:
++        return False
++    if not record.get('report_path'):
++        return True
++    report = Path(record.get('report_path', ''))
++    if (report.parent != (args.home / 'state') or
++            not re.fullmatch(r'mine-sync-run-[a-z0-9_]+\.json', report.name) or
++            any(reparse(p) for p in (report, *report.parents))):
++        LOG.error('staging_cleanup_refused report=%s', report)
++        return False
++    try:
++        if not report.exists():
++            return True
++        # The initial mkstemp is empty; a durable staging pointer is published
++        # before any partial is created. Atomic JSON writes never empty it.
++        if record.get('worker_exit_outcome') == 'spawn_failed' or report.stat().st_size == 0:
++            report.unlink()
++            return True
++        saved = json.loads(report.read_text(encoding='utf8'))
++        if not isinstance(saved, dict):
++            raise ValueError('worker report is not an object')
++        paths = saved.get('cleanup_pending', []) + ([saved['temporary']] if saved.get('temporary') else [])
++        for name in set(paths):
++            path = Path(name)
++            if (path.parent != args.dest or not re.fullmatch(r'\.mine-sync-[a-f0-9]{32}\.partial', path.name)
++                    or any(reparse(p) for p in (path, *path.parents))):
++                LOG.error('staging_cleanup_refused path=%s', path)
++                return False
++            path.unlink(missing_ok=True)
++            LOG.info('staging_cleanup_completed path=%s', path)
++        report.unlink(missing_ok=True)
++        return True
++    except (OSError, ValueError, TypeError) as exc:
++        LOG.warning('staging_cleanup_retry report=%s exception=%s', report, exc)
++        return False
++
++
+ def worker_guard(args):
+     try:
+         record = json.loads(lifecycle_path(args).read_text(encoding='utf-8'))
+@@ -579,6 +643,9 @@
+             record.update(termination_confirmed=True, bounded_wait_result=outcome,
+                           worker_exit_outcome='prior_process_gone')
+             save_lifecycle(args, record, 'prior_worker_reconciled')
++        if not cleanup_report(args, record):
++            return dict(empty_result(), status='worker_blocked', failure_classification='staging_cleanup_pending',
++                        worker_lifecycle=record)
+         return None
+     LOG.error('worker_blocked prior_worker_status=%s record=%s', outcome, json.dumps(record))
+     return dict(empty_result(), status='worker_blocked', failure_classification='termination_unconfirmed',
+@@ -666,12 +733,7 @@
+             result.update(status='exception', failure_classification='worker_exit', exception=f'worker exited unexpectedly: {process.returncode}')
+         if not record['termination_confirmed']:
+             result.update(status='worker_blocked', failure_classification='termination_unconfirmed')
+-        temporary = result.pop('temporary', None)
+-        if temporary and record['termination_confirmed']:
+-            path = Path(temporary)
+-            if (path.is_relative_to(args.dest) and path.name.startswith('.mine-sync-')
+-                    and path.suffix == '.partial' and not any(reparse(p) for p in (path, *path.parents))):
+-                path.unlink(missing_ok=True)
++        result.pop('temporary', None)
+         return result
+     finally:
+         if process is not None and record['timeout_reason'] is None and not record['termination_confirmed']:
+@@ -682,7 +744,7 @@
+         save_lifecycle(args, record, 'attempt_end')
+         result['worker_lifecycle'] = dict(record)
+         if record['termination_confirmed']:
+-            report.unlink(missing_ok=True)
++            cleanup_report(args, record)
+ 
+ 
+ def run(args):

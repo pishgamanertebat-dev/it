@@ -444,6 +444,21 @@ def publish_candidate(source, original, candidate, db, actor, request, result, *
     if not backup.exists():
         backup.write_bytes(original)
     after = hashlib.sha256(candidate).hexdigest()
+    # Retain the exact published fault workbook as a trusted three-way baseline,
+    # including confirmed Bale edits. Never use a manually changed file as base.
+    snapshot = runtime / 'backups' / (after + '.xlsx')
+    if not snapshot.exists():
+        staged_snapshot = snapshot.with_name('.baseline-' + uuid.uuid4().hex + '.tmp')
+        try:
+            with staged_snapshot.open('xb') as stream:
+                stream.write(candidate)
+                stream.flush()
+                os.fsync(stream.fileno())
+            os.replace(staged_snapshot, snapshot)
+        finally:
+            staged_snapshot.unlink(missing_ok=True)
+    elif hashlib.sha256(snapshot.read_bytes()).hexdigest() != after:
+        raise EntryError('FAULT_SYNC_BASELINE_CORRUPT: publication denied')
     with db:
         db.execute('INSERT OR REPLACE INTO edits VALUES (?,?,?,?,?,?,?,?,?,?,?)',
             (operation, fingerprint, str(actor), str(source), json.dumps(request, ensure_ascii=False),

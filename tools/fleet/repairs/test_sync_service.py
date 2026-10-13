@@ -149,7 +149,7 @@ class FaultSyncTests(unittest.TestCase):
         with self.source.open('ab') as stream:
             stream.write(b'external local change')
         before = self.source.read_bytes()
-        with self.assertRaisesRegex(SyncConflict, 'UNJOURNALED_LOCAL_CHANGE'):
+        with self.assertRaisesRegex(EntryError, 'UNJOURNALED_LOCAL_CHANGE'):
             self.merge()
         self.assertEqual(self.source.read_bytes(), before)
 
@@ -161,6 +161,146 @@ class FaultSyncTests(unittest.TestCase):
                 self.merge()
         self.assertEqual(self.source.read_bytes(), before)
         self.assertEqual(self.merge()['status'], 'merged')
+
+    def edit_local(self, cell, text, sheet=None):
+        book = openpyxl.load_workbook(self.source)
+        try:
+            (book[sheet] if sheet else book.worksheets[0])[cell] = text
+            book.save(self.source)
+        finally:
+            book.close()
+
+    def test_manual_header_fix_and_new_mine_sheet_are_both_preserved(self):
+        self.edit_local('C1', 'corrected header: 1405/06/17')
+        self.incoming_day()
+        result = self.merge()
+        self.assertTrue(result['reconciled_local_change'])
+        self.assertEqual(result['protected_local_cells'], 1)
+        book = openpyxl.load_workbook(self.source)
+        try:
+            self.assertEqual(book.worksheets[0]['C1'].value, 'corrected header: 1405/06/17')
+            self.assertIn('mine-day-26', book.sheetnames)
+        finally:
+            book.close()
+        before = self.source.read_bytes()
+        self.assertEqual(self.merge()['status'], 'unchanged')
+        self.assertEqual(before, self.source.read_bytes())
+        self.modify_mine('H3', 'new upstream change')
+        self.merge()
+        self.assertEqual(self.values()[2], 'new upstream change')
+
+    def test_true_manual_cell_conflict_preserves_local_and_reports_values(self):
+        self.edit_local('D3', 'manual local repair')
+        self.incoming_day()
+        self.modify_mine('D3', 'different mine repair', sheet='گزارش روزانه 1405.06.17')
+        before = self.source.read_bytes()
+        with self.assertRaisesRegex(EntryError, 'LOCAL_CELL_CONFLICT.*manual local repair.*different mine repair'):
+            self.merge()
+        self.assertEqual(before, self.source.read_bytes())
+
+    def test_baseline_after_bale_edit_preserves_both_manual_and_bale(self):
+        self.incoming_day()
+        self.merge()
+        self.save('654806764', self.request('654806764', 'mechanical', 'bale fault'))
+        self.edit_local('C1', 'corrected date 1405/06/17')
+        self.merge()
+        self.assertEqual(self.values()[0], 'bale fault')
+
+    def test_manual_edit_cannot_erase_confirmed_bale_value(self):
+        self.incoming_day()
+        self.merge()
+        self.save('654806764', self.request('654806764', 'mechanical', 'bale fault'))
+        self.edit_local('D3', None, sheet='mine-day-26')
+        before = self.source.read_bytes()
+        with self.assertRaisesRegex(SyncConflict, 'BALE_LOCAL_CONFLICT'):
+            self.merge()
+        self.assertEqual(before, self.source.read_bytes())
+
+    def test_unrecognized_local_structure_preserved(self):
+        book = openpyxl.load_workbook(self.source)
+        book.worksheets[0].title = 'renamed manually'
+        book.save(self.source)
+        book.close()
+        self.incoming_day()
+        before = self.source.read_bytes()
+        with self.assertRaisesRegex(EntryError, 'LOCAL_STRUCTURE_CONFLICT'):
+            self.merge()
+        self.assertEqual(before, self.source.read_bytes())
+
+    def test_manual_correction_acknowledged_by_share_and_later_update_allowed(self):
+        self.edit_local('D3', 'correction')
+        self.incoming_day()
+        self.merge()
+        self.modify_mine('D3', 'correction', sheet='گزارش روزانه 1405.06.17')
+        self.assertEqual(self.merge()['protected_local_cells'], 0)
+        self.modify_mine('D3', 'later shared repair', sheet='گزارش روزانه 1405.06.17')
+        self.merge()
+        book = openpyxl.load_workbook(self.source)
+        self.assertEqual(book.worksheets[0]['D3'].value, 'later shared repair')
+        book.close()
+
+    def test_manual_change_followed_by_bale_commit_is_preserved(self):
+        self.incoming_day()
+        self.merge()
+        self.edit_local('C1', 'manually corrected 1405/06/17')
+        self.save('654806764', self.request('654806764', 'mechanical', 'bale after manual'))
+        self.modify_mine('H3', 'new upstream driver data')
+        self.merge()
+        self.assertEqual(self.values(), ('bale after manual', None, 'new upstream driver data'))
+        book = openpyxl.load_workbook(self.source)
+        self.assertEqual(book.worksheets[0]['C1'].value, 'manually corrected 1405/06/17')
+        book.close()
+
+    def test_confirmed_bale_edit_updates_a_manual_value_without_false_conflict(self):
+        self.incoming_day()
+        self.merge()
+        self.edit_local('D3', 'manual fault', sheet='mine-day-26')
+        self.merge()
+        self.save('654806764', self.request('654806764', 'mechanical', 'confirmed next fault'))
+        self.modify_mine('H3', 'driver update')
+        self.merge()
+        self.assertEqual(self.values(), ('confirmed next fault', None, 'driver update'))
+
+    def test_local_row_height_and_equivalent_column_groups_are_preserved(self):
+        book = openpyxl.load_workbook(self.source)
+        sheet = book.worksheets[0]
+        sheet.row_dimensions[3].height = 63
+        sheet.column_dimensions['H'].min = 8
+        sheet.column_dimensions['H'].max = 9
+        sheet.column_dimensions['H'].width = 12
+        book.save(self.source)
+        book.save(self.mine)
+        book.close()
+        # Establish an equal baseline with a grouped column range.
+        import hashlib
+        with closing(sqlite3.connect(self.root/'state/audit.sqlite3')) as db:
+            data = self.source.read_bytes()
+            sha = hashlib.sha256(data).hexdigest()
+            db.execute('UPDATE fault_sync_sources SET initial_hash=?, upstream_hash=?', (sha, sha))
+            db.commit()
+            (self.root/'state/backups'/ (sha+'.xlsx')).write_bytes(data)
+        book = openpyxl.load_workbook(self.source)
+        sheet = book.worksheets[0]
+        sheet.row_dimensions[3].height = 67.5
+        sheet.column_dimensions['H'].max = 8
+        sheet.column_dimensions['I'].min = sheet.column_dimensions['I'].max = 9
+        sheet.column_dimensions['I'].width = 12
+        book.save(self.source)
+        book.close()
+        self.incoming_day()
+        self.merge()
+        book = openpyxl.load_workbook(self.source)
+        self.assertEqual(book.worksheets[0].row_dimensions[3].height, 67.5)
+        book.close()
+
+    def test_changed_row_identity_is_reported_instead_of_applying_to_another_unit(self):
+        self.edit_local('D3', 'manual fault')
+        self.incoming_day()
+        self.modify_mine('C3', 'HD710', sheet='گزارش روزانه 1405.06.17')
+        before = self.source.read_bytes()
+        with self.assertRaisesRegex(EntryError, 'row identity changed'):
+            self.merge()
+        self.assertEqual(before, self.source.read_bytes())
 
     def test_parallel_writers_and_sync_use_the_same_lock(self):
         mechanical = self.request('654806764', 'mechanical', 'engine')
@@ -195,7 +335,7 @@ class FaultSyncTests(unittest.TestCase):
         self.incoming_day()
         shutil.copy2(self.mine, fault_incoming)
         # Sync destination is the fixture root, not E:\Function.
-        def publish(staged, target):
+        def publish(staged, target, **kwargs):
             merge_snapshot(staged, target, **self.sync_kw)
         pulse = lambda **kwargs: None
         with patch.object(module, 'FAULT_REPORT', self.source), patch.object(module, 'publish_fault_report', side_effect=publish):
