@@ -76,7 +76,7 @@ def title_cells(sheet, header_row):
 
 def discover_rule(sheet, rules):
     """Recognize an inspected header shape, without inheriting per-device exceptions."""
-    code=sheet_code(sheet.title)
+    code=mechanism_code(sheet.title)
     shapes={(r['header_row'],tuple((c,label) for c,label in r['columns']))
             for r in rules.values() if not r.get('exclude')}
     matches=[]
@@ -91,8 +91,8 @@ def discover_rule(sheet, rules):
     titles=title_cells(sheet,h)
     # Header semantics, never a legacy sheet's corrected B/C mapping, define new columns.
     return {'header_row':h,'columns':columns,'report_columns':output_columns(columns,{}),
-            'title_cells':titles,'device':display(titles[0][1]) if len(titles)==1 and title_code(titles[0][1])==code else sheet.title,
-            'date_merged_blocks':False}
+            'title_cells':titles,'device':display(titles[0][1]) if code is not None and len(titles)==1 and title_code(titles[0][1])==code else sheet.title,
+            'date_merged_blocks':False,'code_from_records':code is None}
 
 @contextmanager
 def source_snapshot(reader=None):
@@ -132,18 +132,15 @@ def scan(data, target, *, layout=None):
             if new:discovered.append(s.title)
             if rule.get('exclude'):
                 excluded.append(s.title);continue
-            code=sheet_code(s.title,rule)
+            # Descriptive names identify a section; explicit record codes identify its equipment.
+            # The first activity establishes the code, and every later activity must agree.
+            code=None if rule.get('code_from_records') else sheet_code(s.title,rule)
             h=rule['header_row'];columns=rule['columns'];indices=[c for c,_ in columns]
             expected={c:label for c,label in columns}
             actual={c.column:c.value for c in s[h] if c.value is not None}
             if actual!=expected:raise ValueError('Header differs from inspected schema: '+s.title)
             titles=title_cells(s,h)
             identity_note=rule.get('identity_note','')
-            title_mismatch=(titles!=rule['title_cells'] or any(title_code(v)!=code for _,v in titles))
-            if title_mismatch:
-                warn('device_title_mismatch',s.title,source_titles=titles,expected_code=code)
-                if not identity_note:
-                    identity_note='عنوان منبع: '+ ' / '.join(display(v) for _,v in titles)+'؛ شناسه Sheet و کد رکوردها: '+code
             date_cols=[c for c,label in columns if label=='تاریخ']
             if len(date_cols)!=1:raise ValueError('One exact date column is required')
             dc=date_cols[0];merged_dates={}
@@ -171,7 +168,12 @@ def scan(data, target, *, layout=None):
                 # A date-only template row is not a recorded activity.
                 if not any(display(values.get(c)) for c in indices if c!=dc):continue
                 raw_code=values.get(report_indices[1])
-                if mechanism_code(raw_code)!=code:
+                record_code=mechanism_code(raw_code)
+                if code is None:
+                    if record_code is None:
+                        raise ValueError(f'{s.title} row {r}, column {report_indices[1]}: explicit mechanism code required, found {raw_code!r} (date {day})')
+                    code=record_code
+                if record_code!=code:
                     detail=f'{s.title} row {r}, column {report_indices[1]}: mechanism code {raw_code!r} does not match sheet code {code} (date {day})'
                     if new or day==target:raise ValueError(detail)
                     # Legacy unrelated dates are never included or reassigned in this report.
@@ -181,6 +183,13 @@ def scan(data, target, *, layout=None):
                     vals=[day if c==dc else display(values.get(c)) for c in report_indices]
                     if any(len(v)>20000 for v in vals):raise ValueError('Cell text exceeds rendering bounds')
                     matched.append({'source_row':r,'values':vals})
+            title_mismatch=(titles!=rule['title_cells'] or any(title_code(v)!=code for _,v in titles
+                if not rule.get('code_from_records') or title_code(v) is not None))
+            if title_mismatch:
+                warn('device_title_mismatch',s.title,source_titles=titles,expected_code=code)
+                if not identity_note:
+                    basis='کد مکانیزم رکوردها: ' if rule.get('code_from_records') else 'شناسه Sheet و کد رکوردها: '
+                    identity_note='عنوان منبع: '+ ' / '.join(display(v) for _,v in titles)+'؛ '+basis+str(code)
             if matched:
                 devices.append({'sheet':s.title,'device':rule['device'],'identity_note':identity_note,
                     'columns':list(REPORT_COLUMNS),'rows':matched})

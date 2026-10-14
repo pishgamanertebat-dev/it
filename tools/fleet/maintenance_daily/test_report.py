@@ -191,6 +191,58 @@ class DynamicSheetTests(unittest.TestCase):
         self.add_sheet('9901',date='1405/07/12',code=9902)
         with self.assertRaisesRegex(ValueError,'9901 row 3.*9902'):self.scan()
 
+    def test_descriptive_sheets_discovered_from_explicit_codes_without_registration(self):
+        s=self.add_sheet('ژنراتور',kind='mechanic',code='TR1');s['A1']=None
+        s.merge_cells('A1:E1')
+        s.append(['1405/07/12','TR1','مکانیک','OLD',None]);s.append(HEAD)
+        self.add_sheet('کمپرسور',code='CP2')
+        before=package(self.book);layout_before=copy.deepcopy(self.layout)
+        r=report.scan(before,DATE,layout=self.layout)
+        self.assertEqual(r['devices'][:54],self.expected)
+        self.assertEqual(r['discovered_sheets'],['ژنراتور','کمپرسور'])
+        self.assertEqual([d['device'] for d in r['devices'][-2:]],['ژنراتور','کمپرسور'])
+        self.assertEqual(r['devices'][-2]['rows'],[{'source_row':3,'values':[DATE,'TR1','مکانیک','NEW_ژنراتور','PART_ژنراتور']}])
+        self.assertEqual(r['devices'][-1]['rows'][0]['values'][1:3],['CP2','مکانیک'])
+        self.assertEqual(self.layout,layout_before)
+        self.assertEqual(report.scan(before,DATE,layout=self.layout),r)
+        self.assertFalse(any(w['sheet'] in r['discovered_sheets'] for w in r['validation_warnings']))
+
+    def test_descriptive_sheet_invalid_data_fails_with_sheet_and_row(self):
+        for mutation in ['missing_code','prose_code','boolean_code','conflict','historical_conflict',
+                         'undated','date','formula','column','merge','swapped_values']:
+            s=self.add_sheet('ژنراتور',kind='mechanic',code='DG1')
+            if mutation=='missing_code':s['B3']=None
+            if mutation=='prose_code':s['B3']='ژنراتور'
+            if mutation=='boolean_code':s['B3']=True
+            if mutation in {'conflict','historical_conflict'}:
+                s.append([DATE if mutation=='conflict' else '1405/07/12','DG2','مکانیک','OTHER',None])
+            if mutation=='undated':s['A3']=None
+            if mutation=='date':s['A3']='yesterday'
+            if mutation=='formula':s['B3']='="DG1"'
+            if mutation=='column':s['F3']='EXTRA'
+            if mutation=='merge':s.merge_cells('B3:C3')
+            if mutation=='swapped_values':s['B3']='مکانیک';s['C3']='DG1'
+            with self.subTest(mutation=mutation),self.assertRaisesRegex(ValueError,'ژنراتور') as caught:
+                self.scan()
+            self.assertEqual(caught.exception.report_location['sheet'],'ژنراتور')
+            if mutation not in {'merge'}:self.assertIsNotNone(caught.exception.report_location['row'])
+            self.book.remove(s)
+
+    def test_descriptive_empty_template_waits_for_explicit_activity(self):
+        s=self.add_sheet('ژنراتور',kind='mechanic',code='DG1');s.delete_rows(3)
+        s.append([DATE,None,None,None,None])
+        r=self.scan();self.assertEqual(r['devices'],self.expected)
+        self.assertEqual(r['discovered_sheets'],['ژنراتور'])
+        s.append([DATE,'DG1','مکانیک','NEW',None])
+        self.assertEqual(self.scan()['devices'][-1]['rows'][0]['values'][1],'DG1')
+
+    def test_descriptive_copied_numeric_title_warns_without_replacing_record_code(self):
+        self.add_sheet('ژنراتور',title='دستگاه DG2',kind='mechanic',code='DG1')
+        r=self.scan();d=r['devices'][-1]
+        self.assertEqual(d['device'],'ژنراتور');self.assertEqual(d['rows'][0]['values'][1],'DG1')
+        self.assertIn('DG2',d['identity_note'])
+        self.assertTrue(any(w['kind']=='device_title_mismatch' and w['sheet']=='ژنراتور' for w in r['validation_warnings']))
+
 class MaintenanceFixture(AdminFixture):
     def setUp(self):
         super().setUp();migrate(self.auth,self.directory/'backups',assignments=['101','202'])
