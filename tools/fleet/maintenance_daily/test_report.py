@@ -35,6 +35,15 @@ class ExtractionTests(unittest.TestCase):
     def test_target_single_row_and_nonmatching_sheet(self):
         r=self.extract([('801',[[DATE,801,'رحمان','تعویض فیلتر','فیلتر']]),('802',[['1405/07/12',802,'شاهین','OLD',None]])])
         self.assertEqual([d['sheet'] for d in r['devices']],['801']);self.assertEqual(r['rows_matched'],1);self.assertEqual(r['sheets_scanned'],2)
+    def test_wrong_device_code_reports_identity_conflict_and_exact_source_cell(self):
+        from tools.scheduler.report_errors import RecordIdentityMismatch,classify,public_reason
+        w,l=workbook([('711',[[] for _ in range(13)]+[[DATE,709,'دو تعمیرکار','تنظیم باد',None]])])
+        with self.assertRaises(RecordIdentityMismatch) as caught:
+            report.scan(package(w),DATE,layout=l)
+        w.close();failure=classify(caught.exception,'source')
+        self.assertEqual(failure.code,'source_identity_mismatch')
+        self.assertEqual(failure.details,{'stage':'source','sheet':'711','row':16,'column':2})
+        self.assertIn('ستون 2',public_reason(failure.code,failure.serialized()))
     def test_multiple_rows_devices_exact_duplicates_and_no_leakage(self):
         row=[DATE,801,'مکانیک','NEW','قطعه'];r=self.extract([('801',[row,row,['1405/07/12',801,'مکانیک','OLD',None],row]),('802',[[DATE,802,'مکانیک','SECOND',None]])])
         self.assertEqual(r['devices_matched'],2);self.assertEqual(r['rows_matched'],4)
@@ -415,6 +424,29 @@ class SchedulerTests(MaintenanceFixture,unittest.TestCase):
         with closing(sqlite3.connect(state)) as c:self.assertEqual(c.execute('SELECT status,error FROM runs').fetchall(),[('failed','delivery_failed')])
 
 class PDFTests(AdminFixture,unittest.TestCase):
+    def test_multiple_names_visible_despite_mixed_bold_hidden_cells_and_new_sheet(self):
+        from openpyxl.cell.rich_text import CellRichText,TextBlock
+        from openpyxl.cell.text import InlineFont
+        from openpyxl.styles import Font,Alignment
+        names='علیرضا پاراج - امیررضا خراسانی\nسهیل بسحاق+علیرضا جهانبخش'
+        w,l=workbook([('711',[[DATE,711,None,'تنظیم باد لاستیک ها',None]])])
+        s=w['711'];s['C3']=CellRichText(TextBlock(InlineFont(b=True),names[:1]),TextBlock(InlineFont(b=False),names[1:]))
+        s['C3'].font=Font(color='FFFFFF',size=24);s['C3'].alignment=Alignment(wrap_text=False)
+        s.column_dimensions['C'].width=2;s.column_dimensions['C'].hidden=True
+        s.row_dimensions[3].height=8;s.row_dimensions[3].hidden=True
+        s=w.create_sheet('9901');s.append(['دستگاه 9901']);s.append(HEAD)
+        s.append([DATE,9901,names,'فعالیت',None])
+        data=package(w);w.close();r=report.scan(data,DATE,layout=l)
+        self.assertEqual(r['discovered_sheets'],['9901'])
+        self.assertEqual([d['rows'][0]['values'][2] for d in r['devices']],[names,names])
+        p=self.directory/'multiple-names.pdf';v=report.render(r,p)
+        self.assertEqual((v['devices'],v['rows']),(2,2))
+        for device in r['devices']:
+            fragments=[f for f in r['pdf_layout'] if f['sheet']==device['sheet']]
+            self.assertEqual(report.text_key(''.join(f['values'][2] for f in fragments)),report.text_key(names))
+            self.assertTrue(any('\n' in f['display_values'][2] for f in fragments))
+        self.assertTrue(report.validate_pdf(p,r)['searchable'])
+
     def test_plus_joined_names_and_unspaced_text_wrap_in_every_text_column(self):
         names='امیر رضا خراسانی+علیرضا جهانبخش+سهیل بسحاق'
         defect='خرابیهیدرولیک'*12

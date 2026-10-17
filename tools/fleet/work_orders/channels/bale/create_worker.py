@@ -34,10 +34,67 @@ def execute_request(request: dict, *, db_path=None) -> dict:
         required = {'confirm_review': ('work_orders.review',),
                     'preview': ('work_orders.read_own',),
                     'preview_latest': ('work_orders.read_own',),
+                    'resume_dispatch': ('work_orders.read_own','work_orders.send','work_orders.approve'),
+                    'delivery_pending': ('work_orders.read_own','work_orders.send','work_orders.approve'),
+                    'delivery_resolve': ('work_orders.read_own','work_orders.send','work_orders.approve'),
+                    'reissue': ('work_orders.read_own','work_orders.create','work_orders.approve'),
                     'edit': ('work_orders.read_own', 'work_orders.create')}.get(action, ('work_orders.create',))
         actor = require_work_order_permission(request.get("bale_id"), db_path=db_path, capabilities=required)
         def authorize_create():
-            require_work_order_permission(actor.bale_id, db_path=db_path, capabilities=('work_orders.create',))
+            require_work_order_permission(actor.bale_id, db_path=db_path,
+                capabilities=required if action == 'reissue' else ('work_orders.create',))
+        if action == 'resume_dispatch':
+            from tools.fleet.work_orders.core.db import connect_db
+            from tools.fleet.work_orders.core.oil_safety import current
+            con = connect_db()
+            try:
+                row = current(con,request['work_order_no'])
+                dispatch = con.execute('SELECT state FROM service_work_order_dispatch WHERE work_order_no=?',(request['work_order_no'],)).fetchone()
+                if row['work_order_type'] != 'OIL_CHANGE' or row['created_by'] != f'bale:{actor.bale_id}' or row['status'] not in {'APPROVED','SENT'} or not dispatch or dispatch['state'] not in {'READY','FAILED','SENT'}:
+                    raise ValueError('این حکم آمادهٔ ادامه نیست؛ ابتدا «بررسی ارسال» را باز کنید.')
+                return {'ok':True,'work_order_type':'OIL_CHANGE'}
+            finally:
+                con.close()
+        if action in {'delivery_pending','delivery_resolve'}:
+            from tools.fleet.work_orders.core import oil_safety
+            from tools.fleet.work_orders.core.db import connect_db
+            con = connect_db()
+            try:
+                oil_safety.migrate(con)
+                with con:
+                    con.execute('BEGIN IMMEDIATE')
+                    if action == 'delivery_pending':
+                        rows = oil_safety.pending(con,actor.bale_id,request.get('chat_id'))
+                        from datetime import datetime
+                        from zoneinfo import ZoneInfo
+                        lines = ['بررسی ارسال تعویض روغن — نتیجهٔ انتقال نامعلوم است؛ پیش از تصمیم با سرویسکار تطبیق دهید.']
+                        for row in rows:
+                            number, attempt = row['work_order_no'], row['attempt_id']
+                            started = datetime.fromtimestamp(row['claimed_at'], ZoneInfo('Asia/Tehran')).strftime('%Y-%m-%d %H:%M')
+                            lines.append(f"{number} | {row['staff_name'] or row['recipient_id']} | تلاش {attempt} | {started}\nمرحله: {'انتقال شروع شده' if row['transfer_started_at'] else 'بدون شروع انتقال ثبت‌شده'}\nرسیده است {number} {attempt} علت بررسی\nارسال مجدد مجاز است {number} {attempt} علت بررسی")
+                        if not rows:
+                            lines.append('ارسال نیازمند بررسی ندارید.')
+                        lines.append('پس از ثبت مجوز ارسال مجدد، بنویسید: ادامه ارسال شماره‌حکم. هیچ پیام قبلی بله به‌طور خودکار بررسی نمی‌شود.')
+                        return {'ok':True,'message':'\n\n'.join(lines)}
+                    state = oil_safety.resolve(con,request['work_order_no'],int(request['attempt_id']),actor.bale_id,request.get('chat_id'),request['decision'],request.get('reason',''))
+                    message = ('رسیدن حکم ثبت شد؛ ارسال مجدد مسدود است.' if state == 'SENT' else
+                               'مجوز ثبت شد؛ برای انتخاب سرویسکار و ارسال بنویسید: ادامه ارسال ' + request['work_order_no'] if state == 'READY' else 'این تصمیم قبلاً ثبت شده است؛ ارسال جدیدی انجام نشد.')
+                    return {'ok':True,'message':message}
+            finally:
+                con.close()
+        if action == 'reissue':
+            old = service.get_work_order(request['work_order_no'])
+            if old['created_by'] != f'bale:{actor.bale_id}' or old['work_order_type'] != 'OIL_CHANGE':
+                raise ValueError('صدور مجدد فقط برای حکم تعویض روغن خودتان مجاز است.')
+            if not str(request.get('reason','')).strip():
+                raise ValueError('علت صدور مجدد الزامی است.')
+            order = service.create_work_order(authorization_check=authorize_create,
+                work_order_type='OIL_CHANGE',jalali_date=old['jalali_date'],shift=old['shift'],
+                machine_codes=[i['machine_code'] for i in old['items']],
+                item_actions={i['machine_code']:i['action_code'] for i in old['items']},
+                created_by=f'bale:{actor.bale_id}',revision_of=old['work_order_no'],
+                reissue_reason=request['reason'],operation_id=request.get('operation_id'))
+            return {'ok':True,'orders':[preview_order(order)]}
         if request['action'] == 'propose':
             if request.get('work_order_type') == 'OIL_CHANGE':
                 from tools.fleet.oil_change.proposal import build_proposal
@@ -76,6 +133,8 @@ def execute_request(request: dict, *, db_path=None) -> dict:
             request = {**request, 'action': 'preview', 'work_order_no': row['work_order_no']}
         if request["action"] in {"preview", "edit"}:
             order = service.get_work_order(request["work_order_no"])
+            if order.get('superseded_by'):
+                raise ValueError('این نسخه منسوخ است؛ نسخهٔ معتبر: ' + order['superseded_by'])
             if order["created_by"] != f"bale:{actor.bale_id}":
                 raise ValueError("این حکم متعلق به حساب شما نیست.")
             if order['status'] != 'FILE_READY':
@@ -103,6 +162,8 @@ def execute_request(request: dict, *, db_path=None) -> dict:
                             current = override_interval(current, interval)
                             proposal['service_overrides'][code] = interval
                         proposal['items'].append(current)
+                    proposal['revision_of'] = order['work_order_no']
+                    proposal['plan_date'] = order['jalali_date']
                     return {'ok': True, 'work_order_type': 'OIL_CHANGE', 'proposal': proposal}
                 return {"ok": True, "work_order_type": order["work_order_type"], 'proposal': {
                     'work_order_type':order['work_order_type'],
@@ -146,6 +207,10 @@ def execute_request(request: dict, *, db_path=None) -> dict:
             actions = {i['machine_code']:i['action_code'] for i in items}
             if actions != request.get('item_actions'):
                 raise ValueError('نوبت سرویس با برنامه‌ریزی فعلی تطابق ندارد؛ پیشنهاد جدید بگیرید.')
+            if proposal.get('revision_of'):
+                parent = service.get_work_order(proposal['revision_of'])
+                if parent['items'][0]['machine_code'] not in selected:
+                    raise ValueError('دستگاه حکم قبلی باید در نسخهٔ اصلاحی باقی بماند؛ برای حذف کامل حکم تصمیم جداگانه لازم است.')
             orders = []
             for index, item in enumerate(items):
                 try:
@@ -153,6 +218,7 @@ def execute_request(request: dict, *, db_path=None) -> dict:
                     order = service.create_work_order(
                         authorization_check=authorize_create,
                         work_order_type='OIL_CHANGE', jalali_date=request['jalali_date'], shift='روزانه',
+                        revision_of=(proposal.get('revision_of') if proposal.get('revision_of') and item['machine_code'] == service.get_work_order(proposal['revision_of'])['items'][0]['machine_code'] else None),
                         machine_codes=[item['machine_code']],created_by=f'bale:{actor.bale_id}',
                         item_actions={item['machine_code']:item['action_code']},
                         notes='OIL_CHANGE_PROPOSAL: ' + json.dumps({**proposal,'item':item},ensure_ascii=False))
@@ -174,6 +240,7 @@ def execute_request(request: dict, *, db_path=None) -> dict:
             machine_codes=request["machine_codes"],
             created_by=f"bale:{actor.bale_id}",
             item_actions=request.get('item_actions'),
+            revision_of=proposal.get('revision_of') if proposal and work_order_type == 'OIL_CHANGE' else None,
             notes=(work_order_type + '_PROPOSAL: ' + json.dumps(proposal, ensure_ascii=False)) if proposal else None,
         )
         return {"ok": True, "order": preview_order(order)}

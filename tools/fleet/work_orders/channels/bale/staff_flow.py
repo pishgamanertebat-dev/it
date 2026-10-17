@@ -28,8 +28,9 @@ def order_label(order):
 
 async def dispatch(gateway, number, actor, chat, staff_id, roster_id=None):
     order = await asyncio.to_thread(core.prepare_dispatch, number, actor, chat, staff_id, roster_id)
-    if not await asyncio.to_thread(core.claim_send, number):
-        return 'این حکم قبلاً ارسال شده یا ارسال آن در حال بررسی است؛ دوباره ارسال نشد.'
+    token = await asyncio.to_thread(core.claim_send, number)
+    if not token and not (order['work_order_type'] == 'OIL_CHANGE' and order['status'] == 'SENT'):
+        return 'این حکم قبلاً ارسال شده یا ارسال آن در حال بررسی است؛ دوباره ارسال نشد. برای تعیین تکلیف بنویسید: بررسی ارسال'
     loop = asyncio.get_running_loop()
     bot = bot_for(gateway)
 
@@ -40,6 +41,17 @@ async def dispatch(gateway, number, actor, chat, staff_id, roster_id=None):
         elif order['work_order_type'] == 'GREASING':
             required.append('work_orders.greasing.archive_append')
         require_work_order_permission(actor, capabilities=required)
+        if order['work_order_type'] == 'OIL_CHANGE':
+            from tools.fleet.work_orders.core.db import connect_db
+            from tools.fleet.work_orders.core.oil_safety import current
+            con = connect_db()
+            try:
+                current(con, number)
+                live = con.execute('SELECT state,attempt_id FROM service_work_order_dispatch WHERE work_order_no=?', (number,)).fetchone()
+                if not live or live['state'] != 'SENDING' or live['attempt_id'] != token:
+                    raise ValueError('تلاش ارسال معتبر نیست؛ بررسی ارسال را باز کنید.')
+            finally:
+                con.close()
         caption = f"حکم کار {order_label(order)} تاریخ {order['jalali_date']} برای شما ارسال شد.\nتایید می‌کنید؟ بنویسید: تایید\nشماره حکم: {number}"
         with Path(file_path).open('rb') as document:
             return await bot.send_document(chat_id=chat_id, document=document, filename=file_name, caption=caption)
@@ -49,7 +61,9 @@ async def dispatch(gateway, number, actor, chat, staff_id, roster_id=None):
             return asyncio.run_coroutine_threadsafe(upload(**kwargs), loop).result()
 
     try:
-        await asyncio.to_thread(send_work_order, work_order_no=number, sender=Sender(), actor=actor)
+        result = await asyncio.to_thread(send_work_order, work_order_no=number, sender=Sender(), actor=actor, dispatch_token=token)
+        if result['status'] == 'UNCERTAIN':
+            return 'نتیجهٔ ارسال نامطمئن است؛ ارسال مجدد مسدود شد. «بررسی ارسال» را باز کنید.'
         await asyncio.to_thread(core.finish_send, number, 'SENT')
     except DailyArchiveError:
         await asyncio.to_thread(core.finish_send, number, 'FAILED')
@@ -58,6 +72,16 @@ async def dispatch(gateway, number, actor, chat, staff_id, roster_id=None):
     except Exception:
         await asyncio.to_thread(core.finish_send, number, 'FAILED')
         logger.exception('Staff document delivery failed')
+        if order['work_order_type'] == 'OIL_CHANGE':
+            from tools.fleet.work_orders.core.db import connect_db
+            con = connect_db()
+            try:
+                state = con.execute('SELECT state FROM service_work_order_dispatch WHERE work_order_no=?', (number,)).fetchone()
+            finally:
+                con.close()
+            if state and state['state'] == 'FAILED':
+                return 'انتقال شروع نشد و حکم محفوظ است؛ برای تلاش دوباره همان شمارهٔ گزینه را بفرستید.'
+            return 'نتیجهٔ ارسال نامطمئن است و ارسال مجدد مسدود شد. برای تعیین تکلیف «بررسی ارسال» را باز کنید.'
         return 'ارسال با خطا مواجه شد؛ حکم محفوظ است. اتصال یا شروع گفتگو با ربات توسط سرویسکار را بررسی کنید؛ برای تلاش دوباره همان شمارهٔ گزینه را بفرستید.'
     return f"✅ حکم کار {order_label(order)} تاریخ {order['jalali_date']} برای {order['staff_name']} ارسال شد؛ منتظر تایید دریافت هستیم."
 

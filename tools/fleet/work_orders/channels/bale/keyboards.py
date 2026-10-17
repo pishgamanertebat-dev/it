@@ -4,8 +4,8 @@ from tools.bale_ui import Action, InlineKeyboardBuilder, MultiSelect
 _ROLES = frozenset({'MAINTENANCE_MANAGER'})
 
 
-def action(name, label, stage='PROPOSAL'):
-    return Action(name, label, 'work_order.manage', frozenset({stage}), _ROLES)
+def action(name, label, stage='PROPOSAL', *, refresh=False):
+    return Action(name, label, 'work_order.manage', frozenset({stage}), _ROLES, refresh=refresh)
 
 
 proposal_keyboard = InlineKeyboardBuilder('work_order', (
@@ -19,10 +19,30 @@ oil_proposal_keyboard = InlineKeyboardBuilder('work_order', (
     (action('confirm', '✅ تایید و ساخت اکسل'), action('cancel', 'انصراف')),
 ))
 
-oil_edit_code_keyboard = InlineKeyboardBuilder('work_order', ((
-    action('edit_back', '↩️ بازگشت', 'EDIT_CODE'),
-    action('cancel', 'انصراف', 'EDIT_CODE'),
-),))
+OIL_EDIT_PAGE_SIZE = 16
+
+
+def oil_edit_code_keyboard(session):
+    from tools.fleet.work_orders.channels.bale.proposal_form import oil_edit_candidates
+    from tools.fleet.work_orders.types.oil_change.builder import parse_action
+    candidates = oil_edit_candidates(session.proposal)
+    selected = {item['machine_code'] for item in session.proposal['items']}
+    start = session.edit_code_page * OIL_EDIT_PAGE_SIZE
+    buttons = [action(f'edit_unit_{index}',
+                      f"{'✅' if item['machine_code'] in selected else '➕'} {item['machine_code']}-{parse_action(item['action_code'])[1]}",
+                      'EDIT_CODE')
+               for index, item in enumerate(candidates[start:start + OIL_EDIT_PAGE_SIZE], start)]
+    rows = [buttons[index:index + 2] for index in range(0, len(buttons), 2)]
+    navigation = []
+    if start:
+        navigation.append(action('edit_prev', '⬅️ صفحه قبل', 'EDIT_CODE', refresh=True))
+    if start + OIL_EDIT_PAGE_SIZE < len(candidates):
+        navigation.append(action('edit_next', 'صفحه بعد ➡️', 'EDIT_CODE', refresh=True))
+    if navigation:
+        rows.append(navigation)
+    rows.append((action('edit_back', '↩️ بازگشت', 'EDIT_CODE'),
+                 action('cancel', 'انصراف', 'EDIT_CODE')))
+    return InlineKeyboardBuilder('work_order', rows)
 
 oil_interval_keyboard = InlineKeyboardBuilder('work_order', (
     *[(action(f'interval_{n}', str(n), 'EDIT_INTERVAL'),
@@ -60,8 +80,9 @@ def entry_keyboard():
     buttons = [action(name, label, 'MENU') for name, label in (
         ('oil', 'تعویض روغن'), ('greasing', 'گریس کاری'), ('air_filter', 'هواکش'))
         if MENU_TYPES[name] in enabled]
+    buttons.append(action('delivery_review', '🔎 بررسی ارسال', 'MENU'))
     buttons.append(action('cancel', 'انصراف', 'MENU'))
-    return InlineKeyboardBuilder('work_order', (buttons[:2], buttons[2:]))
+    return InlineKeyboardBuilder('work_order', [buttons[index:index+2] for index in range(0,len(buttons),2)])
 
 
 review_keyboard = InlineKeyboardBuilder('work_order', ((
@@ -80,7 +101,7 @@ def staff_keyboard(options):
 def keyboard_for(session, *, review=False):
     if session.work_order_type == 'OIL_CHANGE':
         if session.stage == 'EDIT_CODE':
-            return oil_edit_code_keyboard
+            return oil_edit_code_keyboard(session)
         if session.stage == 'EDIT_INTERVAL':
             return oil_interval_keyboard
         if session.stage == 'EDIT_CONFIRM':
@@ -102,9 +123,18 @@ def keyboard_for(session, *, review=False):
     return None
 
 
-def command_for(action_name, *, order_no=''):
+def command_for(action_name, *, order_no='', proposal=None):
+    if action_name.startswith('edit_unit_') and action_name[10:].isdecimal():
+        from tools.fleet.work_orders.channels.bale.proposal_form import oil_edit_candidates
+        candidates = oil_edit_candidates(proposal)
+        index = int(action_name[10:])
+        if index >= len(candidates):
+            raise ValueError('دستگاه انتخاب‌شده در این پیشنهاد موجود نیست.')
+        return candidates[index]['machine_code']
     if action_name.startswith('interval_') and action_name[9:].isdecimal():
         return action_name[9:]
+    if action_name == 'delivery_review':
+        return 'بررسی ارسال'
     if action_name in SHIFT_COMMANDS:
         return SHIFT_COMMANDS[action_name]
     if action_name == 'select_confirm':

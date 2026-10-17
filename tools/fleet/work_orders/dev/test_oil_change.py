@@ -1,10 +1,14 @@
 import asyncio
 import hashlib
 import importlib
+from datetime import datetime, timezone
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 from zipfile import ZipFile
+from zoneinfo import ZoneInfo
+
+import jdatetime
 
 from openpyxl import load_workbook
 from tools.fleet.work_orders.types.oil_change import builder
@@ -13,6 +17,13 @@ from tools.fleet.work_orders.channels.bale.message_handler import WorkOrderMenuH
 from tools.fleet.work_orders.core import service, staff_dispatch
 from tools.fleet.work_orders.dev.test_bale_work_order_create import WorkOrderCreateTests
 from tools.fleet.work_orders.dev.test_permissions import test_database
+
+
+def printed_metadata(order):
+    issued = datetime.fromisoformat(order['created_at']).replace(tzinfo=timezone.utc)
+    date = jdatetime.date.fromgregorian(date=issued.astimezone(ZoneInfo('Asia/Tehran')).date())
+    return {'E2': f'{date.year:04d}/{date.month:02d}/{date.day:02d}',
+            'J2': 'شماره حکم:\n' + order['work_order_no']}
 
 
 class OilChangeTests(WorkOrderCreateTests):
@@ -27,7 +38,7 @@ class OilChangeTests(WorkOrderCreateTests):
         patcher.start();self.addCleanup(patcher.stop)
 
     def oil_order(self, interval=200):
-        return service.create_work_order(work_order_type='OIL_CHANGE', jalali_date='1405/06/18',
+        return service.create_work_order(work_order_type='OIL_CHANGE', jalali_date=f'1405/06/{interval//200:02d}',
             shift='روزانه', machine_codes=['702'], created_by='bale:455740857',
             item_actions={'HD702': f'OIL_CHANGE_{interval}'})
 
@@ -125,7 +136,8 @@ class OilChangeTests(WorkOrderCreateTests):
                         expected, actual = source[str(interval)], wb.active
                         for row in expected:
                             for cell in row:
-                                self.assertEqual(actual[cell.coordinate].value, 'HD702' if cell.coordinate == 'F3' else cell.value)
+                                metadata = {**printed_metadata(order), 'F3':'HD702'}
+                                self.assertEqual(actual[cell.coordinate].value, metadata.get(cell.coordinate,cell.value))
                                 self.assertEqual(actual[cell.coordinate]._style, cell._style)
                         self.assertEqual(str(actual.merged_cells), str(expected.merged_cells))
                     finally:
@@ -211,9 +223,8 @@ class OilChangeTests(WorkOrderCreateTests):
             self.assertIsNotNone(service.get_work_order(number)['acknowledged_at'])
             self.assertTrue(any(chat == '455740857' and 'دریافت حکم تعویض روغن' in text for chat, text in messages))
             # Commands survive expired in-memory forms and reconstruct oil editing.
-            await enter('حکم کار')
-            await enter('۲')
-            await enter('تایید')
+            # A new active order for the same service requires explicit reissue.
+            await enter('صدور مجدد ' + number + ' آزمون صدور مجدد مجاز')
             editable = session = next(iter(handler.pending.values()))
             edit_number = editable.order_no
             handler.pending.clear()
@@ -269,7 +280,7 @@ class OilChangeTests(WorkOrderCreateTests):
             try:
                 for interval in builder.INTERVALS:
                     with self.subTest(model=model, interval=interval):
-                        order = service.create_work_order(work_order_type='OIL_CHANGE', jalali_date='1405/06/18',
+                        order = service.create_work_order(work_order_type='OIL_CHANGE', jalali_date=f'1405/06/{interval//200:02d}',
                             shift='روزانه', machine_codes=[code], created_by='bale:455740857',
                             item_actions={code: builder.action_for(model, interval)})
                         wb = load_workbook(order['excel_path'])
@@ -279,6 +290,7 @@ class OilChangeTests(WorkOrderCreateTests):
                             for row in expected:
                                 for cell in row:
                                     expected_value = code if cell.coordinate == 'F3' else cell.value
+                                    expected_value = printed_metadata(order).get(cell.coordinate,expected_value)
                                     if model == 'PC600-8' and cell.coordinate == 'C2':
                                         expected_value = interval
                                     self.assertEqual(actual[cell.coordinate].value, expected_value)

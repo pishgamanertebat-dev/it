@@ -44,6 +44,38 @@ class ProposalTests(unittest.TestCase):
             self.assertEqual(item['machine_code'],canonical)
             self.assertIn(model,item['action_code'])
 
+    def test_legacy_rows_are_processed_once_without_hiding_unplanned_units(self):
+        source = sample_source('D155A-6', 'W151', remaining=12)
+        source['machines'][0].update(code='D155', legacy_code='151')
+        second = sample_source('D155A-2', 'W152', remaining=-4)
+        second['machines'][0].update(row=5, code='D155', legacy_code='152')
+        source['plans'] += second['plans']
+        source['machines'] += second['machines']
+        # Same raw model code and a similar numeric code are not the matched row.
+        source['machines'] += [{**source['machines'][0], 'row':6, 'legacy_code':'153'},
+                               {**source['machines'][0], 'row':7, 'code':'HD151', 'legacy_code':'151'}]
+        items, review = evaluate(source)
+        self.assertEqual([(i['machine_code'],i['source_row']) for i in items], [('D151',4),('D152',5)])
+        self.assertEqual([i['components']['oil_change']['remaining'] for i in items], [12,-4])
+        self.assertEqual([r['code'] for r in review], ['D155','HD151'])
+        with patch('tools.fleet.oil_change.proposal.read_source',return_value=source):
+            proposal = build_proposal()
+        self.assertEqual([i['machine_code'] for i in proposal['items']], ['D152'])
+        self.assertEqual(proposal['warnings'], ['D151 : تا موعد بعدی 12 ساعت، برای سرویس 400 ساعتی'])
+
+    def test_ambiguous_or_invalid_legacy_rows_are_not_silenced(self):
+        for ambiguous in (True, False):
+            source = sample_source('D155A-6', 'W151', remaining=12)
+            source['machines'][0].update(code='D155', legacy_code='151')
+            if ambiguous:
+                source['machines'].append({**source['machines'][0], 'row':5})
+            else:
+                source['machines'][0]['errors'] = ['bad formula']
+            items, review = evaluate(source)
+            self.assertEqual(items, [])
+            self.assertTrue(any(r['code']=='D151' for r in review))
+            self.assertEqual(sum(r['code']=='D155' for r in review), 2 if ambiguous else 1)
+
     def test_pc1250_is_supported_by_automatic_planning(self):
         source = sample_source('PC1250-8', 'EX1252', last=1800, remaining=30)
         items, review = evaluate(source)

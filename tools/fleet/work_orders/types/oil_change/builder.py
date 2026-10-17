@@ -1,10 +1,12 @@
 """Manual PM orders. Each model retains its own immutable source template."""
 import re
 from copy import deepcopy
+from datetime import datetime, timezone
 from pathlib import Path
 from zipfile import ZipFile
 from xml.etree import ElementTree as ET
 from xml.sax.saxutils import escape
+from zoneinfo import ZoneInfo
 
 SOURCE = Path('E:/Function/دستورکار PM-785-5.xlsx')
 TEMPLATES = {
@@ -109,7 +111,10 @@ def get_items(codes, actions=None):
              'action_code': action_for(model, interval), 'action_text': f'{model} — سرویس {interval} ساعتی'}]
 
 
-def build_document(*, output_path, jalali_date, items, shift='روزانه'):
+def build_document(*, output_path, jalali_date, items, work_order, shift='روزانه'):
+    # Metadata is supplied from the inserted order record in the same transaction.
+    if not work_order.get('work_order_no') or work_order.get('jalali_date') != jalali_date:
+        raise ValueError('شماره یا تاریخ رکورد حکم معتبر نیست.')
     if len(items) != 1:
         raise ValueError('هر حکم باید دقیقاً یک دستگاه داشته باشد.')
     item = items[0]
@@ -172,6 +177,7 @@ def build_document(*, output_path, jalali_date, items, shift='روزانه'):
         sheet, count = re.subn(r'<c\b(?=[^>]*\br="F3")[^>]*?(?:/>|>.*?</c>)', lambda _: replacement, sheet, flags=re.S)
         if count != 1:
             raise ValueError('محل کد دستگاه در الگو یکتا نیست.')
+        sheet = _order_metadata(sheet, strings, work_order)
         workbook = re.sub(r'<sheet\b[^>]*/>', lambda m: m[0] if ET.fromstring(
             '<root xmlns:r="' + REL + '">' + m[0] + '</root>')[0].get('name') == interval else '', workbook)
         workbook = re.sub(r'\b(activeTab|firstSheet)="\d+"', r'\1="0"', workbook)
@@ -188,6 +194,60 @@ def build_document(*, output_path, jalali_date, items, shift='روزانه'):
                     data = sheet.encode('utf-8')
                 output.writestr(entry, data)
     return output_path
+
+
+def _order_metadata(sheet, strings, order):
+    """Fill existing cells only; keep styles, merges, geometry and package parts."""
+    # Gateway code also imports identity helpers; this dependency lives in the
+    # project's document worker environment and is needed only during printing.
+    import jdatetime
+
+    root = ET.fromstring(sheet)
+
+    def value(address):
+        cell = root.find(f'.//{{{NS}}}c[@r="{address}"]')
+        if cell is None or cell.find(f'{{{NS}}}f') is not None:
+            raise ValueError('ساختار محل مشخصات حکم در الگو تغییر کرده است.')
+        if cell.get('t') == 's':
+            return ''.join(strings[int(cell.find(f'{{{NS}}}v').text)].itertext()).strip()
+        if len(cell) == 0:
+            return ''
+        raise ValueError('محتوای محل مشخصات حکم در الگو تغییر کرده است.')
+
+    if value('D2') != 'تاریخ صدور:' or value('J2') not in {'کد مدرک:', 'کد مدرک:-'}:
+        raise ValueError('عنوان محل مشخصات حکم در الگو تغییر کرده است.')
+    existing_date = value('E2')
+    if existing_date and not re.fullmatch(r'14\d{2}/\d{2}/\d{2}', existing_date):
+        raise ValueError('محل تاریخ صدور الگو باید بررسی شود.')
+    # SQLite CURRENT_TIMESTAMP stores UTC. A revision keeps the service date
+    # but has its own issuance timestamp; never use the print time or filename.
+    issued = datetime.fromisoformat(order['created_at'])
+    if issued.tzinfo is None:
+        issued = issued.replace(tzinfo=timezone.utc)
+    issued_date = jdatetime.date.fromgregorian(date=issued.astimezone(ZoneInfo('Asia/Tehran')).date())
+    replacements = {'E2': f'{issued_date.year:04d}/{issued_date.month:02d}/{issued_date.day:02d}',
+                    'J2': 'شماره حکم:\n' + order['work_order_no']}
+    revision_title = None
+    if order.get('revision_of'):
+        label = 'صدور مجدد حکم: ' if order.get('reissue_reason') else 'نسخه اصلاحی حکم: '
+        value('A1')  # Validate the existing title cell before preserving its rich text.
+        title_cell = root.find(f'.//{{{NS}}}c[@r="A1"]')
+        title = strings[int(title_cell.find(f'{{{NS}}}v').text)]
+        # Keep the title's original 20-point rich-text runs (cell style is 11pt).
+        revision_title = ''.join(ET.tostring(child, encoding='unicode') for child in title)
+        revision_title += ('<r><rPr><rFont val="B Zar"/><b/><sz val="11"/><charset val="178"/></rPr>'
+                           '<t xml:space="preserve">' + escape('\n' + label + order['revision_of']) + '</t></r>')
+        replacements['A1'] = ''
+    for address, text in replacements.items():
+        cell = root.find(f'.//{{{NS}}}c[@r="{address}"]')
+        style = cell.get('s')
+        style_attr = f' s="{style}"' if style else ''
+        content = revision_title if address == 'A1' else f'<t xml:space="preserve">{escape(text)}</t>'
+        replacement = f'<c r="{address}"{style_attr} t="inlineStr"><is>{content}</is></c>'
+        sheet, count = re.subn(r'<c\b(?=[^>]*\br="' + address + r'")[^>]*?(?:/>|>.*?</c>)', lambda _: replacement, sheet, flags=re.S)
+        if count != 1:
+            raise ValueError('محل مشخصات حکم در الگو یکتا نیست.')
+    return sheet
 
 
 def _single_page_a4(sheet):

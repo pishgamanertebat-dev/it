@@ -31,6 +31,7 @@ def evaluate(source):
     plans = included_plans(source['plans'])
     counts = Counter(planning_code(p['code']) for p in plans)
     seen = set()
+    processed = set()
     for plan in plans:
         code = planning_code(plan['code'])
         seen.add(code)
@@ -57,9 +58,14 @@ def evaluate(source):
                              last_interval=interval-200 if interval>200 else 2000, next_interval=interval,
                              last_service=last_service, state='DUE' if remaining<=0 else 'NEAR_DUE' if remaining<=WARNING_HOURS else 'OK')
             items.append(dict(**item, source_row=machine['row'], planning_row=plan['row'], components={'oil_change':component}))
+            # A legacy D155 row can resolve to D151/D152. Track that exact
+            # source record, never all rows sharing its raw model code.
+            processed.add(id(machine))
         except ValueError as exc:
             review.append({'code':code or f"ردیف {plan['row']}", 'reason':str(exc)})
     for machine in source['machines']:
+        if id(machine) in processed:
+            continue
         if clean(machine['code']).upper() in excluded:
             continue
         if machine['code'] and machine['code'].upper() not in seen and number(machine['remaining']) and machine['remaining'] <= WARNING_HOURS:

@@ -89,6 +89,7 @@ class FormSession:
     pending_delete_ids: list[str] = field(default_factory=list)
     edit_machine_code: str = ''
     edit_interval: int | None = None
+    edit_code_page: int = 0
     removal_selection: dict | None = None
     ui_cleanup: bool = False
 
@@ -230,20 +231,30 @@ class WorkOrderMenuHandler:
                 f'انتخاب‌شده: {len(selection.selected)}\nصفحه {selection.page+1} از {selection.pages}')
 
     def _oil_edit_code_text(self, session):
+        from tools.fleet.work_orders.channels.bale.proposal_form import oil_edit_candidates
+        from tools.fleet.work_orders.channels.bale.keyboards import OIL_EDIT_PAGE_SIZE
         from tools.fleet.work_orders.types.oil_change.builder import parse_action
+        candidates = oil_edit_candidates(session.proposal)
+        pages = max(1, (len(candidates) + OIL_EDIT_PAGE_SIZE - 1) // OIL_EDIT_PAGE_SIZE)
+        session.edit_code_page = min(max(0, session.edit_code_page), pages - 1)
+        start = session.edit_code_page * OIL_EDIT_PAGE_SIZE
         lines = ['ویرایش نوبت سرویس حکم تعویض روغن',
-                 'کد یک دستگاه از فهرست زیر را وارد کنید؛ مانند 1252 یا EX1252.']
+                 'دستگاه را از دکمه‌ها انتخاب کنید یا کد کامل/شمارهٔ آن را بنویسید.',
+                 '✅ داخل حکم؛ ➕ با تأیید ویرایش به حکم اضافه می‌شود.',
+                 f'صفحه {session.edit_code_page + 1} از {pages}']
         lines += [f"{item['machine_code']}: سرویس {parse_action(item['action_code'])[1]} ساعتی"
-                  for item in session.proposal['items']]
+                  for item in candidates[start:start + OIL_EDIT_PAGE_SIZE]]
         return '\n'.join(lines)
 
     def _oil_interval_text(self, session):
         from tools.fleet.work_orders.channels.bale.proposal_form import oil_edit_item
         from tools.fleet.work_orders.types.oil_change.builder import parse_action
         item = oil_edit_item(session.proposal, session.edit_machine_code)
+        addition = ('' if any(i['machine_code'] == item['machine_code'] for i in session.proposal['items'])
+                    else '\nاین دستگاه با تأیید ویرایش به حکم اضافه می‌شود.')
         return (f"دستگاه {item['machine_code']}؛ نوبت فعلی این حکم: سرویس {parse_action(item['action_code'])[1]} ساعتی.\n"
                 'نوبت مورد نظر را از ۲۰۰ تا ۲۰۰۰ انتخاب کنید یا عدد آن را بنویسید.\n'
-                'این انتخاب فقط برای همین حکم است؛ ساعت‌کار واقعی دستگاه و فایل برنامه‌ریزی تغییر نمی‌کند.')
+                'این انتخاب فقط برای همین حکم است؛ ساعت‌کار واقعی دستگاه و فایل برنامه‌ریزی تغییر نمی‌کند.' + addition)
 
     def _send_reply(self, gateway, chat_id, reply, send, *, key=None, edit_message_id=None):
         try:
@@ -578,6 +589,10 @@ class WorkOrderMenuHandler:
                         session.stage = "RESULT"
                         reply = result.get("message", "عملیات با خطا روبه‌رو شد؛ وضعیت حکم باید بررسی شود.")
                         session.result = reply
+                elif request['action'] in {'delivery_pending','delivery_resolve'}:
+                    session.stage = 'RESULT'
+                    reply = result['message']
+                    session.result = reply
                 elif request['action'] == 'propose':
                     from tools.fleet.work_orders.channels.bale.proposal_form import render
                     session.proposal = result['proposal']
@@ -598,7 +613,7 @@ class WorkOrderMenuHandler:
                     session.machine_codes = result["machine_codes"]
                     session.stage = "DATE"
                     reply = f"تعداد دستگاه: {len(session.machine_codes)}\nتاریخ حکم را وارد کنید؛ مانند 1405/06/15."
-                elif request["action"] == "confirm_review":
+                elif request["action"] in {"confirm_review", "resume_dispatch"}:
                     from tools.fleet.work_orders.core.staff_dispatch import staff_menu
                     session.work_order_type = result.get('work_order_type', session.work_order_type)
                     _menu, session.staff_options = staff_menu(session.work_order_type)
@@ -618,7 +633,7 @@ class WorkOrderMenuHandler:
                     review_context(key[1], chat_id, 'manager', number='', stage='EDIT', db_path=self.db_path)
                     session.proposal = result['proposal']
                     session.jalali_date = session.proposal['plan_date']
-                    reply = 'خروجی اصلاح‌شده شمارهٔ جدید می‌گیرد؛ حکم قبلی محفوظ می‌ماند.\n' + render(session.proposal)
+                    reply = 'پس از آماده‌شدن نسخهٔ جدید، نسخهٔ قبلی محفوظ ولی غیرقابل تأیید و ارسال می‌شود.\n' + render(session.proposal)
                 elif result.get('orders'):
                     session.work_order_type = 'OIL_CHANGE'
                     summaries = []
@@ -724,6 +739,11 @@ class WorkOrderMenuHandler:
         text = normalize_text(event.text or "")
         raw = getattr(event, 'raw_message', None)
         callback = isinstance(raw, dict) and raw.get('bale_inline_callback') is True
+        special_text = normalize_digits(text)
+        delivery_decision = re.fullmatch(r'(رسیده است|ارسال مجدد مجاز است) (OC-1405-\d{2}-\d{2}-\d+) (\d+) (.+)', special_text)
+        resume_send = re.fullmatch(r'ادامه ارسال (OC-1405-\d{2}-\d{2}-\d+)', special_text)
+        reissue = re.fullmatch(r'صدور مجدد (OC-1405-\d{2}-\d{2}-\d+) (.+)', special_text)
+        delivery_command = text == 'بررسی ارسال' or delivery_decision or resume_send or reissue
         is_entry = text == "حکم کار"
         review_command = re.fullmatch(r"(ثبت تایید|ثبت تأیید|ارسال مجدد|اصلاح|ویرایش) ((?:AF|GR|OC)-1405-\d{2}-\d{2}-\d+)", normalize_digits(text))
         key = ("bale", user_id or "", chat_id)
@@ -779,6 +799,13 @@ class WorkOrderMenuHandler:
                 if builder is None:
                     raise ValueError('Expired form')
                 def execute(action):
+                    if session.stage == 'EDIT_CODE' and builder.actions[action].refresh:
+                        require_work_order_permission(user_id, db_path=self.db_path)
+                        session.edit_code_page += 1 if action == 'edit_next' else -1
+                        session.expires = self.clock() + 600
+                        reply = self._oil_edit_code_text(session)
+                        return self._send_reply(gateway, chat_id, reply, send, key=key,
+                            edit_message_id=raw.get('origin_message_id')) or {'action':'skip','reason':'work-order-selection'}
                     if session.stage == 'REMOVE' and builder.actions[action].refresh:
                         require_work_order_permission(user_id, db_path=self.db_path)
                         selection = self._removal(session)
@@ -792,7 +819,7 @@ class WorkOrderMenuHandler:
                         return self._send_reply(gateway, chat_id, reply, send, key=key,
                             edit_message_id=raw.get('origin_message_id')) or {'action':'skip','reason':'work-order-selection'}
                     forwarded = copy(event)
-                    forwarded.text = command_for(action, order_no=session.order_no)
+                    forwarded.text = command_for(action, order_no=session.order_no, proposal=session.proposal)
                     forwarded.raw_message = None
                     return self.handle(forwarded, gateway, send=send, _accepted=True)
 
@@ -814,7 +841,7 @@ class WorkOrderMenuHandler:
         if message_key in self.processed:
             return {"action": "skip", "reason": "work-order-duplicate-message"}
         recovery = text in {'ارسال مجدد', 'تایید', 'تأیید'}
-        if not is_entry and not review_command and not recovery and key not in self.pending:
+        if not is_entry and not review_command and not recovery and not delivery_command and key not in self.pending:
             return None
         if not chat_id:
             return {"action": "skip", "reason": "work-order-missing-chat"}
@@ -844,6 +871,23 @@ class WorkOrderMenuHandler:
             if session and session.stage == "BUSY":
                 reply = "در حال انجام درخواست قبلی هستم؛ لطفاً منتظر نتیجه بمانید."
                 reason = "work-order-busy"
+            elif delivery_command:
+                if session is None:
+                    session = self.pending[key] = FormSession(expires=now + 600)
+                request = {'action':'delivery_pending','bale_id':user_id,'chat_id':chat_id}
+                if delivery_decision:
+                    request.update(action='delivery_resolve',work_order_no=delivery_decision[2],
+                        attempt_id=delivery_decision[3],reason=delivery_decision[4],
+                        decision='RECEIVED' if delivery_decision[1] == 'رسیده است' else 'RESEND_ALLOWED')
+                elif resume_send:
+                    session.order_no = resume_send[1]
+                    request.update(action='resume_dispatch',work_order_no=resume_send[1])
+                elif reissue:
+                    request.update(action='reissue',work_order_no=reissue[1],reason=reissue[2],
+                        operation_id=f'reissue:{user_id}:{chat_id}:{reissue[1]}:{reissue[2]}')
+                self._start_request(key,session,request,gateway,send)
+                reply = 'در حال بررسی وضعیت حکم…'
+                reason = 'work-order-delivery-recovery'
             elif session and session.stage == 'RESULT' and not session.order_no and text == 'ارسال مجدد':
                 self._start_request(key, session, {'action': 'preview_latest', 'bale_id': user_id}, gateway, send)
                 reply = 'در حال بازیابی آخرین فایل حکم شما…'
@@ -881,7 +925,7 @@ class WorkOrderMenuHandler:
                 reply = ''
                 reason = "work-order-type-selected"
             elif session.proposal is not None and session.stage in {'PROPOSAL','REMOVE','ADD_CODES','ADD_ACTION','EDIT_CODE','EDIT_INTERVAL','EDIT_CONFIRM'}:
-                from tools.fleet.work_orders.channels.bale.proposal_form import render, add_items, oil_edit_item, edit_oil_interval, creation_metadata
+                from tools.fleet.work_orders.channels.bale.proposal_form import render, add_items, oil_edit_candidates, oil_edit_item, edit_oil_interval, creation_metadata
                 if text == 'برگشت':
                     session.edit_machine_code = ''
                     session.edit_interval = None
@@ -890,10 +934,11 @@ class WorkOrderMenuHandler:
                     reply = render(session.proposal)
                 elif session.stage == 'PROPOSAL':
                     if text == 'ویرایش اکسل' and session.work_order_type == 'OIL_CHANGE':
-                        if not session.proposal['items']:
-                            raise ValueError('فهرست خالی است؛ ابتدا دستگاه مورد نظر را اضافه کنید.')
+                        if not oil_edit_candidates(session.proposal):
+                            raise ValueError('دستگاه معتبری برای ویرایش در این پیشنهاد موجود نیست؛ بخش بررسی داده را بررسی کنید.')
                         session.edit_machine_code = ''
                         session.edit_interval = None
+                        session.edit_code_page = 0
                         session.stage = 'EDIT_CODE'
                         reply = self._oil_edit_code_text(session)
                     elif text == 'حذف':
@@ -952,11 +997,14 @@ class WorkOrderMenuHandler:
                     interval = normalize_interval(text)
                     item = oil_edit_item(session.proposal, session.edit_machine_code)
                     old_interval = parse_action(item['action_code'])[1]
+                    addition = ('' if any(i['machine_code'] == item['machine_code'] for i in session.proposal['items'])
+                                else 'این دستگاه با تأیید ویرایش به حکم اضافه می‌شود.\n')
                     session.edit_interval = interval
                     session.stage = 'EDIT_CONFIRM'
                     reply = (f"دستگاه {item['machine_code']}\n"
                              f"نوبت فعلی حکم: سرویس {old_interval} ساعتی\n"
                              f"نوبت انتخاب‌شده: سرویس {interval} ساعتی\n"
+                             f'{addition}'
                              'برای اعمال این تغییر «تأیید ویرایش» را بزنید.')
                 elif session.stage == 'EDIT_CONFIRM':
                     if text in {'تایید ویرایش', 'تأیید ویرایش'}:

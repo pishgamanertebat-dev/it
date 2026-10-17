@@ -9,6 +9,7 @@ REASONS = {
     'source_permission': 'مجوز خواندن فایل منبع در دسترس نیست',
     'source_changed': 'فایل منبع هنگام تولید گزارش تغییر کرده است',
     'source_invalid': 'ساختار یا داده‌های فایل منبع معتبر نیست',
+    'source_identity_mismatch': 'کد مکانیزم رکورد با کد شیت مطابقت ندارد',
     'pdf_layout': 'متن در قالب PDF جا نمی‌شود',
     'pdf_validation': 'کنترل کامل‌بودن یا خوانایی PDF ناموفق بود',
     'pdf_export': 'تبدیل فایل اکسل به PDF ناموفق بود',
@@ -23,6 +24,13 @@ REASONS = {
     'OSError': 'خواندن فایل منبع ناموفق بود',
 }
 REPORT_FAILURES = frozenset(k for k in REASONS if k.islower()) - {'transport_unavailable'}
+
+
+class RecordIdentityMismatch(ValueError):
+    """Keep the internal diagnostic while publishing only bounded source coordinates."""
+    def __init__(self, message, *, sheet, row, column):
+        self.report_location = {'sheet': sheet, 'row': row, 'column': column}
+        super().__init__(message)
 
 
 class ReportFailure(ValueError):
@@ -47,6 +55,8 @@ class ReportFailure(ValueError):
 def classify(exc, stage='generation'):
     if isinstance(exc, ReportFailure):
         return exc
+    if isinstance(exc, RecordIdentityMismatch):
+        return ReportFailure('source_identity_mismatch', stage='source', **exc.report_location)
     if isinstance(exc, TimeoutError):
         return ReportFailure('pdf_export', stage='export')
     if isinstance(exc,FileNotFoundError):return ReportFailure('source_missing',stage='source')

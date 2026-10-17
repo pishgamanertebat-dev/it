@@ -43,6 +43,9 @@ def assign_work_order(
             )
 
 
+        from .oil_safety import current
+        current(con, work_order_no)
+
         if order["assigned_staff_id"]:
 
             staff = con.execute(

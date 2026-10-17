@@ -4,13 +4,22 @@ import re
 from tools.fleet.air_filter.rules import ACTIONS, BOTH, OUTER, rule_for
 
 
+def oil_edit_candidates(proposal):
+    """Selected rows take precedence over the unmodified planning snapshot."""
+    if proposal.get('work_order_type') != 'OIL_CHANGE':
+        return []
+    selected = {item['machine_code'] for item in proposal['items']}
+    return [*proposal['items'], *(item for item in proposal.get('evaluations', [])
+                                 if item['machine_code'] not in selected)]
+
+
 def oil_edit_item(proposal, code):
     from tools.fleet.work_orders.types.oil_change.builder import planning_code
     code = planning_code(code)
-    matches = [item for item in proposal['items'] if item['machine_code'] == code or
+    matches = [item for item in oil_edit_candidates(proposal) if item['machine_code'] == code or
                (code.isdecimal() and re.sub(r'^[A-Z]+', '', item['machine_code']) == code)]
-    if proposal.get('work_order_type') != 'OIL_CHANGE' or len(matches) != 1:
-        raise ValueError('کد یک دستگاه از فهرست همین پیشنهاد را وارد کنید؛ ابتدا دستگاه مورد نظر را اضافه کنید.')
+    if len(matches) != 1:
+        raise ValueError('کد دستگاه در فهرست معتبر این پیشنهاد پیدا نشد یا مبهم است؛ دستگاه را از دکمه‌ها انتخاب کنید یا کد کامل آن را بنویسید.')
     return matches[0]
 
 
@@ -18,6 +27,10 @@ def edit_oil_interval(proposal, code, interval):
     from tools.fleet.work_orders.types.oil_change.builder import override_interval
     item = oil_edit_item(proposal, code)
     edited = override_interval(item, interval)
+    # Selecting a valid planning row is enough to edit it. Add it only after
+    # confirmation, using this proposal's snapshot rather than rereading Excel.
+    if not any(candidate['machine_code'] == item['machine_code'] for candidate in proposal['items']):
+        add_items(proposal, [item], '')
     proposal['items'] = [edited if candidate['machine_code'] == item['machine_code'] else candidate
                          for candidate in proposal['items']]
     proposal.setdefault('service_overrides', {})[item['machine_code']] = edited['components']['oil_change']['next_interval']
@@ -26,6 +39,8 @@ def edit_oil_interval(proposal, code, interval):
 def creation_metadata(proposal):
     metadata = {key: proposal[key] for key in ('cutoff', 'plan_date', 'source_sha256')}
     if proposal.get('work_order_type') == 'OIL_CHANGE':
+        if proposal.get('revision_of'):
+            metadata['revision_of'] = proposal['revision_of']
         selected = {item['machine_code'] for item in proposal['items']}
         metadata['service_overrides'] = {code: interval for code, interval in
             proposal.get('service_overrides', {}).items() if code in selected}

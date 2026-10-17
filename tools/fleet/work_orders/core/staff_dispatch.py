@@ -58,6 +58,8 @@ def prepare_dispatch(number, actor, chat, staff_id, roster_id=None):
     con = connect_db()
     try:
         row = con.execute("SELECT * FROM service_work_orders WHERE work_order_no=?", (number,)).fetchone()
+        from .oil_safety import current
+        current(con, number)
         if not row or row['created_by'] != f'bale:{actor}':
             raise ValueError('این حکم متعلق به شما نیست.')
         staff = next((s for s in staff_options() if s['id'] == staff_id and s.get('roster_id') == roster_id), None)
@@ -91,6 +93,13 @@ def prepare_dispatch(number, actor, chat, staff_id, roster_id=None):
 def claim_send(number):
     con = connect_db()
     try:
+        row = con.execute('SELECT work_order_type FROM service_work_orders WHERE work_order_no=?', (number,)).fetchone()
+        if row and row[0] == 'OIL_CHANGE':
+            from . import oil_safety
+            oil_safety.migrate(con)
+            with con:
+                con.execute('BEGIN IMMEDIATE')
+                return oil_safety.claim(con, number)
         with con:
             return con.execute("UPDATE service_work_order_dispatch SET state='SENDING' WHERE work_order_no=? AND state IN ('READY','FAILED')", (number,)).rowcount == 1
     finally:
@@ -101,7 +110,9 @@ def finish_send(number, state):
     con = connect_db()
     try:
         with con:
-            con.execute('UPDATE service_work_order_dispatch SET state=? WHERE work_order_no=?', (state, number))
+            # Oil transitions must be fenced by attempt identity in oil_safety.
+            con.execute("""UPDATE service_work_order_dispatch SET state=? WHERE work_order_no=?
+                AND NOT EXISTS (SELECT 1 FROM service_work_orders w WHERE w.work_order_no=? AND w.work_order_type='OIL_CHANGE')""", (state, number, number))
     finally:
         con.close()
 

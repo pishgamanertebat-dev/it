@@ -129,6 +129,8 @@ def enqueue(c, order, artifact, result):
 
 def drain_pending(*, authorization=None, sender_factory=None, clock=None):
     """One-minute scheduler drain; safe retries only, stale sending freezes uncertain."""
+    from .oil_safety import sweep
+    sweep()
     from tools.scheduler.tasks import BaleSender, TransportUnavailable
     from tools.scheduler.misfire import backoff_delay
     now = time.time() if clock is None else clock

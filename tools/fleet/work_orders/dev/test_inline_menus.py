@@ -125,19 +125,28 @@ class InlineMenusTests(PermissionDatabaseTestCase, unittest.IsolatedAsyncioTestC
         await self.settle()
         self.assertFalse(self.requests)
 
-    async def test_entry_four_buttons_and_all_type_callbacks(self):
+    async def test_entry_five_buttons_and_all_type_callbacks(self):
         for action, work_type in [('oil','OIL_CHANGE'), ('greasing','GREASING'), ('air_filter','AIR_FILTER')]:
             self.message('حکم کار')
             await self.settle()
             entry = self.sent[-1]
             labels = [b['text'] for row in entry['reply_markup']['inline_keyboard'] for b in row]
-            self.assertEqual(labels, ['تعویض روغن','گریس کاری','هواکش','انصراف'])
-            self.assertNotIn('شماره', entry['text'])
+            self.assertEqual(labels, ['تعویض روغن','گریس کاری','هواکش','🔎 بررسی ارسال','انصراف'])
+            self.assertNotIn('شمارهٔ نوع', entry['text'])
             self.message('', data=self.button(entry, action), origin=len(self.sent))
             await self.settle()
             self.assertEqual(self.requests[-1]['work_order_type'], work_type)
             self.assertEqual(self.requests[-1]['action'], 'propose')
         self.assertEqual(len(self.removed), 3)
+
+    async def test_delivery_recovery_button_uses_authenticated_actor_and_chat(self):
+        self.message('حکم کار')
+        await self.settle()
+        entry = self.sent[-1]
+        self.result = {'ok':True,'message':'ارسال نیازمند بررسی ندارید.'}
+        self.message('',data=self.button(entry,'delivery_review'),origin=len(self.sent))
+        await self.settle()
+        self.assertEqual(self.requests[-1],{'action':'delivery_pending','bale_id':self.key[1],'chat_id':self.key[2]})
 
     async def test_type_selection_replaces_menu_with_loading_then_deletes_it(self):
         proposal = {'work_order_type':'GREASING','plan_date':'1405/06/16','cutoff':'test',
@@ -682,21 +691,139 @@ class InlineMenusTests(PermissionDatabaseTestCase, unittest.IsolatedAsyncioTestC
 
 
 
-    async def oil_edit_step(self):
+    async def oil_edit_step(self, source=None, add_code='1252'):
         from tools.fleet.oil_change.test_proposal import sample_source
         from tools.fleet.oil_change.proposal import build_proposal, resolve_items
         from tools.fleet.work_orders.channels.bale.proposal_form import add_items, render
-        source = sample_source('PC1250-8', 'EX1252', last=1800, remaining=100)
+        if source is None:
+            source = sample_source('PC1250-8', 'EX1252', last=1800, remaining=100)
         with patch('tools.fleet.oil_change.proposal.read_source', return_value=source):
             proposal = build_proposal()
-        self.assertFalse(proposal['items'])
-        add_items(proposal, resolve_items(['1252'], source), '')
+        if add_code:
+            add_items(proposal, resolve_items([add_code], source), '')
         session = FormSession(expires=self.handler.clock()+600, stage='PROPOSAL',
             work_order_type='OIL_CHANGE', jalali_date=proposal['plan_date'], proposal=proposal)
         self.handler.pending[self.key] = session
         self.handler._send_reply(self.gateway, self.key[2], render(proposal), lambda *a:None, key=self.key)
         await self.settle()
         return session
+
+    async def test_oil_edit_unselected_planning_machine_is_added_only_on_confirmation(self):
+        from copy import deepcopy
+        from tools.fleet.oil_change.test_proposal import sample_source
+        source = sample_source('HD785-5', 'HD706', last=1600)
+        for code, last, remaining in [('HD464', 1600, 90.5), ('HD465', 800, 14)]:
+            extra = sample_source('HD465-7R', code, last=last, remaining=remaining)
+            source['machines'] += extra['machines']
+            source['plans'] += extra['plans']
+        session = await self.oil_edit_step(source, add_code=None)
+        before = deepcopy(session.proposal)
+        self.assertEqual([i['machine_code'] for i in before['items']], ['HD706'])
+        self.message('ویرایش اکسل'); await self.settle()
+        picker, picker_id = self.sent[-1], len(self.sent)
+        self.assertIn('➕ HD464-1800', str(picker))
+        self.assertEqual([len(row) for row in picker['reply_markup']['inline_keyboard']], [2, 1, 2])
+        self.message('', data=self.button(picker, 'edit_unit_1'), origin=picker_id)
+        await self.settle()
+        self.assertEqual(session.edit_machine_code, 'HD464')
+        self.assertIn('به حکم اضافه می‌شود', self.sent[-1]['text'])
+        self.assertEqual(session.proposal, before)
+        self.message('۱۶۰۰'); await self.settle()
+        confirmation, confirmation_id = self.sent[-1], len(self.sent)
+        self.assertIn('به حکم اضافه می‌شود', confirmation['text'])
+        self.handler = self.new_handler()
+        session = self.handler.pending[self.key]
+        apply = self.button(confirmation, 'edit_apply')
+        self.message('', data=apply, origin=confirmation_id)
+        self.message('', data=apply, origin=confirmation_id)
+        await self.settle()
+        self.assertEqual(session.stage, 'PROPOSAL')
+        self.assertEqual([i['machine_code'] for i in session.proposal['items']], ['HD706', 'HD464'])
+        self.assertEqual(session.proposal['items'][0], before['items'][0])
+        self.assertEqual(session.proposal['service_overrides'], {'HD464':1600})
+        self.assertEqual(session.proposal['evaluations'], before['evaluations'])
+        self.assertFalse(self.requests)
+        self.message('تایید'); await self.settle()
+        self.assertEqual(self.requests[-1]['item_actions'], {
+            'HD706':'OIL_CHANGE_1800', 'HD464':'OIL_CHANGE_HD465-7R_1600'})
+        self.assertEqual(self.requests[-1]['proposal']['service_overrides'], {'HD464':1600})
+
+    async def test_oil_edit_unselected_code_variants_and_ambiguous_numbers(self):
+        from tools.fleet.oil_change.test_proposal import sample_source
+        source = sample_source('HD465-7R', 'HD465', last=800, remaining=14)
+        session = await self.oil_edit_step(source, add_code=None)
+        self.assertFalse(session.proposal['items'])
+        for code in ('HD465', 'hd465', 'HD۴۶۵', '۴۶۵', '٤٦٥'):
+            self.message('ویرایش اکسل'); await self.settle()
+            self.message(code); await self.settle()
+            self.assertEqual(session.stage, 'EDIT_INTERVAL', code)
+            self.assertEqual(session.edit_machine_code, 'HD465')
+            self.message('برگشت'); await self.settle()
+            self.assertFalse(session.proposal['items'])
+        extra = sample_source('PC600-8', 'EX465', remaining=100)
+        source['machines'] += extra['machines']
+        source['plans'] += extra['plans']
+        session = await self.oil_edit_step(source, add_code=None)
+        self.message('ویرایش اکسل'); await self.settle()
+        for code in ('465', 'UNKNOWN', 'HD999', 'HD465 HD464'):
+            self.assertEqual(self.message(code)['reason'], 'work-order-input-rejected')
+            await self.settle()
+            self.assertEqual(session.stage, 'EDIT_CODE')
+            self.assertFalse(session.proposal['items'])
+        self.message('hd465'); await self.settle()
+        self.assertEqual(session.stage, 'EDIT_INTERVAL')
+        self.message('۱۶۰۰'); await self.settle()
+        self.message('تایید ویرایش'); await self.settle()
+        self.assertEqual(session.proposal['service_overrides'], {'HD465':1600})
+        self.assertFalse(session.proposal['warnings'])
+        self.assertEqual([i['machine_code'] for i in session.proposal['items']], ['HD465'])
+
+    async def test_oil_edit_unselected_back_and_cancel_leave_proposal_unchanged(self):
+        from copy import deepcopy
+        from tools.fleet.oil_change.test_proposal import sample_source
+        for stop in ('برگشت', 'انصراف'):
+            session = await self.oil_edit_step(
+                sample_source('HD465-7R', 'HD464', last=1600, remaining=90.5), add_code=None)
+            before = deepcopy(session.proposal)
+            self.message('ویرایش اکسل'); await self.settle()
+            self.message('hd464'); await self.settle()
+            self.message('1600'); await self.settle()
+            self.assertEqual(session.stage, 'EDIT_CONFIRM')
+            self.message(stop); await self.settle()
+            self.assertEqual(session.proposal, before)
+            self.assertFalse(self.requests)
+            self.document_sender.assert_not_called()
+
+    async def test_oil_edit_picker_pagination_restart_and_old_callbacks(self):
+        from tools.fleet.oil_change.test_proposal import sample_source
+        source = sample_source('HD785-5', 'HD706', last=1600)
+        for number in range(800, 820):
+            extra = sample_source('HD465-7R', f'HD{number}', last=1600, remaining=100)
+            source['machines'] += extra['machines']
+            source['plans'] += extra['plans']
+        session = await self.oil_edit_step(source, add_code=None)
+        self.message('ویرایش اکسل'); await self.settle()
+        picker_id = len(self.sent)
+        self.assertEqual([len(row) for row in self.sent[-1]['reply_markup']['inline_keyboard'][:8]], [2] * 8)
+        old_choice = self.button(self.sent[-1], 'edit_unit_0')
+        next_page = self.button(self.sent[-1], 'edit_next')
+        self.message('', data=next_page, origin=picker_id); await self.settle()
+        self.assertEqual(len(self.sent), picker_id)
+        self.assertEqual(session.edit_code_page, 1)
+        self.assertIn('صفحه 2 از 2', self.sent[-1]['text'])
+        current_choice = self.button(self.sent[-1], 'edit_unit_16')
+        self.handler = self.new_handler()
+        session = self.handler.pending[self.key]
+        self.assertEqual(session.edit_code_page, 1)
+        self.assertEqual(self.message('', data=old_choice, origin=picker_id)['reason'], 'inline-rejected')
+        await self.settle()
+        forged = current_choice.rsplit(':', 1)[0] + ':edit_unit_0'
+        self.assertEqual(self.message('', data=forged, origin=picker_id)['reason'], 'inline-rejected')
+        await self.settle()
+        self.message('', data=current_choice, origin=picker_id); await self.settle()
+        self.assertEqual(session.stage, 'EDIT_INTERVAL')
+        self.assertEqual(session.edit_machine_code, 'HD815')
+        self.assertEqual([i['machine_code'] for i in session.proposal['items']], ['HD706'])
 
     async def test_oil_edit_confirmation_restart_and_exact_creation_request(self):
         session = await self.oil_edit_step()

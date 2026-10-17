@@ -43,6 +43,7 @@ def send_work_order(
     work_order_no: str,
     sender,
     actor=None,
+    dispatch_token=None,
 ) -> dict:
     """
     Generic work order delivery.
@@ -56,6 +57,8 @@ def send_work_order(
     """
 
     con = connect_db()
+    oil = False
+    oil_attempt = None
 
     try:
 
@@ -91,6 +94,10 @@ def send_work_order(
             )
 
 
+        from . import oil_safety
+        oil = order['work_order_type'] == 'OIL_CHANGE'
+        oil_safety.current(con, work_order_no)
+
         def authorize_publish():
             if actor is not None:
                 from tools.fleet.work_orders.core.permissions import require_work_order_permission
@@ -123,6 +130,14 @@ def send_work_order(
             )
 
 
+        if oil:
+            oil_safety.migrate(con)
+            con.execute('BEGIN IMMEDIATE')
+            oil_attempt = dispatch_token or oil_safety.claim(con, work_order_no)
+            con.commit()
+            if not oil_attempt:
+                raise ValueError('ارسال این حکم قفل است؛ «بررسی ارسال» را باز کنید.')
+
         if not order["bale_id"]:
 
             raise RuntimeError(
@@ -151,6 +166,10 @@ def send_work_order(
         except Exception as exc:
             logger.error('Final copy preparation failed: %s', type(exc).__name__)
         authorize_publish()
+        if oil:
+            con.execute('BEGIN IMMEDIATE')
+            oil_safety.start_transfer(con, work_order_no, oil_attempt, file_path)
+            con.commit()
         result = sender.send_document(
             chat_id=order["bale_id"],
             file_path=artifact['path'] if artifact and artifact['path'] else str(file_path),
@@ -158,6 +177,11 @@ def send_work_order(
         )
 
 
+        if oil:
+            con.execute('BEGIN IMMEDIATE')
+            if oil_safety.complete(con, work_order_no, oil_attempt) != 'SENT':
+                con.commit()
+                return {'status':'UNCERTAIN','work_order_no':work_order_no}
         con.execute(
             """
             UPDATE service_work_orders
@@ -165,7 +189,7 @@ def send_work_order(
                 status='SENT',
                 pdf_path=?,
                 send_attempts =
-                    send_attempts + 1,
+                    send_attempts + CASE WHEN work_order_type='OIL_CHANGE' THEN 0 ELSE 1 END,
                 sent_at=CURRENT_TIMESTAMP,
                 last_send_error=NULL,
                 updated_at=CURRENT_TIMESTAMP
@@ -205,6 +229,14 @@ def send_work_order(
 
     except Exception as e:
 
+        if oil:
+            con.rollback()
+            with con:
+                con.execute('BEGIN IMMEDIATE')
+                if oil_attempt:
+                    oil_safety.complete(con, work_order_no, oil_attempt, error=e)
+                con.execute('UPDATE service_work_orders SET last_send_error=?,updated_at=CURRENT_TIMESTAMP WHERE work_order_no=?', (type(e).__name__,work_order_no))
+            raise
         con.execute(
             """
             UPDATE service_work_orders

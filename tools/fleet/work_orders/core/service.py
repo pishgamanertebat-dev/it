@@ -299,6 +299,9 @@ def create_work_order(
     item_actions=None,
     notes: str | None = None,
     authorization_check=None,
+    revision_of=None,
+    reissue_reason=None,
+    operation_id=None,
 ) -> dict:
 
     if authorization_check:
@@ -336,6 +339,16 @@ def create_work_order(
         con.execute(
             "BEGIN IMMEDIATE"
         )
+
+        oil_identity = None
+        if spec.code == 'OIL_CHANGE':
+            from . import oil_safety
+            oil_safety.migrate(con)
+            oil_identity = oil_safety.creation(con, jalali_date, items, created_by,
+                revision_of, reissue_reason, operation_id)
+            if oil_identity[2]:
+                con.rollback()
+                return get_work_order(oil_identity[2])
 
         work_order_no = (
             _next_work_order_no(
@@ -463,11 +476,20 @@ def create_work_order(
                 )
             )
 
+        document_metadata = {}
+        if oil_identity:
+            con.execute("""UPDATE service_work_orders SET operation_key=?,oil_service_key=?,revision_of=?,reissue_reason=? WHERE id=?""",
+                (oil_identity[0],oil_identity[1],revision_of,reissue_reason,work_order_id))
+            document_metadata['work_order'] = dict(con.execute(
+                'SELECT work_order_no,jalali_date,created_at,revision_of,reissue_reason FROM service_work_orders WHERE id=?',
+                (work_order_id,)).fetchone())
+
         builder.build_document(
             output_path=output_path,
             jalali_date=jalali_date,
             items=items,
             shift=shift,
+            **document_metadata,
         )
 
         if not output_path.exists():
@@ -495,6 +517,11 @@ def create_work_order(
             )
         )
 
+        if oil_identity:
+            if revision_of:
+                con.execute('UPDATE service_work_orders SET superseded_by=?,updated_at=CURRENT_TIMESTAMP WHERE work_order_no=?', (work_order_no,revision_of))
+                oil_safety.audit(con,revision_of,'SUPERSEDED',replacement=work_order_no,actor=created_by)
+                oil_safety.audit(con,work_order_no,'REISSUED' if reissue_reason else 'REVISION_READY',previous=revision_of,reason=reissue_reason,actor=created_by)
         if authorization_check:
             authorization_check()
         con.commit()

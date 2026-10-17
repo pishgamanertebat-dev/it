@@ -1,7 +1,7 @@
 """Report diagnostics preserve categories and locations, never exception text."""
 import json
 import unittest
-from .report_errors import ReportFailure,classify,public_reason
+from .report_errors import ReportFailure,RecordIdentityMismatch,classify,public_reason
 from . import test_delivery_alert as harness
 
 
@@ -22,6 +22,15 @@ class DiagnosticTests(unittest.TestCase):
     def test_invalid_location_is_not_public(self):
         failure=ReportFailure('source_invalid',sheet='E:/secret',row=-1,column='token')
         self.assertEqual(json.loads(failure.serialized()),{})
+
+    def test_record_identity_conflict_is_specific_and_keeps_column_without_raw_text(self):
+        failure=classify(RecordIdentityMismatch('private workbook contents',sheet='711',row=16,column=3),'source')
+        self.assertEqual(failure.code,'source_identity_mismatch')
+        self.assertEqual(failure.details,{'stage':'source','sheet':'711','row':16,'column':3})
+        reason=public_reason(failure.code,failure.serialized())
+        for value in ['کد مکانیزم رکورد با کد شیت مطابقت ندارد','شیت 711','ردیف 16','ستون 3']:
+            self.assertIn(value,reason)
+        self.assertNotIn('private',failure.serialized()+reason)
 
 
 class OperatorDiagnosticTests(unittest.TestCase):

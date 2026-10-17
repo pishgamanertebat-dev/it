@@ -75,6 +75,44 @@ class OilServiceEditTests(PermissionDatabaseTestCase):
         self.assertEqual(edited['proposal']['items'][0]['action_code'], 'OIL_CHANGE_PC1250-8_1800')
         self.assertEqual(edited['proposal']['service_overrides'], {'EX1252':1800})
 
+    def test_hd464_1800_to_1600_from_unselected_snapshot_creates_matching_excel(self):
+        self.source = sample_source('HD465-7R', 'HD464', last=1600, remaining=90.5)
+        second = sample_source('HD785-5', 'HD706', last=1600)
+        self.source['machines'] += second['machines']
+        self.source['plans'] += second['plans']
+        source_before = deepcopy(self.source)
+        template = TEMPLATES['HD465-7R'][0]
+        template_before = template.read_bytes()
+        proposal = build_proposal()
+        self.assertEqual([i['machine_code'] for i in proposal['items']], ['HD706'])
+        edit_oil_interval(proposal, 'hd464', '۱۶۰۰')
+        request = dict(action='create', bale_id='455740857', work_order_type='OIL_CHANGE',
+            machine_codes=[i['machine_code'] for i in proposal['items']],
+            jalali_date=proposal['plan_date'], shift='روزانه',
+            item_actions={i['machine_code']:i['action_code'] for i in proposal['items']},
+            proposal=creation_metadata(proposal))
+        result = create_worker.execute_request(request, db_path=self.db_path)
+        self.assertTrue(result['ok'], result)
+        self.assertEqual(len(result['orders']), 2)
+        orders = [service.get_work_order(i['work_order_no']) for i in result['orders']]
+        for order, code, interval in zip(orders, ('HD706', 'HD464'), ('1800', '1600')):
+            wb = load_workbook(order['excel_path'])
+            try:
+                self.assertEqual(wb.sheetnames, [interval])
+                self.assertEqual(wb.active['F3'].value, code)
+            finally:
+                wb.close()
+        audit = json.loads(orders[1]['notes'].split(': ', 1)[1])
+        self.assertEqual(audit['service_overrides'], {'HD464':1600})
+        self.assertEqual(audit['item']['components']['oil_change']['planned_interval'], 1800)
+        reopened = create_worker.execute_request(dict(action='edit', bale_id='455740857',
+            work_order_no=orders[1]['work_order_no']), db_path=self.db_path)
+        self.assertTrue(reopened['ok'], reopened)
+        self.assertEqual(reopened['proposal']['service_overrides'], {'HD464':1600})
+        self.assertEqual(reopened['proposal']['items'][0]['action_code'], 'OIL_CHANGE_HD465-7R_1600')
+        self.assertEqual(self.source, source_before)
+        self.assertEqual(template.read_bytes(), template_before)
+
     def test_override_requires_valid_cycle_selected_identity_and_matching_action(self):
         request = self.request()
         cases = [None, [], {'EX1252':True}, {'EX1252':1801}, {'EX1252':'1800.0'},

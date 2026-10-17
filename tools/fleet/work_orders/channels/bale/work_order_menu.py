@@ -22,7 +22,7 @@ def build_work_order_menu(
 ) -> str:
     require_work_order_permission(bale_id, db_path=db_path)
     if inline:
-        return 'حکم کار\nنوع حکم مورد نظر را از دکمه‌های زیر انتخاب کنید.'
+        return 'حکم کار\nنوع حکم مورد نظر را از دکمه‌های زیر انتخاب کنید.\nبرای تعیین تکلیف ارسال نامطمئن: بررسی ارسال\nصدور مجدد عمدی: صدور مجدد شماره‌حکم علت'
     items = list_work_order_types(enabled_only=False)
     lines = ["حکم کار", "", "لطفاً شمارهٔ نوع حکم کار را انتخاب کنید:", ""]
     for index, item in enumerate(items, start=1):

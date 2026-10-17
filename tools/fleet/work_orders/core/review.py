@@ -29,6 +29,8 @@ def confirm_document_review(work_order_no: str, bale_id: str) -> dict:
             row = con.execute("SELECT status,created_by,excel_path,notes FROM service_work_orders WHERE work_order_no=?", (work_order_no,)).fetchone()
             if not row or row["created_by"] != f"bale:{bale_id}":
                 raise ValueError("این حکم متعلق به حساب شما نیست یا پیدا نشد.")
+            from .oil_safety import current
+            current(con, work_order_no)
             if row["status"] != "FILE_READY":
                 raise ValueError("این حکم دیگر در مرحلهٔ بررسی فایل نیست.")
             require_work_order_permission(bale_id, db_path=work_order_db.DB_PATH, capabilities=('work_orders.review',))

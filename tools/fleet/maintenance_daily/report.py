@@ -7,7 +7,7 @@ import openpyxl
 from integrations.hermes.function_domain.scoped import ScopedReader,MAX_PARSE_BYTES
 from integrations.hermes.function_domain.extract import zip_safe
 from tools.fleet.overflow.report import validate_date
-from tools.scheduler.report_errors import ReportFailure, classify
+from tools.scheduler.report_errors import ReportFailure, RecordIdentityMismatch, classify
 SOURCE_NAME='تعمیرات 1405.xlsx'
 LAYOUT=Path(__file__).with_name('layout.json')
 DIGITS=str.maketrans('۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩','01234567890123456789')
@@ -175,7 +175,8 @@ def scan(data, target, *, layout=None):
                     code=record_code
                 if record_code!=code:
                     detail=f'{s.title} row {r}, column {report_indices[1]}: mechanism code {raw_code!r} does not match sheet code {code} (date {day})'
-                    if new or day==target:raise ValueError(detail)
+                    if new or day==target:
+                        raise RecordIdentityMismatch(detail,sheet=s.title,row=r,column=report_indices[1])
                     # Legacy unrelated dates are never included or reassigned in this report.
                     warn('non_target_record_identity_mismatch',s.title,source_row=r,date=day,reason=detail)
                 dates.add(day)
@@ -198,7 +199,8 @@ def scan(data, target, *, layout=None):
             'source_sha256':hashlib.sha256(data).hexdigest(),'available_dates':sorted(dates),
             'discovered_sheets':discovered,'missing_inspected_sheets':missing,'validation_warnings':warnings}
     except ValueError as exc:
-        exc.report_location={'sheet':s.title if 's' in locals() else None,'row':r if 'r' in locals() else None}
+        exc.report_location={'sheet':s.title if 's' in locals() else None,'row':r if 'r' in locals() else None,
+                             **getattr(exc,'report_location',{})}
         logger.error('Maintenance workbook validation failed: %s',exc)
         raise
     finally:book.close()
