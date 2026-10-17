@@ -1,5 +1,6 @@
 import unittest
 import tempfile
+import json
 from pathlib import Path
 from openpyxl import Workbook
 from tools.fleet.air_filter.proposal import evaluate_machine, build_proposal
@@ -100,7 +101,31 @@ class ProposalTests(unittest.TestCase):
         self.assertEqual(r['action_code'],OUTER)
 
     def test_real_source_target_and_quality(self):
-        p=build_proposal()
+        # Reconstruct a fixed workbook so both the real parser and calculation
+        # retain their quality checks without depending on the growing live file.
+        fixture=json.loads((Path(__file__).resolve().parents[3]/'test/fixtures/air-filter-source-14050615.json').read_text(encoding='utf8'))
+        root=Path('E:/KomatsoAI/runtime/air-filter-fixes-20261017/fixtures')
+        root.mkdir(parents=True,exist_ok=True)
+        with tempfile.TemporaryDirectory(dir=root) as directory:
+            path=Path(directory)/'source.xlsx'
+            wb=Workbook(); ws=wb.active; ws.title='Sheet1 (2)'
+            ws.append(['ردیف','نام دستگاه','کد دستگاه'])
+            dates=sorted({tuple(d['date']) for m in fixture['machines'] for d in m['daily']})
+            for index,md in enumerate(dates):
+                for offset,field in enumerate(('کارکرد','درونی','بیرونی','درونی','بیرونی')):
+                    col=4+index*5+offset
+                    ws.cell(1,col,f'{md[0]:02d}.{md[1]:02d}'); ws.cell(2,col,field)
+            for row,m in enumerate(fixture['machines'],3):
+                ws.cell(row,1,row-2); ws.cell(row,2,m['name']); ws.cell(row,3,m['code'])
+                by_date={tuple(d['date']):d for d in m['daily']}
+                for index,md in enumerate(dates):
+                    d=by_date.get(md,{})
+                    inner=d.get('inner_values',[None]); outer=d.get('outer_values',[None])
+                    values=[d.get('hours'),inner[0],outer[0],inner[1] if len(inner)>1 else None,outer[1] if len(outer)>1 else None]
+                    for offset,value in enumerate(values):
+                        if value is not None: ws.cell(row,4+index*5+offset,value)
+            wb.save(path); wb.close()
+            p=build_proposal(path)
         self.assertEqual(p['cutoff'],'1405/06/15')
         self.assertEqual(p['plan_date'],'1405/06/16')
         self.assertFalse({'S3','DG1','W471','462'} & {r['code'] for r in p['review']})

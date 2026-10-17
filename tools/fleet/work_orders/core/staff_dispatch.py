@@ -70,6 +70,9 @@ def prepare_dispatch(number, actor, chat, staff_id, roster_id=None):
             raise ValueError('این حکم قبلاً به فرد دیگری تخصیص یافته است.')
         if row['assigned_staff_id'] and row['assigned_staff_id'] != staff_id:
             raise ValueError('این حکم قبلاً به فرد دیگری تخصیص یافته است.')
+        if row['status'] != 'SENT':
+            from .review import approved_pdf_bytes
+            approved_pdf_bytes(row)
         fingerprint = hashlib.sha256(Path(row['excel_path']).read_bytes()).hexdigest()
         reviews = []
         for line in (row['notes'] or '').splitlines():
@@ -94,8 +97,8 @@ def claim_send(number):
     con = connect_db()
     try:
         row = con.execute('SELECT work_order_type FROM service_work_orders WHERE work_order_no=?', (number,)).fetchone()
-        if row and row[0] == 'OIL_CHANGE':
-            from . import oil_safety
+        from . import oil_safety
+        if row and row[0] in oil_safety.RELIABLE_TYPES:
             oil_safety.migrate(con)
             with con:
                 con.execute('BEGIN IMMEDIATE')
@@ -112,7 +115,7 @@ def finish_send(number, state):
         with con:
             # Oil transitions must be fenced by attempt identity in oil_safety.
             con.execute("""UPDATE service_work_order_dispatch SET state=? WHERE work_order_no=?
-                AND NOT EXISTS (SELECT 1 FROM service_work_orders w WHERE w.work_order_no=? AND w.work_order_type='OIL_CHANGE')""", (state, number, number))
+                AND NOT EXISTS (SELECT 1 FROM service_work_orders w WHERE w.work_order_no=? AND w.work_order_type IN ('OIL_CHANGE','GREASING','AIR_FILTER'))""", (state, number, number))
     finally:
         con.close()
 
@@ -120,7 +123,7 @@ def finish_send(number, state):
 def recipient_orders(actor):
     con = connect_db()
     try:
-        return [dict(r) for r in con.execute("""SELECT w.*, d.manager_chat_id,d.notified_at,COALESCE(d.staff_name,s.display_name) AS display_name
+        return [dict(r) for r in con.execute("""SELECT w.*, d.manager_chat_id,d.notified_at,COALESCE(d.staff_name,s.display_name) AS display_name,d.recipient_id
             FROM service_work_orders w JOIN service_work_order_dispatch d USING(work_order_no)
             JOIN service_staff s ON s.id=w.assigned_staff_id
             WHERE d.recipient_id=? AND s.bale_id=? AND s.active=1 AND w.status='SENT'
@@ -146,7 +149,10 @@ def acknowledge(number, actor):
             order = next((r for r in orders if r['work_order_no'] == number), None)
             if order is None:
                 raise ValueError('این حکم برای شما ارسال نشده است.')
-            con.execute('UPDATE service_work_orders SET acknowledged_at=COALESCE(acknowledged_at,CURRENT_TIMESTAMP),updated_at=CURRENT_TIMESTAMP WHERE work_order_no=?', (number,))
+            if not order['acknowledged_at']:
+                con.execute('UPDATE service_work_orders SET acknowledged_at=CURRENT_TIMESTAMP,updated_at=CURRENT_TIMESTAMP WHERE work_order_no=?', (number,))
+                from .oil_safety import audit
+                audit(con, number, 'STAFF_ACKNOWLEDGED', actor=str(actor), recipient_id=order['recipient_id'])
             return order
     finally:
         con.close()

@@ -22,7 +22,7 @@ class RosterTests(StaffDispatchTests):
         self.assertEqual({o['bale_id'] for o in options},{'85539397'})
         order = self.create()
         number = order['work_order_no']
-        confirm_document_review(number,'455740857')
+        self.review_pdf(number)
         result = core.prepare_dispatch(number,'455740857','455740857',options[1]['id'],options[1]['roster_id'])
         self.assertEqual(result['staff_name'],'حسین محمودی')
         with self.assertRaises(ValueError):

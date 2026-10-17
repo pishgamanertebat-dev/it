@@ -1,0 +1,5570 @@
+{
+  "machines": [
+    {
+      "row": 4,
+      "code": "EX801",
+      "legacy_code": "101",
+      "name": "بیل مکانیکی کوماتسو 7-800",
+      "entries": [
+        {
+          "stamp": [
+            6,
+            16,
+            0
+          ],
+          "hours": 11,
+          "color": "ORANGE",
+          "cell": "BDO4"
+        }
+      ],
+      "duplicate": false
+    },
+    {
+      "row": 5,
+      "code": "EX802",
+      "legacy_code": "102",
+      "name": "بیل مکانیکی کوماتسو 7-800",
+      "entries": [
+        {
+          "stamp": [
+            6,
+            16,
+            0
+          ],
+          "hours": 10,
+          "color": "ORANGE",
+          "cell": "BDO5"
+        }
+      ],
+      "duplicate": false
+    },
+    {
+      "row": 6,
+      "code": "EX601",
+      "legacy_code": "103",
+      "name": "بیل مکانیکی کوماتسو 8-600",
+      "entries": [
+        {
+          "stamp": [
+            6,
+            16,
+            0
+          ],
+          "hours": 9,
+          "color": "ORANGE",
+          "cell": "BDO6"
+        }
+      ],
+      "duplicate": false
+    },
+    {
+      "row": 7,
+      "code": "EX521",
+      "legacy_code": "104",
+      "name": "بیل مکانیکی هیوندا 9-520",
+      "entries": [
+        {
+          "stamp": [
+            6,
+            5,
+            0
+          ],
+          "hours": 4,
+          "color": "ORANGE",
+          "cell": "BCS7"
+        }
+      ],
+      "duplicate": false
+    },
+    {
+      "row": 9,
+      "code": "EX332",
+      "legacy_code": "106",
+      "name": "بیل مکانیکی هیوندا 9-330",
+      "entries": [
+        {
+          "stamp": [
+            6,
+            16,
+            1
+          ],
+          "hours": null,
+          "color": "ORANGE",
+          "cell": "BDP9"
+        }
+      ],
+      "duplicate": false
+    },
+    {
+      "row": 11,
+      "code": "EX321",
+      "legacy_code": "108",
+      "name": "بیل مکانیکی هیوندا 9-320",
+      "entries": [
+        {
+          "stamp": [
+            6,
+            16,
+            0
+          ],
+          "hours": 11,
+          "color": "ORANGE",
+          "cell": "BDO11"
+        }
+      ],
+      "duplicate": false
+    },
+    {
+      "row": 13,
+      "code": "EX231",
+      "legacy_code": "110",
+      "name": "بیل مکانیکی دوسان 230",
+      "entries": [
+        {
+          "stamp": [
+            6,
+            16,
+            0
+          ],
+          "hours": 1,
+          "color": "ORANGE",
+          "cell": "BDO13"
+        }
+      ],
+      "duplicate": false
+    },
+    {
+      "row": 15,
+      "code": "EX852",
+      "legacy_code": "112",
+      "name": "بیل مکانیکی کوماتسو 850",
+      "entries": [
+        {
+          "stamp": [
+            6,
+            16,
+            0
+          ],
+          "hours": 11,
+          "color": "ORANGE",
+          "cell": "BDO15"
+        }
+      ],
+      "duplicate": false
+    },
+    {
+      "row": 16,
+      "code": "EX853",
+      "legacy_code": "113",
+      "name": "بیل مکانیکی کوماتسو 850",
+      "entries": [
+        {
+          "stamp": [
+            6,
+            16,
+            0
+          ],
+          "hours": 11,
+          "color": "ORANGE",
+          "cell": "BDO16"
+        }
+      ],
+      "duplicate": false
+    },
+    {
+      "row": 17,
+      "code": "EX1251",
+      "legacy_code": "120",
+      "name": "بیل مکانیکی 1250",
+      "entries": [
+        {
+          "stamp": [
+            1,
+            20,
+            0
+          ],
+          "hours": 8,
+          "color": "OTHER",
+          "cell": "ARY17"
+        },
+        {
+          "stamp": [
+            1,
+            21,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "ASA17"
+        },
+        {
+          "stamp": [
+            1,
+            22,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "ASC17"
+        },
+        {
+          "stamp": [
+            1,
+            23,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "ASE17"
+        },
+        {
+          "stamp": [
+            1,
+            24,
+            0
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "ASG17"
+        },
+        {
+          "stamp": [
+            1,
+            25,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "ASI17"
+        },
+        {
+          "stamp": [
+            1,
+            26,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "ASK17"
+        },
+        {
+          "stamp": [
+            1,
+            27,
+            0
+          ],
+          "hours": 6,
+          "color": "OTHER",
+          "cell": "ASM17"
+        },
+        {
+          "stamp": [
+            1,
+            30,
+            0
+          ],
+          "hours": 5,
+          "color": "OTHER",
+          "cell": "ASS17"
+        },
+        {
+          "stamp": [
+            1,
+            31,
+            0
+          ],
+          "hours": 7,
+          "color": "OTHER",
+          "cell": "ASU17"
+        },
+        {
+          "stamp": [
+            2,
+            1,
+            0
+          ],
+          "hours": 8,
+          "color": "OTHER",
+          "cell": "ASW17"
+        },
+        {
+          "stamp": [
+            2,
+            2,
+            0
+          ],
+          "hours": 10,
+          "color": "OTHER",
+          "cell": "ASY17"
+        },
+        {
+          "stamp": [
+            2,
+            3,
+            0
+          ],
+          "hours": 10,
+          "color": "OTHER",
+          "cell": "ATA17"
+        },
+        {
+          "stamp": [
+            2,
+            4,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "ATC17"
+        },
+        {
+          "stamp": [
+            2,
+            5,
+            0
+          ],
+          "hours": 7,
+          "color": "OTHER",
+          "cell": "ATE17"
+        },
+        {
+          "stamp": [
+            2,
+            6,
+            0
+          ],
+          "hours": 10,
+          "color": "OTHER",
+          "cell": "ATG17"
+        },
+        {
+          "stamp": [
+            2,
+            7,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "ATI17"
+        },
+        {
+          "stamp": [
+            2,
+            8,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "ATK17"
+        },
+        {
+          "stamp": [
+            2,
+            9,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "ATM17"
+        },
+        {
+          "stamp": [
+            2,
+            10,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "ATO17"
+        },
+        {
+          "stamp": [
+            2,
+            11,
+            0
+          ],
+          "hours": 7,
+          "color": "OTHER",
+          "cell": "ATQ17"
+        },
+        {
+          "stamp": [
+            2,
+            12,
+            0
+          ],
+          "hours": 10,
+          "color": "OTHER",
+          "cell": "ATS17"
+        },
+        {
+          "stamp": [
+            2,
+            13,
+            0
+          ],
+          "hours": 10,
+          "color": "OTHER",
+          "cell": "ATU17"
+        },
+        {
+          "stamp": [
+            2,
+            14,
+            0
+          ],
+          "hours": 10,
+          "color": "OTHER",
+          "cell": "ATW17"
+        },
+        {
+          "stamp": [
+            2,
+            15,
+            0
+          ],
+          "hours": 10,
+          "color": "OTHER",
+          "cell": "ATY17"
+        },
+        {
+          "stamp": [
+            2,
+            16,
+            0
+          ],
+          "hours": 10,
+          "color": "OTHER",
+          "cell": "AUA17"
+        },
+        {
+          "stamp": [
+            2,
+            17,
+            0
+          ],
+          "hours": 10,
+          "color": "OTHER",
+          "cell": "AUC17"
+        },
+        {
+          "stamp": [
+            2,
+            18,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "AUE17"
+        },
+        {
+          "stamp": [
+            2,
+            18,
+            1
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "AUF17"
+        },
+        {
+          "stamp": [
+            2,
+            19,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "AUG17"
+        },
+        {
+          "stamp": [
+            2,
+            20,
+            0
+          ],
+          "hours": 10,
+          "color": "OTHER",
+          "cell": "AUI17"
+        },
+        {
+          "stamp": [
+            2,
+            21,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "AUK17"
+        },
+        {
+          "stamp": [
+            2,
+            21,
+            1
+          ],
+          "hours": 1,
+          "color": "OTHER",
+          "cell": "AUL17"
+        },
+        {
+          "stamp": [
+            2,
+            22,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "AUM17"
+        },
+        {
+          "stamp": [
+            2,
+            22,
+            1
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "AUN17"
+        },
+        {
+          "stamp": [
+            2,
+            23,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "AUO17"
+        },
+        {
+          "stamp": [
+            2,
+            23,
+            1
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "AUP17"
+        },
+        {
+          "stamp": [
+            2,
+            24,
+            0
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "AUQ17"
+        },
+        {
+          "stamp": [
+            2,
+            24,
+            1
+          ],
+          "hours": 6,
+          "color": "OTHER",
+          "cell": "AUR17"
+        },
+        {
+          "stamp": [
+            2,
+            25,
+            0
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "AUS17"
+        },
+        {
+          "stamp": [
+            2,
+            25,
+            1
+          ],
+          "hours": 6,
+          "color": "OTHER",
+          "cell": "AUT17"
+        },
+        {
+          "stamp": [
+            2,
+            26,
+            0
+          ],
+          "hours": 10,
+          "color": "OTHER",
+          "cell": "AUU17"
+        },
+        {
+          "stamp": [
+            2,
+            26,
+            1
+          ],
+          "hours": 6,
+          "color": "OTHER",
+          "cell": "AUV17"
+        },
+        {
+          "stamp": [
+            2,
+            27,
+            0
+          ],
+          "hours": 1,
+          "color": "OTHER",
+          "cell": "AUW17"
+        },
+        {
+          "stamp": [
+            2,
+            28,
+            0
+          ],
+          "hours": 7,
+          "color": "OTHER",
+          "cell": "AUY17"
+        },
+        {
+          "stamp": [
+            2,
+            28,
+            1
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "AUZ17"
+        },
+        {
+          "stamp": [
+            2,
+            29,
+            0
+          ],
+          "hours": 10,
+          "color": "OTHER",
+          "cell": "AVA17"
+        },
+        {
+          "stamp": [
+            2,
+            29,
+            1
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "AVB17"
+        },
+        {
+          "stamp": [
+            2,
+            30,
+            0
+          ],
+          "hours": 8,
+          "color": "OTHER",
+          "cell": "AVC17"
+        },
+        {
+          "stamp": [
+            2,
+            30,
+            1
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "AVD17"
+        },
+        {
+          "stamp": [
+            2,
+            31,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "AVE17"
+        },
+        {
+          "stamp": [
+            2,
+            31,
+            1
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "AVF17"
+        },
+        {
+          "stamp": [
+            3,
+            1,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "AVG17"
+        },
+        {
+          "stamp": [
+            3,
+            1,
+            1
+          ],
+          "hours": 9,
+          "color": "NONE",
+          "cell": "AVH17"
+        },
+        {
+          "stamp": [
+            3,
+            2,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "AVI17"
+        },
+        {
+          "stamp": [
+            3,
+            2,
+            1
+          ],
+          "hours": 9,
+          "color": "NONE",
+          "cell": "AVJ17"
+        },
+        {
+          "stamp": [
+            3,
+            3,
+            0
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "AVK17"
+        },
+        {
+          "stamp": [
+            3,
+            3,
+            1
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "AVL17"
+        },
+        {
+          "stamp": [
+            3,
+            4,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "AVM17"
+        },
+        {
+          "stamp": [
+            3,
+            4,
+            1
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "AVN17"
+        },
+        {
+          "stamp": [
+            3,
+            5,
+            1
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "AVP17"
+        },
+        {
+          "stamp": [
+            3,
+            6,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "AVQ17"
+        },
+        {
+          "stamp": [
+            3,
+            6,
+            1
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "AVR17"
+        },
+        {
+          "stamp": [
+            3,
+            7,
+            0
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "AVS17"
+        },
+        {
+          "stamp": [
+            3,
+            7,
+            1
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "AVT17"
+        },
+        {
+          "stamp": [
+            3,
+            8,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "AVU17"
+        },
+        {
+          "stamp": [
+            3,
+            8,
+            1
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "AVV17"
+        },
+        {
+          "stamp": [
+            3,
+            9,
+            0
+          ],
+          "hours": 10,
+          "color": "OTHER",
+          "cell": "AVW17"
+        },
+        {
+          "stamp": [
+            3,
+            9,
+            1
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "AVX17"
+        },
+        {
+          "stamp": [
+            3,
+            10,
+            0
+          ],
+          "hours": 10,
+          "color": "OTHER",
+          "cell": "AVY17"
+        },
+        {
+          "stamp": [
+            3,
+            10,
+            1
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "AVZ17"
+        },
+        {
+          "stamp": [
+            3,
+            11,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "AWA17"
+        },
+        {
+          "stamp": [
+            3,
+            11,
+            1
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "AWB17"
+        },
+        {
+          "stamp": [
+            3,
+            12,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "AWC17"
+        },
+        {
+          "stamp": [
+            3,
+            12,
+            1
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "AWD17"
+        },
+        {
+          "stamp": [
+            3,
+            13,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "AWE17"
+        },
+        {
+          "stamp": [
+            3,
+            13,
+            1
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "AWF17"
+        },
+        {
+          "stamp": [
+            3,
+            14,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "AWG17"
+        },
+        {
+          "stamp": [
+            3,
+            14,
+            1
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "AWH17"
+        },
+        {
+          "stamp": [
+            3,
+            15,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "AWI17"
+        },
+        {
+          "stamp": [
+            3,
+            15,
+            1
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "AWJ17"
+        },
+        {
+          "stamp": [
+            3,
+            16,
+            0
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "AWK17"
+        },
+        {
+          "stamp": [
+            3,
+            16,
+            1
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "AWL17"
+        },
+        {
+          "stamp": [
+            3,
+            17,
+            0
+          ],
+          "hours": 10,
+          "color": "OTHER",
+          "cell": "AWM17"
+        },
+        {
+          "stamp": [
+            3,
+            17,
+            1
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "AWN17"
+        },
+        {
+          "stamp": [
+            3,
+            18,
+            0
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "AWO17"
+        },
+        {
+          "stamp": [
+            3,
+            18,
+            1
+          ],
+          "hours": 9,
+          "color": "NONE",
+          "cell": "AWP17"
+        },
+        {
+          "stamp": [
+            3,
+            19,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "AWQ17"
+        },
+        {
+          "stamp": [
+            3,
+            19,
+            1
+          ],
+          "hours": 9,
+          "color": "NONE",
+          "cell": "AWR17"
+        },
+        {
+          "stamp": [
+            3,
+            20,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "AWS17"
+        },
+        {
+          "stamp": [
+            3,
+            20,
+            1
+          ],
+          "hours": 9,
+          "color": "NONE",
+          "cell": "AWT17"
+        },
+        {
+          "stamp": [
+            3,
+            21,
+            0
+          ],
+          "hours": 10,
+          "color": "OTHER",
+          "cell": "AWU17"
+        },
+        {
+          "stamp": [
+            3,
+            21,
+            1
+          ],
+          "hours": 9,
+          "color": "NONE",
+          "cell": "AWV17"
+        },
+        {
+          "stamp": [
+            3,
+            22,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "AWW17"
+        },
+        {
+          "stamp": [
+            3,
+            22,
+            1
+          ],
+          "hours": 9,
+          "color": "NONE",
+          "cell": "AWX17"
+        },
+        {
+          "stamp": [
+            3,
+            23,
+            0
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "AWY17"
+        },
+        {
+          "stamp": [
+            3,
+            23,
+            1
+          ],
+          "hours": 9,
+          "color": "NONE",
+          "cell": "AWZ17"
+        },
+        {
+          "stamp": [
+            3,
+            24,
+            0
+          ],
+          "hours": 10,
+          "color": "OTHER",
+          "cell": "AXA17"
+        },
+        {
+          "stamp": [
+            3,
+            25,
+            0
+          ],
+          "hours": 10,
+          "color": "OTHER",
+          "cell": "AXC17"
+        },
+        {
+          "stamp": [
+            3,
+            25,
+            1
+          ],
+          "hours": 9,
+          "color": "NONE",
+          "cell": "AXD17"
+        },
+        {
+          "stamp": [
+            3,
+            26,
+            0
+          ],
+          "hours": 10,
+          "color": "OTHER",
+          "cell": "AXE17"
+        },
+        {
+          "stamp": [
+            3,
+            27,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "AXG17"
+        },
+        {
+          "stamp": [
+            3,
+            27,
+            1
+          ],
+          "hours": 7,
+          "color": "NONE",
+          "cell": "AXH17"
+        },
+        {
+          "stamp": [
+            3,
+            28,
+            0
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "AXI17"
+        },
+        {
+          "stamp": [
+            3,
+            28,
+            1
+          ],
+          "hours": 9,
+          "color": "NONE",
+          "cell": "AXJ17"
+        },
+        {
+          "stamp": [
+            3,
+            29,
+            0
+          ],
+          "hours": 7,
+          "color": "OTHER",
+          "cell": "AXK17"
+        },
+        {
+          "stamp": [
+            3,
+            30,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "AXM17"
+        },
+        {
+          "stamp": [
+            3,
+            30,
+            1
+          ],
+          "hours": 5,
+          "color": "NONE",
+          "cell": "AXN17"
+        },
+        {
+          "stamp": [
+            3,
+            31,
+            0
+          ],
+          "hours": 10,
+          "color": "OTHER",
+          "cell": "AXO17"
+        },
+        {
+          "stamp": [
+            3,
+            31,
+            1
+          ],
+          "hours": 9,
+          "color": "NONE",
+          "cell": "AXP17"
+        },
+        {
+          "stamp": [
+            4,
+            1,
+            1
+          ],
+          "hours": 1,
+          "color": "NONE",
+          "cell": "AXR17"
+        },
+        {
+          "stamp": [
+            4,
+            2,
+            0
+          ],
+          "hours": 5,
+          "color": "OTHER",
+          "cell": "AXS17"
+        },
+        {
+          "stamp": [
+            4,
+            4,
+            1
+          ],
+          "hours": 9,
+          "color": "NONE",
+          "cell": "AXX17"
+        },
+        {
+          "stamp": [
+            4,
+            5,
+            1
+          ],
+          "hours": 2,
+          "color": "NONE",
+          "cell": "AXZ17"
+        },
+        {
+          "stamp": [
+            4,
+            6,
+            0
+          ],
+          "hours": 7,
+          "color": "OTHER",
+          "cell": "AYA17"
+        },
+        {
+          "stamp": [
+            4,
+            6,
+            1
+          ],
+          "hours": 9,
+          "color": "NONE",
+          "cell": "AYB17"
+        },
+        {
+          "stamp": [
+            4,
+            7,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "AYC17"
+        },
+        {
+          "stamp": [
+            4,
+            7,
+            1
+          ],
+          "hours": 9,
+          "color": "NONE",
+          "cell": "AYD17"
+        },
+        {
+          "stamp": [
+            4,
+            8,
+            0
+          ],
+          "hours": 10,
+          "color": "OTHER",
+          "cell": "AYE17"
+        },
+        {
+          "stamp": [
+            4,
+            8,
+            1
+          ],
+          "hours": 9,
+          "color": "NONE",
+          "cell": "AYF17"
+        },
+        {
+          "stamp": [
+            4,
+            9,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "AYG17"
+        },
+        {
+          "stamp": [
+            4,
+            9,
+            1
+          ],
+          "hours": 9,
+          "color": "NONE",
+          "cell": "AYH17"
+        },
+        {
+          "stamp": [
+            4,
+            10,
+            0
+          ],
+          "hours": 10,
+          "color": "OTHER",
+          "cell": "AYI17"
+        },
+        {
+          "stamp": [
+            4,
+            10,
+            1
+          ],
+          "hours": 9,
+          "color": "NONE",
+          "cell": "AYJ17"
+        },
+        {
+          "stamp": [
+            4,
+            11,
+            0
+          ],
+          "hours": 1,
+          "color": "OTHER",
+          "cell": "AYK17"
+        },
+        {
+          "stamp": [
+            4,
+            13,
+            0
+          ],
+          "hours": 1,
+          "color": "OTHER",
+          "cell": "AYO17"
+        },
+        {
+          "stamp": [
+            4,
+            14,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "AYQ17"
+        },
+        {
+          "stamp": [
+            4,
+            19,
+            0
+          ],
+          "hours": 6,
+          "color": "OTHER",
+          "cell": "AZA17"
+        },
+        {
+          "stamp": [
+            4,
+            20,
+            0
+          ],
+          "hours": 8,
+          "color": "OTHER",
+          "cell": "AZC17"
+        },
+        {
+          "stamp": [
+            4,
+            20,
+            1
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "AZD17"
+        },
+        {
+          "stamp": [
+            4,
+            21,
+            0
+          ],
+          "hours": 8,
+          "color": "OTHER",
+          "cell": "AZE17"
+        },
+        {
+          "stamp": [
+            4,
+            22,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "AZG17"
+        },
+        {
+          "stamp": [
+            4,
+            22,
+            1
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "AZH17"
+        },
+        {
+          "stamp": [
+            4,
+            23,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "AZI17"
+        },
+        {
+          "stamp": [
+            4,
+            23,
+            1
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "AZJ17"
+        },
+        {
+          "stamp": [
+            4,
+            24,
+            0
+          ],
+          "hours": 10,
+          "color": "OTHER",
+          "cell": "AZK17"
+        },
+        {
+          "stamp": [
+            4,
+            24,
+            1
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "AZL17"
+        },
+        {
+          "stamp": [
+            4,
+            25,
+            0
+          ],
+          "hours": 8,
+          "color": "OTHER",
+          "cell": "AZM17"
+        },
+        {
+          "stamp": [
+            4,
+            25,
+            1
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "AZN17"
+        },
+        {
+          "stamp": [
+            4,
+            26,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "AZO17"
+        },
+        {
+          "stamp": [
+            4,
+            27,
+            0
+          ],
+          "hours": 10,
+          "color": "OTHER",
+          "cell": "AZQ17"
+        },
+        {
+          "stamp": [
+            4,
+            27,
+            1
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "AZR17"
+        },
+        {
+          "stamp": [
+            4,
+            28,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "AZS17"
+        },
+        {
+          "stamp": [
+            4,
+            29,
+            0
+          ],
+          "hours": 5,
+          "color": "OTHER",
+          "cell": "AZU17"
+        },
+        {
+          "stamp": [
+            4,
+            29,
+            1
+          ],
+          "hours": 3,
+          "color": "OTHER",
+          "cell": "AZV17"
+        },
+        {
+          "stamp": [
+            4,
+            31,
+            0
+          ],
+          "hours": 5,
+          "color": "OTHER",
+          "cell": "AZY17"
+        },
+        {
+          "stamp": [
+            4,
+            31,
+            1
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "AZZ17"
+        },
+        {
+          "stamp": [
+            5,
+            1,
+            0
+          ],
+          "hours": 10,
+          "color": "OTHER",
+          "cell": "BAA17"
+        },
+        {
+          "stamp": [
+            5,
+            1,
+            1
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "BAB17"
+        },
+        {
+          "stamp": [
+            5,
+            2,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "BAC17"
+        },
+        {
+          "stamp": [
+            5,
+            2,
+            1
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "BAD17"
+        },
+        {
+          "stamp": [
+            5,
+            3,
+            0
+          ],
+          "hours": 10,
+          "color": "OTHER",
+          "cell": "BAE17"
+        },
+        {
+          "stamp": [
+            5,
+            3,
+            1
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "BAF17"
+        },
+        {
+          "stamp": [
+            5,
+            4,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "BAG17"
+        },
+        {
+          "stamp": [
+            5,
+            4,
+            1
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "BAH17"
+        },
+        {
+          "stamp": [
+            5,
+            5,
+            0
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "BAI17"
+        },
+        {
+          "stamp": [
+            5,
+            5,
+            1
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "BAJ17"
+        },
+        {
+          "stamp": [
+            5,
+            6,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "BAK17"
+        },
+        {
+          "stamp": [
+            5,
+            6,
+            1
+          ],
+          "hours": 6,
+          "color": "OTHER",
+          "cell": "BAL17"
+        },
+        {
+          "stamp": [
+            5,
+            7,
+            0
+          ],
+          "hours": 6,
+          "color": "OTHER",
+          "cell": "BAM17"
+        },
+        {
+          "stamp": [
+            5,
+            7,
+            1
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "BAN17"
+        },
+        {
+          "stamp": [
+            5,
+            8,
+            0
+          ],
+          "hours": 3,
+          "color": "OTHER",
+          "cell": "BAO17"
+        },
+        {
+          "stamp": [
+            5,
+            8,
+            1
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "BAP17"
+        },
+        {
+          "stamp": [
+            5,
+            9,
+            0
+          ],
+          "hours": 10,
+          "color": "OTHER",
+          "cell": "BAQ17"
+        },
+        {
+          "stamp": [
+            5,
+            11,
+            1
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "BAV17"
+        },
+        {
+          "stamp": [
+            5,
+            12,
+            0
+          ],
+          "hours": 10,
+          "color": "OTHER",
+          "cell": "BAW17"
+        },
+        {
+          "stamp": [
+            5,
+            12,
+            1
+          ],
+          "hours": 3,
+          "color": "OTHER",
+          "cell": "BAX17"
+        },
+        {
+          "stamp": [
+            5,
+            13,
+            0
+          ],
+          "hours": 8,
+          "color": "OTHER",
+          "cell": "BAY17"
+        },
+        {
+          "stamp": [
+            5,
+            13,
+            1
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "BAZ17"
+        },
+        {
+          "stamp": [
+            5,
+            14,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "BBA17"
+        },
+        {
+          "stamp": [
+            5,
+            14,
+            1
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "BBB17"
+        },
+        {
+          "stamp": [
+            5,
+            15,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "BBC17"
+        },
+        {
+          "stamp": [
+            5,
+            15,
+            1
+          ],
+          "hours": 6,
+          "color": "OTHER",
+          "cell": "BBD17"
+        },
+        {
+          "stamp": [
+            5,
+            16,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "BBE17"
+        },
+        {
+          "stamp": [
+            5,
+            16,
+            1
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "BBF17"
+        },
+        {
+          "stamp": [
+            5,
+            17,
+            0
+          ],
+          "hours": 8,
+          "color": "OTHER",
+          "cell": "BBG17"
+        },
+        {
+          "stamp": [
+            5,
+            17,
+            1
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "BBH17"
+        },
+        {
+          "stamp": [
+            5,
+            18,
+            0
+          ],
+          "hours": 6,
+          "color": "OTHER",
+          "cell": "BBI17"
+        },
+        {
+          "stamp": [
+            5,
+            18,
+            1
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "BBJ17"
+        },
+        {
+          "stamp": [
+            5,
+            19,
+            0
+          ],
+          "hours": 7,
+          "color": "OTHER",
+          "cell": "BBK17"
+        },
+        {
+          "stamp": [
+            5,
+            20,
+            0
+          ],
+          "hours": 3,
+          "color": "OTHER",
+          "cell": "BBM17"
+        },
+        {
+          "stamp": [
+            5,
+            20,
+            1
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "BBN17"
+        },
+        {
+          "stamp": [
+            5,
+            21,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "BBO17"
+        },
+        {
+          "stamp": [
+            5,
+            21,
+            1
+          ],
+          "hours": 3,
+          "color": "OTHER",
+          "cell": "BBP17"
+        },
+        {
+          "stamp": [
+            5,
+            22,
+            0
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "BBQ17"
+        },
+        {
+          "stamp": [
+            5,
+            22,
+            1
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "BBR17"
+        },
+        {
+          "stamp": [
+            5,
+            23,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "BBS17"
+        },
+        {
+          "stamp": [
+            5,
+            23,
+            1
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "BBT17"
+        },
+        {
+          "stamp": [
+            5,
+            24,
+            0
+          ],
+          "hours": 10,
+          "color": "OTHER",
+          "cell": "BBU17"
+        },
+        {
+          "stamp": [
+            5,
+            24,
+            1
+          ],
+          "hours": 7,
+          "color": "OTHER",
+          "cell": "BBV17"
+        },
+        {
+          "stamp": [
+            5,
+            25,
+            0
+          ],
+          "hours": 6,
+          "color": "OTHER",
+          "cell": "BBW17"
+        },
+        {
+          "stamp": [
+            5,
+            26,
+            0
+          ],
+          "hours": "باز کردن موتور",
+          "color": "OTHER",
+          "cell": "BBY17"
+        },
+        {
+          "stamp": [
+            5,
+            27,
+            0
+          ],
+          "hours": "ارسال موتور",
+          "color": "OTHER",
+          "cell": "BCA17"
+        },
+        {
+          "stamp": [
+            6,
+            4,
+            0
+          ],
+          "hours": "آوردن موتور از اصفهان",
+          "color": "OTHER",
+          "cell": "BCQ17"
+        },
+        {
+          "stamp": [
+            6,
+            5,
+            0
+          ],
+          "hours": "نصب موتور",
+          "color": "OTHER",
+          "cell": "BCS17"
+        },
+        {
+          "stamp": [
+            6,
+            8,
+            0
+          ],
+          "hours": 6,
+          "color": "OTHER",
+          "cell": "BCY17"
+        }
+      ],
+      "duplicate": false
+    },
+    {
+      "row": 18,
+      "code": "EX1252",
+      "legacy_code": "121",
+      "name": "بیل مکانیکی 1250",
+      "entries": [
+        {
+          "stamp": [
+            6,
+            4,
+            0
+          ],
+          "hours": 7,
+          "color": "ORANGE",
+          "cell": "BCQ18"
+        },
+        {
+          "stamp": [
+            6,
+            16,
+            0
+          ],
+          "hours": "آوردن موتور از اصفهان و نصب موتور",
+          "color": "OTHER",
+          "cell": "BDO18"
+        }
+      ],
+      "duplicate": false
+    },
+    {
+      "row": 19,
+      "code": "EX1253",
+      "legacy_code": "122",
+      "name": "بیل مکانیکی 1250",
+      "entries": [
+        {
+          "stamp": [
+            6,
+            9,
+            0
+          ],
+          "hours": 4,
+          "color": "ORANGE",
+          "cell": "BDA19"
+        }
+      ],
+      "duplicate": false
+    },
+    {
+      "row": 20,
+      "code": "EX1254",
+      "legacy_code": "123",
+      "name": "بیل مکانیکی 1250",
+      "entries": [
+        {
+          "stamp": [
+            6,
+            10,
+            0
+          ],
+          "hours": 11,
+          "color": "ORANGE",
+          "cell": "BDC20"
+        },
+        {
+          "stamp": [
+            6,
+            11,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "BDE20"
+        }
+      ],
+      "duplicate": false
+    },
+    {
+      "row": 21,
+      "code": "EX1255",
+      "legacy_code": "124",
+      "name": "بیل مکانیکی 1250",
+      "entries": [
+        {
+          "stamp": [
+            6,
+            13,
+            0
+          ],
+          "hours": 6,
+          "color": "ORANGE",
+          "cell": "BDI21"
+        }
+      ],
+      "duplicate": false
+    },
+    {
+      "row": 24,
+      "code": "W472",
+      "legacy_code": "202",
+      "name": "لودر کوماتسو3-470",
+      "entries": [
+        {
+          "stamp": [
+            6,
+            16,
+            0
+          ],
+          "hours": 11,
+          "color": "ORANGE",
+          "cell": "BDO24"
+        }
+      ],
+      "duplicate": false
+    },
+    {
+      "row": 25,
+      "code": "W473",
+      "legacy_code": "203",
+      "name": "لودر کوماتسو3-470",
+      "entries": [
+        {
+          "stamp": [
+            6,
+            11,
+            0
+          ],
+          "hours": 10,
+          "color": "ORANGE",
+          "cell": "BDE25"
+        }
+      ],
+      "duplicate": false
+    },
+    {
+      "row": 26,
+      "code": "W601",
+      "legacy_code": "204",
+      "name": "لودر کوماتسو 600",
+      "entries": [
+        {
+          "stamp": [
+            6,
+            10,
+            0
+          ],
+          "hours": 6,
+          "color": "ORANGE",
+          "cell": "BDC26"
+        },
+        {
+          "stamp": [
+            6,
+            10,
+            1
+          ],
+          "hours": "آتش گرفتن لودر",
+          "color": "OTHER",
+          "cell": "BDD26"
+        }
+      ],
+      "duplicate": false
+    },
+    {
+      "row": 28,
+      "code": "D155",
+      "legacy_code": "151",
+      "name": "بلدوزر کوماتسو 155",
+      "entries": [
+        {
+          "stamp": [
+            6,
+            16,
+            0
+          ],
+          "hours": 8,
+          "color": "ORANGE",
+          "cell": "BDO28"
+        }
+      ],
+      "duplicate": true
+    },
+    {
+      "row": 29,
+      "code": "D155",
+      "legacy_code": "152",
+      "name": "بلدوزر کوماتسو 155",
+      "entries": [
+        {
+          "stamp": [
+            6,
+            16,
+            0
+          ],
+          "hours": 8,
+          "color": "ORANGE",
+          "cell": "BDO29"
+        }
+      ],
+      "duplicate": true
+    },
+    {
+      "row": 32,
+      "code": "HD701",
+      "legacy_code": "401",
+      "name": "دامپتراک کوماتسو 5-785",
+      "entries": [
+        {
+          "stamp": [
+            6,
+            10,
+            0
+          ],
+          "hours": null,
+          "color": "ORANGE",
+          "cell": "BDC32"
+        },
+        {
+          "stamp": [
+            6,
+            14,
+            0
+          ],
+          "hours": 5,
+          "color": "OTHER",
+          "cell": "BDK32"
+        },
+        {
+          "stamp": [
+            6,
+            15,
+            0
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "BDM32"
+        },
+        {
+          "stamp": [
+            6,
+            16,
+            0
+          ],
+          "hours": 8,
+          "color": "OTHER",
+          "cell": "BDO32"
+        }
+      ],
+      "duplicate": false
+    },
+    {
+      "row": 33,
+      "code": "HD702",
+      "legacy_code": "402",
+      "name": "دامپتراک کوماتسو 5-785",
+      "entries": [
+        {
+          "stamp": [
+            6,
+            10,
+            0
+          ],
+          "hours": null,
+          "color": "ORANGE",
+          "cell": "BDC33"
+        },
+        {
+          "stamp": [
+            6,
+            13,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "BDI33"
+        }
+      ],
+      "duplicate": false
+    },
+    {
+      "row": 34,
+      "code": "HD703",
+      "legacy_code": "403",
+      "name": "دامپتراک کوماتسو 5-785",
+      "entries": [
+        {
+          "stamp": [
+            6,
+            2,
+            0
+          ],
+          "hours": 11,
+          "color": "ORANGE",
+          "cell": "BCM34"
+        },
+        {
+          "stamp": [
+            6,
+            3,
+            0
+          ],
+          "hours": 10,
+          "color": "OTHER",
+          "cell": "BCO34"
+        },
+        {
+          "stamp": [
+            6,
+            4,
+            0
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "BCQ34"
+        },
+        {
+          "stamp": [
+            6,
+            5,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "BCS34"
+        },
+        {
+          "stamp": [
+            6,
+            6,
+            0
+          ],
+          "hours": 8,
+          "color": "OTHER",
+          "cell": "BCU34"
+        },
+        {
+          "stamp": [
+            6,
+            7,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "BCW34"
+        },
+        {
+          "stamp": [
+            6,
+            8,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "BCY34"
+        },
+        {
+          "stamp": [
+            6,
+            9,
+            0
+          ],
+          "hours": 6,
+          "color": "OTHER",
+          "cell": "BDA34"
+        }
+      ],
+      "duplicate": false
+    },
+    {
+      "row": 35,
+      "code": "HD704",
+      "legacy_code": "404",
+      "name": "دامپتراک کوماتسو 5-785",
+      "entries": [
+        {
+          "stamp": [
+            6,
+            9,
+            0
+          ],
+          "hours": 8,
+          "color": "ORANGE",
+          "cell": "BDA35"
+        },
+        {
+          "stamp": [
+            6,
+            10,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "BDC35"
+        },
+        {
+          "stamp": [
+            6,
+            11,
+            0
+          ],
+          "hours": 3,
+          "color": "OTHER",
+          "cell": "BDE35"
+        },
+        {
+          "stamp": [
+            6,
+            12,
+            0
+          ],
+          "hours": 5,
+          "color": "OTHER",
+          "cell": "BDG35"
+        },
+        {
+          "stamp": [
+            6,
+            13,
+            0
+          ],
+          "hours": 5,
+          "color": "OTHER",
+          "cell": "BDI35"
+        },
+        {
+          "stamp": [
+            6,
+            14,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "BDK35"
+        },
+        {
+          "stamp": [
+            6,
+            15,
+            0
+          ],
+          "hours": 10,
+          "color": "OTHER",
+          "cell": "BDM35"
+        }
+      ],
+      "duplicate": false
+    },
+    {
+      "row": 39,
+      "code": "HD461",
+      "legacy_code": "408",
+      "name": "دامپتراک کوماتسو 7-465",
+      "entries": [
+        {
+          "stamp": [
+            6,
+            13,
+            0
+          ],
+          "hours": 11,
+          "color": "ORANGE",
+          "cell": "BDI39"
+        },
+        {
+          "stamp": [
+            6,
+            15,
+            0
+          ],
+          "hours": 7,
+          "color": "OTHER",
+          "cell": "BDM39"
+        },
+        {
+          "stamp": [
+            6,
+            16,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "BDO39"
+        }
+      ],
+      "duplicate": false
+    },
+    {
+      "row": 40,
+      "code": "HD705",
+      "legacy_code": "409",
+      "name": "دامپتراک کوماتسو 5-785",
+      "entries": [
+        {
+          "stamp": [
+            6,
+            15,
+            0
+          ],
+          "hours": 10,
+          "color": "ORANGE",
+          "cell": "BDM40"
+        }
+      ],
+      "duplicate": false
+    },
+    {
+      "row": 41,
+      "code": "HD706",
+      "legacy_code": "410",
+      "name": "دامپتراک کوماتسو 5-785",
+      "entries": [
+        {
+          "stamp": [
+            6,
+            7,
+            0
+          ],
+          "hours": 11,
+          "color": "ORANGE",
+          "cell": "BCW41"
+        },
+        {
+          "stamp": [
+            6,
+            8,
+            0
+          ],
+          "hours": 10,
+          "color": "OTHER",
+          "cell": "BCY41"
+        },
+        {
+          "stamp": [
+            6,
+            9,
+            0
+          ],
+          "hours": 3,
+          "color": "OTHER",
+          "cell": "BDA41"
+        }
+      ],
+      "duplicate": false
+    },
+    {
+      "row": 43,
+      "code": "HD707",
+      "legacy_code": "412",
+      "name": "دامپتراک کوماتسو _5_785",
+      "entries": [
+        {
+          "stamp": [
+            6,
+            7,
+            0
+          ],
+          "hours": 10,
+          "color": "ORANGE",
+          "cell": "BCW43"
+        },
+        {
+          "stamp": [
+            6,
+            8,
+            0
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "BCY43"
+        }
+      ],
+      "duplicate": false
+    },
+    {
+      "row": 44,
+      "code": "HD463",
+      "legacy_code": "413",
+      "name": "دامپتراک کوماتسو_ 7_465",
+      "entries": [
+        {
+          "stamp": [
+            6,
+            9,
+            0
+          ],
+          "hours": 9,
+          "color": "ORANGE",
+          "cell": "BDA44"
+        },
+        {
+          "stamp": [
+            6,
+            10,
+            0
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "BDC44"
+        },
+        {
+          "stamp": [
+            6,
+            11,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "BDE44"
+        },
+        {
+          "stamp": [
+            6,
+            12,
+            0
+          ],
+          "hours": 5,
+          "color": "OTHER",
+          "cell": "BDG44"
+        },
+        {
+          "stamp": [
+            6,
+            15,
+            0
+          ],
+          "hours": 8,
+          "color": "OTHER",
+          "cell": "BDM44"
+        },
+        {
+          "stamp": [
+            6,
+            16,
+            0
+          ],
+          "hours": 10,
+          "color": "OTHER",
+          "cell": "BDO44"
+        }
+      ],
+      "duplicate": false
+    },
+    {
+      "row": 45,
+      "code": "HD464",
+      "legacy_code": "414",
+      "name": "دامپتراک کوماتسو_ 7_465",
+      "entries": [
+        {
+          "stamp": [
+            6,
+            12,
+            0
+          ],
+          "hours": 10,
+          "color": "ORANGE",
+          "cell": "BDG45"
+        },
+        {
+          "stamp": [
+            6,
+            13,
+            0
+          ],
+          "hours": 10,
+          "color": "OTHER",
+          "cell": "BDI45"
+        },
+        {
+          "stamp": [
+            6,
+            14,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "BDK45"
+        },
+        {
+          "stamp": [
+            6,
+            15,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "BDM45"
+        },
+        {
+          "stamp": [
+            6,
+            16,
+            0
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "BDO45"
+        }
+      ],
+      "duplicate": false
+    },
+    {
+      "row": 46,
+      "code": "HD465",
+      "legacy_code": "415",
+      "name": "دامپتراک کوماتسو_ 7_465",
+      "entries": [
+        {
+          "stamp": [
+            6,
+            15,
+            0
+          ],
+          "hours": null,
+          "color": "ORANGE",
+          "cell": "BDM46"
+        },
+        {
+          "stamp": [
+            6,
+            16,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "BDO46"
+        }
+      ],
+      "duplicate": false
+    },
+    {
+      "row": 49,
+      "code": "HD466",
+      "legacy_code": "418",
+      "name": "دامپتراک کوماتسو_ 7_465",
+      "entries": [
+        {
+          "stamp": [
+            6,
+            15,
+            0
+          ],
+          "hours": 10,
+          "color": "ORANGE",
+          "cell": "BDM49"
+        },
+        {
+          "stamp": [
+            6,
+            16,
+            0
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "BDO49"
+        }
+      ],
+      "duplicate": false
+    },
+    {
+      "row": 50,
+      "code": "HD467",
+      "legacy_code": "419",
+      "name": "دامپتراک کوماتسو_ 7_465",
+      "entries": [
+        {
+          "stamp": [
+            6,
+            3,
+            0
+          ],
+          "hours": 10,
+          "color": "ORANGE",
+          "cell": "BCO50"
+        },
+        {
+          "stamp": [
+            6,
+            4,
+            0
+          ],
+          "hours": 10,
+          "color": "OTHER",
+          "cell": "BCQ50"
+        },
+        {
+          "stamp": [
+            6,
+            5,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "BCS50"
+        }
+      ],
+      "duplicate": false
+    },
+    {
+      "row": 51,
+      "code": "HD468",
+      "legacy_code": "420",
+      "name": "دامپتراک کوماتسو_ 7_465",
+      "entries": [
+        {
+          "stamp": [
+            6,
+            15,
+            0
+          ],
+          "hours": 11,
+          "color": "ORANGE",
+          "cell": "BDM51"
+        },
+        {
+          "stamp": [
+            6,
+            16,
+            0
+          ],
+          "hours": 10,
+          "color": "OTHER",
+          "cell": "BDO51"
+        }
+      ],
+      "duplicate": false
+    },
+    {
+      "row": 52,
+      "code": "HD469",
+      "legacy_code": "421",
+      "name": "دامپتراک کوماتسو_ 7_465",
+      "entries": [
+        {
+          "stamp": [
+            6,
+            11,
+            0
+          ],
+          "hours": 3,
+          "color": "ORANGE",
+          "cell": "BDE52"
+        },
+        {
+          "stamp": [
+            6,
+            13,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "BDI52"
+        },
+        {
+          "stamp": [
+            6,
+            14,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "BDK52"
+        },
+        {
+          "stamp": [
+            6,
+            15,
+            0
+          ],
+          "hours": 8,
+          "color": "OTHER",
+          "cell": "BDM52"
+        },
+        {
+          "stamp": [
+            6,
+            16,
+            0
+          ],
+          "hours": 10,
+          "color": "OTHER",
+          "cell": "BDO52"
+        }
+      ],
+      "duplicate": false
+    },
+    {
+      "row": 53,
+      "code": "HD708",
+      "legacy_code": "422",
+      "name": "دامپتراک کوماتسو 7-785",
+      "entries": [
+        {
+          "stamp": [
+            6,
+            12,
+            0
+          ],
+          "hours": 10,
+          "color": "ORANGE",
+          "cell": "BDG53"
+        },
+        {
+          "stamp": [
+            6,
+            13,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "BDI53"
+        },
+        {
+          "stamp": [
+            6,
+            14,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "BDK53"
+        }
+      ],
+      "duplicate": false
+    },
+    {
+      "row": 54,
+      "code": "HD709",
+      "legacy_code": "423",
+      "name": "دامپتراک کوماتسو 7-785",
+      "entries": [
+        {
+          "stamp": [
+            6,
+            7,
+            0
+          ],
+          "hours": 11,
+          "color": "ORANGE",
+          "cell": "BCW54"
+        },
+        {
+          "stamp": [
+            6,
+            7,
+            1
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "BCX54"
+        },
+        {
+          "stamp": [
+            6,
+            8,
+            0
+          ],
+          "hours": 10,
+          "color": "OTHER",
+          "cell": "BCY54"
+        },
+        {
+          "stamp": [
+            6,
+            8,
+            1
+          ],
+          "hours": 3,
+          "color": "OTHER",
+          "cell": "BCZ54"
+        },
+        {
+          "stamp": [
+            6,
+            9,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "BDA54"
+        },
+        {
+          "stamp": [
+            6,
+            14,
+            0
+          ],
+          "hours": 5,
+          "color": "OTHER",
+          "cell": "BDK54"
+        },
+        {
+          "stamp": [
+            6,
+            15,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "BDM54"
+        },
+        {
+          "stamp": [
+            6,
+            16,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "BDO54"
+        }
+      ],
+      "duplicate": false
+    },
+    {
+      "row": 55,
+      "code": "HD710",
+      "legacy_code": "424",
+      "name": "دامپتراک کوماتسو 7-785",
+      "entries": [
+        {
+          "stamp": [
+            6,
+            13,
+            0
+          ],
+          "hours": 11,
+          "color": "ORANGE",
+          "cell": "BDI55"
+        },
+        {
+          "stamp": [
+            6,
+            14,
+            0
+          ],
+          "hours": 10,
+          "color": "OTHER",
+          "cell": "BDK55"
+        },
+        {
+          "stamp": [
+            6,
+            15,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "BDM55"
+        },
+        {
+          "stamp": [
+            6,
+            16,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "BDO55"
+        }
+      ],
+      "duplicate": false
+    },
+    {
+      "row": 56,
+      "code": "HD711",
+      "legacy_code": "425",
+      "name": "دامپتراک کوماتسو 7-785",
+      "entries": [
+        {
+          "stamp": [
+            6,
+            13,
+            0
+          ],
+          "hours": 11,
+          "color": "ORANGE",
+          "cell": "BDI56"
+        },
+        {
+          "stamp": [
+            6,
+            14,
+            0
+          ],
+          "hours": 10,
+          "color": "OTHER",
+          "cell": "BDK56"
+        },
+        {
+          "stamp": [
+            6,
+            15,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "BDM56"
+        },
+        {
+          "stamp": [
+            6,
+            16,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "BDO56"
+        }
+      ],
+      "duplicate": false
+    },
+    {
+      "row": 57,
+      "code": "HD712",
+      "legacy_code": "426",
+      "name": "دامپتراک کوماتسو 7-785",
+      "entries": [
+        {
+          "stamp": [
+            6,
+            12,
+            0
+          ],
+          "hours": 11,
+          "color": "ORANGE",
+          "cell": "BDG57"
+        },
+        {
+          "stamp": [
+            6,
+            13,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "BDI57"
+        },
+        {
+          "stamp": [
+            6,
+            14,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "BDK57"
+        },
+        {
+          "stamp": [
+            6,
+            15,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "BDM57"
+        },
+        {
+          "stamp": [
+            6,
+            16,
+            0
+          ],
+          "hours": 8,
+          "color": "OTHER",
+          "cell": "BDO57"
+        }
+      ],
+      "duplicate": false
+    },
+    {
+      "row": 58,
+      "code": "HD713",
+      "legacy_code": "427",
+      "name": "دامپتراک کوماتسو 7-785",
+      "entries": [
+        {
+          "stamp": [
+            6,
+            11,
+            0
+          ],
+          "hours": 9,
+          "color": "ORANGE",
+          "cell": "BDE58"
+        },
+        {
+          "stamp": [
+            6,
+            12,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "BDG58"
+        },
+        {
+          "stamp": [
+            6,
+            13,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "BDI58"
+        },
+        {
+          "stamp": [
+            6,
+            14,
+            0
+          ],
+          "hours": 5,
+          "color": "OTHER",
+          "cell": "BDK58"
+        },
+        {
+          "stamp": [
+            6,
+            15,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "BDM58"
+        },
+        {
+          "stamp": [
+            6,
+            16,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "BDO58"
+        }
+      ],
+      "duplicate": false
+    },
+    {
+      "row": 59,
+      "code": "HD714",
+      "legacy_code": "428",
+      "name": "دامپتراک کوماتسو 7-785",
+      "entries": [
+        {
+          "stamp": [
+            6,
+            11,
+            1
+          ],
+          "hours": null,
+          "color": "ORANGE",
+          "cell": "BDF59"
+        },
+        {
+          "stamp": [
+            6,
+            12,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "BDG59"
+        },
+        {
+          "stamp": [
+            6,
+            13,
+            0
+          ],
+          "hours": 8,
+          "color": "OTHER",
+          "cell": "BDI59"
+        },
+        {
+          "stamp": [
+            6,
+            14,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "BDK59"
+        },
+        {
+          "stamp": [
+            6,
+            15,
+            0
+          ],
+          "hours": 10,
+          "color": "OTHER",
+          "cell": "BDM59"
+        },
+        {
+          "stamp": [
+            6,
+            16,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "BDO59"
+        }
+      ],
+      "duplicate": false
+    },
+    {
+      "row": 60,
+      "code": "HD715",
+      "legacy_code": "429",
+      "name": "دامپتراک کوماتسو 7-785",
+      "entries": [
+        {
+          "stamp": [
+            6,
+            10,
+            0
+          ],
+          "hours": 8,
+          "color": "ORANGE",
+          "cell": "BDC60"
+        },
+        {
+          "stamp": [
+            6,
+            11,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "BDE60"
+        },
+        {
+          "stamp": [
+            6,
+            12,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "BDG60"
+        },
+        {
+          "stamp": [
+            6,
+            13,
+            0
+          ],
+          "hours": 6,
+          "color": "OTHER",
+          "cell": "BDI60"
+        },
+        {
+          "stamp": [
+            6,
+            14,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "BDK60"
+        },
+        {
+          "stamp": [
+            6,
+            15,
+            0
+          ],
+          "hours": 10,
+          "color": "OTHER",
+          "cell": "BDM60"
+        },
+        {
+          "stamp": [
+            6,
+            16,
+            0
+          ],
+          "hours": 11,
+          "color": "OTHER",
+          "cell": "BDO60"
+        }
+      ],
+      "duplicate": false
+    },
+    {
+      "row": 61,
+      "code": "HD716",
+      "legacy_code": "430",
+      "name": "دامپتراک کوماتسو 7-785",
+      "entries": [
+        {
+          "stamp": [
+            5,
+            27,
+            0
+          ],
+          "hours": 9,
+          "color": "ORANGE",
+          "cell": "BCA61"
+        },
+        {
+          "stamp": [
+            5,
+            27,
+            1
+          ],
+          "hours": 7,
+          "color": "OTHER",
+          "cell": "BCB61"
+        },
+        {
+          "stamp": [
+            6,
+            2,
+            0
+          ],
+          "hours": 6,
+          "color": "OTHER",
+          "cell": "BCM61"
+        },
+        {
+          "stamp": [
+            6,
+            2,
+            1
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "BCN61"
+        },
+        {
+          "stamp": [
+            6,
+            3,
+            0
+          ],
+          "hours": 6,
+          "color": "OTHER",
+          "cell": "BCO61"
+        },
+        {
+          "stamp": [
+            6,
+            3,
+            1
+          ],
+          "hours": 7,
+          "color": "OTHER",
+          "cell": "BCP61"
+        },
+        {
+          "stamp": [
+            6,
+            4,
+            0
+          ],
+          "hours": 8,
+          "color": "OTHER",
+          "cell": "BCQ61"
+        },
+        {
+          "stamp": [
+            6,
+            4,
+            1
+          ],
+          "hours": 9,
+          "color": "OTHER",
+          "cell": "BCR61"
+        },
+        {
+          "stamp": [
+            6,
+            5,
+            0
+          ],
+          "hours": 5,
+          "color": "OTHER",
+          "cell": "BCS61"
+        },
+        {
+          "stamp": [
+            6,
+            8,
+            0
+          ],
+          "hours": 5,
+          "color": "OTHER",
+          "cell": "BCY61"
+        }
+      ],
+      "duplicate": false
+    },
+    {
+      "row": 68,
+      "code": "s1",
+      "legacy_code": "501",
+      "name": "کامیون آب پاش",
+      "entries": [
+        {
+          "stamp": [
+            6,
+            3,
+            0
+          ],
+          "hours": 5,
+          "color": "ORANGE",
+          "cell": "BCO68"
+        },
+        {
+          "stamp": [
+            6,
+            4,
+            0
+          ],
+          "hours": 5,
+          "color": "OTHER",
+          "cell": "BCQ68"
+        },
+        {
+          "stamp": [
+            6,
+            5,
+            0
+          ],
+          "hours": 5,
+          "color": "OTHER",
+          "cell": "BCS68"
+        },
+        {
+          "stamp": [
+            6,
+            6,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "BCU68"
+        },
+        {
+          "stamp": [
+            6,
+            7,
+            0
+          ],
+          "hours": 5,
+          "color": "OTHER",
+          "cell": "BCW68"
+        },
+        {
+          "stamp": [
+            6,
+            8,
+            0
+          ],
+          "hours": 1,
+          "color": "OTHER",
+          "cell": "BCY68"
+        },
+        {
+          "stamp": [
+            6,
+            9,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "BDA68"
+        },
+        {
+          "stamp": [
+            6,
+            10,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "BDC68"
+        },
+        {
+          "stamp": [
+            6,
+            11,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "BDE68"
+        },
+        {
+          "stamp": [
+            6,
+            12,
+            0
+          ],
+          "hours": 5,
+          "color": "OTHER",
+          "cell": "BDG68"
+        },
+        {
+          "stamp": [
+            6,
+            13,
+            0
+          ],
+          "hours": 5,
+          "color": "OTHER",
+          "cell": "BDI68"
+        },
+        {
+          "stamp": [
+            6,
+            14,
+            0
+          ],
+          "hours": 5,
+          "color": "OTHER",
+          "cell": "BDK68"
+        },
+        {
+          "stamp": [
+            6,
+            15,
+            0
+          ],
+          "hours": 5,
+          "color": "OTHER",
+          "cell": "BDM68"
+        },
+        {
+          "stamp": [
+            6,
+            16,
+            0
+          ],
+          "hours": 5,
+          "color": "OTHER",
+          "cell": "BDO68"
+        }
+      ],
+      "duplicate": false
+    },
+    {
+      "row": 70,
+      "code": "TR1",
+      "legacy_code": "703",
+      "name": "خاور",
+      "entries": [
+        {
+          "stamp": [
+            5,
+            21,
+            0
+          ],
+          "hours": 2,
+          "color": "ORANGE",
+          "cell": "BBO70"
+        },
+        {
+          "stamp": [
+            5,
+            22,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "BBQ70"
+        },
+        {
+          "stamp": [
+            5,
+            23,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "BBS70"
+        },
+        {
+          "stamp": [
+            5,
+            24,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "BBU70"
+        },
+        {
+          "stamp": [
+            5,
+            25,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "BBW70"
+        },
+        {
+          "stamp": [
+            5,
+            26,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "BBY70"
+        },
+        {
+          "stamp": [
+            5,
+            27,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "BCA70"
+        },
+        {
+          "stamp": [
+            5,
+            28,
+            0
+          ],
+          "hours": 1,
+          "color": "OTHER",
+          "cell": "BCC70"
+        },
+        {
+          "stamp": [
+            6,
+            3,
+            0
+          ],
+          "hours": 1,
+          "color": "OTHER",
+          "cell": "BCO70"
+        },
+        {
+          "stamp": [
+            6,
+            4,
+            0
+          ],
+          "hours": 1,
+          "color": "OTHER",
+          "cell": "BCQ70"
+        },
+        {
+          "stamp": [
+            6,
+            5,
+            0
+          ],
+          "hours": 1,
+          "color": "OTHER",
+          "cell": "BCS70"
+        },
+        {
+          "stamp": [
+            6,
+            6,
+            0
+          ],
+          "hours": 1,
+          "color": "OTHER",
+          "cell": "BCU70"
+        },
+        {
+          "stamp": [
+            6,
+            7,
+            0
+          ],
+          "hours": 1,
+          "color": "OTHER",
+          "cell": "BCW70"
+        },
+        {
+          "stamp": [
+            6,
+            8,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "BCY70"
+        },
+        {
+          "stamp": [
+            6,
+            9,
+            0
+          ],
+          "hours": 1,
+          "color": "OTHER",
+          "cell": "BDA70"
+        },
+        {
+          "stamp": [
+            6,
+            10,
+            0
+          ],
+          "hours": 1,
+          "color": "OTHER",
+          "cell": "BDC70"
+        },
+        {
+          "stamp": [
+            6,
+            11,
+            0
+          ],
+          "hours": 1,
+          "color": "OTHER",
+          "cell": "BDE70"
+        },
+        {
+          "stamp": [
+            6,
+            12,
+            0
+          ],
+          "hours": 1,
+          "color": "OTHER",
+          "cell": "BDG70"
+        },
+        {
+          "stamp": [
+            6,
+            13,
+            0
+          ],
+          "hours": 1,
+          "color": "OTHER",
+          "cell": "BDI70"
+        },
+        {
+          "stamp": [
+            6,
+            14,
+            0
+          ],
+          "hours": 1,
+          "color": "OTHER",
+          "cell": "BDK70"
+        },
+        {
+          "stamp": [
+            6,
+            15,
+            0
+          ],
+          "hours": 1,
+          "color": "OTHER",
+          "cell": "BDM70"
+        }
+      ],
+      "duplicate": false
+    },
+    {
+      "row": 71,
+      "code": "TA1",
+      "legacy_code": "702",
+      "name": "کامیون آب پاش",
+      "entries": [
+        {
+          "stamp": [
+            6,
+            6,
+            0
+          ],
+          "hours": 6,
+          "color": "ORANGE",
+          "cell": "BCU71"
+        },
+        {
+          "stamp": [
+            6,
+            6,
+            1
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "BCV71"
+        },
+        {
+          "stamp": [
+            6,
+            7,
+            0
+          ],
+          "hours": 6,
+          "color": "OTHER",
+          "cell": "BCW71"
+        },
+        {
+          "stamp": [
+            6,
+            12,
+            0
+          ],
+          "hours": 5,
+          "color": "OTHER",
+          "cell": "BDG71"
+        },
+        {
+          "stamp": [
+            6,
+            13,
+            0
+          ],
+          "hours": 5,
+          "color": "OTHER",
+          "cell": "BDI71"
+        },
+        {
+          "stamp": [
+            6,
+            14,
+            0
+          ],
+          "hours": 5,
+          "color": "OTHER",
+          "cell": "BDK71"
+        },
+        {
+          "stamp": [
+            6,
+            15,
+            0
+          ],
+          "hours": 5,
+          "color": "OTHER",
+          "cell": "BDM71"
+        },
+        {
+          "stamp": [
+            6,
+            16,
+            0
+          ],
+          "hours": 5,
+          "color": "OTHER",
+          "cell": "BDO71"
+        }
+      ],
+      "duplicate": false
+    },
+    {
+      "row": 74,
+      "code": "",
+      "legacy_code": "25کاوا",
+      "name": "ژنراتور",
+      "entries": [
+        {
+          "stamp": [
+            1,
+            15,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "ARO74"
+        },
+        {
+          "stamp": [
+            1,
+            16,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "ARQ74"
+        },
+        {
+          "stamp": [
+            1,
+            17,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "ARS74"
+        },
+        {
+          "stamp": [
+            1,
+            18,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "ARU74"
+        },
+        {
+          "stamp": [
+            1,
+            19,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "ARW74"
+        },
+        {
+          "stamp": [
+            1,
+            20,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "ARY74"
+        },
+        {
+          "stamp": [
+            1,
+            21,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "ASA74"
+        },
+        {
+          "stamp": [
+            1,
+            22,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "ASC74"
+        },
+        {
+          "stamp": [
+            1,
+            23,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "ASE74"
+        },
+        {
+          "stamp": [
+            1,
+            24,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "ASG74"
+        },
+        {
+          "stamp": [
+            1,
+            25,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "ASI74"
+        },
+        {
+          "stamp": [
+            1,
+            26,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "ASK74"
+        },
+        {
+          "stamp": [
+            1,
+            27,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "ASM74"
+        },
+        {
+          "stamp": [
+            1,
+            28,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "ASO74"
+        },
+        {
+          "stamp": [
+            1,
+            29,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "ASQ74"
+        },
+        {
+          "stamp": [
+            1,
+            30,
+            0
+          ],
+          "hours": 1,
+          "color": "OTHER",
+          "cell": "ASS74"
+        },
+        {
+          "stamp": [
+            2,
+            7,
+            0
+          ],
+          "hours": 1,
+          "color": "OTHER",
+          "cell": "ATI74"
+        },
+        {
+          "stamp": [
+            2,
+            8,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "ATK74"
+        },
+        {
+          "stamp": [
+            2,
+            9,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "ATM74"
+        },
+        {
+          "stamp": [
+            2,
+            10,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "ATO74"
+        },
+        {
+          "stamp": [
+            2,
+            11,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "ATQ74"
+        },
+        {
+          "stamp": [
+            2,
+            12,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "ATS74"
+        },
+        {
+          "stamp": [
+            2,
+            13,
+            0
+          ],
+          "hours": 8,
+          "color": "OTHER",
+          "cell": "ATU74"
+        },
+        {
+          "stamp": [
+            2,
+            14,
+            0
+          ],
+          "hours": 8,
+          "color": "OTHER",
+          "cell": "ATW74"
+        },
+        {
+          "stamp": [
+            2,
+            15,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "ATY74"
+        },
+        {
+          "stamp": [
+            2,
+            16,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "AUA74"
+        },
+        {
+          "stamp": [
+            2,
+            17,
+            0
+          ],
+          "hours": 3,
+          "color": "OTHER",
+          "cell": "AUC74"
+        },
+        {
+          "stamp": [
+            2,
+            18,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "AUE74"
+        },
+        {
+          "stamp": [
+            2,
+            19,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "AUG74"
+        },
+        {
+          "stamp": [
+            2,
+            20,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "AUI74"
+        },
+        {
+          "stamp": [
+            2,
+            21,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "AUK74"
+        },
+        {
+          "stamp": [
+            2,
+            22,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "AUM74"
+        },
+        {
+          "stamp": [
+            2,
+            23,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "AUO74"
+        },
+        {
+          "stamp": [
+            2,
+            24,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "AUQ74"
+        },
+        {
+          "stamp": [
+            2,
+            25,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "AUS74"
+        },
+        {
+          "stamp": [
+            2,
+            26,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "AUU74"
+        },
+        {
+          "stamp": [
+            2,
+            27,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "AUW74"
+        },
+        {
+          "stamp": [
+            2,
+            28,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "AUY74"
+        },
+        {
+          "stamp": [
+            2,
+            29,
+            0
+          ],
+          "hours": 1,
+          "color": "OTHER",
+          "cell": "AVA74"
+        },
+        {
+          "stamp": [
+            2,
+            30,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "AVC74"
+        },
+        {
+          "stamp": [
+            2,
+            31,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "AVE74"
+        },
+        {
+          "stamp": [
+            3,
+            1,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "AVG74"
+        },
+        {
+          "stamp": [
+            3,
+            2,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "AVI74"
+        },
+        {
+          "stamp": [
+            3,
+            3,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "AVK74"
+        },
+        {
+          "stamp": [
+            3,
+            4,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "AVM74"
+        },
+        {
+          "stamp": [
+            3,
+            5,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "AVO74"
+        },
+        {
+          "stamp": [
+            3,
+            6,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "AVQ74"
+        },
+        {
+          "stamp": [
+            3,
+            7,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "AVS74"
+        },
+        {
+          "stamp": [
+            3,
+            8,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "AVU74"
+        },
+        {
+          "stamp": [
+            3,
+            9,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "AVW74"
+        },
+        {
+          "stamp": [
+            3,
+            10,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "AVY74"
+        },
+        {
+          "stamp": [
+            3,
+            11,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "AWA74"
+        },
+        {
+          "stamp": [
+            3,
+            12,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "AWC74"
+        },
+        {
+          "stamp": [
+            3,
+            13,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "AWE74"
+        },
+        {
+          "stamp": [
+            3,
+            14,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "AWG74"
+        },
+        {
+          "stamp": [
+            3,
+            15,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "AWI74"
+        },
+        {
+          "stamp": [
+            3,
+            16,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "AWK74"
+        },
+        {
+          "stamp": [
+            3,
+            17,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "AWM74"
+        },
+        {
+          "stamp": [
+            3,
+            18,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "AWO74"
+        },
+        {
+          "stamp": [
+            3,
+            19,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "AWQ74"
+        },
+        {
+          "stamp": [
+            3,
+            20,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "AWS74"
+        },
+        {
+          "stamp": [
+            3,
+            21,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "AWU74"
+        },
+        {
+          "stamp": [
+            3,
+            22,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "AWW74"
+        },
+        {
+          "stamp": [
+            3,
+            23,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "AWY74"
+        },
+        {
+          "stamp": [
+            3,
+            24,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "AXA74"
+        },
+        {
+          "stamp": [
+            3,
+            25,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "AXC74"
+        },
+        {
+          "stamp": [
+            3,
+            26,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "AXE74"
+        },
+        {
+          "stamp": [
+            3,
+            27,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "AXG74"
+        },
+        {
+          "stamp": [
+            3,
+            28,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "AXI74"
+        },
+        {
+          "stamp": [
+            3,
+            29,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "AXK74"
+        },
+        {
+          "stamp": [
+            3,
+            30,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "AXM74"
+        },
+        {
+          "stamp": [
+            3,
+            31,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "AXO74"
+        },
+        {
+          "stamp": [
+            4,
+            1,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "AXQ74"
+        },
+        {
+          "stamp": [
+            4,
+            4,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "AXW74"
+        },
+        {
+          "stamp": [
+            4,
+            5,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "AXY74"
+        },
+        {
+          "stamp": [
+            4,
+            6,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "AYA74"
+        },
+        {
+          "stamp": [
+            4,
+            7,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "AYC74"
+        },
+        {
+          "stamp": [
+            4,
+            8,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "AYE74"
+        },
+        {
+          "stamp": [
+            4,
+            9,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "AYG74"
+        },
+        {
+          "stamp": [
+            4,
+            10,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "AYI74"
+        },
+        {
+          "stamp": [
+            4,
+            11,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "AYK74"
+        },
+        {
+          "stamp": [
+            4,
+            12,
+            0
+          ],
+          "hours": 8,
+          "color": "OTHER",
+          "cell": "AYM74"
+        },
+        {
+          "stamp": [
+            4,
+            13,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "AYO74"
+        },
+        {
+          "stamp": [
+            4,
+            14,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "AYQ74"
+        },
+        {
+          "stamp": [
+            4,
+            15,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "AYS74"
+        },
+        {
+          "stamp": [
+            4,
+            16,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "AYU74"
+        },
+        {
+          "stamp": [
+            4,
+            17,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "AYW74"
+        },
+        {
+          "stamp": [
+            4,
+            18,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "AYY74"
+        },
+        {
+          "stamp": [
+            4,
+            19,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "AZA74"
+        },
+        {
+          "stamp": [
+            4,
+            20,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "AZC74"
+        },
+        {
+          "stamp": [
+            4,
+            21,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "AZE74"
+        },
+        {
+          "stamp": [
+            4,
+            22,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "AZG74"
+        },
+        {
+          "stamp": [
+            4,
+            23,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "AZI74"
+        },
+        {
+          "stamp": [
+            4,
+            24,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "AZK74"
+        },
+        {
+          "stamp": [
+            4,
+            25,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "AZM74"
+        },
+        {
+          "stamp": [
+            4,
+            26,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "AZO74"
+        },
+        {
+          "stamp": [
+            4,
+            27,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "AZQ74"
+        },
+        {
+          "stamp": [
+            4,
+            28,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "AZS74"
+        },
+        {
+          "stamp": [
+            4,
+            29,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "AZU74"
+        },
+        {
+          "stamp": [
+            4,
+            30,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "AZW74"
+        },
+        {
+          "stamp": [
+            4,
+            31,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "AZY74"
+        },
+        {
+          "stamp": [
+            5,
+            1,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "BAA74"
+        },
+        {
+          "stamp": [
+            5,
+            2,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "BAC74"
+        },
+        {
+          "stamp": [
+            5,
+            3,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "BAE74"
+        },
+        {
+          "stamp": [
+            5,
+            4,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "BAG74"
+        },
+        {
+          "stamp": [
+            5,
+            5,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "BAI74"
+        },
+        {
+          "stamp": [
+            5,
+            6,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "BAK74"
+        },
+        {
+          "stamp": [
+            5,
+            7,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "BAM74"
+        },
+        {
+          "stamp": [
+            5,
+            8,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "BAO74"
+        },
+        {
+          "stamp": [
+            5,
+            9,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "BAQ74"
+        },
+        {
+          "stamp": [
+            5,
+            10,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "BAS74"
+        },
+        {
+          "stamp": [
+            5,
+            11,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "BAU74"
+        },
+        {
+          "stamp": [
+            5,
+            12,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "BAW74"
+        },
+        {
+          "stamp": [
+            5,
+            13,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "BAY74"
+        },
+        {
+          "stamp": [
+            5,
+            14,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "BBA74"
+        },
+        {
+          "stamp": [
+            5,
+            15,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "BBC74"
+        },
+        {
+          "stamp": [
+            5,
+            16,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "BBE74"
+        },
+        {
+          "stamp": [
+            5,
+            17,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "BBG74"
+        },
+        {
+          "stamp": [
+            5,
+            18,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "BBI74"
+        },
+        {
+          "stamp": [
+            5,
+            19,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "BBK74"
+        },
+        {
+          "stamp": [
+            5,
+            20,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "BBM74"
+        },
+        {
+          "stamp": [
+            5,
+            21,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "BBO74"
+        },
+        {
+          "stamp": [
+            5,
+            22,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "BBQ74"
+        },
+        {
+          "stamp": [
+            5,
+            23,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "BBS74"
+        },
+        {
+          "stamp": [
+            5,
+            24,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "BBU74"
+        },
+        {
+          "stamp": [
+            5,
+            25,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "BBW74"
+        },
+        {
+          "stamp": [
+            5,
+            26,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "BBY74"
+        },
+        {
+          "stamp": [
+            5,
+            27,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "BCA74"
+        },
+        {
+          "stamp": [
+            5,
+            28,
+            0
+          ],
+          "hours": 1,
+          "color": "OTHER",
+          "cell": "BCC74"
+        },
+        {
+          "stamp": [
+            5,
+            29,
+            0
+          ],
+          "hours": 1,
+          "color": "OTHER",
+          "cell": "BCE74"
+        },
+        {
+          "stamp": [
+            6,
+            1,
+            0
+          ],
+          "hours": 8,
+          "color": "OTHER",
+          "cell": "BCK74"
+        },
+        {
+          "stamp": [
+            6,
+            2,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "BCM74"
+        },
+        {
+          "stamp": [
+            6,
+            3,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "BCO74"
+        },
+        {
+          "stamp": [
+            6,
+            4,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "BCQ74"
+        },
+        {
+          "stamp": [
+            6,
+            5,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "BCS74"
+        },
+        {
+          "stamp": [
+            6,
+            6,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "BCU74"
+        },
+        {
+          "stamp": [
+            6,
+            7,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "BCW74"
+        },
+        {
+          "stamp": [
+            6,
+            8,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "BCY74"
+        },
+        {
+          "stamp": [
+            6,
+            9,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "BDA74"
+        },
+        {
+          "stamp": [
+            6,
+            10,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "BDC74"
+        },
+        {
+          "stamp": [
+            6,
+            11,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "BDE74"
+        },
+        {
+          "stamp": [
+            6,
+            12,
+            0
+          ],
+          "hours": 4,
+          "color": "OTHER",
+          "cell": "BDG74"
+        },
+        {
+          "stamp": [
+            6,
+            13,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "BDI74"
+        },
+        {
+          "stamp": [
+            6,
+            14,
+            0
+          ],
+          "hours": 1,
+          "color": "OTHER",
+          "cell": "BDK74"
+        },
+        {
+          "stamp": [
+            6,
+            15,
+            0
+          ],
+          "hours": 2,
+          "color": "OTHER",
+          "cell": "BDM74"
+        }
+      ],
+      "duplicate": false
+    }
+  ],
+  "cutoff": [
+    6,
+    16,
+    1
+  ],
+  "as_of": [
+    6,
+    16,
+    1
+  ],
+  "warnings": [],
+  "sha256": "192e0b3b7a864f8d06b79e3ccc4d9efa4742ee2b6447cad61d5e442e3d097fef",
+  "excluded_count": 38
+}

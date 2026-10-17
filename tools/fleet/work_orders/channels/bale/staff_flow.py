@@ -3,6 +3,7 @@ import asyncio
 import logging
 import re
 import time
+import io
 from pathlib import Path
 
 from tools.fleet.work_orders.core import staff_dispatch as core
@@ -11,6 +12,7 @@ from tools.fleet.work_orders.core.daily_archive import DailyArchiveError
 from tools.fleet.work_orders.core.permissions import normalize_bale_id, require_work_order_permission
 from tools.fleet.work_orders.core.registry import get_work_order_spec
 from tools.fleet.work_orders.core.conversation import review_context
+from tools.fleet.work_orders.core.oil_safety import RELIABLE_TYPES
 
 logger = logging.getLogger(__name__)
 tasks = set()
@@ -27,21 +29,25 @@ def order_label(order):
 
 
 async def dispatch(gateway, number, actor, chat, staff_id, roster_id=None):
-    order = await asyncio.to_thread(core.prepare_dispatch, number, actor, chat, staff_id, roster_id)
+    from tools.fleet.work_orders.core.review import DocumentReviewRequired
+    try:
+        order = await asyncio.to_thread(core.prepare_dispatch, number, actor, chat, staff_id, roster_id)
+    except DocumentReviewRequired as exc:
+        return str(exc)
     token = await asyncio.to_thread(core.claim_send, number)
-    if not token and not (order['work_order_type'] == 'OIL_CHANGE' and order['status'] == 'SENT'):
+    if not token and not (order['work_order_type'] in RELIABLE_TYPES and order['status'] == 'SENT'):
         return 'این حکم قبلاً ارسال شده یا ارسال آن در حال بررسی است؛ دوباره ارسال نشد. برای تعیین تکلیف بنویسید: بررسی ارسال'
     loop = asyncio.get_running_loop()
     bot = bot_for(gateway)
 
-    async def upload(chat_id, file_path, file_name):
+    async def upload(chat_id, file_path, file_name, document_bytes=None):
         required = ['work_orders.send']
         if order['work_order_type'] == 'AIR_FILTER':
             required.append('work_orders.air_filter.archive_append')
         elif order['work_order_type'] == 'GREASING':
             required.append('work_orders.greasing.archive_append')
         require_work_order_permission(actor, capabilities=required)
-        if order['work_order_type'] == 'OIL_CHANGE':
+        if order['work_order_type'] in RELIABLE_TYPES:
             from tools.fleet.work_orders.core.db import connect_db
             from tools.fleet.work_orders.core.oil_safety import current
             con = connect_db()
@@ -53,7 +59,7 @@ async def dispatch(gateway, number, actor, chat, staff_id, roster_id=None):
             finally:
                 con.close()
         caption = f"حکم کار {order_label(order)} تاریخ {order['jalali_date']} برای شما ارسال شد.\nتایید می‌کنید؟ بنویسید: تایید\nشماره حکم: {number}"
-        with Path(file_path).open('rb') as document:
+        with (io.BytesIO(document_bytes) if document_bytes is not None else Path(file_path).open('rb')) as document:
             return await bot.send_document(chat_id=chat_id, document=document, filename=file_name, caption=caption)
 
     class Sender:
@@ -65,6 +71,9 @@ async def dispatch(gateway, number, actor, chat, staff_id, roster_id=None):
         if result['status'] == 'UNCERTAIN':
             return 'نتیجهٔ ارسال نامطمئن است؛ ارسال مجدد مسدود شد. «بررسی ارسال» را باز کنید.'
         await asyncio.to_thread(core.finish_send, number, 'SENT')
+    except DocumentReviewRequired as exc:
+        await asyncio.to_thread(core.finish_send, number, 'FAILED')
+        return str(exc)
     except DailyArchiveError:
         await asyncio.to_thread(core.finish_send, number, 'FAILED')
         logger.exception('Daily workbook archive failed after successful delivery')
@@ -72,7 +81,7 @@ async def dispatch(gateway, number, actor, chat, staff_id, roster_id=None):
     except Exception:
         await asyncio.to_thread(core.finish_send, number, 'FAILED')
         logger.exception('Staff document delivery failed')
-        if order['work_order_type'] == 'OIL_CHANGE':
+        if order['work_order_type'] in RELIABLE_TYPES:
             from tools.fleet.work_orders.core.db import connect_db
             con = connect_db()
             try:
@@ -92,8 +101,7 @@ async def receipt(gateway, actor, chat, number):
         bot = bot_for(gateway)
         await bot.send_message(chat_id=chat, text=f"✅ حکم {order_label(order)} تاریخ {order['jalali_date']} توسط شما تایید شد.")
         if not order['notified_at']:
-            staff_name = core.staff_display_name({'bale_id':actor,'display_name':order['display_name']},order['work_order_type'])
-            await bot.send_message(chat_id=order['manager_chat_id'], text=f"✅ {staff_name} دریافت حکم {order_label(order)} تاریخ {order['jalali_date']} را تایید کرد.\nشماره حکم: {number}")
+            await bot.send_message(chat_id=order['manager_chat_id'], text=f"✅ دریافت حکم {order_label(order)} تاریخ {order['jalali_date']} توسط حساب بله با شناسهٔ {actor} تایید شد.\nشماره حکم: {number}")
             await asyncio.to_thread(core.mark_notified, number)
         review_context(actor, chat, 'staff', number='', stage='DONE')
     except Exception:
@@ -110,7 +118,18 @@ async def show_order(gateway, actor, chat, number):
     try:
         orders = await asyncio.to_thread(core.recipient_orders, actor)
         order = next(o for o in orders if o['work_order_no'] == number and not o['acknowledged_at'])
-        with Path(order['pdf_path']).open('rb') as document:
+        if not order['pdf_path'] or not Path(order['pdf_path']).is_file():
+            state = 'PDF برای این حکم ثبت نشده است' if not order['pdf_path'] else 'فایل PDF ثبت‌شده در دسترس نیست'
+            await bot_for(gateway).send_message(chat_id=chat, text=f'حکم {number}: {state}. مسئول NET باید سابقه و فایل اصلی را بررسی کند؛ فایل خودکار بازسازی نشد. برای ثبت دریافت پس از تطبیق انسانی، شمارهٔ حکم را همراه «تایید» بفرستید.')
+            return
+        from tools.fleet.work_orders.core.review import approved_pdf_bytes,last_record,DocumentReviewRequired
+        record=last_record(order,'MANAGER_DOCUMENT_REVIEW')
+        try:
+            data=approved_pdf_bytes(order) if record and record.get('pdf_sha256') else Path(order['pdf_path']).read_bytes()
+        except DocumentReviewRequired:
+            await bot_for(gateway).send_message(chat_id=chat,text=f'محتوای فایل حکم {number} با تأیید ثبت‌شده یکسان نیست؛ بررسی مسئول NET لازم است.')
+            return
+        with io.BytesIO(data) as document:
             await bot_for(gateway).send_document(
                 chat_id=chat, document=document, filename=Path(order['pdf_path']).name,
                 caption=f"حکم کار {order_label(order)} — {order['jalali_date']}\nشماره حکم: {number}\nتایید می‌کنید؟ بنویسید: تایید")

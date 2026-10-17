@@ -150,6 +150,7 @@ def _next_work_order_no(
 def _find_machine_id(
     con,
     machine_code: str,
+    machine_name=None,
 ):
 
     code = (
@@ -171,7 +172,7 @@ def _find_machine_id(
                 f"HD{n}"
             )
 
-        if 701 <= n <= 716:
+        if 701 <= n <= 716 or machine_name == 'دامپتراک':
             candidates.append(
                 f"HD{n}"
             )
@@ -186,7 +187,7 @@ def _find_machine_id(
         for _ in candidates
     )
 
-    row = con.execute(
+    rows = con.execute(
         f"""
         SELECT
             id,
@@ -195,13 +196,14 @@ def _find_machine_id(
         WHERE UPPER(canonical_code)
               IN ({placeholders})
         ORDER BY id
-        LIMIT 1
         """,
         candidates,
-    ).fetchone()
+    ).fetchall()
 
-    if row:
-        return row["id"]
+    if len(rows) > 1:
+        raise ValueError('هویت دستگاه مبهم است؛ تطبیق مسئول NET لازم است: ' + code)
+    if rows:
+        return rows[0]["id"]
 
     return None
 
@@ -323,6 +325,11 @@ def create_work_order(
         )
     )
 
+    if spec.code == 'AIR_FILTER':
+        from .review import normalize_shift
+        selected_shifts = normalize_shift(shift).split('-')
+        shift = '-'.join(s for s in ('صبح','ظهر','عصر','شب') if s in selected_shifts)
+
     builder = _load_builder(
         spec.code
     )
@@ -341,11 +348,11 @@ def create_work_order(
         )
 
         oil_identity = None
-        if spec.code == 'OIL_CHANGE':
-            from . import oil_safety
+        from . import oil_safety
+        if spec.code in oil_safety.RELIABLE_TYPES:
             oil_safety.migrate(con)
             oil_identity = oil_safety.creation(con, jalali_date, items, created_by,
-                revision_of, reissue_reason, operation_id)
+                revision_of, reissue_reason, operation_id, work_order_type=spec.code, shift=shift)
             if oil_identity[2]:
                 con.rollback()
                 return get_work_order(oil_identity[2])
@@ -435,6 +442,7 @@ def create_work_order(
                     item[
                         "machine_code"
                     ],
+                    machine_name=item['machine_name'] if spec.code == 'AIR_FILTER' else None,
                 )
             )
 
@@ -481,7 +489,7 @@ def create_work_order(
             con.execute("""UPDATE service_work_orders SET operation_key=?,oil_service_key=?,revision_of=?,reissue_reason=? WHERE id=?""",
                 (oil_identity[0],oil_identity[1],revision_of,reissue_reason,work_order_id))
             document_metadata['work_order'] = dict(con.execute(
-                'SELECT work_order_no,jalali_date,created_at,revision_of,reissue_reason FROM service_work_orders WHERE id=?',
+                'SELECT work_order_no,jalali_date,shift,created_at,revision_of,reissue_reason FROM service_work_orders WHERE id=?',
                 (work_order_id,)).fetchone())
 
         builder.build_document(

@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from pathlib import Path
 import logging
+import json
+from uuid import uuid4
 from tools.fleet.work_orders.core import final_copy
 
 logger = logging.getLogger(__name__)
@@ -21,17 +23,23 @@ def reviewed_staff_pdf(stored_path, excel_path: Path) -> Path:
     return export_staff_pdf(excel_path)
 
 
-def store_manager_pdf(work_order_no: str, pdf_path: Path) -> None:
+def store_manager_pdf(work_order_no: str, pdf_path: Path, *, pdf_bytes=None, excel_sha256=None) -> None:
     """Remember the exact PDF delivered to the manager so staff dispatch reuses it."""
     con = connect_db()
     try:
+        from .review import document_identity
+        row = con.execute('SELECT * FROM service_work_orders WHERE work_order_no=?',(work_order_no,)).fetchone()
+        identity,_ = document_identity(dict(row, pdf_path=str(pdf_path)),pdf_bytes)
+        if excel_sha256 and identity['sha256'] != excel_sha256:
+            raise ValueError('Excel changed during PDF preview; fresh review required')
+        record = {**identity, 'preview_id':uuid4().hex}
         con.execute(
             """
             UPDATE service_work_orders
-            SET pdf_path=?, updated_at=CURRENT_TIMESTAMP
+            SET pdf_path=?, notes=COALESCE(notes||char(10),'')||?, updated_at=CURRENT_TIMESTAMP
             WHERE work_order_no=? AND status!='SENT'
             """,
-            (str(pdf_path), work_order_no),
+            (str(pdf_path), 'MANAGER_DOCUMENT_PREVIEW: '+json.dumps(record), work_order_no),
         )
         con.commit()
     finally:
@@ -65,16 +73,7 @@ def send_work_order(
         order = con.execute(
             """
             SELECT
-                wo.id,
-                wo.work_order_no,
-                wo.work_order_type,
-                wo.status,
-                wo.excel_path,
-                wo.pdf_path,
-                wo.send_attempts,
-                wo.created_by,
-                wo.approved_by,
-                wo.jalali_date,
+                wo.*,
                 s.display_name,
                 s.bale_id
             FROM service_work_orders wo
@@ -95,7 +94,7 @@ def send_work_order(
 
 
         from . import oil_safety
-        oil = order['work_order_type'] == 'OIL_CHANGE'
+        oil = order['work_order_type'] in oil_safety.RELIABLE_TYPES
         oil_safety.current(con, work_order_no)
 
         def authorize_publish():
@@ -131,9 +130,11 @@ def send_work_order(
 
 
         if oil:
+            if dispatch_token is not None and (type(dispatch_token) is not int or dispatch_token <= 0):
+                raise ValueError('تلاش ارسال معتبر نیست؛ بررسی ارسال را باز کنید.')
             oil_safety.migrate(con)
             con.execute('BEGIN IMMEDIATE')
-            oil_attempt = dispatch_token or oil_safety.claim(con, work_order_no)
+            oil_attempt = dispatch_token if dispatch_token is not None else oil_safety.claim(con, work_order_no)
             con.commit()
             if not oil_attempt:
                 raise ValueError('ارسال این حکم قفل است؛ «بررسی ارسال» را باز کنید.')
@@ -157,23 +158,31 @@ def send_work_order(
             )
 
 
-        file_path = reviewed_staff_pdf(order["pdf_path"], excel_path)
+        from .review import approved_pdf_bytes
+        document_bytes = approved_pdf_bytes(order)
+        file_path = Path(order['pdf_path']) if document_bytes is not None else reviewed_staff_pdf(order["pdf_path"], excel_path)
 
         # Pin the exact final PDF before staff transport; no copy is queued yet.
         artifact = None
         try:
-            artifact = final_copy.prepare(con, order, file_path)
+            artifact = final_copy.prepare(con, order, file_path, document_bytes=document_bytes)
         except Exception as exc:
             logger.error('Final copy preparation failed: %s', type(exc).__name__)
         authorize_publish()
+        # Final version fence for all protected types, immediately before transport.
+        live = oil_safety.current(con, work_order_no)
+        if document_bytes is not None and approved_pdf_bytes(live) != document_bytes:
+            raise ValueError('PDF changed before transport; fresh review required')
         if oil:
             con.execute('BEGIN IMMEDIATE')
             oil_safety.start_transfer(con, work_order_no, oil_attempt, file_path)
             con.commit()
+        transport = {'document_bytes':document_bytes} if document_bytes is not None else {}
         result = sender.send_document(
             chat_id=order["bale_id"],
             file_path=artifact['path'] if artifact and artifact['path'] else str(file_path),
             file_name=file_path.name,
+            **transport,
         )
 
 
@@ -189,7 +198,7 @@ def send_work_order(
                 status='SENT',
                 pdf_path=?,
                 send_attempts =
-                    send_attempts + CASE WHEN work_order_type='OIL_CHANGE' THEN 0 ELSE 1 END,
+                    send_attempts + CASE WHEN work_order_type IN ('OIL_CHANGE','GREASING','AIR_FILTER') THEN 0 ELSE 1 END,
                 sent_at=CURRENT_TIMESTAMP,
                 last_send_error=NULL,
                 updated_at=CURRENT_TIMESTAMP
@@ -233,9 +242,8 @@ def send_work_order(
             con.rollback()
             with con:
                 con.execute('BEGIN IMMEDIATE')
-                if oil_attempt:
-                    oil_safety.complete(con, work_order_no, oil_attempt, error=e)
-                con.execute('UPDATE service_work_orders SET last_send_error=?,updated_at=CURRENT_TIMESTAMP WHERE work_order_no=?', (type(e).__name__,work_order_no))
+                if oil_attempt and oil_safety.complete(con, work_order_no, oil_attempt, error=e):
+                    con.execute('UPDATE service_work_orders SET last_send_error=?,updated_at=CURRENT_TIMESTAMP WHERE work_order_no=?', (type(e).__name__,work_order_no))
             raise
         con.execute(
             """

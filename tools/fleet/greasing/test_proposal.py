@@ -1,4 +1,5 @@
 import tempfile
+import json
 import unittest
 from pathlib import Path
 from unittest.mock import patch
@@ -114,18 +115,15 @@ class ReaderTests(unittest.TestCase):
         self.assertEqual(c['value'],2)
 
     def test_real_source_snapshot(self):
-        p=build_proposal(as_of=(6,16,1))
-        self.assertEqual(p['cutoff'],'1405/06/15 - روز')
-        self.assertEqual(p['plan_date'],'1405/06/16')
-        codes={i['machine_code'] for i in p['items']}
-        self.assertTrue({'s1','TR1','TA1'}.issubset(codes))
-        self.assertFalse({'S1','S2','HD715','HD468'} & codes)
-        truck=next(i for i in p['evaluations'] if i['machine_code']=='HD715')['components']['greasing']
-        self.assertEqual((truck['value'],truck['remaining']),(49,11))
-        self.assertIn('EX801: 1 ساعت تا موعد', p['warnings'])
-        self.assertFalse(any(i['code']=='EX1251' or 'ژنراتور' in i['code'] for i in p['review']))
-        self.assertEqual({i['code'] for i in p['review'] if 'رنگ مشکوک' in i['reason']},{'HD712','HD714'})
-        self.assertEqual(next(i for i in p['evaluations'] if i['machine_code']=='EX231')['components']['greasing']['last_service'],'1405/05/18 - روز')
+        fixtures=Path(__file__).resolve().parents[3]/'test/fixtures'
+        source=json.loads((fixtures/'greasing-source-20261017.json').read_text(encoding='utf8'))
+        expected=json.loads((fixtures/'greasing-proposal-20261017.json').read_text(encoding='utf8'))
+        # Frozen real normalized evidence; never reads the changing operational workbook.
+        with patch('tools.fleet.greasing.proposal.read_source',return_value=source):
+            p=build_proposal(as_of=(6,16,1))
+        self.assertEqual(p,expected)
+        self.assertEqual(p['cutoff'],'1405/06/16 - شب')
+        self.assertEqual(p['plan_date'],'1405/06/17')
 
 
 if __name__=='__main__': unittest.main()

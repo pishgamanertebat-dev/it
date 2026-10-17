@@ -40,11 +40,23 @@ def normalize_machine_code(
 
 def machine_name_from_code(
     code: str,
+    source_machines=None,
 ) -> str:
 
     c = normalize_machine_code(
         code
     )
+
+    if source_machines is not None:
+        matches = [m for m in source_machines if m['code'] == c]
+        if len(matches) > 1 or any(m.get('duplicate') for m in matches):
+            raise ValueError('کد دستگاه در منبع هواکش مبهم یا تکراری است: ' + c)
+        if matches:
+            from tools.fleet.air_filter.rules import rule_for
+            name = matches[0]['name']
+            if rule_for(c, name) is None:
+                raise ValueError('این دستگاه در برنامهٔ هواکش قرار ندارد: ' + c)
+            return name
 
     if c.isdigit():
 
@@ -98,6 +110,7 @@ def machine_name_from_code(
 
 def validate_machine_codes(
     codes,
+    source_machines=None,
 ) -> list[str]:
 
     normalized = [
@@ -125,7 +138,7 @@ def validate_machine_codes(
         )
 
     for code in normalized:
-        machine_name_from_code(code)
+        machine_name_from_code(code, source_machines)
 
     return normalized
 
@@ -133,11 +146,16 @@ def validate_machine_codes(
 def get_items(
     codes,
     actions=None,
+    source_machines=None,
 ) -> list[dict]:
+
+    if source_machines is None:
+        from tools.fleet.air_filter.proposal import read_source
+        source_machines, *_ = read_source()
 
     normalized = (
         validate_machine_codes(
-            codes
+            codes, source_machines
         )
     )
 
@@ -146,7 +164,7 @@ def get_items(
             "machine_code": code,
             "machine_name":
                 machine_name_from_code(
-                    code
+                    code, source_machines
                 ),
             "action_code":
                 DEFAULT_ACTION_CODE,
@@ -170,8 +188,9 @@ def get_items(
     return items
 
 
-def build_document(*, output_path: Path, jalali_date: str, items: list[dict], shift: str = "صبح") -> Path:
+def build_document(*, output_path: Path, jalali_date: str, items: list[dict], shift: str = "صبح", work_order=None) -> Path:
     from tools.fleet.work_orders.core.excel_document import build_document as render_excel
     return render_excel(output_path=output_path, jalali_date=jalali_date, items=items,
                         template_path=TEMPLATE_PATH, template_sheet=TEMPLATE_SHEET,
-                        title=f"لیست هواکش شیفت {shift}")
+                        title=f"لیست هواکش شیفت {work_order['shift'] if work_order else shift}",
+                        readable_names=True, work_order=work_order)

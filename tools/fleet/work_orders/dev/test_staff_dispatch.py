@@ -26,7 +26,7 @@ class StaffDispatchTests(WorkOrderCreateTests):
         staff = core.staff_options()[0]
         with self.assertRaises(ValueError):
             core.prepare_dispatch(number, '455740857', '455740857', staff['id'])
-        confirm_document_review(number, '455740857')
+        self.review_pdf(number)
         with self.assertRaises(ValueError):
             core.prepare_dispatch(number, '1006', '1006', staff['id'])
         with test_database(self.db_path) as con:
@@ -37,22 +37,29 @@ class StaffDispatchTests(WorkOrderCreateTests):
     def test_send_failure_retry_and_receipt_authorization(self):
         order = self.create()
         number = order['work_order_no']
-        confirm_document_review(number, '455740857')
+        self.review_pdf(number)
         core.prepare_dispatch(number, '455740857', '455740857', core.staff_options()[0]['id'])
-        self.assertTrue(core.claim_send(number))
+        token=core.claim_send(number)
+        self.assertTrue(token)
         self.assertFalse(core.claim_send(number))
         class Fail:
             def send_document(self, **kwargs):
                 raise RuntimeError('TEST FAILURE')
         with self.assertRaises(RuntimeError):
-            send_work_order(work_order_no=number, sender=Fail())
+            send_work_order(work_order_no=number, sender=Fail(),dispatch_token=token)
         core.finish_send(number, 'FAILED')
         self.assertEqual(core.recipient_orders('85539397'), [])
-        self.assertTrue(core.claim_send(number))
+        self.assertFalse(core.claim_send(number))
+        from tools.fleet.work_orders.channels.bale.create_worker import execute_request
+        decision=execute_request(dict(action='delivery_resolve',bale_id='455740857',chat_id='455740857',
+            work_order_no=number,attempt_id=token,decision='RESEND_ALLOWED',reason='Verified test-only failure'),db_path=self.db_path)
+        self.assertTrue(decision['ok'],decision)
+        next_token=core.claim_send(number)
+        self.assertTrue(next_token)
         class Success:
             def send_document(self, **kwargs):
                 return {'ok': True}
-        send_work_order(work_order_no=number, sender=Success())
+        send_work_order(work_order_no=number, sender=Success(),dispatch_token=next_token)
         core.finish_send(number, 'SENT')
         with self.assertRaises(ValueError):
             core.acknowledge(number, '9999')

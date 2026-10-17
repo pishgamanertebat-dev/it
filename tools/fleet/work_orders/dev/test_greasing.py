@@ -35,8 +35,8 @@ class GreasingTests(WorkOrderCreateTests):
             self.assertEqual(wb.active['A1'].value,'لیست روزانه گریسکاری')
             self.assertEqual(wb.active['F1'].value,'1405/06/15')
             self.assertEqual([wb.active.cell(r,4).value for r in range(3,10)],['گریسکاری کامل']*7)
-            self.assertEqual(wb.active['D3']._style,old.active['D3']._style)
-            self.assertEqual(wb.active.column_dimensions['D'].width,old.active.column_dimensions['D'].width)
+            self.assertEqual(wb.active['D3'].font.sz,14)
+            self.assertEqual(wb.active.column_dimensions['D'].width,22)
             self.assertIn('هواکش',old.active['A1'].value)
         finally:
             wb.close()

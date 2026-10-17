@@ -202,17 +202,39 @@ os._exit(0)
 
     def test_final_pretransfer_version_check_prevents_upload(self):
         number = self.create(); self.prepare(number)
-        original = delivery.reviewed_staff_pdf
+        from tools.fleet.work_orders.core import review
+        original = review.approved_pdf_bytes
         def changed(*args):
             path = original(*args)
             with test_database(self.db_path) as con:
                 con.execute("UPDATE service_work_orders SET superseded_by='NEWER' WHERE work_order_no=?",(number,))
             return path
         sent=[]
-        with patch.object(delivery,'reviewed_staff_pdf',side_effect=changed):
+        with patch.object(review,'approved_pdf_bytes',side_effect=changed):
             with self.assertRaisesRegex(ValueError,'منسوخ'):
                 delivery.send_work_order(work_order_no=number,sender=SimpleNamespace(send_document=lambda **kw:sent.append(kw)))
         self.assertEqual(sent,[])
+
+    def test_invalid_tokens_never_claim_transfer_complete_or_change_error_metadata(self):
+        number=self.create();self.prepare(number)
+        before=self.read('SELECT * FROM service_work_orders')
+        dispatch_before=self.read('SELECT * FROM service_work_order_dispatch')
+        for token in (0,False,True,-1,'1',999999):
+            with self.subTest(token=token):
+                with self.assertRaises(ValueError):
+                    delivery.send_work_order(work_order_no=number,dispatch_token=token,
+                        sender=SimpleNamespace(send_document=lambda **kw:self.fail('Invalid token uploaded')))
+                self.assertEqual(before,self.read('SELECT * FROM service_work_orders'))
+                self.assertEqual(dispatch_before,self.read('SELECT * FROM service_work_order_dispatch'))
+        valid=staff_dispatch.claim_send(number)
+        con=db.connect_db()
+        try:
+            with con:
+                for token in (0,False,True,-1,str(valid)):
+                    with self.assertRaises(ValueError):oil_safety.start_transfer(con,number,token,'TEST.pdf')
+                    self.assertFalse(oil_safety.complete(con,number,token))
+        finally:con.close()
+        self.assertEqual(self.read('SELECT state FROM service_work_order_dispatch')[0]['state'],'SENDING')
 
     def test_legacy_sending_without_attempt_is_recovered_conservatively(self):
         number = self.create(); self.prepare(number)
@@ -277,7 +299,7 @@ os._exit(0)
 
     def test_definite_pretransfer_failure_is_retryable(self):
         number = self.create(); self.prepare(number)
-        with patch.object(delivery,'reviewed_staff_pdf',side_effect=ValueError('before transport')):
+        with patch('tools.fleet.work_orders.core.review.approved_pdf_bytes',side_effect=ValueError('before transport')):
             with self.assertRaises(ValueError):
                 delivery.send_work_order(work_order_no=number,sender=None)
         self.assertEqual(self.read('SELECT state FROM service_work_order_dispatch')[0]['state'],'FAILED')

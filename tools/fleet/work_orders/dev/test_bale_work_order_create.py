@@ -27,8 +27,16 @@ class WorkOrderCreateTests(PermissionDatabaseTestCase):
             patcher.start()
             self.addCleanup(patcher.stop)
 
-    def create(self):
-        return service.create_work_order(work_order_type="AIR_FILTER", jalali_date="1405/06/15", shift="صبح", machine_codes=["465","710","711","712","713","714"], created_by="bale:455740857")
+    def create(self, *, jalali_date='1405/06/15'):
+        return service.create_work_order(work_order_type="AIR_FILTER", jalali_date=jalali_date, shift="صبح", machine_codes=["465","710","711","712","713","714"], created_by="bale:455740857")
+
+    def review_pdf(self, number, actor='455740857'):
+        from tools.fleet.work_orders.core.delivery import store_manager_pdf
+        from tools.fleet.work_orders.core.review import confirm_document_review
+        path=Path(service.get_work_order(number)['excel_path']).with_suffix('.pdf')
+        path.write_bytes(b'%PDF-1.4\nISOLATED TEST DOCUMENT\n')
+        store_manager_pdf(number,path)
+        return confirm_document_review(number,actor)
 
     def test_real_builder_produces_six_machine_excel_and_file_ready_record(self):
         order = self.create()

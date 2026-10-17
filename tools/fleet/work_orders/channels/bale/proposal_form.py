@@ -38,6 +38,8 @@ def edit_oil_interval(proposal, code, interval):
 
 def creation_metadata(proposal):
     metadata = {key: proposal[key] for key in ('cutoff', 'plan_date', 'source_sha256')}
+    if proposal.get('work_order_type') in {'GREASING','AIR_FILTER'} and proposal.get('revision_of'):
+        metadata['revision_of'] = proposal['revision_of']
     if proposal.get('work_order_type') == 'OIL_CHANGE':
         if proposal.get('revision_of'):
             metadata['revision_of'] = proposal['revision_of']

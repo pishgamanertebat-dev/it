@@ -51,7 +51,7 @@ def _eligible_issuer(order, store):
             and store.has_capability(user, 'work_orders.approve'))
 
 
-def prepare(c, order, pdf_path, *, authorization=None):
+def prepare(c, order, pdf_path, *, authorization=None, document_bytes=None):
     """Pin bytes before main transport. Failure remains a copy-only blocked obligation."""
     if not enabled(c) or order['status'] != 'APPROVED' or order['work_order_type'] not in {'AIR_FILTER','OIL_CHANGE','GREASING'}:
         return None
@@ -83,7 +83,7 @@ def prepare(c, order, pdf_path, *, authorization=None):
     artifact = {'recipients': tuple(resolution.recipients), 'caption': caption[:1024],
                 'file_name': Path(pdf_path).name, 'path': None, 'sha256': '', 'error': None}
     try:
-        data = Path(pdf_path).read_bytes()
+        data = Path(pdf_path).read_bytes() if document_bytes is None else document_bytes
         artifact['sha256'] = hashlib.sha256(data).hexdigest()
         if not data.startswith(b'%PDF-'):
             raise ValueError('Invalid final PDF')

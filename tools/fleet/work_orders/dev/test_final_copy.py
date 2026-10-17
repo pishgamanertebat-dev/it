@@ -2,6 +2,7 @@
 from contextlib import closing
 import importlib
 import hashlib
+import json
 from pathlib import Path
 import sqlite3
 import unittest
@@ -39,23 +40,31 @@ class FinalCopyTests(Fixture, unittest.TestCase):
         return closing_context(c)
 
     def staff_send(self,**kw):
-        self.staff.append((kw['chat_id'],Path(kw['file_path']).read_bytes()))
+        self.staff.append((kw['chat_id'],kw.get('document_bytes') or Path(kw['file_path']).read_bytes()))
         return {'ok':True,'result':{'message_id':str(len(self.staff))}}
 
     def copy_send(self,user,path,caption,**kw):
         self.copies.append((user,Path(path).read_bytes(),caption,kw['file_name']))
         return str(len(self.copies))
 
-    def order(self,kind='AIR_FILTER',status='APPROVED'):
+    def order(self,kind='AIR_FILTER',status='APPROVED',issuer='101'):
         number=kind+'-'+str(len(self.all_orders())+1)
         excel=self.directory/(number+'.xlsx');excel.write_bytes(b'fixture workbook')
         pdf=excel.with_suffix('.pdf');pdf.write_bytes(b'%PDF-1.7\nFINAL '+number.encode())
         with self.connection() as c:
             cur=c.execute("""INSERT INTO service_work_orders(work_order_no,work_order_type,jalali_date,status,assigned_staff_id,
-                excel_path,pdf_path,created_by,approved_by) VALUES (?,?,?, ?,1,?,?,'bale:101','bale:101')""",
-                (number,kind,'1405/07/16',status,str(excel),str(pdf)))
+                excel_path,pdf_path,created_by,approved_by) VALUES (?,?,?, ?,1,?,?,?,?)""",
+                (number,kind,'1405/07/16',status,str(excel),str(pdf),'bale:'+issuer,'bale:'+issuer))
             c.execute("""INSERT INTO service_work_order_items(work_order_id,item_no,machine_id,machine_code,action_text)
                 VALUES (?,1,1,'714','fixture action')""",(cur.lastrowid,))
+        if kind in {'GREASING','AIR_FILTER'} and status=='APPROVED':
+            delivery.store_manager_pdf(number,pdf)
+            from tools.fleet.work_orders.core.review import document_identity,last_record
+            with self.connection() as c:
+                row=c.execute('SELECT * FROM service_work_orders WHERE work_order_no=?',(number,)).fetchone()
+                identity,_=document_identity(row)
+                record=dict(identity,bale_id=issuer,preview_id=last_record(row,'MANAGER_DOCUMENT_PREVIEW')['preview_id'])
+                c.execute("UPDATE service_work_orders SET notes=notes||char(10)||? WHERE work_order_no=?",('MANAGER_DOCUMENT_REVIEW: '+json.dumps(record),number))
         return number,pdf
 
     def all_orders(self):
@@ -200,8 +209,7 @@ class FinalCopyTests(Fixture, unittest.TestCase):
         self.assertNotIn('Fixture technician',self.copies[0][2])
 
     def test_no_net_issuer_no_copy(self):
-        number,pdf=self.order()
-        with self.connection() as c:c.execute("UPDATE service_work_orders SET created_by='bale:303',approved_by='bale:303'")
+        number,pdf=self.order(issuer='303')
         self.send(number);self.drain()
         self.assertEqual(self.receipts(),[]);self.assertEqual(len(self.staff),1)
 
@@ -218,9 +226,7 @@ class FinalCopyTests(Fixture, unittest.TestCase):
         from tools.authorization.net import NET_DEPUTY
         self.sql("INSERT INTO channel_users VALUES ('bale','404','404','approved')")
         migrate_net(self.auth,self.directory/'backups',assignments=(('404',NET_DEPUTY),))
-        number,pdf=self.order()
-        with self.connection() as c:
-            c.execute("UPDATE service_work_orders SET created_by='bale:404',approved_by='bale:404'")
+        number,pdf=self.order(issuer='404')
         self.send(number);self.drain()
         self.assertEqual(len(self.copies),1)
         self.assertIn('404',self.copies[0][2])

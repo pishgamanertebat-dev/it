@@ -1,4 +1,4 @@
-"""Oil version and delivery invariants in the existing work-order database.
+"""Shared work-order version and delivery invariants in the existing database.
 
 Audit events append to work-order notes, as document reviews already do. No
 historical order is selected as a winner or rewritten by schema activation.
@@ -9,6 +9,7 @@ import time
 
 
 LEASE_SECONDS = 600
+RELIABLE_TYPES = ('OIL_CHANGE', 'GREASING', 'AIR_FILTER')
 
 
 def migrate(con):
@@ -43,36 +44,55 @@ def current(con, number):
     row = con.execute('SELECT * FROM service_work_orders WHERE work_order_no=?', (number,)).fetchone()
     if not row:
         raise ValueError('حکم پیدا نشد.')
-    if row['work_order_type'] == 'OIL_CHANGE' and 'superseded_by' in row.keys() and row['superseded_by']:
+    if row['work_order_type'] in RELIABLE_TYPES and 'superseded_by' in row.keys() and row['superseded_by']:
         raise ValueError('این نسخه منسوخ است؛ نسخهٔ معتبر: ' + row['superseded_by'])
     return row
 
 
-def creation(con, date, items, owner, revision_of=None, reissue_reason=None, operation_id=None):
-    if len(items) != 1:
+def creation(con, date, items, owner, revision_of=None, reissue_reason=None, operation_id=None,
+             work_order_type='OIL_CHANGE', shift=None):
+    greasing = work_order_type == 'GREASING'
+    air_filter = work_order_type == 'AIR_FILTER'
+    multiple = greasing or air_filter
+    if not multiple and len(items) != 1:
         raise ValueError('هر حکم تعویض روغن باید فقط یک دستگاه داشته باشد.')
     code = items[0]['machine_code'].upper()
-    service_key = f'OIL_CHANGE:{date}:{code}'
+    codes = sorted(i['machine_code'] for i in items)
+    service_key = (f'AIR_FILTER:{date}:{shift}:' + json.dumps(codes) if air_filter else
+                   f'GREASING:{date}:' + json.dumps(codes) if greasing else f'OIL_CHANGE:{date}:{code}')
     reason = str(reissue_reason or '').strip()
     if reason and (not revision_of or not operation_id):
         raise ValueError('صدور مجدد به شمارهٔ قبلی، علت و هویت پایدار درخواست نیاز دارد.')
-    payload = [service_key, items[0]['action_code'], revision_of, operation_id if reason else None]
+    actions = sorted((i['machine_code'],i['action_code']) for i in items) if multiple else items[0]['action_code']
+    payload = [service_key, actions, revision_of, operation_id if reason else None]
     operation_key = hashlib.sha256(json.dumps(payload, sort_keys=True).encode()).hexdigest()
     existing = con.execute('SELECT * FROM service_work_orders WHERE operation_key=?', (operation_key,)).fetchone()
     if existing:
         if existing['created_by'] != owner:
             raise ValueError('حکم این سرویس توسط حساب دیگری ساخته شده است.')
         return operation_key, service_key, existing['work_order_no']
-    active = con.execute('''SELECT DISTINCT w.* FROM service_work_orders w
+    if multiple:
+        candidates = con.execute('''SELECT * FROM service_work_orders WHERE work_order_type=?
+            AND jalali_date=? AND superseded_by IS NULL AND status NOT IN ('CANCELLED','VOID')''', (work_order_type,date)).fetchall()
+        active = []
+        for candidate in candidates:
+            if air_filter and candidate['shift'] != shift:
+                continue
+            old_codes = {r[0] for r in con.execute('SELECT machine_code FROM service_work_order_items WHERE work_order_id=?', (candidate['id'],))}
+            if old_codes.intersection(codes) or candidate['work_order_no'] == revision_of:
+                active.append(candidate)
+    else:
+        active = con.execute('''SELECT DISTINCT w.* FROM service_work_orders w
         JOIN service_work_order_items i ON i.work_order_id=w.id
         WHERE w.work_order_type='OIL_CHANGE' AND w.jalali_date=? AND UPPER(i.machine_code)=?
         AND w.superseded_by IS NULL AND w.status NOT IN ('CANCELLED','VOID')''', (date, code)).fetchall()
     if revision_of:
         parent = current(con, revision_of)
-        if parent['created_by'] != owner or parent['work_order_type'] != 'OIL_CHANGE':
-            raise ValueError('اصلاح یا صدور مجدد فقط برای حکم تعویض روغن خودتان مجاز است.')
+        if parent['created_by'] != owner or parent['work_order_type'] != work_order_type:
+            raise ValueError('اصلاح یا صدور مجدد فقط برای حکم همین نوع و متعلق به خودتان مجاز است.')
         parent_items = con.execute('SELECT machine_code FROM service_work_order_items WHERE work_order_id=?', (parent['id'],)).fetchall()
-        if parent['jalali_date'] != date or len(parent_items) != 1 or parent_items[0][0].upper() != code:
+        if (parent['jalali_date'] != date or (air_filter and parent['shift'] != shift) or
+                (not multiple and (len(parent_items) != 1 or parent_items[0][0].upper() != code))):
             raise ValueError('نسخهٔ جدید باید متعلق به همان سرویس و دستگاه باشد.')
         if len(active) != 1 or active[0]['work_order_no'] != revision_of:
             raise ValueError('چند حکم قبلی برای این سرویس وجود دارد؛ ابتدا تصمیم مسئول NET لازم است.')
@@ -83,8 +103,8 @@ def creation(con, date, items, owner, revision_of=None, reissue_reason=None, ope
             raise ValueError('حکم ارسال‌شده فقط با صدور مجدد عمدی و ثبت علت قابل جایگزینی است.')
     elif active:
         if len(active) == 1 and active[0]['created_by'] == owner:
-            old_items = con.execute('SELECT action_code FROM service_work_order_items WHERE work_order_id=?', (active[0]['id'],)).fetchall()
-            if len(old_items) == 1 and old_items[0][0] == items[0]['action_code']:
+            old_items = con.execute('SELECT machine_code,action_code FROM service_work_order_items WHERE work_order_id=?', (active[0]['id'],)).fetchall()
+            if (multiple and sorted(tuple(r) for r in old_items) == actions) or (not multiple and len(old_items) == 1 and old_items[0][1] == items[0]['action_code']):
                 return operation_key, service_key, active[0]['work_order_no']
         numbers = '، '.join(r['work_order_no'] for r in active)
         raise ValueError('برای این سرویس حکم موجود است: ' + numbers + '؛ از اصلاح همان حکم یا صدور مجدد با علت استفاده کنید.')
@@ -95,7 +115,7 @@ def recover_stale(con, now=None):
     now = time.time() if now is None else now
     rows = con.execute('''SELECT d.* FROM service_work_order_dispatch d
         JOIN service_work_orders w USING(work_order_no)
-        WHERE w.work_order_type='OIL_CHANGE' AND d.state='SENDING'
+        WHERE w.work_order_type IN ('OIL_CHANGE','GREASING','AIR_FILTER') AND d.state='SENDING'
         AND COALESCE(d.transfer_started_at,d.claimed_at,CAST(strftime('%s',w.updated_at) AS REAL),0) <= ?''', (now - LEASE_SECONDS,)).fetchall()
     for row in rows:
         attempt = row['attempt_id']
@@ -145,6 +165,8 @@ def claim(con, number):
 
 
 def start_transfer(con, number, attempt, artifact_path):
+    if type(attempt) is not int or attempt <= 0:
+        raise ValueError('این تلاش ارسال معتبر نیست؛ وضعیت ارسال را بررسی کنید.')
     current(con, number)
     now = time.time()
     updated = con.execute("""UPDATE service_work_order_dispatch SET transfer_started_at=?,updated_at=?
@@ -156,6 +178,8 @@ def start_transfer(con, number, attempt, artifact_path):
 
 
 def complete(con, number, attempt, *, error=None):
+    if type(attempt) is not int or attempt <= 0:
+        return False
     dispatch = con.execute('SELECT * FROM service_work_order_dispatch WHERE work_order_no=?', (number,)).fetchone()
     if not dispatch or dispatch['attempt_id'] != attempt or dispatch['state'] != 'SENDING':
         return False  # A late completion cannot undo an operator decision or a new attempt.
@@ -182,7 +206,7 @@ def pending(con, actor, chat):
         a.claimed_at,a.transfer_started_at,a.error FROM service_work_order_dispatch d
         JOIN service_work_orders w USING(work_order_no)
         JOIN service_work_order_delivery_attempts a ON a.id=d.attempt_id
-        WHERE w.work_order_type='OIL_CHANGE' AND w.created_by=? AND d.state='UNCERTAIN'
+        WHERE w.work_order_type IN ('OIL_CHANGE','GREASING','AIR_FILTER') AND w.created_by=? AND d.state='UNCERTAIN'
         ORDER BY a.claimed_at''', (f'bale:{actor}',))]
 
 
@@ -191,7 +215,7 @@ def resolve(con, number, attempt, actor, chat, decision, reason):
     if decision not in {'RECEIVED','RESEND_ALLOWED'} or not str(reason).strip():
         raise ValueError('تصمیم صریح و علت یا شاهد بررسی لازم است.')
     row = current(con, number)
-    if row['created_by'] != f'bale:{actor}' or row['work_order_type'] != 'OIL_CHANGE':
+    if row['created_by'] != f'bale:{actor}' or row['work_order_type'] not in RELIABLE_TYPES:
         raise ValueError('این حکم متعلق به شما نیست.')
     old = con.execute('SELECT * FROM service_work_order_delivery_attempts WHERE id=? AND work_order_no=?', (attempt, number)).fetchone()
     if old and old['decision'] == decision:

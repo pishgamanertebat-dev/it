@@ -15,7 +15,7 @@ class ManagerReviewTests(WorkOrderCreateTests):
         owned = service.create_work_order(work_order_type='AIR_FILTER', jalali_date='1405/06/15', shift='صبح',
                                           machine_codes=['714'], created_by='bale:455740857')
         service.create_work_order(work_order_type='AIR_FILTER', jalali_date='1405/06/15', shift='صبح',
-                                  machine_codes=['714'], created_by='bale:1006')
+                                  machine_codes=['713'], created_by='bale:1006')
         result = execute_request({'action': 'preview_latest', 'bale_id': '455740857'}, db_path=self.db_path)
         self.assertTrue(result['ok'], result)
         self.assertEqual(result['order']['work_order_no'], owned['work_order_no'])
@@ -34,7 +34,7 @@ class ManagerReviewTests(WorkOrderCreateTests):
             wb.close()
         with test_database(self.db_path) as con:
             con.execute("UPDATE service_work_orders SET notes='existing note'")
-        first = confirm_document_review(order["work_order_no"], "455740857")
+        first = self.review_pdf(order["work_order_no"])
         self.assertEqual(confirm_document_review(order["work_order_no"], "455740857"), first)
         with self.assertRaises(ValueError):
             confirm_document_review(order["work_order_no"], "1006")

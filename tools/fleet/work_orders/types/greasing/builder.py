@@ -54,7 +54,8 @@ def get_items(codes, actions=None):
     return items
 
 
-def build_document(*, output_path, jalali_date, items, shift='صبح'):
+def build_document(*, output_path, jalali_date, items, shift='صبح', work_order=None):
     return render_excel(output_path=output_path, jalali_date=jalali_date, items=items,
                         template_path=WORK_ORDER_TEMPLATE_ROOT / 'air_filter' / 'air_filter_work_order_v1.xlsx',
-                        template_sheet='Sheet1 (486)', title='لیست روزانه گریسکاری')
+                        template_sheet='Sheet1 (486)', title='لیست روزانه گریسکاری',
+                        readable_names=True, work_order=work_order)

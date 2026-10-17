@@ -18,6 +18,7 @@ from tools.fleet.work_orders.core.permissions import (
 )
 from tools.fleet.work_orders.core import service
 from tools.fleet.work_orders.core.review import confirm_document_review, normalize_shift
+from tools.fleet.work_orders.core.oil_safety import RELIABLE_TYPES
 
 
 def preview_order(order):
@@ -50,9 +51,9 @@ def execute_request(request: dict, *, db_path=None) -> dict:
             try:
                 row = current(con,request['work_order_no'])
                 dispatch = con.execute('SELECT state FROM service_work_order_dispatch WHERE work_order_no=?',(request['work_order_no'],)).fetchone()
-                if row['work_order_type'] != 'OIL_CHANGE' or row['created_by'] != f'bale:{actor.bale_id}' or row['status'] not in {'APPROVED','SENT'} or not dispatch or dispatch['state'] not in {'READY','FAILED','SENT'}:
+                if row['work_order_type'] not in RELIABLE_TYPES or row['created_by'] != f'bale:{actor.bale_id}' or row['status'] not in {'APPROVED','SENT'} or not dispatch or dispatch['state'] not in {'READY','FAILED','SENT'}:
                     raise ValueError('این حکم آمادهٔ ادامه نیست؛ ابتدا «بررسی ارسال» را باز کنید.')
-                return {'ok':True,'work_order_type':'OIL_CHANGE'}
+                return {'ok':True,'work_order_type':row['work_order_type']}
             finally:
                 con.close()
         if action in {'delivery_pending','delivery_resolve'}:
@@ -67,7 +68,7 @@ def execute_request(request: dict, *, db_path=None) -> dict:
                         rows = oil_safety.pending(con,actor.bale_id,request.get('chat_id'))
                         from datetime import datetime
                         from zoneinfo import ZoneInfo
-                        lines = ['بررسی ارسال تعویض روغن — نتیجهٔ انتقال نامعلوم است؛ پیش از تصمیم با سرویسکار تطبیق دهید.']
+                        lines = ['بررسی ارسال حکم کار — نتیجهٔ انتقال نامعلوم است؛ پیش از تصمیم با سرویسکار تطبیق دهید.']
                         for row in rows:
                             number, attempt = row['work_order_no'], row['attempt_id']
                             started = datetime.fromtimestamp(row['claimed_at'], ZoneInfo('Asia/Tehran')).strftime('%Y-%m-%d %H:%M')
@@ -84,12 +85,12 @@ def execute_request(request: dict, *, db_path=None) -> dict:
                 con.close()
         if action == 'reissue':
             old = service.get_work_order(request['work_order_no'])
-            if old['created_by'] != f'bale:{actor.bale_id}' or old['work_order_type'] != 'OIL_CHANGE':
-                raise ValueError('صدور مجدد فقط برای حکم تعویض روغن خودتان مجاز است.')
+            if old['created_by'] != f'bale:{actor.bale_id}' or old['work_order_type'] not in RELIABLE_TYPES:
+                raise ValueError('صدور مجدد فقط برای حکم متعلق به خودتان مجاز است.')
             if not str(request.get('reason','')).strip():
                 raise ValueError('علت صدور مجدد الزامی است.')
             order = service.create_work_order(authorization_check=authorize_create,
-                work_order_type='OIL_CHANGE',jalali_date=old['jalali_date'],shift=old['shift'],
+                work_order_type=old['work_order_type'],jalali_date=old['jalali_date'],shift=old['shift'],
                 machine_codes=[i['machine_code'] for i in old['items']],
                 item_actions={i['machine_code']:i['action_code'] for i in old['items']},
                 created_by=f'bale:{actor.bale_id}',revision_of=old['work_order_no'],
@@ -116,7 +117,7 @@ def execute_request(request: dict, *, db_path=None) -> dict:
             known = {m['code'] for m in machines if not m.get('duplicate') and rule_for(m['code'],m['name']) is not None}
             if any(c not in known for c in request['machine_codes']):
                 raise ValueError('دستگاه ناشناخته یا تکراری در منبع است؛ برای بیل و لودر کد کامل EX یا W را وارد کنید.')
-            return {'ok': True, 'items': get_items(request['machine_codes'])}
+            return {'ok': True, 'items': get_items(request['machine_codes'], source_machines=machines)}
         if request["action"] == "confirm_review":
             review = confirm_document_review(request["work_order_no"], actor.bale_id)
             order = service.get_work_order(request['work_order_no'])
@@ -125,7 +126,9 @@ def execute_request(request: dict, *, db_path=None) -> dict:
             from tools.fleet.work_orders.core.db import connect_db
             con = connect_db()
             try:
-                row = con.execute("SELECT work_order_no FROM service_work_orders WHERE created_by=? AND status='FILE_READY' ORDER BY id DESC LIMIT 1", (f'bale:{actor.bale_id}',)).fetchone()
+                columns = {r[1] for r in con.execute('PRAGMA table_info(service_work_orders)')}
+                version_filter = ' AND superseded_by IS NULL' if 'superseded_by' in columns else ''
+                row = con.execute("SELECT work_order_no FROM service_work_orders WHERE created_by=? AND status='FILE_READY'" + version_filter + ' ORDER BY id DESC LIMIT 1', (f'bale:{actor.bale_id}',)).fetchone()
             finally:
                 con.close()
             if not row:
@@ -137,8 +140,16 @@ def execute_request(request: dict, *, db_path=None) -> dict:
                 raise ValueError('این نسخه منسوخ است؛ نسخهٔ معتبر: ' + order['superseded_by'])
             if order["created_by"] != f"bale:{actor.bale_id}":
                 raise ValueError("این حکم متعلق به حساب شما نیست.")
-            if order['status'] != 'FILE_READY':
+            if order['status'] not in ({'FILE_READY','ASSIGNED','APPROVED'} if request['action']=='preview' else {'FILE_READY'}):
                 raise ValueError('این حکم دیگر در مرحلهٔ بررسی فایل نیست.')
+            if request['action']=='preview' and order['status']!='FILE_READY':
+                from tools.fleet.work_orders.core.db import connect_db
+                con=connect_db()
+                try:
+                    d=con.execute('SELECT state FROM service_work_order_dispatch WHERE work_order_no=?',(order['work_order_no'],)).fetchone()
+                    if d and d['state'] in {'SENDING','UNCERTAIN'}:
+                        raise ValueError('ابتدا نتیجهٔ ارسال قبلی را در «بررسی ارسال» تعیین تکلیف کنید.')
+                finally:con.close()
             if request["action"] == "edit":
                 if order["status"] != "FILE_READY":
                     raise ValueError("اصلاح فقط پیش از انتخاب سرویسکار امکان‌پذیر است.")
@@ -168,7 +179,8 @@ def execute_request(request: dict, *, db_path=None) -> dict:
                 return {"ok": True, "work_order_type": order["work_order_type"], 'proposal': {
                     'work_order_type':order['work_order_type'],
                     'plan_date':order['jalali_date'], 'cutoff':'نسخهٔ اصلاحی حکم قبلی',
-                    'source_sha256':None, 'items':order['items'], 'warnings':[], 'review':[]}}
+                    'source_sha256':None, 'items':order['items'], 'warnings':[], 'review':[],
+                    'revision_of':order['work_order_no']}}
             return {"ok": True, "order": preview_order(order)}
         work_order_type = request["work_order_type"]
         if request["action"] == "validate_machines":
@@ -240,7 +252,7 @@ def execute_request(request: dict, *, db_path=None) -> dict:
             machine_codes=request["machine_codes"],
             created_by=f"bale:{actor.bale_id}",
             item_actions=request.get('item_actions'),
-            revision_of=proposal.get('revision_of') if proposal and work_order_type == 'OIL_CHANGE' else None,
+            revision_of=proposal.get('revision_of') if proposal and work_order_type in RELIABLE_TYPES else None,
             notes=(work_order_type + '_PROPOSAL: ' + json.dumps(proposal, ensure_ascii=False)) if proposal else None,
         )
         return {"ok": True, "order": preview_order(order)}

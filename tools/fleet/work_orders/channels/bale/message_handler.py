@@ -9,6 +9,8 @@ import re
 import subprocess
 import time
 import secrets
+import hashlib
+import io
 from copy import copy
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
@@ -143,17 +145,20 @@ async def send_manager_excel(gateway, chat_id, order):
     # The manager reviews the same PDF the service technician will receive.
     # Excel stays the workbook used to render that PDF and the daily archive.
     source = Path(order["file_path"])
+    excel_sha256 = hashlib.sha256(source.read_bytes()).hexdigest()
     pdf_path = source if source.suffix.lower() == ".pdf" else await asyncio.to_thread(export_staff_pdf, source)
+    pdf_bytes = pdf_path.read_bytes()
     # Use the existing configured bot. The adapter's generic send_document can
     # report success for a text fallback even when the attachment upload failed.
     require_work_order_permission(chat_id, capabilities=('work_orders.read_own',))
-    with pdf_path.open("rb") as document:
+    with io.BytesIO(pdf_bytes) as document:
         await adapter._bot.send_document(
             chat_id=chat_id, document=document, filename=pdf_path.name,
             caption=manager_excel_caption(order),
         )
     if order.get("work_order_no"):
-        await asyncio.to_thread(store_manager_pdf, order["work_order_no"], pdf_path)
+        await asyncio.to_thread(store_manager_pdf, order["work_order_no"], pdf_path,
+                                pdf_bytes=pdf_bytes, excel_sha256=excel_sha256)
 
 
 class WorkOrderMenuHandler:
@@ -635,7 +640,7 @@ class WorkOrderMenuHandler:
                     session.jalali_date = session.proposal['plan_date']
                     reply = 'پس از آماده‌شدن نسخهٔ جدید، نسخهٔ قبلی محفوظ ولی غیرقابل تأیید و ارسال می‌شود.\n' + render(session.proposal)
                 elif result.get('orders'):
-                    session.work_order_type = 'OIL_CHANGE'
+                    session.work_order_type = result['orders'][0].get('work_order_type',session.work_order_type or 'OIL_CHANGE')
                     summaries = []
                     for order in result['orders']:
                         card_key = None
@@ -646,7 +651,7 @@ class WorkOrderMenuHandler:
                         try:
                             require_work_order_permission(key[1], db_path=self.db_path)
                             await self.document_sender(gateway, chat_id, order)
-                            card_key = self._review_card(key, number)
+                            card_key = self._review_card(key, number, order.get('work_order_type',session.work_order_type))
                             reply = manager_review_reply(order)
                         except Exception:
                             logger.exception('Manager oil Excel delivery failed for %s', number)
@@ -740,9 +745,9 @@ class WorkOrderMenuHandler:
         raw = getattr(event, 'raw_message', None)
         callback = isinstance(raw, dict) and raw.get('bale_inline_callback') is True
         special_text = normalize_digits(text)
-        delivery_decision = re.fullmatch(r'(رسیده است|ارسال مجدد مجاز است) (OC-1405-\d{2}-\d{2}-\d+) (\d+) (.+)', special_text)
-        resume_send = re.fullmatch(r'ادامه ارسال (OC-1405-\d{2}-\d{2}-\d+)', special_text)
-        reissue = re.fullmatch(r'صدور مجدد (OC-1405-\d{2}-\d{2}-\d+) (.+)', special_text)
+        delivery_decision = re.fullmatch(r'(رسیده است|ارسال مجدد مجاز است) ((?:OC|GR|AF)-1405-\d{2}-\d{2}-\d+) (\d+) (.+)', special_text)
+        resume_send = re.fullmatch(r'ادامه ارسال ((?:OC|GR|AF)-1405-\d{2}-\d{2}-\d+)', special_text)
+        reissue = re.fullmatch(r'صدور مجدد ((?:OC|GR|AF)-1405-\d{2}-\d{2}-\d+) (.+)', special_text)
         delivery_command = text == 'بررسی ارسال' or delivery_decision or resume_send or reissue
         is_entry = text == "حکم کار"
         review_command = re.fullmatch(r"(ثبت تایید|ثبت تأیید|ارسال مجدد|اصلاح|ویرایش) ((?:AF|GR|OC)-1405-\d{2}-\d{2}-\d+)", normalize_digits(text))
