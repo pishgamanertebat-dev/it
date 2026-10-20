@@ -16,6 +16,7 @@ from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from tools.bale_ui import StateStore, KeyboardLifecycle, KeyboardPolicy, MultiSelect
 from tools.fleet.work_orders.channels.bale.keyboards import keyboard_for, command_for, SHIFT_PROMPT
+from tools.fleet.work_orders.channels.bale.oil_editor import STAGES as OIL_EDIT_STAGES
 
 from tools.fleet.work_orders.core.permissions import (
     WorkOrderPermissionDenied,
@@ -94,11 +95,7 @@ class FormSession:
     edit_code_page: int = 0
     edit_codes: list[str] = field(default_factory=list)
     edit_intervals: dict[str, int] = field(default_factory=dict)
-    edit_origin_stage: str = 'EDIT_CODE'
-    edit_interval_return: str = 'EDIT_CODE'
-    edit_confirm_return: str = 'EDIT_CODE'
     edit_previous_interval: int | None = None
-    edit_confirm_page: int = 0
     oil_editor_version: int = 0
     oil_recovery: str = ''
     removal_selection: dict | None = None
@@ -188,14 +185,18 @@ class WorkOrderMenuHandler:
         if state_store:
             try:
                 for key, value in state_store.load():
+                    # Retired batch-only fields can remain in old persisted JSON.
+                    for name in ('edit_origin_stage', 'edit_interval_return',
+                                 'edit_confirm_return', 'edit_confirm_page'):
+                        value.pop(name, None)
                     session = FormSession(**value)
                     if session.work_order_type == 'OIL_CHANGE' and (
-                        session.stage in {'ADD_CODES', 'ADD_ACTION'} or
-                        (session.stage in {'EDIT_CODE', 'EDIT_INTERVAL', 'EDIT_CONFIRM'} and session.oil_editor_version < 1)
+                        session.stage in {'ADD_CODES', 'ADD_ACTION', 'EDIT_BATCH_CODES'} or
+                        (session.stage in OIL_EDIT_STAGES and session.oil_editor_version < 2)
                     ):
                         from tools.fleet.work_orders.channels.bale.oil_editor import reset
                         reset(session)
-                        session.stage = 'PROPOSAL'
+                        session.stage = 'EDIT_CODE' if session.proposal else 'PROPOSAL'
                         session.keyboard_revision = ''
                         session.additions = []
                     if session.stage == 'BUSY':
@@ -278,22 +279,10 @@ class WorkOrderMenuHandler:
     def _oil_edit_code_text(self, session):
         from tools.fleet.work_orders.channels.bale.proposal_form import oil_edit_candidates
         from tools.fleet.work_orders.channels.bale.keyboards import OIL_EDIT_PAGE_SIZE
-        from tools.fleet.work_orders.types.oil_change.builder import parse_action
         candidates = oil_edit_candidates(session.proposal)
         pages = max(1, (len(candidates) + OIL_EDIT_PAGE_SIZE - 1) // OIL_EDIT_PAGE_SIZE)
         session.edit_code_page = min(max(0, session.edit_code_page), pages - 1)
-        start = session.edit_code_page * OIL_EDIT_PAGE_SIZE
-        lines = ['افزودن دستگاه / ویرایش نوبت سرویس حکم تعویض روغن',
-                 'دستگاه را انتخاب کنید یا یک یا چند کد کامل/شماره را با فاصله بنویسید.',
-                 '✅ داخل حکم؛ ➕ با تأیید ویرایش به حکم اضافه می‌شود.',
-                 f'صفحه {session.edit_code_page + 1} از {pages}']
-        lines += [f"{item['machine_code']}: سرویس {parse_action(item['action_code'])[1]} ساعتی"
-                  for item in candidates[start:start + OIL_EDIT_PAGE_SIZE]]
-        return '\n'.join(lines)
-
-    def _oil_interval_text(self, session):
-        from tools.fleet.work_orders.channels.bale.oil_editor import interval_text
-        return interval_text(session)
+        return '➕ افزودن/ویرایش'
 
     def _send_reply(self, gateway, chat_id, reply, send, *, key=None, edit_message_id=None):
         try:
@@ -771,7 +760,7 @@ class WorkOrderMenuHandler:
         self.tasks.add(task)
         task.add_done_callback(self.tasks.discard)
 
-    def handle(self, event, gateway, *, send, _accepted=False):
+    def handle(self, event, gateway, *, send, _accepted=False, _edit_message_id=None):
         source = event.source
         platform = getattr(source.platform, "value", source.platform)
         if str(platform).lower() != "bale" or getattr(source, "chat_type", None) != "dm":
@@ -860,12 +849,6 @@ class WorkOrderMenuHandler:
                         reply = self._oil_edit_code_text(session)
                         return self._send_reply(gateway, chat_id, reply, send, key=key,
                             edit_message_id=raw.get('origin_message_id')) or {'action':'skip','reason':'work-order-selection'}
-                    if session.stage == 'EDIT_CONFIRM' and builder.actions[action].refresh:
-                        from tools.fleet.work_orders.channels.bale.oil_editor import confirmation_text
-                        session.edit_confirm_page += 1 if action == 'edit_confirm_next' else -1
-                        session.expires = self.clock() + 600
-                        return self._send_reply(gateway, chat_id, confirmation_text(session), send, key=key,
-                            edit_message_id=raw.get('origin_message_id')) or {'action':'skip','reason':'work-order-selection'}
                     if session.stage == 'REMOVE' and builder.actions[action].refresh:
                         require_work_order_permission(user_id, db_path=self.db_path)
                         selection = self._removal(session)
@@ -887,10 +870,12 @@ class WorkOrderMenuHandler:
                         return self._send_reply(gateway, chat_id, reply, send, key=key,
                             edit_message_id=raw.get('origin_message_id')) or {'action':'skip','reason':'work-order-selection'}
                     forwarded = copy(event)
-                    forwarded.text = command_for(action, order_no=session.order_no, proposal=session.proposal,
-                                                 edit_codes=session.edit_codes)
+                    forwarded.text = command_for(action, order_no=session.order_no, proposal=session.proposal)
                     forwarded.raw_message = None
-                    return self.handle(forwarded, gateway, send=send, _accepted=True)
+                    edit_id = (raw.get('origin_message_id') if session.work_order_type == 'OIL_CHANGE'
+                               and session.stage in OIL_EDIT_STAGES else None)
+                    return self.handle(forwarded, gateway, send=send, _accepted=True,
+                                       _edit_message_id=edit_id)
 
                 return self.lifecycle.accept(builder, raw.get('data', ''), session.keyboard_revision,
                     stage=session.stage, role=permission.role,
@@ -900,7 +885,14 @@ class WorkOrderMenuHandler:
                     failed=lambda: self._send_reply(gateway, chat_id,
                         'به‌روزرسانی منو انجام نشد؛ عملیات اجرا نشد. منوی حکم کار را دوباره باز کنید.', send))
             except PermissionError:
-                self._send_reply(gateway, chat_id, 'اجازهٔ انجام این عملیات را ندارید.', send)
+                saved = self.pending.get(key)
+                old_action = raw.get('data', '').rsplit(':', 1)[-1]
+                notice = ('این دکمه مربوط به منوی قدیمی است؛ منوی حکم کار را دوباره باز کنید.'
+                          if saved and saved.work_order_type == 'OIL_CHANGE' and
+                          (old_action.startswith(('edit_pending_', 'edit_confirm_')) or
+                           old_action in {'edit_batch','edit_cancel','edit_change','add'})
+                          else 'اجازهٔ انجام این عملیات را ندارید.')
+                self._send_reply(gateway, chat_id, notice, send)
                 return {'action': 'skip', 'reason': 'inline-rejected'}
             except ValueError:
                 self._send_reply(gateway, chat_id, 'این دکمه مربوط به منوی قدیمی یا منقضی‌شده است؛ منوی حکم کار را دوباره باز کنید.', send)
@@ -1011,9 +1003,9 @@ class WorkOrderMenuHandler:
                 else:
                     reply = session.result
             elif (session.work_order_type == 'OIL_CHANGE' and session.proposal is not None
-                  and session.stage in {'EDIT_CODE','EDIT_BATCH_CODES','EDIT_INTERVAL','EDIT_CONFIRM'}):
+                  and session.stage in OIL_EDIT_STAGES):
                 from tools.fleet.work_orders.channels.bale.oil_editor import handle
-                reply = handle(session, text, self._oil_edit_code_text)
+                reply = handle(session, text, self._oil_edit_code_text, inline=_accepted)
             elif session.proposal is not None and session.stage in {'PROPOSAL','REMOVE','ADD_CODES','ADD_ACTION'}:
                 from tools.fleet.work_orders.channels.bale.proposal_form import render, add_items, oil_edit_candidates, creation_metadata
                 if text == 'برگشت':
@@ -1179,7 +1171,9 @@ class WorkOrderMenuHandler:
         if message_key:
             self.processed[message_key] = now + 600
         if reply:
-            self._send_reply(gateway, chat_id, reply, send, key=key)
+            self._send_reply(gateway, chat_id, reply, send, key=key,
+                             edit_message_id=(_edit_message_id if session and
+                                              session.stage in OIL_EDIT_STAGES else None))
         else:
             self._persist()
         # Handled requests must never fall through to the AI agent, including

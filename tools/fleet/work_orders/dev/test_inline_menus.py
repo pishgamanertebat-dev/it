@@ -691,6 +691,23 @@ class InlineMenusTests(PermissionDatabaseTestCase, unittest.IsolatedAsyncioTestC
 
 
 
+    async def oil_click(self, action):
+        session = self.handler.pending[self.key]
+        origin = int(session.keyboard_message_id)
+        self.message('', data=self.button(self.sent[origin-1], action), origin=origin)
+        await self.settle()
+
+    async def choose_oil(self, code):
+        from tools.fleet.work_orders.channels.bale.proposal_form import oil_edit_candidates, oil_edit_item
+        session = self.handler.pending[self.key]
+        self.assertEqual(session.stage, 'EDIT_CODE')
+        selected = oil_edit_item(session.proposal, code)['machine_code']
+        index = next(n for n, item in enumerate(oil_edit_candidates(session.proposal))
+                     if item['machine_code'] == selected)
+        while session.edit_code_page != index // 16:
+            await self.oil_click('edit_next' if session.edit_code_page < index // 16 else 'edit_prev')
+        await self.oil_click(f'edit_unit_{index}')
+
     async def oil_edit_step(self, source=None, add_code='1252'):
         from tools.fleet.oil_change.test_proposal import sample_source
         from tools.fleet.oil_change.proposal import build_proposal, resolve_items
@@ -722,7 +739,7 @@ class InlineMenusTests(PermissionDatabaseTestCase, unittest.IsolatedAsyncioTestC
         self.message('ویرایش اکسل'); await self.settle()
         picker, picker_id = self.sent[-1], len(self.sent)
         self.assertIn('➕ HD464-1800', str(picker))
-        self.assertEqual([len(row) for row in picker['reply_markup']['inline_keyboard']], [2, 1, 1, 2, 1])
+        self.assertEqual([len(row) for row in picker['reply_markup']['inline_keyboard']], [2, 1, 1])
         self.message('', data=self.button(picker, 'edit_unit_1'), origin=picker_id)
         await self.settle()
         self.assertEqual(session.edit_machine_code, 'HD464')
@@ -737,46 +754,35 @@ class InlineMenusTests(PermissionDatabaseTestCase, unittest.IsolatedAsyncioTestC
         self.message('', data=apply, origin=confirmation_id)
         self.message('', data=apply, origin=confirmation_id)
         await self.settle()
-        self.assertEqual(session.stage, 'PROPOSAL')
+        self.assertEqual(session.stage, 'EDIT_CODE')
         self.assertEqual([i['machine_code'] for i in session.proposal['items']], ['HD706', 'HD464'])
         self.assertEqual(session.proposal['items'][0], before['items'][0])
         self.assertEqual(session.proposal['service_overrides'], {'HD464':1600})
         self.assertEqual(session.proposal['evaluations'], before['evaluations'])
         self.assertFalse(self.requests)
+        await self.oil_click('edit_done')
         self.message('تایید'); await self.settle()
         self.assertEqual(self.requests[-1]['item_actions'], {
             'HD706':'OIL_CHANGE_1800', 'HD464':'OIL_CHANGE_HD465-7R_1600'})
         self.assertEqual(self.requests[-1]['proposal']['service_overrides'], {'HD464':1600})
 
-    async def test_oil_edit_unselected_code_variants_and_ambiguous_numbers(self):
+    async def test_oil_edit_rejects_typed_codes_but_keeps_alias_resolution(self):
         from tools.fleet.oil_change.test_proposal import sample_source
+        from tools.fleet.work_orders.channels.bale.proposal_form import oil_edit_item
         source = sample_source('HD465-7R', 'HD465', last=800, remaining=14)
         session = await self.oil_edit_step(source, add_code=None)
-        self.assertFalse(session.proposal['items'])
-        for code in ('HD465', 'hd465', 'HD۴۶۵', '۴۶۵', '٤٦٥'):
-            self.message('ویرایش اکسل'); await self.settle()
-            self.message(code); await self.settle()
-            self.assertEqual(session.stage, 'EDIT_INTERVAL', code)
-            self.assertEqual(session.edit_machine_code, 'HD465')
-            self.message('برگشت'); await self.settle()
-            self.assertFalse(session.proposal['items'])
-        extra = sample_source('PC600-8', 'EX465', remaining=100)
-        source['machines'] += extra['machines']
-        source['plans'] += extra['plans']
-        session = await self.oil_edit_step(source, add_code=None)
         self.message('ویرایش اکسل'); await self.settle()
-        for code in ('465', 'UNKNOWN', 'HD999', 'HD465 HD464'):
+        for code in ('HD465','hd465','HD۴۶۵','۴۶۵','٤٦٥','HD465 HD464','افزودن چند دستگاه'):
             self.assertEqual(self.message(code)['reason'], 'work-order-input-rejected')
             await self.settle()
-            self.assertEqual(session.stage, 'EDIT_CODE')
+            self.assertEqual(session.stage,'EDIT_CODE')
             self.assertFalse(session.proposal['items'])
-        self.message('hd465'); await self.settle()
-        self.assertEqual(session.stage, 'EDIT_INTERVAL')
+        self.assertEqual(oil_edit_item(session.proposal,'hd۴۶۵')['machine_code'],'HD465')
+        await self.choose_oil('HD465')
         self.message('۱۶۰۰'); await self.settle()
-        self.message('تایید ویرایش'); await self.settle()
-        self.assertEqual(session.proposal['service_overrides'], {'HD465':1600})
+        await self.oil_click('edit_apply')
+        self.assertEqual(session.proposal['service_overrides'],{'HD465':1600})
         self.assertFalse(session.proposal['warnings'])
-        self.assertEqual([i['machine_code'] for i in session.proposal['items']], ['HD465'])
 
     async def test_oil_edit_unselected_back_and_cancel_leave_proposal_unchanged(self):
         from copy import deepcopy
@@ -786,7 +792,7 @@ class InlineMenusTests(PermissionDatabaseTestCase, unittest.IsolatedAsyncioTestC
                 sample_source('HD465-7R', 'HD464', last=1600, remaining=90.5), add_code=None)
             before = deepcopy(session.proposal)
             self.message('ویرایش اکسل'); await self.settle()
-            self.message('hd464'); await self.settle()
+            await self.choose_oil('HD464')
             self.message('1600'); await self.settle()
             self.assertEqual(session.stage, 'EDIT_CONFIRM')
             self.message(stop); await self.settle()
@@ -810,7 +816,7 @@ class InlineMenusTests(PermissionDatabaseTestCase, unittest.IsolatedAsyncioTestC
         self.message('', data=next_page, origin=picker_id); await self.settle()
         self.assertEqual(len(self.sent), picker_id)
         self.assertEqual(session.edit_code_page, 1)
-        self.assertIn('صفحه 2 از 2', self.sent[-1]['text'])
+        self.assertEqual(self.sent[-1]['text'], '➕ افزودن/ویرایش')
         current_choice = self.button(self.sent[-1], 'edit_unit_16')
         self.handler = self.new_handler()
         session = self.handler.pending[self.key]
@@ -837,8 +843,7 @@ class InlineMenusTests(PermissionDatabaseTestCase, unittest.IsolatedAsyncioTestC
         self.assertEqual(session.stage, 'EDIT_CODE')
         self.assertEqual(self.message('UNKNOWN')['reason'], 'work-order-input-rejected')
         await self.settle()
-        self.message('۱۲۵۲')
-        await self.settle()
+        await self.choose_oil('EX1252')
         self.assertEqual(session.stage, 'EDIT_INTERVAL')
         interval_card, interval_id = self.sent[-1], len(self.sent)
         self.assertEqual([b['text'] for row in interval_card['reply_markup']['inline_keyboard']
@@ -858,7 +863,7 @@ class InlineMenusTests(PermissionDatabaseTestCase, unittest.IsolatedAsyncioTestC
         self.message('', data=apply_data, origin=confirmation_id)
         self.message('', data=apply_data, origin=confirmation_id)
         await self.settle()
-        self.assertEqual(session.stage, 'PROPOSAL')
+        self.assertEqual(session.stage, 'EDIT_CODE')
         self.assertIn(confirmation_id, self.removed)
         self.assertEqual(session.proposal['service_overrides'], {'EX1252':1800})
         self.assertTrue(session.proposal['items'][0]['action_code'].endswith('_1800'))
@@ -866,7 +871,8 @@ class InlineMenusTests(PermissionDatabaseTestCase, unittest.IsolatedAsyncioTestC
         self.assertEqual(self.message('', data=edit_data, origin=original_id)['reason'], 'inline-rejected')
         await self.settle()
         self.assertFalse(self.requests)
-        # Use the current proposal keyboard; an old callback never creates a file.
+        # Finish selection before final proposal confirmation creates files.
+        await self.oil_click('edit_done')
         self.message('تایید')
         await self.settle()
         self.assertEqual(len(self.requests), 1)
@@ -878,9 +884,9 @@ class InlineMenusTests(PermissionDatabaseTestCase, unittest.IsolatedAsyncioTestC
     async def test_oil_edit_back_change_and_cancel_never_apply_pending_value(self):
         session = await self.oil_edit_step()
         self.message('ویرایش اکسل'); await self.settle()
-        self.message('ex1252'); await self.settle()
+        await self.choose_oil('EX1252')
         self.message('۱۶۰۰'); await self.settle()
-        self.message('', data=self.button(self.sent[-1], 'edit_change'), origin=len(self.sent))
+        self.message('', data=self.button(self.sent[-1], 'edit_back'), origin=len(self.sent))
         await self.settle()
         self.assertEqual(session.stage, 'EDIT_INTERVAL')
         self.assertIsNone(session.edit_interval)
@@ -890,7 +896,7 @@ class InlineMenusTests(PermissionDatabaseTestCase, unittest.IsolatedAsyncioTestC
         self.assertEqual(session.stage, 'EDIT_INTERVAL')
         self.message('برگشت'); await self.settle()
         self.assertEqual(session.stage, 'EDIT_CODE')
-        self.message('برگشت'); await self.settle()
+        await self.oil_click('edit_done')
         self.assertEqual(session.stage, 'PROPOSAL')
         self.assertTrue(session.proposal['items'][0]['action_code'].endswith('_2000'))
         self.assertFalse(session.proposal.get('service_overrides'))
@@ -898,12 +904,12 @@ class InlineMenusTests(PermissionDatabaseTestCase, unittest.IsolatedAsyncioTestC
             session = await self.oil_edit_step()
             self.message('ویرایش اکسل'); await self.settle()
             if stop_stage != 'EDIT_CODE':
-                self.message('1252'); await self.settle()
+                await self.choose_oil('EX1252')
             if stop_stage == 'EDIT_CONFIRM':
                 self.message('1800'); await self.settle()
             self.assertEqual(session.stage, stop_stage)
             origin = len(self.sent)
-            self.message('', data=self.button(self.sent[-1], 'cancel'), origin=origin)
+            self.message('انصراف')
             await self.settle()
             self.assertFalse(self.handler.pending)
             self.assertIn(origin, self.deleted)
@@ -926,7 +932,7 @@ class InlineMenusTests(PermissionDatabaseTestCase, unittest.IsolatedAsyncioTestC
     async def test_oil_edit_permission_and_expired_callbacks_are_rejected(self):
         session = await self.oil_edit_step()
         self.message('ویرایش اکسل'); await self.settle()
-        self.message('1252'); await self.settle()
+        await self.choose_oil('EX1252')
         self.message('1800'); await self.settle()
         card, origin = self.sent[-1], len(self.sent)
         data = self.button(card, 'edit_apply')

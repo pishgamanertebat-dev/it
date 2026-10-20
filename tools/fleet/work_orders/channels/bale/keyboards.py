@@ -33,62 +33,28 @@ def oil_edit_code_keyboard(session):
                for index, item in enumerate(candidates[start:start + OIL_EDIT_PAGE_SIZE], start)]
     rows = [buttons[index:index + 2] for index in range(0, len(buttons), 2)]
     navigation = []
-    if start:
-        navigation.append(action('edit_prev', '⬅️ صفحه قبل', 'EDIT_CODE', refresh=True))
+    # The reported Bale RTL client renders the first button on the right.
+    # Keep next first; visual client verification is recorded separately.
     if start + OIL_EDIT_PAGE_SIZE < len(candidates):
         navigation.append(action('edit_next', 'صفحه بعد ➡️', 'EDIT_CODE', refresh=True))
+    if start:
+        navigation.append(action('edit_prev', '⬅️ صفحه قبل', 'EDIT_CODE', refresh=True))
     if navigation:
         rows.append(navigation)
-    rows.append((action('edit_batch', 'افزودن چند دستگاه', 'EDIT_CODE'),))
-    rows.append((action('edit_back', '↩️ بازگشت', 'EDIT_CODE'),
-                 action('edit_cancel', 'انصراف از همین ویرایش', 'EDIT_CODE')))
-    rows.append((action('cancel', 'خروج از کل فرم', 'EDIT_CODE'),))
+    rows.append((action('edit_done', '✅ پایان و بازگشت به پیشنهاد', 'EDIT_CODE'),))
     return InlineKeyboardBuilder('work_order', rows)
 
 oil_interval_keyboard = InlineKeyboardBuilder('work_order', (
     (action('interval_keep', '✅ حفظ همین نوبت', 'EDIT_INTERVAL'),),
     *[(action(f'interval_{n}', str(n), 'EDIT_INTERVAL'),
        action(f'interval_{n+200}', str(n+200), 'EDIT_INTERVAL')) for n in range(200, 2000, 400)],
-    (action('edit_back', '↩️ بازگشت', 'EDIT_INTERVAL'),
-     action('edit_cancel', 'انصراف از همین ویرایش', 'EDIT_INTERVAL')),
-    (action('cancel', 'خروج از کل فرم', 'EDIT_INTERVAL'),),
-))
-
-oil_batch_codes_keyboard = InlineKeyboardBuilder('work_order', (
-    (action('edit_back', '↩️ بازگشت', 'EDIT_BATCH_CODES'),
-     action('edit_cancel', 'انصراف از همین ویرایش', 'EDIT_BATCH_CODES')),
-    (action('cancel', 'خروج از کل فرم', 'EDIT_BATCH_CODES'),),
+    (action('edit_back', '↩️ بازگشت به دستگاه‌ها', 'EDIT_INTERVAL'),),
 ))
 
 oil_edit_confirm_keyboard = InlineKeyboardBuilder('work_order', (
-    (action('edit_apply', '✅ تأیید ویرایش', 'EDIT_CONFIRM'),
-     action('edit_change', '✏️ تغییر نوبت', 'EDIT_CONFIRM')),
-    (action('edit_back', '↩️ بازگشت', 'EDIT_CONFIRM'),
-     action('edit_cancel', 'انصراف از همین ویرایش', 'EDIT_CONFIRM')),
-    (action('cancel', 'خروج از کل فرم', 'EDIT_CONFIRM'),),
+    (action('edit_apply', '✅ تأیید ویرایش', 'EDIT_CONFIRM'),),
+    (action('edit_back', '↩️ بازگشت به انتخاب نوبت', 'EDIT_CONFIRM'),),
 ))
-
-
-def oil_confirmation_keyboard(session):
-    if len(session.edit_codes) <= 1:
-        return oil_edit_confirm_keyboard
-    start = session.edit_confirm_page * OIL_EDIT_PAGE_SIZE
-    buttons = [action(f'edit_pending_{index}',
-                      f'{code}-{session.edit_intervals[code]}', 'EDIT_CONFIRM')
-               for index, code in enumerate(session.edit_codes[start:start + OIL_EDIT_PAGE_SIZE], start)]
-    rows = [buttons[index:index + 2] for index in range(0, len(buttons), 2)]
-    navigation = []
-    if start:
-        navigation.append(action('edit_confirm_prev', '⬅️ صفحه قبل', 'EDIT_CONFIRM', refresh=True))
-    if start + OIL_EDIT_PAGE_SIZE < len(session.edit_codes):
-        navigation.append(action('edit_confirm_next', 'صفحه بعد ➡️', 'EDIT_CONFIRM', refresh=True))
-    if navigation:
-        rows.append(navigation)
-    rows.extend(((action('edit_apply', '✅ تأیید ویرایش', 'EDIT_CONFIRM'),),
-                 (action('edit_back', '↩️ بازگشت', 'EDIT_CONFIRM'),
-                  action('edit_cancel', 'انصراف از همین ویرایش', 'EDIT_CONFIRM')),
-                 (action('cancel', 'خروج از کل فرم', 'EDIT_CONFIRM'),)))
-    return InlineKeyboardBuilder('work_order', rows)
 
 
 def oil_recovery_keyboard(session):
@@ -107,8 +73,7 @@ def oil_recovery_keyboard(session):
 
 COMMANDS = {'add': 'اضافه', 'remove': 'حذف', 'confirm': 'تایید', 'cancel': 'انصراف',
             'edit_excel': 'افزودن/ویرایش', 'edit_back': 'برگشت',
-            'edit_apply': 'تایید ویرایش', 'edit_change': 'تغییر نوبت',
-            'edit_cancel': 'انصراف از ویرایش', 'edit_batch': 'افزودن چند دستگاه',
+            'edit_apply': 'تایید ویرایش', 'edit_done': 'پایان و بازگشت به پیشنهاد',
             'interval_keep': 'حفظ نوبت', 'proposal_back': 'بازگشت به پیشنهاد',
             'proposal_refresh': 'دریافت پیشنهاد تازه', 'proposal_inspect': 'بررسی آخرین حکم'}
 
@@ -155,9 +120,7 @@ def keyboard_for(session, *, review=False):
         if session.stage == 'EDIT_INTERVAL':
             return oil_interval_keyboard
         if session.stage == 'EDIT_CONFIRM':
-            return oil_confirmation_keyboard(session)
-        if session.stage == 'EDIT_BATCH_CODES':
-            return oil_batch_codes_keyboard
+            return oil_edit_confirm_keyboard
         if session.stage == 'OIL_RECOVERY':
             return oil_recovery_keyboard(session)
     if session.stage == 'SHIFT':
@@ -177,9 +140,7 @@ def keyboard_for(session, *, review=False):
     return None
 
 
-def command_for(action_name, *, order_no='', proposal=None, edit_codes=()):
-    if action_name.startswith('edit_pending_') and action_name[13:].isdecimal():
-        return edit_codes[int(action_name[13:])]
+def command_for(action_name, *, order_no='', proposal=None):
     if action_name.startswith('edit_unit_') and action_name[10:].isdecimal():
         from tools.fleet.work_orders.channels.bale.proposal_form import oil_edit_candidates
         candidates = oil_edit_candidates(proposal)

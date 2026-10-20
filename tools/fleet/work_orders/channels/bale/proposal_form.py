@@ -9,9 +9,12 @@ def oil_edit_candidates(proposal):
     """Selected rows take precedence over the unmodified planning snapshot."""
     if proposal.get('work_order_type') != 'OIL_CHANGE':
         return []
-    selected = {item['machine_code'] for item in proposal['items']}
-    return [*proposal['items'], *(item for item in proposal.get('evaluations', [])
-                                 if item['machine_code'] not in selected)]
+    selected = {item['machine_code']: item for item in proposal['items']}
+    snapshot = proposal.get('evaluations', [])
+    known = {item['machine_code'] for item in snapshot}
+    # Confirming a unit must not move it (or its neighbours) to another page.
+    return [*(selected.get(item['machine_code'], item) for item in snapshot),
+            *(item for code, item in selected.items() if code not in known)]
 
 
 def oil_edit_item(proposal, code):
@@ -20,7 +23,7 @@ def oil_edit_item(proposal, code):
     matches = [item for item in oil_edit_candidates(proposal) if item['machine_code'] == code or
                (code.isdecimal() and re.sub(r'^[A-Z]+', '', item['machine_code']) == code)]
     if len(matches) != 1:
-        raise ValueError('کد دستگاه در فهرست معتبر این پیشنهاد پیدا نشد یا مبهم است؛ دستگاه را از دکمه‌ها انتخاب کنید یا کد کامل آن را بنویسید.')
+        raise ValueError('دستگاه در فهرست معتبر این پیشنهاد پیدا نشد یا مبهم است؛ از دکمه‌ها انتخاب کنید.')
     return matches[0]
 
 
@@ -49,21 +52,6 @@ def edit_oil_interval(proposal, code, interval):
     proposal['items'] = [edited if candidate['machine_code'] == item['machine_code'] else candidate
                          for candidate in proposal['items']]
     rebuild_oil_warnings(proposal)
-
-
-def oil_edit_items(proposal, text):
-    """Resolve every code from this draft's snapshot, atomically, including aliases."""
-    codes = [c for c in re.split(r'[\s,،;؛]+', text) if c]
-    if not 1 <= len(codes) <= 100:
-        raise ValueError('بین ۱ تا ۱۰۰ کد دستگاه وارد کنید.')
-    items, seen = [], set()
-    for code in codes:
-        item = oil_edit_item(proposal, code)
-        if item['machine_code'] in seen:
-            raise ValueError('کد دستگاه تکراری است: ' + item['machine_code'])
-        seen.add(item['machine_code'])
-        items.append(item)
-    return items
 
 
 def apply_oil_edits(proposal, codes, intervals):

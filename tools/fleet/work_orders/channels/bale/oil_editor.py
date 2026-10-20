@@ -1,24 +1,20 @@
-"""Snapshot-only, explicitly confirmed oil draft editing. No I/O or order creation."""
+"""Snapshot-only, individually confirmed oil editing through inline buttons."""
 from tools.fleet.work_orders.channels.bale.proposal_form import (
-    oil_edit_items, oil_edit_item, apply_oil_edits, render,
+    oil_edit_item, apply_oil_edits, render,
 )
 from tools.fleet.work_orders.types.oil_change.builder import normalize_interval, parse_action
 
-STAGES = frozenset({'EDIT_CODE', 'EDIT_BATCH_CODES', 'EDIT_INTERVAL', 'EDIT_CONFIRM'})
-BATCH_PROMPT = 'کد دستگاه‌ها را با فاصله یا ویرگول بنویسید؛ حداکثر ۱۰۰ دستگاه. نوبت پیشنهادی هر دستگاه پیش‌فرض است و پیش از تأیید قابل تغییر است.'
+STAGES = frozenset({'EDIT_CODE', 'EDIT_INTERVAL', 'EDIT_CONFIRM'})
 
 
 def reset(session):
+    """Discard only the pending device; keep the confirmed draft and list page."""
     session.edit_machine_code = ''
     session.edit_interval = None
     session.edit_previous_interval = None
     session.edit_codes = []
     session.edit_intervals = {}
-    session.edit_origin_stage = 'EDIT_CODE'
-    session.edit_interval_return = 'EDIT_CODE'
-    session.edit_confirm_return = 'EDIT_CODE'
-    session.edit_confirm_page = 0
-    session.oil_editor_version = 1
+    session.oil_editor_version = 2
 
 
 def interval_text(session):
@@ -33,75 +29,47 @@ def interval_text(session):
 
 
 def confirmation_text(session):
-    selected = {i['machine_code'] for i in session.proposal['items']}
-    lines = ['پیش‌نمایش افزودن/ویرایش؛ هنوز اعمال نشده است:']
-    for code in session.edit_codes:
-        item = oil_edit_item(session.proposal, code)
-        old, new = parse_action(item['action_code'])[1], session.edit_intervals[code]
-        if code not in selected:
-            change = (f'افزودن با نوبت پیشنهادی {new}' if old == new else
-                      f'افزودن با سرویس {new} به‌جای نوبت پیشنهادی {old}')
-        elif old == new:
-            change = f'از قبل در حکم؛ سرویس {old}، بدون تغییر'
-        else:
-            change = f'تغییر نوبت از {old} به {new}'
-        lines.append(f'{code}: {change} ساعتی')
-    if len(session.edit_codes) > 1:
-        lines.append('برای تغییر اختیاری نوبت، دکمهٔ همان دستگاه را بزنید.')
-    if any(code not in selected for code in session.edit_codes):
-        lines.append('دستگاه جدید با تأیید ویرایش به حکم اضافه می‌شود.')
-    lines.append('برای اعمال، «تأیید ویرایش» را بزنید.')
-    return '\n'.join(lines)
+    item = oil_edit_item(session.proposal, session.edit_machine_code)
+    old = parse_action(item['action_code'])[1]
+    new = session.edit_intervals[item['machine_code']]
+    selected = any(i['machine_code'] == item['machine_code'] for i in session.proposal['items'])
+    if not selected:
+        change = (f'افزودن با نوبت پیشنهادی {new}' if old == new else
+                  f'افزودن با سرویس {new} به‌جای نوبت پیشنهادی {old}')
+    elif old == new:
+        change = f'از قبل در حکم؛ سرویس {old}، بدون تغییر'
+    else:
+        change = f'تغییر نوبت از {old} به {new}'
+    return (f"پیش‌نمایش؛ هنوز اعمال نشده است:\n{item['machine_code']}: {change} ساعتی\n"
+            + ('' if selected else 'دستگاه جدید با تأیید ویرایش به حکم اضافه می‌شود.\n')
+            + 'برای اعمال، «تأیید ویرایش» را بزنید.')
 
 
-def handle(session, text, picker_text):
-    """Handle only oil editor stages; the outer handler authenticates each event."""
-    if text == 'انصراف از ویرایش':
+def handle(session, text, picker_text, *, inline=False):
+    """The outer handler authenticates callbacks; typed codes cannot select units."""
+    if session.stage == 'EDIT_CODE' and text in {'افزودن/ویرایش', 'ویرایش اکسل', 'اضافه'}:
+        # Reopen a migrated draft without discarding its confirmed selections.
+        return picker_text(session)
+    if text == 'پایان و بازگشت به پیشنهاد' and inline and session.stage == 'EDIT_CODE':
         reset(session)
         session.stage = 'PROPOSAL'
         return render(session.proposal)
     if text == 'برگشت':
-        if session.stage == 'EDIT_CODE':
-            reset(session)
-            session.stage = 'PROPOSAL'
-            return render(session.proposal)
-        if session.stage == 'EDIT_BATCH_CODES':
-            session.stage = 'EDIT_CODE'
-            return picker_text(session)
-        if session.stage == 'EDIT_INTERVAL':
+        if session.stage == 'EDIT_CONFIRM':
+            session.edit_intervals[session.edit_machine_code] = session.edit_previous_interval
             session.edit_interval = None
-            session.stage = session.edit_interval_return
-            if session.stage == 'EDIT_CONFIRM':
-                session.edit_confirm_return = session.edit_origin_stage
-        else:
-            session.stage = session.edit_confirm_return
-            if session.stage == 'EDIT_INTERVAL':
-                # Undo the last unconfirmed interval choice on a step back.
-                session.edit_intervals[session.edit_machine_code] = session.edit_previous_interval
-                session.edit_interval = None
-        if session.stage == 'EDIT_CODE':
-            session.edit_codes, session.edit_intervals = [], {}
-            return picker_text(session)
-        if session.stage == 'EDIT_BATCH_CODES':
-            session.edit_codes, session.edit_intervals = [], {}
-            return BATCH_PROMPT
-        return interval_text(session) if session.stage == 'EDIT_INTERVAL' else confirmation_text(session)
-    if session.stage == 'EDIT_CODE' and text == 'افزودن چند دستگاه':
-        session.stage = 'EDIT_BATCH_CODES'
-        return BATCH_PROMPT
-    if session.stage in {'EDIT_CODE', 'EDIT_BATCH_CODES'}:
-        items = oil_edit_items(session.proposal, text)
-        session.edit_origin_stage = session.stage
-        session.edit_codes = [i['machine_code'] for i in items]
-        session.edit_intervals = {i['machine_code']: parse_action(i['action_code'])[1] for i in items}
-        session.edit_confirm_page = 0
-        if len(items) > 1:
-            session.edit_machine_code = ''
-            session.edit_confirm_return = session.edit_origin_stage
-            session.stage = 'EDIT_CONFIRM'
-            return confirmation_text(session)
-        session.edit_machine_code = items[0]['machine_code']
-        session.edit_interval_return = session.edit_origin_stage
+            session.stage = 'EDIT_INTERVAL'
+            return interval_text(session)
+        reset(session)
+        session.stage = 'EDIT_CODE'
+        return picker_text(session)
+    if session.stage == 'EDIT_CODE':
+        if not inline:
+            raise ValueError('دستگاه را فقط از دکمه‌ها انتخاب کنید.')
+        item = oil_edit_item(session.proposal, text)
+        session.edit_machine_code = item['machine_code']
+        session.edit_codes = [item['machine_code']]
+        session.edit_intervals = {item['machine_code']: parse_action(item['action_code'])[1]}
         session.edit_interval = None
         session.stage = 'EDIT_INTERVAL'
         return interval_text(session)
@@ -111,23 +79,11 @@ def handle(session, text, picker_text):
         session.edit_previous_interval = session.edit_intervals[session.edit_machine_code]
         session.edit_intervals[session.edit_machine_code] = interval
         session.edit_interval = interval
-        session.edit_confirm_return = 'EDIT_INTERVAL'
         session.stage = 'EDIT_CONFIRM'
         return confirmation_text(session)
-    if text in {'تایید ویرایش', 'تأیید ویرایش'}:
+    if text in {'تایید ویرایش', 'تأیید ویرایش'} and inline:
         apply_oil_edits(session.proposal, session.edit_codes, session.edit_intervals)
         reset(session)
-        session.stage = 'PROPOSAL'
-        return render(session.proposal)
-    if text == 'تغییر نوبت' and len(session.edit_codes) == 1:
-        code = session.edit_codes[0]
-    else:
-        item = oil_edit_item(session.proposal, text)
-        code = item['machine_code']
-        if code not in session.edit_codes:
-            raise ValueError('دستگاه را از همین فهرست تغییرات انتخاب کنید.')
-    session.edit_machine_code = code
-    session.edit_interval = None
-    session.edit_interval_return = 'EDIT_CONFIRM' if len(session.edit_codes) > 1 else session.edit_origin_stage
-    session.stage = 'EDIT_INTERVAL'
-    return interval_text(session)
+        session.stage = 'EDIT_CODE'
+        return picker_text(session)
+    raise ValueError('از دکمه‌های همین مرحله انتخاب کنید.')

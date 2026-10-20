@@ -1,5 +1,6 @@
 """Run isolated oil UI and OC/GR/AF regressions without production writes/sends."""
 import argparse
+import hashlib
 from contextlib import closing
 import io
 import json
@@ -35,9 +36,17 @@ REGRESSION = [
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--group', choices=['audit', 'unified', 'regression'], required=True)
+    parser.add_argument('--group', choices=['audit', 'unified', 'regression', 'smoke'], required=True)
     parser.add_argument('--output', type=Path, required=True)
     args = parser.parse_args()
+    base=Path(__file__).resolve().parents[4]
+    release_files=['tools/fleet/work_orders/channels/bale/'+name+'.py' for name in
+                   ('oil_editor','keyboards','proposal_form','message_handler')]
+    release_files+=['tools/fleet/work_orders/dev/'+name+'.py' for name in
+                    ('test_inline_menus','test_oil_unified','verify_oil_unified','test_oil_change')]
+    def hashes():
+        return {name:hashlib.sha256((base/name).read_bytes()).hexdigest() for name in release_files}
+    tested_hashes=hashes()
     logging.basicConfig(stream=io.StringIO(), level=logging.WARNING)
     original_connect = socket.socket.connect
 
@@ -47,7 +56,12 @@ def main():
             return original_connect(sock, address)
         raise AssertionError('External transport is forbidden in this verifier')
 
-    names = (AUDIT if args.group == 'audit' else
+    smoke=['test_sequential_devices_same_page_no_extra_messages_and_restart',
+           'test_legacy_batch_sessions_drop_only_pending_edits_and_reject_old_callbacks',
+           'test_real_excel_pdf_review_and_revision_from_net_menu',
+           'test_multiple_inline_devices_create_independent_native_excel_pdf']
+    names = (['tools.fleet.work_orders.dev.test_oil_unified.OilUnifiedTests.'+name for name in smoke]
+             if args.group == 'smoke' else AUDIT if args.group == 'audit' else
              ['tools.fleet.work_orders.dev.test_oil_unified'] if args.group == 'unified' else
              ['tools.fleet.work_orders.dev.' + name for name in REGRESSION])
     with tempfile.TemporaryDirectory(prefix='oil_unified_verify_') as directory:
@@ -74,11 +88,13 @@ def main():
             record = dict(group=args.group, run=result.testsRun, failures=len(result.failures),
                           errors=len(result.errors), skipped=len(result.skipped), success=result.wasSuccessful(),
                           details=output.getvalue(), transport='SIMULATED', external_network='BLOCKED')
+            record.update(source_root=str(base),source_sha256=tested_hashes,source_unchanged=hashes()==tested_hashes)
+            record['success']=record['success'] and record['source_unchanged']
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(record, ensure_ascii=False, indent=2), encoding='utf-8')
     print(output.getvalue())
-    print(json.dumps({k: v for k, v in record.items() if k != 'details'}))
-    raise SystemExit(0 if result.wasSuccessful() else 1)
+    print(json.dumps({k: v for k, v in record.items() if k not in {'details','source_sha256'}}))
+    raise SystemExit(0 if record['success'] else 1)
 
 
 if __name__ == '__main__':

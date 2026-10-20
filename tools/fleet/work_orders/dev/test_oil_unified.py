@@ -17,7 +17,7 @@ from tools.fleet.oil_change.test_proposal import sample_source
 from tools.fleet.work_orders.channels.bale import create_worker
 from tools.fleet.work_orders.channels.bale.keyboards import keyboard_for
 from tools.fleet.work_orders.channels.bale.proposal_form import (
-    creation_metadata, oil_edit_items, apply_oil_edits,
+    creation_metadata, oil_edit_item, apply_oil_edits,
 )
 
 
@@ -77,12 +77,12 @@ class OilUnifiedTests(menus.InlineMenusTests):
     async def test_add_default_is_confirmed_without_false_override(self):
         s = await self.start()
         before = deepcopy(s.proposal)
-        await self.enter('۱۲۵۲')
+        await self.choose_oil('۱۲۵۲')
         await self.click('interval_keep')
         self.assertEqual(s.proposal,before)
         self.assertIn('افزودن با نوبت پیشنهادی 2000',self.sent[-1]['text'])
         await self.click('edit_apply')
-        self.assertEqual(s.stage,'PROPOSAL')
+        self.assertEqual(s.stage,'EDIT_CODE')
         self.assertEqual(len(s.proposal['items']),1)
         self.assertFalse(s.proposal.get('service_overrides'))
         self.assertNotIn('از سرویس',s.proposal['items'][0]['manual_note'])
@@ -92,7 +92,7 @@ class OilUnifiedTests(menus.InlineMenusTests):
     async def test_existing_same_interval_is_a_true_noop(self):
         s = await self.start(add_code='1252')
         before = deepcopy(s.proposal)
-        await self.enter('ex1252');await self.enter('2000')
+        await self.choose_oil('ex1252');await self.enter('2000')
         self.assertIn('بدون تغییر',self.sent[-1]['text'])
         await self.click('edit_apply')
         self.assertEqual(s.proposal,before)
@@ -100,54 +100,60 @@ class OilUnifiedTests(menus.InlineMenusTests):
     async def test_changed_interval_applies_only_after_confirmation(self):
         s = await self.start(add_code='1252')
         before = deepcopy(s.proposal)
-        await self.enter('EX1252');await self.enter('1800')
+        await self.choose_oil('EX1252');await self.enter('1800')
         self.assertEqual(s.proposal,before)
         await self.click('edit_apply')
         self.assertEqual(s.proposal['service_overrides'],{'EX1252':1800})
         for key in ('remaining','current_meter','target_meter','last_interval','last_service'):
             self.assertEqual(s.proposal['items'][0]['components']['oil_change'][key],before['items'][0]['components']['oil_change'][key])
 
-    async def test_batch_defaults_optional_change_and_atomic_confirmation(self):
-        s = await self.start(self.combined())
-        before = deepcopy(s.proposal)
-        await self.click('edit_batch')
-        await self.enter('HD800, ۸۰۱، HD802')
-        self.assertEqual(s.stage,'EDIT_CONFIRM')
-        self.assertEqual(s.proposal,before)
-        await self.click('edit_pending_1')
-        await self.enter('1600')
-        self.assertEqual(s.proposal,before)
-        self.handler = self.new_handler()
-        s = self.handler.pending[self.key]
-        await self.click('edit_apply')
-        self.assertEqual([i['machine_code'] for i in s.proposal['items']],['HD800','HD801','HD802'])
-        self.assertEqual(s.proposal['service_overrides'],{'HD801':1600})
-        self.assertEqual([i['components']['oil_change']['next_interval'] for i in s.proposal['items']],[1800,1600,1800])
-
-    async def test_batch_duplicates_unknown_codes_and_existing_units(self):
-        s = await self.start(self.combined(),add_code='800')
-        before = deepcopy(s.proposal)
-        for codes in ('HD800 800','HD800 UNKNOWN'):
-            result = await self.enter(codes)
-            self.assertEqual(result['reason'],'work-order-input-rejected')
+    async def test_sequential_devices_same_page_no_extra_messages_and_restart(self):
+        s=await self.start(self.combined(47))
+        await self.click('edit_next');await self.click('edit_next')
+        count=len(self.sent)
+        original_order=[i['machine_code'] for i in s.proposal['evaluations']]
+        for index,interval in ((32,1600),(33,1800),(46,2000)):
+            before=deepcopy(s.proposal)
+            await self.click(f'edit_unit_{index}')
+            await self.click(f'interval_{interval}')
             self.assertEqual(s.proposal,before)
-        await self.enter('HD800 HD801')
-        self.assertIn('از قبل در حکم',self.sent[-1]['text'])
-        await self.click('edit_apply')
-        self.assertEqual([i['machine_code'] for i in s.proposal['items']],['HD800','HD801'])
+            self.handler=self.new_handler();s=self.handler.pending[self.key]
+            await self.click('edit_apply')
+            self.assertEqual(s.stage,'EDIT_CODE')
+            self.assertEqual(s.edit_code_page,2)
+            self.assertEqual(len(self.sent),count)
+            self.assertEqual(self.sent[-1]['text'],'➕ افزودن/ویرایش')
+            self.assertIn(f'✅ HD{800+index}-{interval}',str(self.sent[-1]))
+            from tools.fleet.work_orders.channels.bale.proposal_form import oil_edit_candidates
+            self.assertEqual([i['machine_code'] for i in oil_edit_candidates(s.proposal)],original_order)
+        self.assertEqual([i['machine_code'] for i in s.proposal['items']],['HD832','HD833','HD846'])
+        await self.click('edit_done')
+        self.assertEqual(s.stage,'PROPOSAL')
+        self.assertFalse(self.requests)
 
-    async def test_batch_back_never_copies_another_units_pending_interval(self):
-        source=self.combined(2)
-        source['plans'][1]['last_interval']=200
-        s=await self.start(source)
+    async def test_all_manual_device_input_rejected_and_legacy_actions_inert(self):
+        s=await self.start(self.combined(),add_code='800')
         before=deepcopy(s.proposal)
-        await self.enter('HD800 HD801')
-        await self.click('edit_pending_0');await self.enter('1600')
-        await self.click('edit_pending_1');await self.click('edit_back')
-        self.assertEqual(s.edit_intervals,{'HD800':1600,'HD801':400})
+        for codes in ('HD800','800','HD800 800','HD800 UNKNOWN','HD800 HD801','افزودن چند دستگاه'):
+            self.assertEqual((await self.enter(codes))['reason'],'work-order-input-rejected')
+            self.assertEqual(s.stage,'EDIT_CODE');self.assertEqual(s.proposal,before)
+        for action in ('add','edit_batch','edit_cancel','edit_change','edit_pending_0','edit_pending_99','edit_confirm_next'):
+            current=self.button(self.sent[-1],'edit_done') if self.sent[-1].get('reply_markup') else self.button(self.sent[int(s.keyboard_message_id)-1],'edit_done')
+            forged=current.rsplit(':',1)[0]+':'+action
+            self.assertEqual(self.message('',data=forged,origin=s.keyboard_message_id)['reason'],'inline-rejected')
+            await self.settle()
+            self.assertEqual(s.proposal,before);self.assertEqual(s.stage,'EDIT_CODE')
+        self.assertFalse(self.requests)
+
+    async def test_back_discards_one_unit_pending_interval_before_selecting_another(self):
+        source=self.combined(2);source['plans'][1]['last_interval']=200
+        s=await self.start(source);before=deepcopy(s.proposal)
+        await self.choose_oil('HD800');await self.enter('1600')
+        await self.click('edit_back');await self.click('edit_back')
+        await self.choose_oil('HD801')
+        self.assertEqual(s.edit_intervals,{'HD801':400})
         await self.click('edit_back')
-        self.assertEqual(s.stage,'EDIT_CODE')
-        self.assertEqual(s.proposal,before)
+        self.assertEqual(s.proposal,before);self.assertFalse(s.edit_intervals)
 
     async def test_batch_failure_is_atomic_and_shared_oil_add_uses_snapshot(self):
         from tools.fleet.oil_change.proposal import resolve_items
@@ -167,50 +173,45 @@ class OilUnifiedTests(menus.InlineMenusTests):
         self.assertEqual(item['components']['oil_change']['next_interval'],1800)
         self.assertEqual(item['components']['oil_change']['current_meter'],1002)
 
-    async def test_batch_limit_and_confirmation_pagination(self):
-        s = await self.start(self.combined(100))
-        codes = [f'HD{n}' for n in range(800,900)]
-        result = await self.enter(' '.join(codes + ['HD900']))
-        self.assertEqual(result['reason'],'work-order-input-rejected')
-        await self.enter(' '.join(codes))
-        self.assertEqual(len(s.edit_codes),100)
-        old = self.button(self.sent[-1],'edit_pending_0')
-        await self.click('edit_confirm_next')
-        self.assertEqual(s.edit_confirm_page,1)
-        self.assertEqual(self.message('',data=old,origin=len(self.sent))['reason'],'inline-rejected')
-        await self.settle()
-        # A rejected old callback sends a notice; get the latest active card.
-        self.handler._send_reply(self.gateway,self.key[2],'batch',lambda *a:None,key=self.key)
-        await self.settle()
-        await self.click('edit_pending_16')
-        self.assertEqual(s.edit_machine_code,'HD816')
-        await self.click('interval_keep')
-        await self.click('edit_apply')
-        self.assertEqual(len(s.proposal['items']),100)
+    async def test_47_units_three_pages_two_columns_navigation_and_single_done(self):
+        s=await self.start(self.combined(47))
+        pages=[]
+        for page,count in ((0,16),(1,16),(2,15)):
+            keyboard=keyboard_for(s)
+            units=[a for name,a in keyboard.actions.items() if name.startswith('edit_unit_')]
+            self.assertEqual(len(units),count)
+            self.assertEqual(self.sent[-1]['text'],'➕ افزودن/ویرایش')
+            self.assertTrue(all(len(row)==2 for row in keyboard.rows[:count//2]))
+            self.assertEqual([a.name for a in keyboard.rows[-1]],['edit_done'])
+            nav=[a.name for row in keyboard.rows for a in row if a.name in {'edit_next','edit_prev'}]
+            self.assertEqual(nav,[['edit_next'],['edit_next','edit_prev'],['edit_prev']][page])
+            self.assertFalse({'edit_batch','edit_back','edit_cancel','cancel'} & set(keyboard.actions))
+            pages.extend(a.name for a in units)
+            if page<2:await self.click('edit_next')
+        self.assertEqual(len(set(pages)),47)
+        await self.click('edit_prev');self.assertEqual(s.edit_code_page,1)
 
-    async def test_aliases_and_ambiguous_numeric_codes_use_snapshot(self):
-        source = self.combined(1)
-        extra = sample_source('PC600-8','EX800',remaining=100)
-        source['machines'] += extra['machines'];source['plans'] += extra['plans']
-        s = await self.start(source)
-        result = await self.enter('۸۰۰')
-        self.assertEqual(result['reason'],'work-order-input-rejected')
-        self.assertEqual(s.stage,'EDIT_CODE')
-        await self.enter('hd۸۰۰');self.assertEqual(s.edit_machine_code,'HD800')
-        source = sample_source('D155A-6','W151',remaining=100)
+    async def test_aliases_preserved_in_core_and_all_valid_units_available_inline(self):
+        source=self.combined(1)
+        extra=sample_source('PC600-8','EX800',remaining=100)
+        source['machines']+=extra['machines'];source['plans']+=extra['plans']
+        s=await self.start(source)
+        with self.assertRaises(ValueError):oil_edit_item(s.proposal,'۸۰۰')
+        self.assertEqual(oil_edit_item(s.proposal,'hd۸۰۰')['machine_code'],'HD800')
+        await self.choose_oil('HD800');self.assertEqual(s.edit_machine_code,'HD800')
+        source=sample_source('D155A-6','W151',remaining=100)
         source['machines'][0].update(code='D155',legacy_code='151')
-        s = await self.start(source)
-        await self.enter('W۱۵۱');self.assertEqual(s.edit_machine_code,'D151')
+        s=await self.start(source)
+        self.assertEqual(oil_edit_item(s.proposal,'W۱۵۱')['machine_code'],'D151')
+        await self.choose_oil('D151');self.assertEqual(s.edit_machine_code,'D151')
 
-    async def test_cancel_only_current_edit_preserves_original_proposal(self):
-        s = await self.start(add_code='1252')
-        before = deepcopy(s.proposal)
-        await self.enter('EX1252');await self.enter('1600')
-        await self.click('edit_cancel')
+    async def test_back_then_done_preserves_confirmed_and_discards_pending(self):
+        s=await self.start(add_code='1252');before=deepcopy(s.proposal)
+        await self.choose_oil('EX1252');await self.enter('1600')
+        await self.click('edit_back');await self.click('edit_back');await self.click('edit_done')
         self.assertEqual(s.stage,'PROPOSAL')
         self.assertIs(self.handler.pending[self.key],s)
-        self.assertEqual(s.proposal,before)
-        self.assertFalse(s.edit_codes)
+        self.assertEqual(s.proposal,before);self.assertFalse(s.edit_codes)
 
     async def test_step_back_preserves_page_and_discards_pending_interval(self):
         s = await self.start(self.combined(20))
@@ -224,16 +225,16 @@ class OilUnifiedTests(menus.InlineMenusTests):
         self.assertEqual(s.stage,'EDIT_CODE')
         self.assertEqual(s.edit_code_page,1)
         self.assertFalse(s.proposal['items'])
-        await self.click('edit_back')
+        await self.click('edit_done')
         self.assertEqual(s.stage,'PROPOSAL')
 
     async def test_near_due_warning_returns_after_removal(self):
         s = await self.start(self.combined(1,remaining=14))
         original = deepcopy(s.proposal['evaluations'])
         self.assertEqual(len(s.proposal['warnings']),1)
-        await self.enter('HD800');await self.click('interval_keep');await self.click('edit_apply')
+        await self.choose_oil('HD800');await self.click('interval_keep');await self.click('edit_apply')
         self.assertFalse(s.proposal['warnings'])
-        await self.click('remove');await self.enter('1');await self.enter('تایید حذف')
+        await self.click('edit_done');await self.click('remove');await self.enter('1');await self.enter('تایید حذف')
         self.assertEqual(len(s.proposal['warnings']),1)
         self.assertIn('14 ساعت',s.proposal['warnings'][0])
         self.assertEqual(s.proposal['evaluations'],original)
@@ -242,11 +243,12 @@ class OilUnifiedTests(menus.InlineMenusTests):
         s = await self.start()
         snapshot = deepcopy(s.proposal['evaluations'])
         with patch('tools.fleet.oil_change.proposal.read_source',side_effect=AssertionError('snapshot only')):
-            await self.enter('EX1252');await self.enter('1800');await self.click('edit_apply')
+            await self.choose_oil('EX1252');await self.enter('1800');await self.click('edit_apply')
         self.assertEqual(s.proposal['evaluations'],snapshot)
         with patch('tools.fleet.oil_change.source.source_hash',return_value='changed'),patch('tools.fleet.work_orders.core.service.create_work_order') as create:
             self.result = create_worker.execute_request(self.request(s),db_path=self.db_path)
             create.assert_not_called()
+        await self.click('edit_done')
         await self.click('confirm')
         self.assertEqual(s.stage,'OIL_RECOVERY')
         self.assertEqual(s.oil_recovery,'refresh')
@@ -316,7 +318,7 @@ class OilUnifiedTests(menus.InlineMenusTests):
         self.handler._persist()
         self.handler = self.new_handler()
         restored = self.handler.pending[self.key]
-        self.assertEqual(restored.stage,'PROPOSAL')
+        self.assertEqual(restored.stage,'EDIT_CODE')
         self.assertEqual(restored.proposal,before)
         self.assertEqual(restored.keyboard_revision,'')
 
@@ -335,7 +337,7 @@ class OilUnifiedTests(menus.InlineMenusTests):
             for user,_role in users:
                 self.key=('bale',user,user)
                 s=await self.start()
-                await self.enter('EX1252');await self.enter('1800')
+                await self.choose_oil('EX1252');await self.enter('1800')
                 with closing(sqlite3.connect(path)) as con,con:
                     con.execute('UPDATE auth_user_roles SET active=0 WHERE user_id=?',(user,))
                 await self.click('edit_apply')
@@ -384,8 +386,8 @@ class OilUnifiedTests(menus.InlineMenusTests):
         process_patch.start();self.addCleanup(process_patch.stop)
         self.worker=worker;self.document_sender=document_sender;self.handler=self.new_handler()
         await self.enter('حکم کار');await self.click('oil')
-        await self.click('edit_excel');await self.enter(code);await self.enter('1800')
-        await self.click('edit_apply');await self.click('confirm')
+        await self.click('edit_excel');await self.choose_oil(code);await self.enter('1800')
+        await self.click('edit_apply');await self.click('edit_done');await self.click('confirm')
         self.assertEqual(len(documents),1,document_errors)
         number=self.handler.pending[self.key].order_no
         order=service.get_work_order(number)
@@ -409,8 +411,8 @@ class OilUnifiedTests(menus.InlineMenusTests):
         await self.click('staff_back');await self.click('review_edit')
         s=self.handler.pending[self.key]
         self.assertEqual(s.proposal['revision_machine_code'],code)
-        await self.click('edit_excel');await self.enter(code);await self.enter('1600')
-        await self.click('edit_apply');await self.click('confirm')
+        await self.click('edit_excel');await self.choose_oil(code);await self.enter('1600')
+        await self.click('edit_apply');await self.click('edit_done');await self.click('confirm')
         revised=self.handler.pending[self.key].order_no
         self.assertNotEqual(revised,number)
         self.assertEqual(service.get_work_order(number)['superseded_by'],revised)
@@ -478,6 +480,98 @@ class OilUnifiedTests(menus.InlineMenusTests):
         if os.environ.get('KOMATSO_OIL_EVIDENCE'):
             (Path(os.environ['KOMATSO_OIL_EVIDENCE'])/'pc1250-native.json').write_text(
                 json.dumps(dict(success=True,source_unchanged=True,outputs=results),indent=2),encoding='utf-8')
+
+
+    async def test_legacy_batch_sessions_drop_only_pending_edits_and_reject_old_callbacks(self):
+        for stage in ('ADD_CODES','ADD_ACTION','EDIT_CODE','EDIT_BATCH_CODES','EDIT_INTERVAL','EDIT_CONFIRM'):
+            s=await self.start(self.combined(47),add_code='800')
+            before=deepcopy(s.proposal)
+            old=self.button(self.sent[-1],'edit_unit_0')
+            s.stage=stage;s.oil_editor_version=1;s.edit_code_page=2
+            s.edit_codes=['HD801','HD802'];s.edit_intervals={'HD801':1600,'HD802':2000}
+            self.handler._persist()
+            rows=self.store.load()
+            for _key,value in rows:
+                value.update(edit_origin_stage='EDIT_BATCH_CODES',edit_interval_return='EDIT_CONFIRM',
+                             edit_confirm_return='EDIT_BATCH_CODES',edit_confirm_page=1)
+            self.store.save(rows)
+            self.handler=self.new_handler();s=self.handler.pending[self.key]
+            self.assertEqual(s.stage,'EDIT_CODE');self.assertEqual(s.edit_code_page,2)
+            self.assertEqual(s.proposal,before);self.assertFalse(s.edit_codes)
+            self.assertEqual(s.keyboard_revision,'');self.assertEqual(s.oil_editor_version,2)
+            self.assertEqual(self.message('',data=old,origin=s.keyboard_message_id)['reason'],'inline-rejected')
+            await self.settle()
+            await self.enter('افزودن/ویرایش')
+            await self.click('edit_unit_32');await self.click('interval_keep');await self.click('edit_apply')
+            self.assertEqual([i['machine_code'] for i in s.proposal['items']],['HD800','HD832'])
+        self.assertFalse(self.requests)
+
+    async def test_edit_message_failure_replaces_keyboard_without_double_apply(self):
+        s=await self.start(self.combined(20))
+        await self.click('edit_next');await self.click('edit_unit_16');await self.click('interval_1600')
+        old=self.button(self.sent[-1],'edit_apply');origin=len(self.sent)
+        from unittest.mock import AsyncMock
+        with patch.object(self.gateway.adapters['bale']._bot,'edit_message_text',
+                          AsyncMock(side_effect=RuntimeError('simulated Bale edit failure'))):
+            await self.click('edit_apply')
+        self.assertEqual(s.stage,'EDIT_CODE');self.assertEqual(s.edit_code_page,1)
+        self.assertEqual(len(self.sent),origin+1)
+        self.assertEqual(s.proposal['service_overrides'],{'HD816':1600})
+        before=deepcopy(s.proposal)
+        self.assertEqual(self.message('',data=old,origin=origin)['reason'],'inline-rejected')
+        await self.settle();self.assertEqual(s.proposal,before)
+
+    async def test_multiple_inline_devices_create_independent_native_excel_pdf(self):
+        from tools.bale_ui import StateStore
+        from tools.fleet.work_orders.core import service
+        from tools.fleet.work_orders.core.pdf_document import export_staff_pdf
+        from openpyxl import load_workbook
+        import fitz
+        fixture=OilServiceEditTests('test_repeated_override_retains_original_evidence_for_all_cycles')
+        fixture.setUp();self.addCleanup(fixture.doCleanups)
+        extra=sample_source('PC600-8','EX601',last=1600,remaining=100)
+        fixture.source['machines']+=extra['machines'];fixture.source['plans']+=extra['plans']
+        self.db_path=fixture.db_path;self.store=StateStore(self.db_path.parent/'multi-ui.json')
+        permission_patch=patch('tools.fleet.work_orders.core.permissions.DB_PATH',self.db_path)
+        permission_patch.start();self.addCleanup(permission_patch.stop)
+        async def worker(request):
+            self.requests.append(deepcopy(request))
+            return create_worker.execute_request(request,db_path=self.db_path)
+        self.worker=worker;self.handler=self.new_handler()
+        s=await self.start(fixture.source)
+        for code,interval in (('EX1252',1600),('EX601',1800)):
+            await self.choose_oil(code);await self.click(f'interval_{interval}');await self.click('edit_apply')
+        self.assertFalse(self.requests)
+        await self.click('edit_done');await self.click('confirm')
+        self.assertEqual(len(self.requests),1)
+        self.assertEqual(self.requests[0]['machine_codes'],['EX1252','EX601'])
+        with closing(sqlite3.connect(self.db_path)) as con:
+            numbers=[r[0] for r in con.execute('SELECT work_order_no FROM service_work_orders ORDER BY id')]
+        self.assertEqual(len(numbers),2)
+        evidence=[]
+        for number,(code,interval) in zip(numbers,(('EX1252',1600),('EX601',1800))):
+            order=service.get_work_order(number)
+            self.assertEqual(order['jalali_date'],s.jalali_date)
+            self.assertEqual(order['items'][0]['machine_code'],code)
+            self.assertTrue(order['items'][0]['action_code'].endswith('_'+str(interval)))
+            book=load_workbook(order['excel_path'])
+            try:
+                self.assertEqual(book.sheetnames,[str(interval)])
+                self.assertEqual(book.active['F3'].value,code)
+                self.assertIn(str(interval),str(book.active['C2'].value))
+            finally:book.close()
+            pdf=await asyncio.to_thread(export_staff_pdf,Path(order['excel_path']))
+            with fitz.open(pdf) as document:
+                text=''.join(''.join(p.get_text() for p in document).split())
+                self.assertIn(code,text);self.assertIn(str(interval),text)
+                self.assertIn(number,text)
+            directory=Path(os.environ.get('KOMATSO_OIL_EVIDENCE',str(self.db_path.parent)))
+            directory.mkdir(parents=True,exist_ok=True)
+            shutil.copy2(order['excel_path'],directory/Path(order['excel_path']).name)
+            shutil.copy2(pdf,directory/pdf.name)
+            evidence.append(dict(number=number,code=code,interval=interval,pdf='NATIVE EXCEL'))
+        if os.environ.get('KOMATSO_OIL_EVIDENCE'):
+            (directory/'multi-device-native.json').write_text(json.dumps(evidence,indent=2),encoding='utf-8')
 
 
 def load_tests(loader, tests, pattern):

@@ -55,23 +55,33 @@ class OilChangeTests(WorkOrderCreateTests):
             async def document(gateway,chat,order):
                 documents.append(order)
             handler=WorkOrderMenuHandler(db_path=self.db_path,worker=worker,document_sender=document)
-            async def enter(text):
+            async def enter(text, action=None):
                 event=SimpleNamespace(text=text,source=SimpleNamespace(platform='bale',chat_type='dm',user_id='455740857',chat_id='455740857'))
+                if action:
+                    from tools.fleet.work_orders.channels.bale.keyboards import keyboard_for
+                    current=next(iter(handler.pending.values()))
+                    markup=keyboard_for(current).build(current.keyboard_revision,stage=current.stage,
+                                                       role='MAINTENANCE_MANAGER',permits=lambda p:True)
+                    data=next(b['callback_data'] for row in markup['inline_keyboard'] for b in row
+                              if b['callback_data'].endswith(':'+action))
+                    event.raw_message={'bale_inline_callback':True,'data':data}
                 handler.handle(event,None,send=lambda g,c,t:replies.append(t))
                 while handler.tasks: await asyncio.gather(*list(handler.tasks))
             await enter('حکم کار');await enter('۲')
             session=next(iter(handler.pending.values()))
             self.assertEqual([i['machine_code'] for i in session.proposal['items']],['HD708'])
-            await enter('افزودن/ویرایش');await enter('EX332')
-            await enter('حفظ نوبت');await enter('تایید ویرایش')
-            self.assertEqual(session.stage,'PROPOSAL')
+            await enter('افزودن/ویرایش');await enter('',action='edit_unit_1')
+            await enter('حفظ نوبت');await enter('',action='edit_apply')
+            self.assertEqual(session.stage,'EDIT_CODE')
+            await enter('',action='edit_done')
             await enter('حذف');await enter('1')
             # Current removal is MultiSelect: selection alone must not mutate the proposal.
             self.assertEqual([i['machine_code'] for i in session.proposal['items']],['HD708','EX332'])
             await enter('تایید حذف')
             self.assertEqual([i['machine_code'] for i in session.proposal['items']],['EX332'])
-            await enter('افزودن/ویرایش');await enter('HD708')
-            await enter('حفظ نوبت');await enter('تایید ویرایش')
+            await enter('افزودن/ویرایش');await enter('',action='edit_unit_0')
+            await enter('حفظ نوبت');await enter('',action='edit_apply')
+            await enter('',action='edit_done')
             await enter('تایید')
             self.assertEqual(len(documents),2)
             self.assertNotEqual(documents[0]['work_order_no'],documents[1]['work_order_no'])
