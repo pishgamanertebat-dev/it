@@ -62,14 +62,16 @@ class OilChangeTests(WorkOrderCreateTests):
             await enter('حکم کار');await enter('۲')
             session=next(iter(handler.pending.values()))
             self.assertEqual([i['machine_code'] for i in session.proposal['items']],['HD708'])
-            await enter('اضافه');await enter('EX332')
+            await enter('افزودن/ویرایش');await enter('EX332')
+            await enter('حفظ نوبت');await enter('تایید ویرایش')
             self.assertEqual(session.stage,'PROPOSAL')
             await enter('حذف');await enter('1')
             # Current removal is MultiSelect: selection alone must not mutate the proposal.
             self.assertEqual([i['machine_code'] for i in session.proposal['items']],['HD708','EX332'])
             await enter('تایید حذف')
             self.assertEqual([i['machine_code'] for i in session.proposal['items']],['EX332'])
-            await enter('اضافه');await enter('HD708')
+            await enter('افزودن/ویرایش');await enter('HD708')
+            await enter('حفظ نوبت');await enter('تایید ویرایش')
             await enter('تایید')
             self.assertEqual(len(documents),2)
             self.assertNotEqual(documents[0]['work_order_no'],documents[1]['work_order_no'])
@@ -134,9 +136,9 @@ class OilChangeTests(WorkOrderCreateTests):
                     try:
                         self.assertEqual(wb.sheetnames, [str(interval)])
                         expected, actual = source[str(interval)], wb.active
+                        metadata = {**printed_metadata(order), 'F3':'HD702'}
                         for row in expected:
                             for cell in row:
-                                metadata = {**printed_metadata(order), 'F3':'HD702'}
                                 self.assertEqual(actual[cell.coordinate].value, metadata.get(cell.coordinate,cell.value))
                                 self.assertEqual(actual[cell.coordinate]._style, cell._style)
                         self.assertEqual(str(actual.merged_cells), str(expected.merged_cells))
@@ -287,12 +289,15 @@ class OilChangeTests(WorkOrderCreateTests):
                         try:
                             self.assertEqual(wb.sheetnames, [str(interval)])
                             expected, actual = original[str(interval)], wb.active
+                            metadata = printed_metadata(order)
                             for row in expected:
                                 for cell in row:
                                     expected_value = code if cell.coordinate == 'F3' else cell.value
-                                    expected_value = printed_metadata(order).get(cell.coordinate,expected_value)
+                                    expected_value = metadata.get(cell.coordinate,expected_value)
                                     if model == 'PC600-8' and cell.coordinate == 'C2':
                                         expected_value = interval
+                                    if model == 'PC1250-8' and cell.coordinate == 'C2':
+                                        expected_value = str(interval) + 'ساعت'
                                     self.assertEqual(actual[cell.coordinate].value, expected_value)
                                     self.assertEqual(actual[cell.coordinate]._style, cell._style)
                             self.assertEqual(str(actual.merged_cells), str(expected.merged_cells))

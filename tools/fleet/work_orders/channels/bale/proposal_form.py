@@ -1,5 +1,6 @@
 """Small draft editor; persisted work orders are created only after confirmation."""
 import re
+from copy import deepcopy
 
 from tools.fleet.air_filter.rules import ACTIONS, BOTH, OUTER, rule_for
 
@@ -24,16 +25,76 @@ def oil_edit_item(proposal, code):
 
 
 def edit_oil_interval(proposal, code, interval):
-    from tools.fleet.work_orders.types.oil_change.builder import override_interval
+    from tools.fleet.work_orders.types.oil_change.builder import override_interval, normalize_interval, parse_action
     item = oil_edit_item(proposal, code)
-    edited = override_interval(item, interval)
+    interval = normalize_interval(interval)
+    selected = any(candidate['machine_code'] == item['machine_code'] for candidate in proposal['items'])
+    if selected and interval == parse_action(item['action_code'])[1]:
+        rebuild_oil_warnings(proposal)
+        return
+    baseline = next((i for i in proposal.get('evaluations', []) if i['machine_code'] == item['machine_code']), item)
+    planned = parse_action(baseline['action_code'])[1]
+    if interval == planned:
+        edited = deepcopy(baseline)
+        if not selected:
+            edited['manual_note'] = 'با انتخاب مسئول نت و با نوبت پیشنهادی برنامه به حکم اضافه شد.'
+        proposal.get('service_overrides', {}).pop(item['machine_code'], None)
+    else:
+        edited = override_interval(item, interval)
+        proposal.setdefault('service_overrides', {})[item['machine_code']] = interval
     # Selecting a valid planning row is enough to edit it. Add it only after
     # confirmation, using this proposal's snapshot rather than rereading Excel.
-    if not any(candidate['machine_code'] == item['machine_code'] for candidate in proposal['items']):
-        add_items(proposal, [item], '')
+    if not selected:
+        proposal['items'].append(edited)
     proposal['items'] = [edited if candidate['machine_code'] == item['machine_code'] else candidate
                          for candidate in proposal['items']]
-    proposal.setdefault('service_overrides', {})[item['machine_code']] = edited['components']['oil_change']['next_interval']
+    rebuild_oil_warnings(proposal)
+
+
+def oil_edit_items(proposal, text):
+    """Resolve every code from this draft's snapshot, atomically, including aliases."""
+    codes = [c for c in re.split(r'[\s,،;؛]+', text) if c]
+    if not 1 <= len(codes) <= 100:
+        raise ValueError('بین ۱ تا ۱۰۰ کد دستگاه وارد کنید.')
+    items, seen = [], set()
+    for code in codes:
+        item = oil_edit_item(proposal, code)
+        if item['machine_code'] in seen:
+            raise ValueError('کد دستگاه تکراری است: ' + item['machine_code'])
+        seen.add(item['machine_code'])
+        items.append(item)
+    return items
+
+
+def apply_oil_edits(proposal, codes, intervals):
+    """Validate and apply the complete confirmed edit without partial draft changes."""
+    draft = deepcopy(proposal)
+    if not codes or len(codes) > 100 or len(set(codes)) != len(codes) or set(codes) != set(intervals):
+        raise ValueError('انتخاب دستگاه‌ها معتبر نیست؛ دوباره انتخاب کنید.')
+    for code in codes:
+        edit_oil_interval(draft, code, intervals[code])
+    # The creation contract allows at most 100 units in one selection.
+    if len(draft['items']) > 100:
+        raise ValueError('حداکثر ۱۰۰ دستگاه در پیشنهاد انتخاب کنید.')
+    proposal.clear()
+    proposal.update(draft)
+
+
+def rebuild_oil_warnings(proposal):
+    if proposal.get('work_order_type') != 'OIL_CHANGE':
+        return
+    selected = {i['machine_code'] for i in proposal['items']}
+    if 'evaluations' not in proposal:
+        # Compatibility for older saved drafts without a calculation snapshot.
+        proposal['warnings'] = [w for w in proposal.get('warnings', [])
+                                if w.split(':', 1)[0].strip() not in selected]
+        return
+    proposal['warnings'] = [
+        f"{i['machine_code']} : تا موعد بعدی {i['components']['oil_change']['remaining']:g} ساعت، "
+        f"برای سرویس {i['components']['oil_change']['next_interval']} ساعتی"
+        for i in proposal.get('evaluations', [])
+        if i['machine_code'] not in selected and i['components']['oil_change']['state'] == 'NEAR_DUE'
+    ]
 
 
 def creation_metadata(proposal):
@@ -155,7 +216,8 @@ def add_items(proposal, items, action):
             calculated = next((candidate for candidate in proposal.get('machines', [])
                                if candidate.get('code') == item['machine_code']), None)
         if calculated and calculated.get('components'):
-            item = {**item, 'components':calculated['components']}
+            item = (deepcopy(calculated) if proposal.get('work_order_type') == 'OIL_CHANGE'
+                    else {**item, 'components':calculated['components']})
         if proposal.get('work_order_type') == 'OIL_CHANGE':
             if item['machine_code'] in proposal.get('service_overrides', {}):
                 from tools.fleet.work_orders.types.oil_change.builder import override_interval
@@ -176,6 +238,9 @@ def add_items(proposal, items, action):
                           'manual_note':'با انتخاب مسئول نت اضافه شد.'})
     codes = {i['machine_code'] for i in additions}
     proposal['items'] = [i for i in proposal['items'] if i['machine_code'] not in codes] + additions
+    if proposal.get('work_order_type') == 'OIL_CHANGE':
+        rebuild_oil_warnings(proposal)
+        return
     # A manually selected near-due machine is now inside the draft order and
     # must no longer be repeated under "near due; not in the order".
     proposal['warnings'] = [

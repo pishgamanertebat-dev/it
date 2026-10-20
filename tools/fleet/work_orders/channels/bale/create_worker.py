@@ -21,6 +21,10 @@ from tools.fleet.work_orders.core.review import confirm_document_review, normali
 from tools.fleet.work_orders.core.oil_safety import RELIABLE_TYPES
 
 
+class OilSourceChanged(ValueError):
+    pass
+
+
 def preview_order(order):
     return {"work_order_no": order["work_order_no"], "label": order["work_order_label_fa"],
             "work_order_type": order['work_order_type'],
@@ -106,8 +110,7 @@ def execute_request(request: dict, *, db_path=None) -> dict:
             return {'ok': True, 'proposal': build_proposal()}
         if request['action'] == 'validate_add':
             if request.get('work_order_type') == 'OIL_CHANGE':
-                from tools.fleet.oil_change.proposal import resolve_items
-                return {'ok': True, 'items': resolve_items(request['machine_codes'])}
+                raise ValueError('برای تعویض روغن از مسیر «افزودن/ویرایش» همان پیشنهاد استفاده کنید.')
             if request.get('work_order_type') == 'GREASING':
                 from tools.fleet.greasing.proposal import resolve_items
                 return {'ok':True, 'items':resolve_items(request['machine_codes'])}
@@ -174,6 +177,7 @@ def execute_request(request: dict, *, db_path=None) -> dict:
                             proposal['service_overrides'][code] = interval
                         proposal['items'].append(current)
                     proposal['revision_of'] = order['work_order_no']
+                    proposal['revision_machine_code'] = order['items'][0]['machine_code']
                     proposal['plan_date'] = order['jalali_date']
                     return {'ok': True, 'work_order_type': 'OIL_CHANGE', 'proposal': proposal}
                 return {"ok": True, "work_order_type": order["work_order_type"], 'proposal': {
@@ -201,13 +205,15 @@ def execute_request(request: dict, *, db_path=None) -> dict:
                 from tools.fleet.air_filter.proposal import SOURCE
                 current_hash = hashlib.sha256(SOURCE.read_bytes()).hexdigest()
             if current_hash != proposal['source_sha256']:
+                if work_order_type == 'OIL_CHANGE':
+                    raise OilSourceChanged('اطلاعات مبنا تغییر کرده؛ پیشنهاد تازه دریافت کنید.')
                 raise ValueError('فایل اطلاعات سرویس تغییر کرده است؛ با «حکم کار» پیشنهاد جدید بگیرید.')
         if work_order_type == 'OIL_CHANGE' and proposal:
             from tools.fleet.oil_change.source import read_source
             from tools.fleet.oil_change.proposal import resolve_items
             source = read_source()
             if source['sha256'] != proposal.get('source_sha256'):
-                raise ValueError('فایل اطلاعات سرویس تغییر کرده است؛ پیشنهاد جدید بگیرید.')
+                raise OilSourceChanged('اطلاعات مبنا تغییر کرده؛ پیشنهاد تازه دریافت کنید.')
             items = resolve_items(request['machine_codes'], source)
             from tools.fleet.oil_change.proposal import override_interval
             overrides = proposal.get('service_overrides', {})
@@ -258,6 +264,8 @@ def execute_request(request: dict, *, db_path=None) -> dict:
         return {"ok": True, "order": preview_order(order)}
     except WorkOrderPermissionDenied:
         return {"ok": False, "error": "DENIED", "message": "شما اجازهٔ مدیریت حکم کار را ندارید."}
+    except OilSourceChanged as exc:
+        return {'ok': False, 'error': 'INVALID_INPUT', 'message': str(exc), 'recovery': 'refresh'}
     except ValueError as exc:
         return {"ok": False, "error": "INVALID_INPUT", "message": str(exc)}
     except Exception:

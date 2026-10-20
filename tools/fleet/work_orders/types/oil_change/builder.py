@@ -171,6 +171,21 @@ def build_document(*, output_path, jalali_date, items, work_order, shift='روز
                 lambda m: re.sub(r'<v>[^<]*</v>', '<v>' + interval + '</v>', m[0], count=1), sheet, flags=re.S)
             if count != 1:
                 raise ValueError('محل عنوان سرویس در الگو یکتا نیست.')
+        if model == 'PC1250-8':
+            title_cell = ET.fromstring(sheet).find(f'.//{{{NS}}}c[@r="C2"]')
+            title_value = title_cell.find(f'{{{NS}}}v') if title_cell is not None else None
+            if (title_cell is None or title_cell.get('t') != 's' or title_value is None or
+                    title_cell.find(f'{{{NS}}}f') is not None or
+                    ''.join(strings[int(title_value.text)].itertext()) not in {'5200ساعت', interval + 'ساعت'}):
+                raise ValueError('ساختار عنوان نوبت در الگوی 1250 تغییر کرده است؛ الگو بررسی شود.')
+            def cycle_title(match):
+                # Change this one cell's text, preserving its original style
+                # and every shared string, technical cell and package asset.
+                opening = re.sub(r'\s+t="[^"]*"', '', match[0].split('>', 1)[0])
+                return opening + ' t="inlineStr"><is><t>' + interval + 'ساعت</t></is></c>'
+            sheet, count = re.subn(r'<c\b(?=[^>]*\br="C2")[^>]*>.*?</c>', cycle_title, sheet, flags=re.S)
+            if count != 1:
+                raise ValueError('محل عنوان نوبت در الگوی 1250 یکتا نیست.')
         style = cell.get('s')
         style_attr = f' s="{style}"' if style else ''
         replacement = f'<c r="F3"{style_attr} t="inlineStr"><is><t>{escape(code)}</t></is></c>'
