@@ -87,9 +87,11 @@ class NetFixture(unittest.TestCase):
         builder=SimpleNamespace(get_items=lambda *a,**k:items,build_document=self.build)
         with patch.object(service,'_load_builder',return_value=builder):
             result=create_worker.execute_request(dict(action='create',bale_id=actor,work_order_type=kind,
-                jalali_date='1405/07/15',shift='صبح',machine_codes=['HD714']))
+                jalali_date='1405/07/15' if actor=='101' else '1405/07/16',shift='صبح',machine_codes=['HD714']))
         self.assertTrue(result['ok'],result)
-        return service.get_work_order(result['order']['work_order_no'])
+        order = service.get_work_order(result['order']['work_order_no'])
+        delivery.store_manager_pdf(order['work_order_no'],self.pdf)
+        return service.get_work_order(order['work_order_no'])
 
 
 class NetContracts(NetFixture):
@@ -202,11 +204,12 @@ class NetWorkflows(NetFixture):
                 staff_dispatch.prepare_dispatch(number,actor,actor,1,1)
                 self.assertEqual(service.get_work_order(number)['status'],'APPROVED')
                 self.assertEqual(service.get_work_order(number)['approved_by'],f'bale:{actor}')
-                self.assertTrue(staff_dispatch.claim_send(number))
+                token=staff_dispatch.claim_send(number)
+                self.assertTrue(token)
                 self.assertFalse(staff_dispatch.claim_send(number))
                 sender=Mock()
                 with patch.object(delivery,'archive_delivered_order') as archive:
-                    self.assertEqual(delivery.send_work_order(work_order_no=number,sender=sender,actor=actor)['status'],'SENT')
+                    self.assertEqual(delivery.send_work_order(work_order_no=number,sender=sender,actor=actor,dispatch_token=token)['status'],'SENT')
                     delivery.send_work_order(work_order_no=number,sender=sender,actor=actor)
                     self.assertEqual(archive.call_args.args[0]['work_order_type'],kind)
                 sender.send_document.assert_called_once()
@@ -235,9 +238,12 @@ class NetWorkflows(NetFixture):
         self.assign();order=self.create('101','AIR_FILTER');number=order['work_order_no']
         review.confirm_document_review(number,'101');staff_dispatch.prepare_dispatch(number,'101','101',1,1)
         sender=Mock()
-        def export(*a):
-            self.sql("UPDATE auth_user_roles SET active=0 WHERE user_id='101'");return self.pdf
-        with patch.object(delivery,'export_staff_pdf',side_effect=export),patch.object(delivery,'archive_delivered_order') as archive:
+        original=review.approved_pdf_bytes
+        def validate(*a):
+            data=original(*a)
+            self.sql("UPDATE auth_user_roles SET active=0 WHERE user_id='101'")
+            return data
+        with patch.object(review,'approved_pdf_bytes',side_effect=validate),patch.object(delivery,'archive_delivered_order') as archive:
             with self.assertRaises(PermissionError):delivery.send_work_order(work_order_no=number,sender=sender,actor='202')
             with self.assertRaises(PermissionError):delivery.send_work_order(work_order_no=number,sender=sender,actor='101')
         sender.send_document.assert_not_called();archive.assert_not_called()
@@ -323,7 +329,8 @@ class NetInlineContracts(NetFixture):
         self.assign()
         families=[
             ('MENU',kb.entry_keyboard()),('PROPOSAL',kb.proposal_keyboard),
-            ('PROPOSAL',kb.oil_proposal_keyboard),('EDIT_CODE',kb.oil_edit_code_keyboard),
+            ('PROPOSAL',kb.oil_proposal_keyboard),('EDIT_CODE',kb.oil_edit_code_keyboard(SimpleNamespace(
+                proposal=dict(work_order_type='OIL_CHANGE',items=[dict(machine_code='EX1252',action_code='OIL_CHANGE_PC1250-8_1800')],evaluations=[]),edit_code_page=0))),
             ('EDIT_INTERVAL',kb.oil_interval_keyboard),('EDIT_CONFIRM',kb.oil_edit_confirm_keyboard),
             ('SHIFT',kb.shift_keyboard),('REVIEW',kb.review_keyboard),
             ('STAFF',kb.staff_keyboard([dict(display_name='staff')])),

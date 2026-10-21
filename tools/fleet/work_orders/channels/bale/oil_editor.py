@@ -1,4 +1,4 @@
-"""Snapshot-only, individually confirmed oil editing through inline buttons."""
+"""Snapshot-only oil editing with inline or typed device selection."""
 from tools.fleet.work_orders.channels.bale.proposal_form import (
     oil_edit_item, apply_oil_edits, render,
 )
@@ -46,7 +46,7 @@ def confirmation_text(session):
 
 
 def handle(session, text, picker_text, *, inline=False):
-    """The outer handler authenticates callbacks; typed codes cannot select units."""
+    """Device input shares the snapshot resolver; applying edits requires a callback."""
     if session.stage == 'EDIT_CODE' and text in {'افزودن/ویرایش', 'ویرایش اکسل', 'اضافه'}:
         # Reopen a migrated draft without discarding its confirmed selections.
         return picker_text(session)
@@ -64,8 +64,6 @@ def handle(session, text, picker_text, *, inline=False):
         session.stage = 'EDIT_CODE'
         return picker_text(session)
     if session.stage == 'EDIT_CODE':
-        if not inline:
-            raise ValueError('دستگاه را فقط از دکمه‌ها انتخاب کنید.')
         item = oil_edit_item(session.proposal, text)
         session.edit_machine_code = item['machine_code']
         session.edit_codes = [item['machine_code']]

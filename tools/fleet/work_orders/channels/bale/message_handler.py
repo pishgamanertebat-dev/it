@@ -315,7 +315,8 @@ class WorkOrderMenuHandler:
         candidates = oil_edit_candidates(session.proposal)
         pages = max(1, (len(candidates) + OIL_EDIT_PAGE_SIZE - 1) // OIL_EDIT_PAGE_SIZE)
         session.edit_code_page = min(max(0, session.edit_code_page), pages - 1)
-        return '➕ افزودن/ویرایش'
+        return ('➕ افزودن/ویرایش\n'
+                'دستگاه را از دکمه‌ها انتخاب کنید یا کد آن را همین‌جا بنویسید؛ مانند 718 یا HD718.')
 
     def _send_reply(self, gateway, chat_id, reply, send, *, key=None, edit_message_id=None):
         try:

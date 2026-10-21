@@ -774,13 +774,20 @@ class InlineMenusTests(PermissionDatabaseTestCase, unittest.IsolatedAsyncioTestC
             'HD706':'OIL_CHANGE_1800', 'HD464':'OIL_CHANGE_HD465-7R_1600'})
         self.assertEqual(self.requests[-1]['proposal']['service_overrides'], {'HD464':1600})
 
-    async def test_oil_edit_rejects_typed_codes_but_keeps_alias_resolution(self):
+    async def test_oil_edit_accepts_single_typed_code_alongside_inline_selection(self):
         from tools.fleet.oil_change.test_proposal import sample_source
         from tools.fleet.work_orders.channels.bale.proposal_form import oil_edit_item
         source = sample_source('HD465-7R', 'HD465', last=800, remaining=14)
         session = await self.oil_edit_step(source, add_code=None)
         self.message('ویرایش اکسل'); await self.settle()
-        for code in ('HD465','hd465','HD۴۶۵','۴۶۵','٤٦٥','HD465 HD464','افزودن چند دستگاه'):
+        for code in ('HD465','hd465','HD۴۶۵','465','۴۶۵','٤٦٥'):
+            self.message(code)
+            await self.settle()
+            self.assertEqual(session.stage,'EDIT_INTERVAL')
+            self.assertEqual(session.edit_machine_code,'HD465')
+            self.assertFalse(session.proposal['items'])
+            await self.oil_click('edit_back')
+        for code in ('HD465 HD464','افزودن چند دستگاه'):
             self.assertEqual(self.message(code)['reason'], 'work-order-input-rejected')
             await self.settle()
             self.assertEqual(session.stage,'EDIT_CODE')
@@ -824,7 +831,7 @@ class InlineMenusTests(PermissionDatabaseTestCase, unittest.IsolatedAsyncioTestC
         self.message('', data=next_page, origin=picker_id); await self.settle()
         self.assertEqual(len(self.sent), picker_id)
         self.assertEqual(session.edit_code_page, 1)
-        self.assertEqual(self.sent[-1]['text'], '➕ افزودن/ویرایش')
+        self.assertTrue(self.sent[-1]['text'].startswith('➕ افزودن/ویرایش\n'))
         current_choice = self.button(self.sent[-1], 'edit_unit_16')
         self.handler = self.new_handler()
         session = self.handler.pending[self.key]

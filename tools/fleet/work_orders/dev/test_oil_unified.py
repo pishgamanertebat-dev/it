@@ -122,7 +122,7 @@ class OilUnifiedTests(menus.InlineMenusTests):
             self.assertEqual(s.stage,'EDIT_CODE')
             self.assertEqual(s.edit_code_page,2)
             self.assertEqual(len(self.sent),count)
-            self.assertEqual(self.sent[-1]['text'],'➕ افزودن/ویرایش')
+            self.assertTrue(self.sent[-1]['text'].startswith('➕ افزودن/ویرایش\n'))
             self.assertIn(f'✅ HD{800+index}-{interval}',str(self.sent[-1]))
             from tools.fleet.work_orders.channels.bale.proposal_form import oil_edit_candidates
             self.assertEqual([i['machine_code'] for i in oil_edit_candidates(s.proposal)],original_order)
@@ -131,10 +131,10 @@ class OilUnifiedTests(menus.InlineMenusTests):
         self.assertEqual(s.stage,'PROPOSAL')
         self.assertFalse(self.requests)
 
-    async def test_all_manual_device_input_rejected_and_legacy_actions_inert(self):
+    async def test_invalid_manual_device_input_rejected_and_legacy_actions_inert(self):
         s=await self.start(self.combined(),add_code='800')
         before=deepcopy(s.proposal)
-        for codes in ('HD800','800','HD800 800','HD800 UNKNOWN','HD800 HD801','افزودن چند دستگاه'):
+        for codes in ('UNKNOWN','99999','EX800','HD800 800','HD800 UNKNOWN','HD800 HD801','افزودن چند دستگاه'):
             self.assertEqual((await self.enter(codes))['reason'],'work-order-input-rejected')
             self.assertEqual(s.stage,'EDIT_CODE');self.assertEqual(s.proposal,before)
         for action in ('add','edit_batch','edit_cancel','edit_change','edit_pending_0','edit_pending_99','edit_confirm_next'):
@@ -143,6 +143,110 @@ class OilUnifiedTests(menus.InlineMenusTests):
             self.assertEqual(self.message('',data=forged,origin=s.keyboard_message_id)['reason'],'inline-rejected')
             await self.settle()
             self.assertEqual(s.proposal,before);self.assertEqual(s.stage,'EDIT_CODE')
+        self.assertFalse(self.requests)
+
+    async def test_manual_718_uses_snapshot_and_requires_inline_confirmation_after_restart(self):
+        s=await self.start(sample_source('HD785-7','HD718',last=800,remaining=100))
+        before=deepcopy(s.proposal)
+        self.assertIn('718 یا HD718',self.sent[-1]['text'])
+        with patch('tools.fleet.oil_change.proposal.read_source',side_effect=AssertionError('snapshot only')):
+            await self.enter('718')
+            self.assertEqual(s.stage,'EDIT_INTERVAL')
+            self.assertEqual(s.edit_machine_code,'HD718')
+            self.assertEqual(s.edit_intervals,{'HD718':1000})
+            self.assertIn('نوبت پیشنهادی برنامه',self.sent[-1]['text'])
+            self.assertEqual(s.proposal,before)
+            await self.enter('۱۶۰۰')
+            self.assertEqual(s.stage,'EDIT_CONFIRM')
+            self.assertEqual(s.proposal,before)
+            self.handler=self.new_handler();s=self.handler.pending[self.key]
+            self.assertEqual((await self.enter('تایید ویرایش'))['reason'],'work-order-input-rejected')
+            self.assertEqual(s.proposal,before)
+            await self.click('edit_apply')
+        self.assertEqual(s.stage,'EDIT_CODE')
+        self.assertEqual([i['machine_code'] for i in s.proposal['items']],['HD718'])
+        self.assertEqual(s.proposal['service_overrides'],{'HD718':1600})
+        self.assertEqual(s.proposal['evaluations'],before['evaluations'])
+        component=s.proposal['items'][0]['components']['oil_change']
+        original=before['evaluations'][0]['components']['oil_change']
+        for key in ('remaining','current_meter','target_meter','last_interval','last_service'):
+            self.assertEqual(component[key],original[key])
+        self.assertFalse(self.requests)
+
+    async def test_manual_code_keeps_suggested_cycle_without_false_override(self):
+        s=await self.start(sample_source('HD785-7','HD718',last=800,remaining=100))
+        await self.enter('HD۷۱۸')
+        await self.click('interval_keep')
+        self.assertFalse(s.proposal['items'])
+        await self.click('edit_apply')
+        self.assertEqual(s.proposal['items'][0]['action_code'],'OIL_CHANGE_HD785-7_1000')
+        self.assertFalse(s.proposal.get('service_overrides'))
+        await self.click('edit_done')
+        self.assertEqual(s.stage,'PROPOSAL')
+        self.assertFalse(self.requests)
+
+    async def test_manual_selection_across_pages_keeps_page_and_inline_buttons(self):
+        s=await self.start(self.combined(47))
+        await self.click('edit_next')
+        old_picker=self.sent[int(s.keyboard_message_id)-1]
+        old_choice=self.button(old_picker,'edit_unit_16')
+        old_origin=s.keyboard_message_id
+        await self.enter('۸۴۶')
+        self.assertEqual(s.edit_machine_code,'HD846')
+        self.assertEqual(s.edit_code_page,1)
+        self.assertEqual(self.message('',data=old_choice,origin=old_origin)['reason'],'inline-rejected')
+        await self.settle()
+        await self.click('interval_1600');await self.click('edit_apply')
+        self.assertEqual(s.stage,'EDIT_CODE')
+        self.assertEqual(s.edit_code_page,1)
+        self.assertIn('edit_unit_16',keyboard_for(s).actions)
+        await self.click('edit_unit_16')
+        self.assertEqual(s.edit_machine_code,'HD816')
+        await self.click('interval_keep');await self.click('edit_apply')
+        self.assertEqual([i['machine_code'] for i in s.proposal['items']],['HD846','HD816'])
+        await self.enter('hd846');await self.click('interval_1800');await self.click('edit_apply')
+        self.assertEqual(len(s.proposal['items']),2)
+        self.assertFalse(s.proposal.get('service_overrides'))
+        self.assertTrue(s.proposal['items'][0]['action_code'].endswith('_1800'))
+        self.assertEqual(s.edit_code_page,1)
+        self.assertFalse(self.requests)
+
+    async def test_manual_selection_rechecks_permission_and_expired_session(self):
+        from tools.fleet.work_orders.dev.test_permissions import test_database
+        s=await self.start(self.combined(1))
+        before=deepcopy(s.proposal)
+        self.assertIsNone(self.message('800',user='1004'))
+        self.assertEqual(s.stage,'EDIT_CODE');self.assertEqual(s.proposal,before)
+        with test_database(self.db_path) as con:
+            con.execute("UPDATE service_work_order_users SET active=0 WHERE bale_id='455740857'")
+        self.assertEqual((await self.enter('800'))['reason'],'work-order-permission-denied')
+        self.assertEqual(s.proposal,before)
+        with test_database(self.db_path) as con:
+            con.execute("UPDATE service_work_order_users SET active=1 WHERE bale_id='455740857'")
+        s=await self.start(self.combined(1))
+        before=deepcopy(s.proposal)
+        s.expires=self.handler.clock()-1
+        self.assertIsNone(await self.enter('800'))
+        self.assertEqual(s.proposal,before)
+        self.assertNotIn(self.key,self.handler.pending)
+        self.assertFalse(self.requests)
+
+    async def test_manual_device_code_is_only_accepted_in_device_selection_stage(self):
+        s=await self.start(self.combined(1))
+        before=deepcopy(s.proposal)
+        await self.click('edit_done')
+        await self.enter('800')
+        self.assertEqual(s.stage,'PROPOSAL')
+        self.assertEqual(s.proposal,before)
+        await self.click('edit_excel');await self.enter('800')
+        self.assertEqual((await self.enter('HD800'))['reason'],'work-order-input-rejected')
+        self.assertEqual(s.stage,'EDIT_INTERVAL')
+        await self.click('interval_keep')
+        self.assertEqual((await self.enter('800'))['reason'],'work-order-input-rejected')
+        self.assertEqual(s.stage,'EDIT_CONFIRM')
+        self.assertEqual(s.proposal,before)
+        await self.click('edit_back');await self.click('edit_back');await self.click('edit_done')
+        self.assertEqual(s.proposal,before)
         self.assertFalse(self.requests)
 
     async def test_back_discards_one_unit_pending_interval_before_selecting_another(self):
@@ -180,7 +284,7 @@ class OilUnifiedTests(menus.InlineMenusTests):
             keyboard=keyboard_for(s)
             units=[a for name,a in keyboard.actions.items() if name.startswith('edit_unit_')]
             self.assertEqual(len(units),count)
-            self.assertEqual(self.sent[-1]['text'],'➕ افزودن/ویرایش')
+            self.assertTrue(self.sent[-1]['text'].startswith('➕ افزودن/ویرایش\n'))
             self.assertTrue(all(len(row)==2 for row in keyboard.rows[:count//2]))
             self.assertEqual([a.name for a in keyboard.rows[-1]],['edit_done'])
             nav=[a.name for row in keyboard.rows for a in row if a.name in {'edit_next','edit_prev'}]
@@ -197,12 +301,19 @@ class OilUnifiedTests(menus.InlineMenusTests):
         source['machines']+=extra['machines'];source['plans']+=extra['plans']
         s=await self.start(source)
         with self.assertRaises(ValueError):oil_edit_item(s.proposal,'۸۰۰')
+        before=deepcopy(s.proposal)
+        self.assertEqual((await self.enter('۸۰۰'))['reason'],'work-order-input-rejected')
+        self.assertEqual(s.stage,'EDIT_CODE');self.assertEqual(s.proposal,before)
         self.assertEqual(oil_edit_item(s.proposal,'hd۸۰۰')['machine_code'],'HD800')
+        await self.enter('hd۸۰۰');self.assertEqual(s.edit_machine_code,'HD800')
+        await self.click('edit_back')
         await self.choose_oil('HD800');self.assertEqual(s.edit_machine_code,'HD800')
         source=sample_source('D155A-6','W151',remaining=100)
         source['machines'][0].update(code='D155',legacy_code='151')
         s=await self.start(source)
         self.assertEqual(oil_edit_item(s.proposal,'W۱۵۱')['machine_code'],'D151')
+        await self.enter('W۱۵۱');self.assertEqual(s.edit_machine_code,'D151')
+        await self.click('edit_back')
         await self.choose_oil('D151');self.assertEqual(s.edit_machine_code,'D151')
 
     async def test_back_then_done_preserves_confirmed_and_discards_pending(self):
@@ -337,7 +448,7 @@ class OilUnifiedTests(menus.InlineMenusTests):
             for user,_role in users:
                 self.key=('bale',user,user)
                 s=await self.start()
-                await self.choose_oil('EX1252');await self.enter('1800')
+                await self.enter('۱۲۵۲');await self.enter('1800')
                 with closing(sqlite3.connect(path)) as con,con:
                     con.execute('UPDATE auth_user_roles SET active=0 WHERE user_id=?',(user,))
                 await self.click('edit_apply')
