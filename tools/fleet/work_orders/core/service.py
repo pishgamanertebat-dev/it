@@ -611,3 +611,28 @@ def list_eligible_staff(
     finally:
 
         con.close()
+
+
+def cancel_draft(number, actor, reason):
+    from .oil_safety import current, RELIABLE_TYPES, audit
+    from .permissions import require_work_order_permission
+    reason = str(reason or '').strip()
+    if not reason:
+        raise ValueError('علت لغو پیش‌نویس الزامی است.')
+    require_work_order_permission(actor, capabilities=('work_orders.read_own', 'work_orders.create'))
+    con = connect_db()
+    try:
+        with con:
+            con.execute('BEGIN IMMEDIATE')
+            row = current(con, number)
+            if row['created_by'] != f'bale:{actor}' or row['work_order_type'] not in RELIABLE_TYPES:
+                raise ValueError('لغو فقط برای پیش‌نویس متعلق به خودتان مجاز است.')
+            dispatch = con.execute('SELECT state FROM service_work_order_dispatch WHERE work_order_no=?', (number,)).fetchone()
+            attempts = con.execute('SELECT 1 FROM service_work_order_delivery_attempts WHERE work_order_no=?', (number,)).fetchone()
+            if row['status'] != 'FILE_READY' or dispatch or attempts:
+                raise ValueError('فقط پیش‌نویس ارسال‌نشدهٔ FILE_READY قابل لغو است.')
+            require_work_order_permission(actor, capabilities=('work_orders.read_own', 'work_orders.create'))
+            con.execute("UPDATE service_work_orders SET status='CANCELLED',updated_at=CURRENT_TIMESTAMP WHERE work_order_no=?", (number,))
+            audit(con, number, 'DRAFT_CANCELLED', actor=str(actor), reason=reason)
+    finally:
+        con.close()

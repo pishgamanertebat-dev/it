@@ -8,7 +8,7 @@ from types import SimpleNamespace
 import unittest
 from unittest.mock import AsyncMock, Mock, patch
 
-from tools.fleet.work_orders.core import db, service, delivery, oil_safety, management, operational, staff_dispatch
+from tools.fleet.work_orders.core import db, service, delivery, oil_safety, operational, staff_dispatch
 from tools.fleet.work_orders.core.review import confirm_document_review
 from tools.fleet.work_orders.channels.bale import create_worker
 from tools.fleet.work_orders.channels.bale.message_handler import FormSession, WorkOrderMenuHandler
@@ -19,7 +19,7 @@ from tools.fleet.work_orders.dev.test_permissions import test_database
 REAL_TODAY = operational.operational_today
 
 
-class DailyLifecycleTests(unittest.IsolatedAsyncioTestCase):
+class MinimalLifecycleTests(unittest.IsolatedAsyncioTestCase):
     setUp = shared.OilSafetyTests.setUp
     create = shared.OilSafetyTests.create
     prepare = shared.OilSafetyTests.prepare
@@ -70,7 +70,7 @@ class DailyLifecycleTests(unittest.IsolatedAsyncioTestCase):
         with self.assertRaises(operational.OperationalDayExpired):
             delivery.send_work_order(work_order_no=number,sender=SimpleNamespace(send_document=AsyncMock()))
         with self.assertRaises(operational.OperationalDayExpired):
-            management.cancel_draft(number,shared.MANAGER,'TEST')
+            service.cancel_draft(number,shared.MANAGER,'TEST')
         self.assertEqual(service.get_work_order(number),before)
 
     def test_expired_uncertain_is_absent_and_cannot_retry(self):
@@ -149,7 +149,7 @@ class DailyLifecycleTests(unittest.IsolatedAsyncioTestCase):
         def lost(**kw):raise TimeoutError('TEST')
         with self.assertRaises(TimeoutError):delivery.send_work_order(work_order_no=new,sender=SimpleNamespace(send_document=lost))
         self.assertIsNone(service.get_work_order(old)['superseded_by'])
-        with self.assertRaises(ValueError):management.cancel_draft(new,shared.MANAGER,'TEST')
+        with self.assertRaises(ValueError):service.cancel_draft(new,shared.MANAGER,'TEST')
 
     def test_pending_revision_can_be_edited_then_delivered(self):
         old=self.sent();first=self.reissue(old)['orders'][0]['work_order_no']
@@ -224,7 +224,7 @@ class DailyLifecycleTests(unittest.IsolatedAsyncioTestCase):
         result=create_worker.execute_request(req,db_path=self.db_path)
         self.assertFalse(result['ok']);self.assertIn(number,result['message']);self.assertIn('1294822197',result['message'])
         self.assertEqual(req,before);self.assertEqual(len(self.read('SELECT id FROM service_work_orders')),1)
-        with self.assertRaises(ValueError):management.cancel_draft(number,shared.MANAGER,'TEST')
+        with self.assertRaises(ValueError):service.cancel_draft(number,shared.MANAGER,'TEST')
 
     def test_commit_race_returns_partial_success_and_specific_failure(self):
         second=__import__('tools.fleet.oil_change.test_proposal',fromlist=['sample_source']).sample_source('HD785-7','HD708')
@@ -236,17 +236,10 @@ class DailyLifecycleTests(unittest.IsolatedAsyncioTestCase):
             if len(calls)==2:raise ValueError('تعارض: OC-1405-06-23-999 | مالک: bale:1294822197')
             return real(**kwargs)
         with patch.object(service,'create_work_order',side_effect=race):result=create_worker.execute_request(req,db_path=self.db_path)
-        self.assertTrue(result['ok'],result);self.assertTrue(result['partial']);self.assertEqual(len(result['orders']),1)
+        self.assertFalse(result['ok'],result);self.assertTrue(result['partial']);self.assertEqual(len(result['orders']),1)
         self.assertEqual(len(result['failures']),1);self.assertIn('OC-1405-06-23-999',result['failures'][0]['reason'])
         self.assertEqual(len(self.read('SELECT id FROM service_work_orders')),1)
 
-    def test_today_and_explicit_history_are_distinct_read_only_views(self):
-        old=self.sent();self.tomorrow()
-        self.assertEqual(management.own_orders(shared.MANAGER),[])
-        row=management.own_orders(shared.MANAGER,date='1405/06/23')[0]
-        self.assertFalse(row['operational']);self.assertEqual(row['status'],'SENT');self.assertIsNone(row['acknowledged_at'])
-        self.assertIn('تأیید دریافت ثبت نشده',management.status_text(row))
-        self.assertEqual(management.historical_document(old,shared.MANAGER)[0]['work_order_no'],old)
 
     def test_claim_before_midnight_cannot_start_after_midnight(self):
         number=self.create();self.prepare(number);token=staff_dispatch.claim_send(number);self.tomorrow()
@@ -263,7 +256,7 @@ class DailyLifecycleTests(unittest.IsolatedAsyncioTestCase):
         self.assertIn('LATE_TRANSFER_RESULT',service.get_work_order(number)['notes'])
         with self.assertRaises(operational.OperationalDayExpired):staff_dispatch.claim_send(number)
 
-    def management_ui(self):
+    def ui(self):
         sent=[];sequence=[0];uploads=[]
         async def send_message(**kwargs):
             sequence[0]+=1;sent.append(kwargs);return SimpleNamespace(message_id=sequence[0])
@@ -288,68 +281,234 @@ class DailyLifecycleTests(unittest.IsolatedAsyncioTestCase):
             enter('',data);await settle()
         return handler,enter,settle,click,uploads
 
-    async def test_management_ui_cancel_is_confirmed_and_creates_nothing_on_preview(self):
-        number=self.create()
-        handler,enter,settle,click,uploads=self.management_ui()
-        enter('احکام امروز');await settle();await click('managed_0')
+    async def test_sent_edit_uses_existing_command_reason_form_and_new_review(self):
+        old=self.sent();before=service.get_work_order(old)
+        handler,enter,settle,click,uploads=self.ui()
+        key=('bale',shared.MANAGER,shared.MANAGER)
+        enter('ویرایش '+old);await settle()
+        self.assertEqual(handler.pending[key].stage,'EDIT_REASON')
         self.assertEqual(len(self.read('SELECT id FROM service_work_orders')),1)
-        await click('managed_cancel');enter('TEST reason');await settle()
+        enter('حکم کار');await settle();self.assertEqual(handler.pending[key].stage,'MENU')
+        enter('ویرایش '+old);await settle();enter('TEST correction');await settle()
+        s=handler.pending[key];self.assertEqual(s.stage,'PROPOSAL')
+        self.assertEqual(s.proposal['revision_of'],old)
+        self.assertEqual(s.proposal['reissue_reason'],'TEST correction')
+        self.assertEqual(len(self.read('SELECT id FROM service_work_orders')),1)
+        edit_oil_interval(s.proposal,'EX1252',1600)
+        async def reviewed_file(gateway,chat,order):
+            path=self.db_path.parent/(order['work_order_no']+'.pdf')
+            path.write_bytes(b'%PDF-TEST REVISION')
+            delivery.store_manager_pdf(order['work_order_no'],path)
+        handler.document_sender=reviewed_file
+        await click('confirm');new=handler.pending[key].order_no
+        self.assertNotEqual(new,old)
+        new_order=service.get_work_order(new)
+        self.assertEqual(new_order['revision_of'],old)
+        self.assertIsNone(new_order['assigned_staff_id'])
+        self.assertIsNone(service.get_work_order(old)['superseded_by'])
+        card=handler.reviews[(*key,new)]
+        markup=handler._keyboard((*key,new),card)
+        data=next(b['callback_data'] for row in markup['inline_keyboard'] for b in row if b['callback_data'].endswith(':review_confirm'))
+        enter('',data);await settle()
+        self.assertEqual(handler.pending[key].stage,'STAFF')
+        from tools.fleet.work_orders.core.review import last_record
+        self.assertEqual(last_record(service.get_work_order(new),'MANAGER_DOCUMENT_REVIEW')['bale_id'],shared.MANAGER)
+        self.assertEqual(Path(before['pdf_path']).read_bytes(),b'%PDF-1.4\nTEST DOCUMENT\n')
+
+    async def test_draft_cancel_stays_in_edit_flow_and_requires_reason_and_callback(self):
+        number=self.create();before=service.get_work_order(number)
+        handler,enter,settle,click,uploads=self.ui();key=('bale',shared.MANAGER,shared.MANAGER)
+        enter('ویرایش '+number);await settle()
+        self.assertEqual(handler.pending[key].stage,'PROPOSAL')
+        await click('draft_cancel');self.assertEqual(handler.pending[key].stage,'EDIT_CANCEL_REASON')
+        enter('برگشت');await settle();self.assertEqual(handler.pending[key].stage,'PROPOSAL')
+        await click('draft_cancel');enter('TEST cancellation');await settle()
+        self.assertEqual(handler.pending[key].stage,'EDIT_CANCEL_CONFIRM')
+        enter('تایید لغو پیش نویس');await settle()
         self.assertEqual(service.get_work_order(number)['status'],'FILE_READY')
-        await click('managed_cancel_ok')
+        await click('draft_cancel_confirm')
         self.assertEqual(service.get_work_order(number)['status'],'CANCELLED')
         self.assertEqual(len(self.read('SELECT id FROM service_work_orders')),1)
+        self.assertEqual(Path(before['excel_path']).read_bytes(),Path(service.get_work_order(number)['excel_path']).read_bytes())
 
-    async def test_management_sent_correction_requires_confirmation_review_and_new_recipient(self):
-        number=self.sent();before=service.get_work_order(number);original=Path(before['pdf_path']).read_bytes()
-        handler,enter,settle,click,uploads=self.management_ui()
-        async def preview(gateway,chat,order):
-            row=service.get_work_order(order['work_order_no'])
-            path=Path(row['excel_path']).with_suffix('.pdf');path.write_bytes(b'%PDF-1.4\nSIMULATED CORRECTED PDF\n')
-            delivery.store_manager_pdf(row['work_order_no'],path)
-        handler.document_sender=preview
-        enter('احکام امروز');await settle();await click('managed_0');await click('managed_revision')
-        enter('TEST reason for correction');await settle()
+    async def test_retired_history_record_recovers_individually_and_entry_is_not_date_input(self):
+        from dataclasses import asdict
+        from tools.bale_ui import StateStore
+        key=('bale',shared.MANAGER,shared.MANAGER)
+        healthy=(*key,'OC-1405-06-23-001')
+        stale=asdict(FormSession(expires=__import__('time').time()+600,stage='HISTORY_DATE'))
+        stale.update(managed_orders=[],management_date='',management_history=True)
+        saved=asdict(FormSession(expires=__import__('time').time()+600,stage='REVIEW',order_no=healthy[-1]))
+        store=StateStore(self.db_path.parent/'legacy-ui.json');store.save([[list(key),stale],[list(healthy),saved]])
+        h=WorkOrderMenuHandler(db_path=self.db_path,state_store=store,worker=AsyncMock())
+        self.assertEqual(h.pending[key].stage,'MENU');self.assertIn(healthy,h.reviews)
+        event=SimpleNamespace(text='حکم کار',message_id='entry',raw_message=None,
+            source=SimpleNamespace(platform='bale',chat_type='dm',user_id=shared.MANAGER,chat_id=shared.MANAGER))
+        replies=[];h.handle(event,None,send=lambda g,c,t:replies.append(t))
+        self.assertEqual(h.pending[key].stage,'MENU');self.assertIn(healthy,h.reviews)
+        self.assertNotIn('نامعتبر',''.join(replies));h.worker.assert_not_called()
+
+    def test_historical_af_proposal_and_source_dates_are_not_operational_order_dates(self):
+        from tools.fleet.air_filter import proposal as af
+        from tools.fleet.work_orders.core.operational import operational_today
+        copy=Path('E:/KomatsoAI/runtime/net_minimal_recovery_20261021/source_copies/هواکش.xlsx')
+        before=hashlib.sha256(copy.read_bytes()).hexdigest()
+        proposed=af.build_proposal(path=copy)
+        with patch.object(af,'build_proposal',return_value=proposed):
+            result=create_worker.execute_request(dict(action='propose',bale_id=shared.MANAGER,
+                work_order_type='AIR_FILTER'),db_path=self.db_path)
+        self.assertTrue(result['ok'],result)
+        self.assertEqual(result['proposal'],proposed)
+        self.assertNotEqual(proposed['plan_date'],operational_today())
+        self.assertEqual(result['operational_date'],operational_today())
+        self.assertTrue(proposed['items'])
+        self.assertEqual(hashlib.sha256(copy.read_bytes()).hexdigest(),before)
+
+    async def test_main_entry_exits_every_idle_form_and_no_extra_entry_actions_exist(self):
+        handler,enter,settle,click,uploads=self.ui();key=('bale',shared.MANAGER,shared.MANAGER)
+        for stage in ('DATE','MACHINES','SHIFT','PROPOSAL','REMOVE','ADD_CODES','ADD_ACTION',
+                      'EDIT_CODE','EDIT_INTERVAL','EDIT_CONFIRM','EDIT_REASON',
+                      'EDIT_CANCEL_REASON','EDIT_CANCEL_CONFIRM','RESULT'):
+            handler.pending[key]=FormSession(expires=handler.clock()+600,stage=stage)
+            enter('حکم کار');await settle()
+            self.assertEqual(handler.pending[key].stage,'MENU',stage)
+            from tools.fleet.work_orders.channels.bale.keyboards import entry_keyboard
+            self.assertEqual(set(entry_keyboard().actions),{'oil','greasing','air_filter','delivery_review','cancel'})
+        handler.worker=AsyncMock()
+        enter('تاریخچه احکام');await settle();handler.worker.assert_not_called()
+
+    async def test_af_source_proposal_opens_then_creates_today_for_day_evening_and_night(self):
+        from tools.fleet.air_filter import proposal as af
+        copy=Path('E:/KomatsoAI/runtime/net_minimal_recovery_20261021/source_copies/هواکش.xlsx')
+        proposed=af.build_proposal(path=copy)
+        handler,enter,settle,click,uploads=self.ui();key=('bale',shared.MANAGER,shared.MANAGER)
+        from tools.fleet.work_orders.channels.bale.proposal_form import creation_metadata
+        with patch.object(af,'build_proposal',return_value=proposed),patch.object(af,'SOURCE',copy):
+            enter('حکم کار');await settle();await click('air_filter')
+            session=handler.pending[key]
+            self.assertEqual(session.stage,'PROPOSAL')
+            self.assertEqual(session.jalali_date,self.fixture.test_today)
+            self.assertEqual(session.proposal,proposed)
+            for shift in ('صبح','عصر','شب'):
+                result=create_worker.execute_request(dict(action='create',bale_id=shared.MANAGER,
+                    work_order_type='AIR_FILTER',jalali_date=session.jalali_date,shift=shift,
+                    machine_codes=[i['machine_code'] for i in proposed['items']],
+                    item_actions={i['machine_code']:i['action_code'] for i in proposed['items']},
+                    proposal=creation_metadata(proposed)),db_path=self.db_path)
+                self.assertTrue(result['ok'],result)
+                order=service.get_work_order(result['order']['work_order_no'])
+                self.assertEqual(order['jalali_date'],self.fixture.test_today)
+                self.assertEqual(order['shift'],shift)
+                self.assertEqual([i['machine_code'] for i in order['items']],[i['machine_code'] for i in proposed['items']])
+
+    def test_full_batch_preflight_lists_every_selected_machine_without_creating_any(self):
+        number=self.create()
+        extra=__import__('tools.fleet.oil_change.test_proposal',fromlist=['sample_source']).sample_source('HD785-7','HD708')
+        self.fixture.source['machines']+=extra['machines'];self.fixture.source['plans']+=extra['plans']
+        req=self.fixture.request();req['machine_codes']=list(req['item_actions'])
+        with test_database(self.db_path) as con:
+            con.execute("UPDATE service_work_orders SET created_by='bale:641220453' WHERE work_order_no=?",(number,))
+        before=deepcopy(req)
+        result=create_worker.execute_request(req,db_path=self.db_path)
+        self.assertFalse(result['ok']);self.assertEqual(result['error'],'CONFLICT')
+        self.assertEqual({f['machine_code'] for f in result['failures']},set(req['machine_codes']))
+        self.assertIn(number,result['message']);self.assertIn('641220453',result['message'])
+        self.assertEqual(len(self.read('SELECT id FROM service_work_orders')),1);self.assertEqual(req,before)
+
+    async def test_partial_batch_false_result_still_shows_success_and_exact_failure(self):
+        second=__import__('tools.fleet.oil_change.test_proposal',fromlist=['sample_source']).sample_source('HD785-7','HD708')
+        self.fixture.source['machines']+=second['machines'];self.fixture.source['plans']+=second['plans']
+        req=self.fixture.request();req['machine_codes']=list(req['item_actions'])
+        real=service.create_work_order;calls=[]
+        def race(**kwargs):
+            calls.append(kwargs['machine_codes'][0])
+            if len(calls)==2:raise ValueError('OC-1405-06-23-999 | bale:641220453 | FILE_READY')
+            return real(**kwargs)
+        with patch.object(service,'create_work_order',side_effect=race):
+            result=create_worker.execute_request(req,db_path=self.db_path)
+        self.assertFalse(result['ok']);self.assertTrue(result['partial'])
+        replies=[];sender=AsyncMock()
+        h=WorkOrderMenuHandler(db_path=self.db_path,worker=AsyncMock(return_value=result),document_sender=sender)
+        key=('bale',shared.MANAGER,shared.MANAGER);s=FormSession(expires=h.clock()+600)
+        h.pending[key]=s
+        await h._run_request(key,s,req,None,lambda g,c,t:replies.append(t))
+        sender.assert_awaited_once()
+        text='\n'.join(replies)
+        self.assertIn(result['orders'][0]['work_order_no'],text)
+        self.assertIn('OC-1405-06-23-999',text);self.assertIn('ساخته نشد',text)
         self.assertEqual(len(self.read('SELECT id FROM service_work_orders')),1)
-        await click('edit_excel');await click('edit_unit_0');await click('interval_1600');await click('edit_apply');await click('edit_done')
-        await click('confirm')
-        new=handler.pending[('bale',shared.MANAGER,shared.MANAGER)].order_no
-        self.assertNotEqual(new,number);self.assertIsNone(service.get_work_order(new)['assigned_staff_id'])
-        self.assertIsNone(service.get_work_order(number)['superseded_by'])
-        enter('ثبت تایید '+new);await settle()
-        self.assertEqual(handler.pending[('bale',shared.MANAGER,shared.MANAGER)].stage,'STAFF')
-        self.assertEqual(uploads,[])
+
+
+
+class NativeMinimalTests(unittest.IsolatedAsyncioTestCase):
+    """Explicit native-only contract; transport and databases remain isolated."""
+    def setUp(self):
+        # Keep native Workbook paths within Excel's path limit. The fault
+        # injection fixture has an additional nested directory for subprocesses.
+        self.fixture=shared.OilServiceEditTests('test_repeated_override_retains_original_evidence_for_all_cycles')
+        self.fixture.setUp();self.addCleanup(self.fixture.doCleanups)
+        self.db_path=self.fixture.db_path
+        for target,value in (('tools.fleet.work_orders.core.permissions.DB_PATH',self.db_path),):
+            p=patch(target,value);p.start();self.addCleanup(p.stop)
+        p=patch.object(delivery,'archive_delivered_order');p.start();self.addCleanup(p.stop)
+        with test_database(self.db_path) as con:
+            oil_safety.migrate(con)
+            self.staff=con.execute("INSERT INTO service_staff(display_name,bale_id,service_role,active) VALUES ('TEST ONLY',?,'OIL_CHANGE',1)",(shared.TECH,)).lastrowid
+            self.roster=con.execute("INSERT INTO service_staff_roster(display_name,staff_id) VALUES ('TEST ONLY',?)",(self.staff,)).lastrowid
+        import subprocess,sys
+        run=subprocess.run
+        def diagnostic(*args,**kwargs):
+            result=run(*args,**kwargs)
+            if result.returncode:
+                print('NATIVE EXPORT DIAGNOSTIC:',result.stderr.decode('utf-8',errors='replace'),file=sys.stderr)
+            return result
+        p=patch('tools.fleet.work_orders.core.pdf_document.subprocess.run',side_effect=diagnostic)
+        p.start();self.addCleanup(p.stop)
+    create = shared.OilSafetyTests.create
+    read = shared.OilSafetyTests.read
+    ui = MinimalLifecycleTests.ui
+
+    async def test_native_sent_correction_uses_reviewed_bytes_and_preserves_sent_original(self):
+        from tools.fleet.work_orders.channels.bale.message_handler import send_manager_excel
+        from tools.fleet.work_orders.core.review import approved_pdf_bytes
+        old=self.create()
+        path,data=await asyncio.to_thread(delivery.prepare_manager_pdf,old,shared.MANAGER)
+        delivery.store_manager_pdf(old,path,pdf_bytes=data)
+        confirm_document_review(old,shared.MANAGER)
+        staff_dispatch.prepare_dispatch(old,shared.MANAGER,shared.MANAGER,self.staff,self.roster)
+        captured=[]
+        delivery.send_work_order(work_order_no=old,sender=SimpleNamespace(send_document=lambda **kw:captured.append(kw['document_bytes'])))
+        self.assertEqual(captured,[data])
+        before=service.get_work_order(old);old_hash=hashlib.sha256(Path(before['pdf_path']).read_bytes()).hexdigest()
+        h,enter,settle,click,uploads=self.ui();key=('bale',shared.MANAGER,shared.MANAGER)
+        h.document_sender=send_manager_excel
+        enter('ویرایش '+old);await settle();enter('NATIVE TEST correction');await settle()
+        s=h.pending[key];edit_oil_interval(s.proposal,'EX1252',1600)
+        await click('confirm');new=h.pending[key].order_no
+        self.assertNotEqual(new,old);self.assertEqual(service.get_work_order(new)['revision_of'],old)
+        self.assertIsNone(service.get_work_order(old)['superseded_by'])
+        self.assertIsNone(service.get_work_order(new)['assigned_staff_id'])
+        self.assertEqual(len(uploads),1)
+        card=h.reviews[(*key,new)];markup=h._keyboard((*key,new),card)
+        callback=next(b['callback_data'] for row in markup['inline_keyboard'] for b in row if b['callback_data'].endswith(':review_confirm'))
+        enter('',callback);await settle();self.assertEqual(h.pending[key].stage,'STAFF')
+        self.assertEqual(approved_pdf_bytes(service.get_work_order(new)),uploads[0])
         await click('staff_1')
         self.assertEqual(service.get_work_order(new)['status'],'SENT')
-        self.assertEqual(service.get_work_order(number)['superseded_by'],new)
-        self.assertEqual(Path(before['pdf_path']).read_bytes(),original)
-        self.assertEqual(len(uploads),1)
-
-    def test_real_net_authority_is_preserved_and_cross_owner_cancel_denied(self):
-        from tools.fleet.work_orders.core.permissions import require_work_order_permission
-        number=self.create()
-        for actor in ('641220453','1294822197'):
-            self.assertEqual(require_work_order_permission(actor).source,'central')
-            self.assertEqual(management.own_orders(actor),[])
-            with self.assertRaisesRegex(ValueError,'خودتان'):management.cancel_draft(number,actor,'TEST')
-        self.assertEqual(service.get_work_order(number)['status'],'FILE_READY')
-
-    def test_ui_persistence_retries_only_transient_windows_file_lock(self):
-        error=PermissionError('TEST sharing violation');error.winerror=5
-        handler=WorkOrderMenuHandler(db_path=self.db_path,worker=AsyncMock())
-        handler.state_store=SimpleNamespace(save=Mock(side_effect=[error,None]))
-        with patch('tools.fleet.work_orders.channels.bale.message_handler.time.sleep'):
-            handler._persist()
-        self.assertEqual(handler.state_store.save.call_count,2)
-        handler.worker.assert_not_called()
-
-    def test_permanent_ui_file_lock_fails_closed_after_bounded_retry(self):
-        error=PermissionError('TEST sharing violation');error.winerror=5
-        handler=WorkOrderMenuHandler(db_path=self.db_path,worker=AsyncMock())
-        handler.state_store=SimpleNamespace(save=Mock(side_effect=error))
-        with patch('tools.fleet.work_orders.channels.bale.message_handler.time.sleep'):
-            with self.assertRaises(PermissionError):handler._persist()
-        self.assertEqual(handler.state_store.save.call_count,3)
-        handler.worker.assert_not_called()
-
-
-if __name__=='__main__':unittest.main()
+        self.assertEqual(service.get_work_order(old)['superseded_by'],new)
+        self.assertEqual(uploads[1],uploads[0])
+        self.assertEqual(hashlib.sha256(Path(before['pdf_path']).read_bytes()).hexdigest(),old_hash)
+        repeated=create_worker.execute_request(self.fixture.request(),db_path=self.db_path)
+        self.assertFalse(repeated['orders'][0]['reviewable'])
+        self.assertEqual(hashlib.sha256(Path(before['pdf_path']).read_bytes()).hexdigest(),old_hash)
+        import os,json,shutil
+        evidence=os.environ.get('KOMATSO_OIL_EVIDENCE')
+        if evidence:
+            destination=Path(evidence);destination.mkdir(parents=True,exist_ok=True)
+            for number in (old,new):
+                row=service.get_work_order(number)
+                for field in ('excel_path','pdf_path'):
+                    src=Path(row[field]);shutil.copy2(src,destination/src.name)
+            (destination/'native-sent-revision.json').write_text(json.dumps(dict(original=old,revision=new,
+                original_pdf_sha256=old_hash,reviewed_bytes_equal_sent=True,transport='SIMULATED',pdf='NATIVE EXCEL',
+                production_writes=False),indent=2),'utf-8')

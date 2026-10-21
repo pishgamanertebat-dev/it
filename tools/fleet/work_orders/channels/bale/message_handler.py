@@ -27,8 +27,8 @@ from tools.fleet.work_orders.core.paths import PROJECT_ROOT
 from tools.fleet.work_orders.core.service import validate_jalali_date
 from tools.fleet.work_orders.core.pdf_document import export_staff_pdf
 from tools.fleet.work_orders.core.delivery import store_manager_pdf
+from tools.fleet.work_orders.core.operational import require_date, OperationalDayExpired
 from tools.fleet.work_orders.core.review import normalize_shift
-from tools.fleet.work_orders.core.operational import require_date, OperationalDayExpired, EXPIRED_MESSAGE
 from tools.fleet.work_orders.core.conversation import review_context
 from tools.fleet.work_orders.channels.bale.work_order_menu import (
     InvalidWorkOrderSelection,
@@ -68,7 +68,7 @@ async def run_create_worker(request: dict) -> dict:
     if process.returncode != 0:
         raise RuntimeError(f"Work-order worker exited with code {process.returncode}")
     result = json.loads(output.decode("utf-8"))
-    if _stderr and (not result.get("ok") or result.get('partial') or result.get('batch_error')):
+    if _stderr and not result.get("ok"):
         logger.error("Work-order worker diagnostic: %s", _stderr.decode("utf-8", errors="replace")[-6000:])
     return result
 
@@ -101,12 +101,7 @@ class FormSession:
     oil_recovery: str = ''
     removal_selection: dict | None = None
     ui_cleanup: bool = False
-    managed_orders: list = field(default_factory=list)
-    managed_order: dict = field(default_factory=dict)
-    management_page: int = 0
-    management_history: bool = False
-    management_reason: str = ''
-    management_date: str = ''
+    edit_reason: str = ''
 
 
 REVIEW_PROMPT = 'پس از بررسی همین فایل، تایید یا ویرایش را از دکمه‌های زیر انتخاب کنید.'
@@ -196,6 +191,13 @@ class WorkOrderMenuHandler:
                     for name in ('edit_origin_stage', 'edit_interval_return',
                                  'edit_confirm_return', 'edit_confirm_page'):
                         value.pop(name, None)
+                    # Recover only records from the reverted management UI.
+                    for name in ('managed_orders','managed_order','management_page',
+                                 'management_history','management_reason','management_date'):
+                        value.pop(name, None)
+                    if value.get('stage') in {'TODAY_LIST','HISTORY_LIST','HISTORY_DATE',
+                                              'ORDER_DETAIL','CANCEL_REASON','CANCEL_CONFIRM','REVISION_REASON'}:
+                        value.update(stage='MENU',keyboard_revision='',keyboard_stage='')
                     session = FormSession(**value)
                     if session.work_order_type == 'OIL_CHANGE' and (
                         session.stage in {'ADD_CODES', 'ADD_ACTION', 'EDIT_BATCH_CODES'} or
@@ -231,33 +233,14 @@ class WorkOrderMenuHandler:
 
     def _persist(self):
         if self.state_store:
-            snapshot = [[list(key), asdict(value)]
-                for key, value in (*self.pending.items(), *self.reviews.items())]
-            for attempt, pause in enumerate((0, .01, .03)):
-                if pause:
-                    time.sleep(pause)
-                try:
-                    self.state_store.save(snapshot)
-                    break
-                except PermissionError as exc:
-                    if getattr(exc,'winerror',None) not in {5,32} or attempt == 2:
-                        raise
+            self.state_store.save([[list(key), asdict(value)]
+                for key, value in (*self.pending.items(), *self.reviews.items())])
 
     def _review_card(self, key, number, work_order_type='OIL_CHANGE'):
         review_key = (*key, number)
         self.reviews[review_key] = FormSession(expires=self.clock() + 600,
-            stage='REVIEW', work_order_type=work_order_type, order_no=number,
-            jalali_date='/'.join(number.split('-')[1:4]))
+            stage='REVIEW', work_order_type=work_order_type, order_no=number)
         return review_key
-
-    def _require_session_day(self, session):
-        if session.stage == 'TODAY_LIST' and session.management_date:
-            require_date(session.management_date)
-        if session.management_history or session.stage in {'MENU','TODAY_LIST','HISTORY_LIST','HISTORY_DATE','RESULT'}:
-            return
-        date = session.jalali_date or ('/'.join(session.order_no.split('-')[1:4]) if session.order_no else '')
-        if date:
-            require_date(date)
 
     @staticmethod
     def _order_status(order):
@@ -621,19 +604,7 @@ class WorkOrderMenuHandler:
                 await self.lifecycle.retire((*key, request['work_order_no']), gateway)
             if request['action'] in {'create', 'preview', 'preview_latest', 'dispatch'}:
                 await self.lifecycle.retire(key, gateway)
-            if request['action'] == 'view_document':
-                from tools.fleet.work_orders.core.management import historical_document
-                row, data = await asyncio.to_thread(historical_document, request['work_order_no'], key[1])
-                bot = self.lifecycle.bot(gateway)
-                if bot is None:
-                    raise RuntimeError('Bale transport unavailable')
-                with io.BytesIO(data) as document:
-                    await bot.send_document(chat_id=chat_id,document=document,
-                        filename=Path(row['pdf_path']).name,
-                        caption=f"مشاهده سابقهٔ {row['work_order_no']} | وضعیت: {row['status']}")
-                session.stage = 'ORDER_DETAIL'
-                reply = 'PDF ثبت‌شده نمایش داده شد؛ وضعیت ارسال و ACK در کارت حکم مشخص است.'
-            elif request['action'] == 'dispatch':
+            if request['action'] == 'dispatch':
                 from tools.fleet.work_orders.channels.bale.staff_flow import dispatch
                 reply = await dispatch(gateway, session.order_no, key[1], chat_id, request['staff_id'], request.get('roster_id'))
                 leave_staff = not self._needs_staff_retry(reply)
@@ -652,12 +623,8 @@ class WorkOrderMenuHandler:
                     session.result = reply
             else:
                 result = await self.worker(request)
-                if not result.get("ok"):
-                    if result.get('error') == 'CONFLICT' and session.proposal is not None:
-                        session.stage = 'PROPOSAL'
-                        reply = result['message'] + '\nانتخاب‌ها محفوظ است؛ برای تغییر انتخاب و تأیید دوباره از دکمه‌ها استفاده کنید.'
-                        session.result = reply
-                    elif (session.work_order_type == 'OIL_CHANGE' and session.proposal is not None
+                if not result.get("ok") and not result.get("orders"):
+                    if (session.work_order_type == 'OIL_CHANGE' and session.proposal is not None
                             and (result.get('error') == 'CREATE_FAILED' or request['action'] == 'preview_latest')):
                         session.stage = 'OIL_RECOVERY'
                         session.oil_recovery = 'inspect'
@@ -679,35 +646,6 @@ class WorkOrderMenuHandler:
                         session.stage = "RESULT"
                         reply = result.get("message", "عملیات با خطا روبه‌رو شد؛ وضعیت حکم باید بررسی شود.")
                         session.result = reply
-                elif result.get('already_sent'):
-                    session.stage='RESULT'
-                    reply=result['message']
-                    session.result=reply
-                elif 'managed_orders' in result:
-                    from tools.fleet.work_orders.core.management import status_text
-                    session.managed_orders = result['managed_orders']
-                    session.management_page = 0
-                    session.management_history = result.get('historical',False)
-                    session.management_date = result['date']
-                    session.stage = 'HISTORY_LIST' if session.management_history else 'TODAY_LIST'
-                    session.order_no = ''
-                    session.jalali_date = ''
-                    reply = ('تاریخچهٔ احکام خودتان — فقط مشاهده' if session.management_history else '📋 احکام امروزِ خودتان') + ' | ' + result['date']
-                    reply += '\n\n' + ('\n\n'.join(status_text(o) for o in session.managed_orders[:8]) or 'حکمی برای این تاریخ ندارید.')
-                    reply += '\n\nموفقیت API، ACK دریافت و انجام سرویس مستقل هستند. نبود ACK به معنی عدم ارسال نیست.'
-                    session.result = reply
-                elif 'managed_order' in result:
-                    from tools.fleet.work_orders.core.management import status_text
-                    session.managed_order = result['managed_order']
-                    session.order_no = session.managed_order['work_order_no']
-                    session.jalali_date = session.managed_order['jalali_date']
-                    session.work_order_type = session.managed_order['work_order_type']
-                    session.management_history = not session.managed_order['operational']
-                    session.stage = 'ORDER_DETAIL'
-                    reply = status_text(session.managed_order)
-                    if session.management_history:
-                        reply += '\nاین سابقه فقط برای مشاهده و حسابرسی است.'
-                    session.result = reply
                 elif request['action'] in {'delivery_pending','delivery_resolve','cancel_draft'}:
                     session.stage = 'RESULT'
                     reply = result['message']
@@ -716,9 +654,9 @@ class WorkOrderMenuHandler:
                     from tools.fleet.work_orders.channels.bale.proposal_form import render
                     session.proposal = result['proposal']
                     session.stage = 'PROPOSAL'
-                    session.jalali_date = session.proposal['plan_date']
+                    session.jalali_date = result.get('operational_date', session.proposal['plan_date'])
                     session.oil_recovery = ''
-                    reply = render(session.proposal)
+                    reply = f'تاریخ عملیاتی حکم: {session.jalali_date}\n' + render(session.proposal)
                 elif request['action'] == 'validate_add':
                     session.additions = result['items']
                     if session.work_order_type in {'GREASING', 'OIL_CHANGE'}:
@@ -733,6 +671,14 @@ class WorkOrderMenuHandler:
                     session.machine_codes = result["machine_codes"]
                     session.stage = "DATE"
                     reply = f"تعداد دستگاه: {len(session.machine_codes)}\nتاریخ حکم را وارد کنید؛ مانند 1405/06/15."
+                elif result.get('already_sent'):
+                    session.stage = 'RESULT'
+                    reply = result['message']
+                    session.result = reply
+                elif result.get('needs_revision_reason'):
+                    session.stage = 'EDIT_REASON'
+                    session.work_order_type = result['work_order_type']
+                    reply = 'علت اصلاحیه را بنویسید؛ سپس اقلام را ویرایش و ساخت شمارهٔ تازه را تأیید می‌کنید. نسخهٔ ارسال‌شده تا تحویل موفق اصلاحیه معتبر می‌ماند. برای خروج «انصراف» یا «حکم کار» را بنویسید.'
                 elif request["action"] in {"confirm_review", "resume_dispatch"}:
                     from tools.fleet.work_orders.core.staff_dispatch import staff_menu
                     session.work_order_type = result.get('work_order_type', session.work_order_type)
@@ -752,7 +698,6 @@ class WorkOrderMenuHandler:
                     session.result = ""
                     review_context(key[1], chat_id, 'manager', number='', stage='EDIT', db_path=self.db_path)
                     session.proposal = result['proposal']
-                    session.management_history = False
                     session.oil_recovery = ''
                     session.jalali_date = session.proposal['plan_date']
                     reply = ('نسخهٔ ارسال‌شده تا ثبت ارسال موفق اصلاحیه معتبر می‌ماند. گیرندهٔ اصلاحیه را دوباره انتخاب می‌کنید.\n'
@@ -790,7 +735,7 @@ class WorkOrderMenuHandler:
                         delivery = self._send_reply(gateway,chat_id,reply,send,key=card_key)
                         if delivery:
                             await delivery
-                        summaries.append(number + ': ' + order['item_summary'])
+                        summaries.append(number + ': ' + order.get('item_summary',''))
                     session.stage = 'REVIEW' if card_key else 'RESULT'
                     reply = 'نتیجهٔ درخواست احکام مستقل:\n' + '\n'.join(summaries)
                     if any(o.get('reviewable') for o in result['orders']):
@@ -816,8 +761,6 @@ class WorkOrderMenuHandler:
                         reply = manager_review_reply(order, preview=preview)
                         if preview and staff_ids:
                             leave_staff = True
-                    except ValueError as exc:
-                        reply = str(exc)
                     except Exception:
                         logger.exception("Manager Excel delivery failed")
                         reply = details + "\n\nارسال فایل ناموفق بود؛ حکم محفوظ است. برای تلاش دوباره بنویسید:\nارسال مجدد"
@@ -882,10 +825,7 @@ class WorkOrderMenuHandler:
         delivery_decision = re.fullmatch(r'(رسیده است|ارسال مجدد مجاز است) ((?:OC|GR|AF)-1405-\d{2}-\d{2}-\d+) (\d+) (.+)', special_text)
         resume_send = re.fullmatch(r'ادامه ارسال ((?:OC|GR|AF)-1405-\d{2}-\d{2}-\d+)', special_text)
         reissue = re.fullmatch(r'صدور مجدد ((?:OC|GR|AF)-1405-\d{2}-\d{2}-\d+) (.+)', special_text)
-        delivery_command = text in {'بررسی ارسال','بررسی ارسال نامطمئن','⚠️ بررسی ارسال نامطمئن'} or delivery_decision or resume_send or reissue
-        history = re.fullmatch(r'تاریخچه احکام(?: (1405/\d{2}/\d{2}))?',special_text)
-        view_order = re.fullmatch(r'مشاهده حکم ((?:OC|GR|AF)-1405-\d{2}-\d{2}-\d+)',special_text)
-        management_entry = text in {'احکام امروز','📋 احکام امروز'} or history or view_order
+        delivery_command = text == 'بررسی ارسال' or delivery_decision or resume_send or reissue
         is_entry = text == "حکم کار"
         review_command = re.fullmatch(r"(ثبت تایید|ثبت تأیید|ارسال مجدد|اصلاح|ویرایش) ((?:AF|GR|OC)-1405-\d{2}-\d{2}-\d+)", normalize_digits(text))
         key = ("bale", user_id or "", chat_id)
@@ -937,7 +877,8 @@ class WorkOrderMenuHandler:
                     return {'action':'skip', 'reason':'work-order-busy'}
                 if session is None:
                     raise ValueError('Expired form')
-                self._require_session_day(session)
+                if session.order_no and session.stage in {'REVIEW','STAFF'}:
+                    require_date('/'.join(session.order_no.split('-')[1:4]))
                 builder = keyboard_for(session, review=len(ui_key) == 4)
                 if builder is None:
                     raise ValueError('Expired form')
@@ -984,8 +925,11 @@ class WorkOrderMenuHandler:
                     scope=ui_key, event=event, gateway=gateway, execute=execute,
                     failed=lambda: self._send_reply(gateway, chat_id,
                         'به‌روزرسانی منو انجام نشد؛ عملیات اجرا نشد. منوی حکم کار را دوباره باز کنید.', send))
-            except OperationalDayExpired:
-                self._send_reply(gateway, chat_id, EXPIRED_MESSAGE, send)
+            except OperationalDayExpired as exc:
+                session.keyboard_revision = ''
+                session.stage = 'RESULT'
+                self._persist()
+                self._send_reply(gateway, chat_id, str(exc), send)
                 return {'action':'skip','reason':'work-order-expired'}
             except PermissionError:
                 saved = self.pending.get(key)
@@ -1005,7 +949,7 @@ class WorkOrderMenuHandler:
         if message_key in self.processed:
             return {"action": "skip", "reason": "work-order-duplicate-message"}
         recovery = text in {'ارسال مجدد', 'تایید', 'تأیید'}
-        if not is_entry and not review_command and not recovery and not delivery_command and not management_entry and key not in self.pending:
+        if not is_entry and not review_command and not recovery and not delivery_command and key not in self.pending:
             return None
         if not chat_id:
             return {"action": "skip", "reason": "work-order-missing-chat"}
@@ -1028,8 +972,6 @@ class WorkOrderMenuHandler:
                     return {'action': 'skip', 'reason': 'work-order-review'}
             require_work_order_permission(user_id, db_path=self.db_path)
             session = self.pending.get(key)
-            if session and not (is_entry or management_entry or delivery_command):
-                self._require_session_day(session)
             if (session and session.ui_cleanup and not is_entry
                     and text not in {"انصراف", "لغو", "/cancel"}):
                 self._delete_cancelled_messages(key, session, gateway)
@@ -1037,61 +979,6 @@ class WorkOrderMenuHandler:
             if session and session.stage == "BUSY":
                 reply = "در حال انجام درخواست قبلی هستم؛ لطفاً منتظر نتیجه بمانید."
                 reason = "work-order-busy"
-            elif management_entry:
-                session = self.pending[key] = FormSession(expires=now+600)
-                if history and not history[1]:
-                    session.stage = 'HISTORY_DATE'
-                    reply = 'تاریخ تاریخچه را بنویسید؛ مانند 1405/07/28. این مسیر فقط برای مشاهده است.'
-                else:
-                    request = {'action':'orders_today','bale_id':user_id,'chat_id':chat_id}
-                    if history:
-                        request.update(action='orders_history',date=history[1])
-                    elif view_order:
-                        request.update(action='order_view',work_order_no=view_order[1])
-                    self._start_request(key,session,request,gateway,send)
-                    reply = 'در حال دریافت وضعیت احکام…'
-                reason = 'work-order-management'
-            elif session and session.stage == 'HISTORY_DATE':
-                date = validate_jalali_date(normalize_digits(text))
-                self._start_request(key,session,{'action':'orders_history','bale_id':user_id,'chat_id':chat_id,'date':date},gateway,send)
-                reply = 'در حال دریافت تاریخچه…'
-            elif session and session.stage in {'TODAY_LIST','HISTORY_LIST'}:
-                if text in {'صفحه قبل احکام','صفحه بعد احکام'}:
-                    from tools.fleet.work_orders.core.management import status_text
-                    step = -1 if text=='صفحه قبل احکام' else 1
-                    session.management_page = max(0,min((len(session.managed_orders)-1)//8,session.management_page+step))
-                    start = session.management_page * 8
-                    reply = '\n\n'.join(status_text(o) for o in session.managed_orders[start:start+8])
-                else:
-                    choice = re.fullmatch(r'انتخاب حکم (\d+)',text)
-                    if not choice or int(choice[1]) >= len(session.managed_orders):
-                        raise ValueError('حکم را از دکمه‌های فهرست انتخاب کنید.')
-                    number = session.managed_orders[int(choice[1])]['work_order_no']
-                    self._start_request(key,session,{'action':'order_view','bale_id':user_id,'chat_id':chat_id,'work_order_no':number},gateway,send)
-                    reply = 'در حال دریافت وضعیت حکم…'
-            elif session and session.stage == 'ORDER_DETAIL' and text in {'لغو پیش نویس حکم','اصلاحیه حکم','مشاهده PDF حکم'}:
-                if text == 'مشاهده PDF حکم':
-                    self._start_request(key,session,{'action':'view_document','work_order_no':session.order_no},gateway,send)
-                    reply = 'در حال خواندن PDF ثبت‌شده…'
-                else:
-                    require_date(session.jalali_date)
-                    session.stage = 'CANCEL_REASON' if text=='لغو پیش نویس حکم' else 'REVISION_REASON'
-                    reply = 'علت لغو پیش‌نویس را بنویسید؛ سپس تأیید نهایی لازم است.' if session.stage=='CANCEL_REASON' else 'علت اصلاحیه را بنویسید؛ سپس اقلام را ویرایش و ساخت نسخهٔ تازه را تأیید می‌کنید.'
-            elif session and session.stage in {'CANCEL_REASON','REVISION_REASON'} and text not in {'انصراف','لغو','/cancel'}:
-                if not text or len(text)>1000:
-                    raise ValueError('علت کوتاه و مشخصی بنویسید.')
-                if session.stage=='CANCEL_REASON':
-                    session.management_reason = text
-                    session.stage = 'CANCEL_CONFIRM'
-                    reply = f'لغو پیش‌نویس {session.order_no}\nعلت: {text}\nلغو نهایی را تأیید کنید.'
-                else:
-                    self._start_request(key,session,{'action':'revision_draft','bale_id':user_id,'chat_id':chat_id,
-                        'work_order_no':session.order_no,'reason':text,'operation_id':secrets.token_hex(16)},gateway,send)
-                    reply = 'در حال باز کردن فرم اصلاحیه؛ هنوز حکم تازه‌ای ساخته نشده است…'
-            elif session and session.stage=='CANCEL_CONFIRM' and text=='تأیید لغو پیش نویس':
-                self._start_request(key,session,{'action':'cancel_draft','bale_id':user_id,'chat_id':chat_id,
-                    'work_order_no':session.order_no,'reason':session.management_reason,'confirmed':True},gateway,send)
-                reply = 'در حال ثبت لغو پیش‌نویس…'
             elif delivery_command:
                 if session is None:
                     session = self.pending[key] = FormSession(expires=now + 600)
@@ -1138,6 +1025,47 @@ class WorkOrderMenuHandler:
                     self.pending.pop(key, None)
                     reply = "انتخاب حکم کار لغو شد."
                 reason = "work-order-menu-cancelled"
+            elif session.stage == 'EDIT_REASON':
+                if text in {'برگشت','بازگشت'}:
+                    session.stage = 'RESULT'
+                    reply = f'ویرایش حکم {session.order_no} لغو شد؛ حکم ارسال‌شده محفوظ است.'
+                    self._send_reply(gateway,chat_id,reply,send,key=key)
+                    return {'action':'skip','reason':'work-order-review'}
+                if not text.strip():
+                    raise ValueError('علت اصلاحیه الزامی است.')
+                request = {'action':'revision_draft','bale_id':user_id,'chat_id':chat_id,
+                           'work_order_no':session.order_no,'reason':text,
+                           'operation_id':f'edit:{user_id}:{session.order_no}:{secrets.token_hex(12)}'}
+                self._start_request(key,session,request,gateway,send)
+                reply = 'در حال باز کردن فرم اصلاحیه…'
+            elif session.stage == 'PROPOSAL' and text == 'لغو پیش نویس':
+                if not _accepted or not session.proposal.get('revision_of') or session.proposal.get('reissue_reason'):
+                    raise ValueError('لغو پیش‌نویس را از فرم ویرایش همان حکم انتخاب کنید.')
+                session.order_no = session.proposal['revision_of']
+                session.stage = 'EDIT_CANCEL_REASON'
+                reply = 'علت لغو پیش‌نویس را بنویسید؛ سپس تأیید نهایی لازم است. برای خروج «انصراف» را بنویسید.'
+            elif session.stage == 'EDIT_CANCEL_REASON':
+                if text in {'برگشت','بازگشت'}:
+                    from tools.fleet.work_orders.channels.bale.proposal_form import render
+                    session.stage = 'PROPOSAL'
+                    self._send_reply(gateway,chat_id,render(session.proposal),send,key=key)
+                    return {'action':'skip','reason':'work-order-review'}
+                if not text.strip():
+                    raise ValueError('علت لغو الزامی است.')
+                session.edit_reason = text
+                session.stage = 'EDIT_CANCEL_CONFIRM'
+                reply = f'لغو پیش‌نویس {session.order_no} با علت: {text}؛ تأیید می‌کنید؟ شماره و سابقه محفوظ می‌مانند.'
+            elif session.stage == 'EDIT_CANCEL_CONFIRM':
+                if text == 'برگشت':
+                    from tools.fleet.work_orders.channels.bale.proposal_form import render
+                    session.stage = 'PROPOSAL'
+                    reply = render(session.proposal)
+                elif text == 'تایید لغو پیش نویس' and _accepted:
+                    self._start_request(key,session,{'action':'cancel_draft','bale_id':user_id,'chat_id':chat_id,
+                        'work_order_no':session.order_no,'reason':session.edit_reason,'confirmed':True},gateway,send)
+                    reply = 'در حال ثبت لغو پیش‌نویس…'
+                else:
+                    raise ValueError('لغو فقط با دکمهٔ تأیید همین فرم انجام می‌شود.')
             elif session.stage == "MENU" and text.isdecimal():
                 item = resolve_work_order_selection(text, bale_id=user_id, db_path=self.db_path)
                 session.work_order_type = item["key"]

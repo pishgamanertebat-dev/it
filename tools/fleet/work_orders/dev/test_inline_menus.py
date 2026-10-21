@@ -138,7 +138,7 @@ class InlineMenusTests(PermissionDatabaseTestCase, unittest.IsolatedAsyncioTestC
             await self.settle()
             entry = self.sent[-1]
             labels = [b['text'] for row in entry['reply_markup']['inline_keyboard'] for b in row]
-            self.assertEqual(labels, ['تعویض روغن','گریس کاری','هواکش','📋 احکام امروز','⚠️ بررسی ارسال نامطمئن','انصراف'])
+            self.assertEqual(labels, ['تعویض روغن','گریس کاری','هواکش','🔎 بررسی ارسال','انصراف'])
             self.assertNotIn('شمارهٔ نوع', entry['text'])
             self.message('', data=self.button(entry, action), origin=len(self.sent))
             await self.settle()

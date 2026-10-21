@@ -48,5 +48,5 @@ def require_reviewable(con, number, actor=None):
         raise ValueError('این حکم قابل بازبینی نیست؛ وضعیت: ' + row['status'])
     dispatch = con.execute('SELECT state FROM service_work_order_dispatch WHERE work_order_no=?', (number,)).fetchone()
     if dispatch and dispatch['state'] in {'SENDING', 'UNCERTAIN', 'SENT'}:
-        raise ValueError('ابتدا نتیجهٔ ارسال قبلی را در «بررسی ارسال نامطمئن» تعیین تکلیف کنید.')
+        raise ValueError('ابتدا نتیجهٔ ارسال قبلی را در «بررسی ارسال» تعیین تکلیف کنید.')
     return row

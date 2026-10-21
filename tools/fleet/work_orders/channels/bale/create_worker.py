@@ -76,9 +76,6 @@ def execute_request(request: dict, *, db_path=None) -> dict:
     try:
         action = request.get('action')
         required = {'confirm_review': ('work_orders.review',),
-                    'orders_today': ('work_orders.read_own',),
-                    'orders_history': ('work_orders.read_own',),
-                    'order_view': ('work_orders.read_own',),
                     'cancel_draft': ('work_orders.read_own','work_orders.create'),
                     'revision_draft': ('work_orders.read_own','work_orders.create','work_orders.approve'),
                     'preview': ('work_orders.read_own',),
@@ -95,22 +92,11 @@ def execute_request(request: dict, *, db_path=None) -> dict:
             needs_revision = action == 'reissue' or bool((request.get('proposal') or {}).get('reissue_reason'))
             require_work_order_permission(actor.bale_id, db_path=db_path,
                 capabilities=('work_orders.read_own','work_orders.create','work_orders.approve') if needs_revision else ('work_orders.create',))
-        if action in {'orders_today','orders_history','order_view','cancel_draft'}:
-            from tools.fleet.work_orders.core import management
-            if action == 'cancel_draft':
-                if request.get('confirmed') is not True:
-                    raise ValueError('لغو پیش‌نویس به تأیید صریح نیاز دارد.')
-                management.cancel_draft(request['work_order_no'], actor.bale_id, request.get('reason'))
-                return {'ok':True,'message':'پیش‌نویس لغو شد؛ فایل و سابقه محفوظ است.'}
-            if action == 'order_view':
-                order = service.get_work_order(request['work_order_no'])
-                if order['created_by'] != f'bale:{actor.bale_id}':
-                    raise ValueError('این حکم متعلق به حساب شما نیست.')
-                rows = management.own_orders(actor.bale_id,date=order['jalali_date'])
-                return {'ok':True,'managed_order':next(r for r in rows if r['work_order_no']==order['work_order_no'])}
-            date = service.validate_jalali_date(request['date']) if action == 'orders_history' else operational.operational_today()
-            return {'ok':True,'managed_orders':management.own_orders(actor.bale_id,date=date),'date':date,
-                    'historical':action=='orders_history'}
+        if action == 'cancel_draft':
+            if request.get('confirmed') is not True:
+                raise ValueError('لغو پیش‌نویس به تأیید صریح نیاز دارد.')
+            service.cancel_draft(request['work_order_no'], actor.bale_id, request.get('reason'))
+            return {'ok':True,'message':'پیش‌نویس لغو شد؛ شماره، فایل و سابقه محفوظ است.'}
         if action == 'resume_dispatch':
             from tools.fleet.work_orders.core.db import connect_db
             from tools.fleet.work_orders.core.oil_safety import current
@@ -138,7 +124,7 @@ def execute_request(request: dict, *, db_path=None) -> dict:
                         rows = oil_safety.pending(con,actor.bale_id,request.get('chat_id'))
                         from datetime import datetime
                         from zoneinfo import ZoneInfo
-                        lines = ['⚠️ بررسی ارسال نامطمئن امروز — این فهرست تاریخچه نیست. نتیجهٔ انتقال نامعلوم است؛ پیش از تصمیم با سرویسکار تطبیق دهید.']
+                        lines = ['بررسی ارسال حکم کار — نتیجهٔ انتقال نامعلوم است؛ پیش از تصمیم با سرویسکار تطبیق دهید.']
                         for row in rows:
                             number, attempt = row['work_order_no'], row['attempt_id']
                             started = datetime.fromtimestamp(row['claimed_at'], ZoneInfo('Asia/Tehran')).strftime('%Y-%m-%d %H:%M')
@@ -175,8 +161,7 @@ def execute_request(request: dict, *, db_path=None) -> dict:
             else:
                 from tools.fleet.air_filter.proposal import build_proposal
             proposal = build_proposal()
-            operational.require_date(proposal['plan_date'])
-            return {'ok': True, 'proposal': proposal}
+            return {'ok': True, 'proposal': proposal, 'operational_date': operational.operational_today()}
         if request['action'] == 'validate_add':
             if request.get('work_order_type') == 'OIL_CHANGE':
                 raise ValueError('برای تعویض روغن از مسیر «افزودن/ویرایش» همان پیشنهاد استفاده کنید.')
@@ -213,6 +198,9 @@ def execute_request(request: dict, *, db_path=None) -> dict:
                 raise ValueError('این نسخه منسوخ است؛ نسخهٔ معتبر: ' + order['superseded_by'])
             if order["created_by"] != f"bale:{actor.bale_id}":
                 raise ValueError("این حکم متعلق به حساب شما نیست.")
+            if action == 'edit' and order['status'] == 'SENT':
+                return {'ok':True,'needs_revision_reason':True,'work_order_type':order['work_order_type'],
+                        'work_order_no':order['work_order_no']}
             allowed_status = {'FILE_READY','ASSIGNED','APPROVED'} if request['action']=='preview' else {'SENT'} if action=='revision_draft' else {'FILE_READY'}
             if order['status'] not in allowed_status:
                 raise ValueError('این حکم دیگر در مرحلهٔ بررسی فایل نیست؛ وضعیت واقعی: ' + order['status'])
@@ -310,8 +298,13 @@ def execute_request(request: dict, *, db_path=None) -> dict:
             # authoritative if another NET issuer wins the race afterwards.
             conflicts = preflight(request, items, actor.bale_id)
             if conflicts:
-                return {'ok':False,'error':'CONFLICT','failures':conflicts,
-                        'message':'\n\n'.join(f"{f['machine_code']}: {f['reason']}" for f in conflicts)}
+                reasons = {f['machine_code']:f['reason'] for f in conflicts}
+                failures = [{'machine_code':i['machine_code'],
+                             'reason':reasons.get(i['machine_code'],'ساخت آغاز نشد؛ ابتدا تعارض همین درخواست رفع و انتخاب دوباره تأیید شود.')}
+                            for i in items]
+                return {'ok':False,'error':'CONFLICT','failures':failures,
+                        'message':'هیچ حکم تازه‌ای در این درخواست ساخته نشد.\n\n' +
+                                  '\n\n'.join(f"{f['machine_code']} ساخته نشد: {f['reason']}" for f in failures)}
             orders = []
             for index, item in enumerate(items):
                 try:
@@ -329,11 +322,11 @@ def execute_request(request: dict, *, db_path=None) -> dict:
                 except Exception as exc:
                     reason = str(exc) if isinstance(exc, ValueError) else type(exc).__name__
                     logging.getLogger(__name__).error('Oil order batch stopped machine=%s reason=%s', item['machine_code'], reason)
-                    if not orders:
-                        raise
                     failures = [{'machine_code':i['machine_code'], 'reason':reason if n==index else 'ساخت آغاز نشد؛ بررسی و تأیید تازه لازم است.'}
                                 for n,i in enumerate(items) if n >= index]
-                    return {'ok':True,'partial':True,'orders':orders,'failures':failures,
+                    return {'ok':False,'partial':bool(orders),'error':'PARTIAL' if orders else 'CREATE_FAILED',
+                            'orders':orders,'failures':failures,
+                            'message':'\n'.join(f"{f['machine_code']} ساخته نشد: {f['reason']}" for f in failures),
                             'batch_error':'\n'.join(f"{f['machine_code']} ساخته نشد: {f['reason']}" for f in failures)}
             return {'ok':True, 'orders':orders}
         order = service.create_work_order(
