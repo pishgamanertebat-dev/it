@@ -81,9 +81,12 @@ class StaffPdfTests(StaffDispatchTests):
             captured['body'] = kwargs['document'].read()
 
         gateway = SimpleNamespace(adapters={'bale': SimpleNamespace(_bot=SimpleNamespace(send_document=send_document))})
-        with patch('tools.fleet.work_orders.channels.bale.message_handler.export_staff_pdf', return_value=pdf) as export:
+        def render(snapshot):
+            target=Path(snapshot).with_suffix('.pdf');target.write_bytes(b'%PDF-1.7\nMANAGER COPY');return target
+        with patch('tools.fleet.work_orders.core.delivery.export_staff_pdf', side_effect=render) as export:
             asyncio.run(send_manager_excel(gateway, '455740857', preview))
-            export.assert_called_once_with(excel)
+            export.assert_called_once()
+            self.assertEqual(Path(export.call_args.args[0]).name,excel.name)
         self.assertEqual(captured['filename'], pdf.name)
         self.assertEqual(captured['body'], b'%PDF-1.7\nMANAGER COPY')
         with test_database(self.db_path) as con:

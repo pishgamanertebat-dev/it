@@ -95,7 +95,8 @@ def entry_keyboard():
     buttons = [action(name, label, 'MENU') for name, label in (
         ('oil', 'تعویض روغن'), ('greasing', 'گریس کاری'), ('air_filter', 'هواکش'))
         if MENU_TYPES[name] in enabled]
-    buttons.append(action('delivery_review', '🔎 بررسی ارسال', 'MENU'))
+    buttons.append(action('orders_today', '📋 احکام امروز', 'MENU'))
+    buttons.append(action('delivery_review', '⚠️ بررسی ارسال نامطمئن', 'MENU'))
     buttons.append(action('cancel', 'انصراف', 'MENU'))
     return InlineKeyboardBuilder('work_order', [buttons[index:index+2] for index in range(0,len(buttons),2)])
 
@@ -114,6 +115,37 @@ def staff_keyboard(options):
 
 
 def keyboard_for(session, *, review=False):
+    if session.stage in {'TODAY_LIST', 'HISTORY_LIST'}:
+        start = session.management_page * 8
+        rows = [(action(f'managed_{index}', order['work_order_no'] + ' | ' + order['status'], session.stage),)
+                for index,order in enumerate(session.managed_orders[start:start+8],start)]
+        if start:
+            rows.append((action('managed_prev','صفحه قبل',session.stage),))
+        if start+8 < len(session.managed_orders):
+            rows.append((action('managed_next','صفحه بعد',session.stage),))
+        rows += [(action('orders_today','📋 احکام امروز',session.stage),),
+                 (action('orders_history','تاریخچه با انتخاب تاریخ',session.stage),)]
+        return InlineKeyboardBuilder('work_order',rows)
+    if session.stage == 'ORDER_DETAIL':
+        order = session.managed_order
+        rows = [(action('managed_pdf','مشاهده PDF ثبت‌شده','ORDER_DETAIL'),)] if order.get('pdf_path') else []
+        if order.get('operational') and not session.management_history:
+            if order['status'] == 'FILE_READY' and not order.get('api_state'):
+                rows += [(action('managed_edit','✏️ مشاهده و ویرایش اقلام','ORDER_DETAIL'),),
+                         (action('managed_review','✅ ادامه بازبینی فایل','ORDER_DETAIL'),),
+                         (action('managed_cancel','لغو پیش‌نویس با علت','ORDER_DETAIL'),)]
+            elif order['status'] == 'SENT':
+                rows.append((action('managed_revision','ایجاد اصلاحیه با علت','ORDER_DETAIL'),))
+            elif order.get('api_state') in {'SENDING','UNCERTAIN'}:
+                rows.append((action('delivery_review','⚠️ بررسی ارسال نامطمئن','ORDER_DETAIL'),))
+            elif order['status'] == 'APPROVED' and order.get('api_state') in {'READY','FAILED'}:
+                rows.append((action('managed_resume','ادامه با انتخاب گیرنده','ORDER_DETAIL'),))
+        rows.append((action('orders_today','📋 احکام امروز','ORDER_DETAIL'),))
+        return InlineKeyboardBuilder('work_order', rows)
+    if session.stage == 'CANCEL_CONFIRM':
+        return InlineKeyboardBuilder('work_order', (
+            (action('managed_cancel_ok','✅ تأیید لغو پیش‌نویس','CANCEL_CONFIRM'),),
+            (action('managed_back','بازگشت بدون لغو','CANCEL_CONFIRM'),),))
     if session.work_order_type == 'OIL_CHANGE':
         if session.stage == 'EDIT_CODE':
             return oil_edit_code_keyboard(session)
@@ -141,6 +173,16 @@ def keyboard_for(session, *, review=False):
 
 
 def command_for(action_name, *, order_no='', proposal=None):
+    management_commands = {'orders_today':'احکام امروز','orders_history':'تاریخچه احکام',
+        'managed_pdf':'مشاهده PDF حکم','managed_edit':'ویرایش '+order_no,
+        'managed_review':'ارسال مجدد '+order_no,'managed_cancel':'لغو پیش نویس حکم',
+        'managed_revision':'اصلاحیه حکم','managed_cancel_ok':'تأیید لغو پیش نویس',
+        'managed_back':'مشاهده حکم '+order_no, 'managed_resume':'ادامه ارسال '+order_no,
+        'managed_prev':'صفحه قبل احکام','managed_next':'صفحه بعد احکام'}
+    if action_name in management_commands:
+        return management_commands[action_name]
+    if action_name.startswith('managed_') and action_name[8:].isdecimal():
+        return 'انتخاب حکم ' + action_name[8:]
     if action_name.startswith('edit_unit_') and action_name[10:].isdecimal():
         from tools.fleet.work_orders.channels.bale.proposal_form import oil_edit_candidates
         candidates = oil_edit_candidates(proposal)

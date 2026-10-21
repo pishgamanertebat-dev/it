@@ -26,7 +26,7 @@ TECH = '999000111'
 class OilSafetyTests(unittest.TestCase):
     def setUp(self):
         p = patch('tools.fleet.work_orders.dev.test_permissions.PROJECT_ROOT',
-                  Path('E:/KomatsoAI/runtime/oil_p1_fix_20261017/fixtures'))
+                  Path(__file__).resolve().parents[4] / 'runtime/oil_safety_fixtures')
         p.start(); self.addCleanup(p.stop)
         self.fixture = OilServiceEditTests('test_repeated_override_retains_original_evidence_for_all_cycles')
         self.fixture.setUp()
@@ -75,6 +75,8 @@ class OilSafetyTests(unittest.TestCase):
         script = f"""import os
 from pathlib import Path
 from tools.fleet.work_orders.core import db,staff_dispatch,oil_safety
+from tools.fleet.work_orders.core import operational
+operational.operational_today=lambda: {self.fixture.test_today!r}
 db.DB_PATH=Path({str(self.db_path)!r})
 if {sweep!r}:
     oil_safety.sweep()
@@ -155,7 +157,7 @@ os._exit(0)
         again = create_worker.execute_request(request,db_path=self.db_path)
         self.assertEqual(result['orders'][0]['work_order_no'],again['orders'][0]['work_order_no'])
         self.assertEqual(service.get_work_order(old)['status'],'SENT')
-        self.assertIsNotNone(service.get_work_order(old)['superseded_by'])
+        self.assertIsNone(service.get_work_order(old)['superseded_by'])
 
     def uncertain(self):
         number = self.create(); self.prepare(number)

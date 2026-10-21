@@ -29,7 +29,7 @@ class CreationFlowTests(PermissionDatabaseTestCase, unittest.IsolatedAsyncioTest
                 await self.gate.wait()
             if request["action"] == "validate_machines":
                 return {"ok": True, "machine_codes": request["machine_codes"]}
-            return {"ok": True, "order": {"work_order_no": "AF-1405-06-15-001", "label": "هواکش", "item_count": len(request["machine_codes"]), "status": "FILE_READY", "file_name": "AF-1405-06-15-001.xlsx"}}
+            return {"ok": True, "order": {"work_order_no": "AF-1405-06-15-001", "label": "هواکش", "item_count": len(request["machine_codes"]), "status": "FILE_READY", "reviewable":True, "file_name": "AF-1405-06-15-001.xlsx"}}
 
         async def document_sender(gateway, chat, order):
             pass

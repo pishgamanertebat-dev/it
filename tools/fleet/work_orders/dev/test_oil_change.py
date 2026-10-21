@@ -29,6 +29,7 @@ def printed_metadata(order):
 class OilChangeTests(WorkOrderCreateTests):
     def setUp(self):
         super().setUp()
+        self.test_today = '1405/06/23'
         from tools.fleet.oil_change.test_proposal import sample_source
         self.source = sample_source()
         for target in ('tools.fleet.oil_change.source.read_source', 'tools.fleet.oil_change.proposal.read_source'):
@@ -38,6 +39,7 @@ class OilChangeTests(WorkOrderCreateTests):
         patcher.start();self.addCleanup(patcher.stop)
 
     def oil_order(self, interval=200):
+        self.test_today = f'1405/06/{interval//200:02d}'
         return service.create_work_order(work_order_type='OIL_CHANGE', jalali_date=f'1405/06/{interval//200:02d}',
             shift='روزانه', machine_codes=['702'], created_by='bale:455740857',
             item_actions={'HD702': f'OIL_CHANGE_{interval}'})
@@ -292,6 +294,7 @@ class OilChangeTests(WorkOrderCreateTests):
             try:
                 for interval in builder.INTERVALS:
                     with self.subTest(model=model, interval=interval):
+                        self.test_today = f'1405/06/{interval//200:02d}'
                         order = service.create_work_order(work_order_type='OIL_CHANGE', jalali_date=f'1405/06/{interval//200:02d}',
                             shift='روزانه', machine_codes=[code], created_by='bale:455740857',
                             item_actions={code: builder.action_for(model, interval)})

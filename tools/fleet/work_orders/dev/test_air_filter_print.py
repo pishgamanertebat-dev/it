@@ -8,7 +8,7 @@ from tools.fleet.work_orders.types.air_filter.builder import build_document
 
 class AirFilterPrintTests(unittest.TestCase):
     def test_rows_metadata_wrapping_signature_and_unbounded_pagination(self):
-        root=Path('E:/KomatsoAI/runtime/air-filter-fixes-20261017/fixtures');root.mkdir(parents=True,exist_ok=True)
+        root=Path(__file__).resolve().parents[4]/'runtime/air-filter-print-tests';root.mkdir(parents=True,exist_ok=True)
         with tempfile.TemporaryDirectory(dir=root) as tmp:
             for count in (1,2,5,6,7,20,40,100):
                 with self.subTest(count=count):

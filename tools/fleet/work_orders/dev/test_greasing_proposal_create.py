@@ -6,6 +6,11 @@ from tools.fleet.work_orders.core import service
 
 
 class GreasingIdentityTests(WorkOrderCreateTests):
+    def setUp(self):
+        super().setUp()
+        self.test_today='1405/06/16'
+        from tools.fleet.work_orders.core import oil_safety
+        with test_database(self.db_path) as con:oil_safety.migrate(con)
     def test_lowercase_water_truck_never_links_to_uppercase_white_truck(self):
         with test_database(self.db_path) as con:
             con.execute("INSERT INTO machines(canonical_code) VALUES ('S1')")
@@ -19,6 +24,7 @@ class GreasingIdentityTests(WorkOrderCreateTests):
     def test_changed_greasing_source_blocks_creation(self):
         with patch.object(service,'create_work_order') as create:
             result=execute_request({'action':'create','bale_id':'455740857','work_order_type':'GREASING',
+                                    'jalali_date':'1405/06/16',
                                     'proposal':{'source_sha256':'outdated'}},db_path=self.db_path)
         self.assertEqual(result['error'],'INVALID_INPUT')
         create.assert_not_called()
@@ -29,7 +35,7 @@ class GreasingIdentityTests(WorkOrderCreateTests):
                  'jalali_date':'1405/06/16','shift':'روزانه'}
         with patch.object(service,'create_work_order',return_value={
                 'work_order_no':'GR-1405-06-16-001','work_order_label_fa':'گریس‌کاری','work_order_type':'GREASING',
-                'items':[{}],'status':'FILE_READY','excel_path':'GR.xlsx'}) as create:
+                'items':[{}],'status':'FILE_READY','excel_path':'GR.xlsx','jalali_date':'1405/06/16'}) as create:
             self.assertTrue(execute_request(request,db_path=self.db_path)['ok'])
         self.assertEqual(create.call_args.kwargs['shift'],'روزانه')
         request['work_order_type']='AIR_FILTER'

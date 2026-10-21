@@ -32,6 +32,15 @@ def test_database(path):
 
 class PermissionDatabaseTestCase(unittest.TestCase):
     def setUp(self):
+        from unittest.mock import patch
+        from types import SimpleNamespace
+        transport = patch.dict('sys.modules', {'telegram':SimpleNamespace(InlineKeyboardMarkup=SimpleNamespace(de_json=lambda markup,bot:markup))})
+        transport.start()
+        self.addCleanup(transport.stop)
+        self.test_today = '1405/06/15'
+        calendar = patch('tools.fleet.work_orders.core.operational.operational_today', side_effect=lambda:self.test_today)
+        calendar.start()
+        self.addCleanup(calendar.stop)
         root = PROJECT_ROOT / "runtime" / "work_order_permissions_tests"
         root.mkdir(parents=True, exist_ok=True)
         self.temp_dir = tempfile.TemporaryDirectory(dir=root)

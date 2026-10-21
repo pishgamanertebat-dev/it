@@ -11,6 +11,7 @@ from tools.fleet.work_orders.dev.test_permissions import PermissionDatabaseTestC
 class InlineMenusTests(PermissionDatabaseTestCase, unittest.IsolatedAsyncioTestCase):
     def setUp(self):
         super().setUp()
+        self.test_today = '1405/06/16'
         self.key = ('bale', '455740857', '455740857')
         self.store = StateStore(self.db_path.parent / 'ui.json')
         self.sent, self.requests, self.removed, self.deleted = [], [], [], []
@@ -19,6 +20,11 @@ class InlineMenusTests(PermissionDatabaseTestCase, unittest.IsolatedAsyncioTestC
 
         async def worker(request):
             self.requests.append(request)
+            if self.result.get('order'):
+                order=self.result['order']
+                order.setdefault('status','FILE_READY')
+                order.setdefault('reviewable',order['status'] in {'FILE_READY','ASSIGNED','APPROVED'} and not order.get('superseded_by'))
+                self.test_today='/'.join(order['work_order_no'].split('-')[1:4])
             return self.result
 
         async def send_message(**kwargs):
@@ -73,7 +79,8 @@ class InlineMenusTests(PermissionDatabaseTestCase, unittest.IsolatedAsyncioTestC
                     for b in row if b['callback_data'].endswith(':' + action))
 
     async def batch(self, numbers):
-        self.result = {'ok':True, 'orders':[dict(work_order_no=n, item_summary='دستگاه آزمایشی') for n in numbers]}
+        self.test_today = '/'.join(numbers[0].split('-')[1:4])
+        self.result = {'ok':True, 'orders':[dict(work_order_no=n, item_summary='دستگاه آزمایشی',status='FILE_READY',reviewable=True) for n in numbers]}
         session = FormSession(expires=self.handler.clock()+600, stage='BUSY', work_order_type='OIL_CHANGE')
         self.handler.pending[self.key] = session
         await self.handler._run_request(self.key, session, {'action':'create'}, self.gateway, lambda *a:None)
@@ -131,7 +138,7 @@ class InlineMenusTests(PermissionDatabaseTestCase, unittest.IsolatedAsyncioTestC
             await self.settle()
             entry = self.sent[-1]
             labels = [b['text'] for row in entry['reply_markup']['inline_keyboard'] for b in row]
-            self.assertEqual(labels, ['تعویض روغن','گریس کاری','هواکش','🔎 بررسی ارسال','انصراف'])
+            self.assertEqual(labels, ['تعویض روغن','گریس کاری','هواکش','📋 احکام امروز','⚠️ بررسی ارسال نامطمئن','انصراف'])
             self.assertNotIn('شمارهٔ نوع', entry['text'])
             self.message('', data=self.button(entry, action), origin=len(self.sent))
             await self.settle()
@@ -716,6 +723,7 @@ class InlineMenusTests(PermissionDatabaseTestCase, unittest.IsolatedAsyncioTestC
             source = sample_source('PC1250-8', 'EX1252', last=1800, remaining=100)
         with patch('tools.fleet.oil_change.proposal.read_source', return_value=source):
             proposal = build_proposal()
+        self.test_today = proposal['plan_date']
         if add_code:
             add_items(proposal, resolve_items([add_code], source), '')
         session = FormSession(expires=self.handler.clock()+600, stage='PROPOSAL',

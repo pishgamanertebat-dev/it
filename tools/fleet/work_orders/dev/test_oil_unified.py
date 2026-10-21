@@ -410,6 +410,8 @@ class OilUnifiedTests(menus.InlineMenusTests):
         # Back from staff selection, reopen this exact reviewed order, revise it.
         await self.click('staff_back');await self.click('review_edit')
         s=self.handler.pending[self.key]
+        self.assertEqual(s.stage,'PROPOSAL',(s.stage,self.requests[-3:],self.sent[-3:]))
+        self.assertIn('revision_machine_code',s.proposal,(s.stage,self.requests[-3:],self.sent[-3:]))
         self.assertEqual(s.proposal['revision_machine_code'],code)
         await self.click('edit_excel');await self.choose_oil(code);await self.enter('1600')
         await self.click('edit_apply');await self.click('edit_done');await self.click('confirm')
@@ -445,6 +447,7 @@ class OilUnifiedTests(menus.InlineMenusTests):
         self.addCleanup(original.close)
         results=[]
         for interval in (1600,1800,2000):
+            fixture.test_today=f'1405/06/{interval//200:02d}'
             order=service.create_work_order(work_order_type='OIL_CHANGE',jalali_date=f'1405/06/{interval//200:02d}',
                 shift='روزانه',machine_codes=['EX1252'],item_actions={'EX1252':action_for('PC1250-8',interval)},
                 created_by='bale:455740857')

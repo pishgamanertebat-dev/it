@@ -89,6 +89,7 @@ class ProposalFormTests(CreationFlowTests):
         self.assertNotIn('&#x20;', text)
 
     async def start_proposal(self):
+        self.test_today='1405/06/09'
         async def worker(request):
             self.requests.append(request)
             if request['action'] == 'propose':

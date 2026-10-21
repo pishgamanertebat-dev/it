@@ -118,6 +118,8 @@ async def show_order(gateway, actor, chat, number):
     try:
         orders = await asyncio.to_thread(core.recipient_orders, actor)
         order = next(o for o in orders if o['work_order_no'] == number and not o['acknowledged_at'])
+        from tools.fleet.work_orders.core.operational import require_order
+        require_order(order)
         if not order['pdf_path'] or not Path(order['pdf_path']).is_file():
             state = 'PDF برای این حکم ثبت نشده است' if not order['pdf_path'] else 'فایل PDF ثبت‌شده در دسترس نیست'
             await bot_for(gateway).send_message(chat_id=chat, text=f'حکم {number}: {state}. مسئول NET باید سابقه و فایل اصلی را بررسی کند؛ فایل خودکار بازسازی نشد. برای ثبت دریافت پس از تطبیق انسانی، شمارهٔ حکم را همراه «تایید» بفرستید.')
@@ -134,7 +136,11 @@ async def show_order(gateway, actor, chat, number):
                 chat_id=chat, document=document, filename=Path(order['pdf_path']).name,
                 caption=f"حکم کار {order_label(order)} — {order['jalali_date']}\nشماره حکم: {number}\nتایید می‌کنید؟ بنویسید: تایید")
         review_context(actor, chat, 'staff', number=number, stage='REVIEW')
-    except Exception:
+    except Exception as exc:
+        from tools.fleet.work_orders.core.operational import OperationalDayExpired, EXPIRED_MESSAGE
+        if isinstance(exc, OperationalDayExpired):
+            await bot_for(gateway).send_message(chat_id=chat,text=EXPIRED_MESSAGE)
+            return
         logger.exception('Could not redisplay staff order')
         await bot_for(gateway).send_message(chat_id=chat, text='ارسال فایل ناموفق بود؛ برای تلاش دوباره «حکم کار» را بفرستید.')
     finally:
@@ -185,7 +191,8 @@ def handle_staff_receipt(event, gateway, *, send):
     orders = core.recipient_orders(actor)
     if not orders and not is_entry:
         return None
-    pending = [o for o in orders if not o['acknowledged_at']]
+    from tools.fleet.work_orders.core.operational import operational_today
+    pending = [o for o in orders if not o['acknowledged_at'] and o['jalali_date']==operational_today()]
     if is_entry:
         receipt_choices.pop(choice_key, None)
         review_context(actor, source.chat_id, 'staff', number='', stage='MENU')

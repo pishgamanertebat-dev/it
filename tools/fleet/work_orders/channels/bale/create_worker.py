@@ -19,17 +19,56 @@ from tools.fleet.work_orders.core.permissions import (
 from tools.fleet.work_orders.core import service
 from tools.fleet.work_orders.core.review import confirm_document_review, normalize_shift
 from tools.fleet.work_orders.core.oil_safety import RELIABLE_TYPES
+from tools.fleet.work_orders.core import operational
 
 
 class OilSourceChanged(ValueError):
     pass
 
 
+def preflight(request, items, actor):
+    from tools.fleet.work_orders.core.db import connect_db
+    from tools.fleet.work_orders.core import oil_safety
+    con = connect_db()
+    failures = []
+    proposal = request.get('proposal') or {}
+    try:
+        con.execute('BEGIN IMMEDIATE')
+        oil_safety.migrate(con)
+        for item in items:
+            try:
+                parent = proposal.get('revision_of')
+                if parent and service.get_work_order(parent)['items'][0]['machine_code'] != item['machine_code']:
+                    parent = None
+                oil_safety.creation(con,request['jalali_date'],[item],f'bale:{actor}',parent,
+                    proposal.get('reissue_reason') if parent else None,proposal.get('operation_id') if parent else None)
+            except ValueError as exc:
+                failures.append({'machine_code':item['machine_code'],'reason':str(exc)})
+                logging.getLogger(__name__).warning('Oil preflight stopped machine=%s reason=%s',item['machine_code'],str(exc))
+        return failures
+    finally:
+        con.rollback()
+        con.close()
+
+
 def preview_order(order):
+    reviewable = (order['status'] in {'FILE_READY','ASSIGNED','APPROVED'} and
+                  not order.get('superseded_by') and order['jalali_date'] == operational.operational_today())
+    if reviewable:
+        from tools.fleet.work_orders.core.db import connect_db
+        con = connect_db()
+        try:
+            dispatch = con.execute('SELECT state FROM service_work_order_dispatch WHERE work_order_no=?', (order['work_order_no'],)).fetchone()
+            reviewable = not dispatch or dispatch['state'] not in {'SENDING','UNCERTAIN','SENT'}
+        finally:
+            con.close()
     return {"work_order_no": order["work_order_no"], "label": order["work_order_label_fa"],
             "work_order_type": order['work_order_type'],
             "item_summary": '؛ '.join(f"{item['machine_code']}: {item['action_text']}" for item in order['items']) if order['work_order_type'] == 'OIL_CHANGE' else '',
             "item_count": len(order["items"]), "status": order["status"],
+            'reviewable':reviewable, 'superseded_by':order.get('superseded_by'),
+            'current_version':order.get('superseded_by') or order['work_order_no'],
+            'creation_outcome':order.get('creation_outcome'), 'jalali_date':order['jalali_date'],
             "file_name": Path(order["excel_path"]).name, "file_path": order["excel_path"]}
 
 
@@ -37,6 +76,11 @@ def execute_request(request: dict, *, db_path=None) -> dict:
     try:
         action = request.get('action')
         required = {'confirm_review': ('work_orders.review',),
+                    'orders_today': ('work_orders.read_own',),
+                    'orders_history': ('work_orders.read_own',),
+                    'order_view': ('work_orders.read_own',),
+                    'cancel_draft': ('work_orders.read_own','work_orders.create'),
+                    'revision_draft': ('work_orders.read_own','work_orders.create','work_orders.approve'),
                     'preview': ('work_orders.read_own',),
                     'preview_latest': ('work_orders.read_own',),
                     'resume_dispatch': ('work_orders.read_own','work_orders.send','work_orders.approve'),
@@ -45,9 +89,28 @@ def execute_request(request: dict, *, db_path=None) -> dict:
                     'reissue': ('work_orders.read_own','work_orders.create','work_orders.approve'),
                     'edit': ('work_orders.read_own', 'work_orders.create')}.get(action, ('work_orders.create',))
         actor = require_work_order_permission(request.get("bale_id"), db_path=db_path, capabilities=required)
+        if request.get('chat_id') is not None and str(request['chat_id']) != str(actor.bale_id):
+            raise ValueError('این عملیات فقط در گفت‌وگوی خصوصی خودتان مجاز است.')
         def authorize_create():
+            needs_revision = action == 'reissue' or bool((request.get('proposal') or {}).get('reissue_reason'))
             require_work_order_permission(actor.bale_id, db_path=db_path,
-                capabilities=required if action == 'reissue' else ('work_orders.create',))
+                capabilities=('work_orders.read_own','work_orders.create','work_orders.approve') if needs_revision else ('work_orders.create',))
+        if action in {'orders_today','orders_history','order_view','cancel_draft'}:
+            from tools.fleet.work_orders.core import management
+            if action == 'cancel_draft':
+                if request.get('confirmed') is not True:
+                    raise ValueError('لغو پیش‌نویس به تأیید صریح نیاز دارد.')
+                management.cancel_draft(request['work_order_no'], actor.bale_id, request.get('reason'))
+                return {'ok':True,'message':'پیش‌نویس لغو شد؛ فایل و سابقه محفوظ است.'}
+            if action == 'order_view':
+                order = service.get_work_order(request['work_order_no'])
+                if order['created_by'] != f'bale:{actor.bale_id}':
+                    raise ValueError('این حکم متعلق به حساب شما نیست.')
+                rows = management.own_orders(actor.bale_id,date=order['jalali_date'])
+                return {'ok':True,'managed_order':next(r for r in rows if r['work_order_no']==order['work_order_no'])}
+            date = service.validate_jalali_date(request['date']) if action == 'orders_history' else operational.operational_today()
+            return {'ok':True,'managed_orders':management.own_orders(actor.bale_id,date=date),'date':date,
+                    'historical':action=='orders_history'}
         if action == 'resume_dispatch':
             from tools.fleet.work_orders.core.db import connect_db
             from tools.fleet.work_orders.core.oil_safety import current
@@ -57,6 +120,9 @@ def execute_request(request: dict, *, db_path=None) -> dict:
                 dispatch = con.execute('SELECT state FROM service_work_order_dispatch WHERE work_order_no=?',(request['work_order_no'],)).fetchone()
                 if row['work_order_type'] not in RELIABLE_TYPES or row['created_by'] != f'bale:{actor.bale_id}' or row['status'] not in {'APPROVED','SENT'} or not dispatch or dispatch['state'] not in {'READY','FAILED','SENT'}:
                     raise ValueError('این حکم آمادهٔ ادامه نیست؛ ابتدا «بررسی ارسال» را باز کنید.')
+                if row['status']=='SENT':
+                    return {'ok':True,'already_sent':True,'status':'SENT',
+                            'message':f"حکم {row['work_order_no']} قبلاً ارسال شده است؛ وضعیت: SENT. ارسال تازه‌ای انجام نشد."}
                 return {'ok':True,'work_order_type':row['work_order_type']}
             finally:
                 con.close()
@@ -72,7 +138,7 @@ def execute_request(request: dict, *, db_path=None) -> dict:
                         rows = oil_safety.pending(con,actor.bale_id,request.get('chat_id'))
                         from datetime import datetime
                         from zoneinfo import ZoneInfo
-                        lines = ['بررسی ارسال حکم کار — نتیجهٔ انتقال نامعلوم است؛ پیش از تصمیم با سرویسکار تطبیق دهید.']
+                        lines = ['⚠️ بررسی ارسال نامطمئن امروز — این فهرست تاریخچه نیست. نتیجهٔ انتقال نامعلوم است؛ پیش از تصمیم با سرویسکار تطبیق دهید.']
                         for row in rows:
                             number, attempt = row['work_order_no'], row['attempt_id']
                             started = datetime.fromtimestamp(row['claimed_at'], ZoneInfo('Asia/Tehran')).strftime('%Y-%m-%d %H:%M')
@@ -89,6 +155,7 @@ def execute_request(request: dict, *, db_path=None) -> dict:
                 con.close()
         if action == 'reissue':
             old = service.get_work_order(request['work_order_no'])
+            operational.require_order(old)
             if old['created_by'] != f'bale:{actor.bale_id}' or old['work_order_type'] not in RELIABLE_TYPES:
                 raise ValueError('صدور مجدد فقط برای حکم متعلق به خودتان مجاز است.')
             if not str(request.get('reason','')).strip():
@@ -107,7 +174,9 @@ def execute_request(request: dict, *, db_path=None) -> dict:
                 from tools.fleet.greasing.proposal import build_proposal
             else:
                 from tools.fleet.air_filter.proposal import build_proposal
-            return {'ok': True, 'proposal': build_proposal()}
+            proposal = build_proposal()
+            operational.require_date(proposal['plan_date'])
+            return {'ok': True, 'proposal': proposal}
         if request['action'] == 'validate_add':
             if request.get('work_order_type') == 'OIL_CHANGE':
                 raise ValueError('برای تعویض روغن از مسیر «افزودن/ویرایش» همان پیشنهاد استفاده کنید.')
@@ -131,20 +200,24 @@ def execute_request(request: dict, *, db_path=None) -> dict:
             try:
                 columns = {r[1] for r in con.execute('PRAGMA table_info(service_work_orders)')}
                 version_filter = ' AND superseded_by IS NULL' if 'superseded_by' in columns else ''
-                row = con.execute("SELECT work_order_no FROM service_work_orders WHERE created_by=? AND status='FILE_READY'" + version_filter + ' ORDER BY id DESC LIMIT 1', (f'bale:{actor.bale_id}',)).fetchone()
+                row = con.execute("SELECT work_order_no FROM service_work_orders WHERE created_by=? AND status='FILE_READY' AND jalali_date=?" + version_filter + ' ORDER BY id DESC LIMIT 1', (f'bale:{actor.bale_id}',operational.operational_today())).fetchone()
             finally:
                 con.close()
             if not row:
                 raise ValueError('حکم آمادهٔ بررسی برای ارسال مجدد ندارید.')
             request = {**request, 'action': 'preview', 'work_order_no': row['work_order_no']}
-        if request["action"] in {"preview", "edit"}:
+        if request["action"] in {"preview", "edit", "revision_draft"}:
             order = service.get_work_order(request["work_order_no"])
+            operational.require_order(order)
             if order.get('superseded_by'):
                 raise ValueError('این نسخه منسوخ است؛ نسخهٔ معتبر: ' + order['superseded_by'])
             if order["created_by"] != f"bale:{actor.bale_id}":
                 raise ValueError("این حکم متعلق به حساب شما نیست.")
-            if order['status'] not in ({'FILE_READY','ASSIGNED','APPROVED'} if request['action']=='preview' else {'FILE_READY'}):
-                raise ValueError('این حکم دیگر در مرحلهٔ بررسی فایل نیست.')
+            allowed_status = {'FILE_READY','ASSIGNED','APPROVED'} if request['action']=='preview' else {'SENT'} if action=='revision_draft' else {'FILE_READY'}
+            if order['status'] not in allowed_status:
+                raise ValueError('این حکم دیگر در مرحلهٔ بررسی فایل نیست؛ وضعیت واقعی: ' + order['status'])
+            if action == 'revision_draft' and not str(request.get('reason','')).strip():
+                raise ValueError('علت اصلاحیه الزامی است.')
             if request['action']=='preview' and order['status']!='FILE_READY':
                 from tools.fleet.work_orders.core.db import connect_db
                 con=connect_db()
@@ -153,9 +226,11 @@ def execute_request(request: dict, *, db_path=None) -> dict:
                     if d and d['state'] in {'SENDING','UNCERTAIN'}:
                         raise ValueError('ابتدا نتیجهٔ ارسال قبلی را در «بررسی ارسال» تعیین تکلیف کنید.')
                 finally:con.close()
-            if request["action"] == "edit":
-                if order["status"] != "FILE_READY":
+            if request["action"] in {"edit", "revision_draft"}:
+                if order["status"] != "FILE_READY" and action != 'revision_draft':
                     raise ValueError("اصلاح فقط پیش از انتخاب سرویسکار امکان‌پذیر است.")
+                revision = ({'reissue_reason':request['reason'].strip(),'operation_id':request.get('operation_id')}
+                            if action == 'revision_draft' else {})
                 if order['work_order_type'] == 'OIL_CHANGE':
                     from tools.fleet.oil_change.proposal import build_proposal
                     proposal = build_proposal()
@@ -179,12 +254,13 @@ def execute_request(request: dict, *, db_path=None) -> dict:
                     proposal['revision_of'] = order['work_order_no']
                     proposal['revision_machine_code'] = order['items'][0]['machine_code']
                     proposal['plan_date'] = order['jalali_date']
+                    proposal.update(revision)
                     return {'ok': True, 'work_order_type': 'OIL_CHANGE', 'proposal': proposal}
                 return {"ok": True, "work_order_type": order["work_order_type"], 'proposal': {
                     'work_order_type':order['work_order_type'],
                     'plan_date':order['jalali_date'], 'cutoff':'نسخهٔ اصلاحی حکم قبلی',
                     'source_sha256':None, 'items':order['items'], 'warnings':[], 'review':[],
-                    'revision_of':order['work_order_no']}}
+                    'revision_of':order['work_order_no'], **revision}}
             return {"ok": True, "order": preview_order(order)}
         work_order_type = request["work_order_type"]
         if request["action"] == "validate_machines":
@@ -192,6 +268,7 @@ def execute_request(request: dict, *, db_path=None) -> dict:
             return {"ok": True, "machine_codes": [item["machine_code"] for item in items]}
         if request["action"] != "create":
             raise ValueError("درخواست نامعتبر است.")
+        operational.require_date(request['jalali_date'])
         proposal = request.get('proposal')
         if proposal and proposal.get('source_sha256'):
             import hashlib
@@ -229,25 +306,35 @@ def execute_request(request: dict, *, db_path=None) -> dict:
                 parent = service.get_work_order(proposal['revision_of'])
                 if parent['items'][0]['machine_code'] not in selected:
                     raise ValueError('دستگاه حکم قبلی باید در نسخهٔ اصلاحی باقی بماند؛ برای حذف کامل حکم تصمیم جداگانه لازم است.')
+            # Preflight the full selection. The commit-time guard below stays
+            # authoritative if another NET issuer wins the race afterwards.
+            conflicts = preflight(request, items, actor.bale_id)
+            if conflicts:
+                return {'ok':False,'error':'CONFLICT','failures':conflicts,
+                        'message':'\n\n'.join(f"{f['machine_code']}: {f['reason']}" for f in conflicts)}
             orders = []
             for index, item in enumerate(items):
                 try:
+                    parent_number = (proposal.get('revision_of') if proposal.get('revision_of') and item['machine_code'] == service.get_work_order(proposal['revision_of'])['items'][0]['machine_code'] else None)
                     # Each machine has its own number, workbook, review and dispatch.
                     order = service.create_work_order(
                         authorization_check=authorize_create,
                         work_order_type='OIL_CHANGE', jalali_date=request['jalali_date'], shift='روزانه',
-                        revision_of=(proposal.get('revision_of') if proposal.get('revision_of') and item['machine_code'] == service.get_work_order(proposal['revision_of'])['items'][0]['machine_code'] else None),
+                        revision_of=parent_number,
+                        reissue_reason=proposal.get('reissue_reason') if parent_number else None, operation_id=proposal.get('operation_id') if parent_number else None,
                         machine_codes=[item['machine_code']],created_by=f'bale:{actor.bale_id}',
                         item_actions={item['machine_code']:item['action_code']},
                         notes='OIL_CHANGE_PROPOSAL: ' + json.dumps({**proposal,'item':item},ensure_ascii=False))
                     orders.append(preview_order(order))
-                except Exception:
-                    logging.getLogger(__name__).exception('Oil order batch stopped at %s', item['machine_code'])
+                except Exception as exc:
+                    reason = str(exc) if isinstance(exc, ValueError) else type(exc).__name__
+                    logging.getLogger(__name__).error('Oil order batch stopped machine=%s reason=%s', item['machine_code'], reason)
                     if not orders:
                         raise
-                    return {'ok':True, 'orders':orders, 'batch_error':
-                            'ساخت ادامهٔ حکم‌ها متوقف شد. پیش از تلاش دوباره وضعیت این دستگاه‌ها بررسی شود: ' +
-                            '، '.join(i['machine_code'] for i in items[index:])}
+                    failures = [{'machine_code':i['machine_code'], 'reason':reason if n==index else 'ساخت آغاز نشد؛ بررسی و تأیید تازه لازم است.'}
+                                for n,i in enumerate(items) if n >= index]
+                    return {'ok':True,'partial':True,'orders':orders,'failures':failures,
+                            'batch_error':'\n'.join(f"{f['machine_code']} ساخته نشد: {f['reason']}" for f in failures)}
             return {'ok':True, 'orders':orders}
         order = service.create_work_order(
             authorization_check=authorize_create,
@@ -259,9 +346,13 @@ def execute_request(request: dict, *, db_path=None) -> dict:
             created_by=f"bale:{actor.bale_id}",
             item_actions=request.get('item_actions'),
             revision_of=proposal.get('revision_of') if proposal and work_order_type in RELIABLE_TYPES else None,
+            reissue_reason=proposal.get('reissue_reason') if proposal else None,
+            operation_id=proposal.get('operation_id') if proposal else None,
             notes=(work_order_type + '_PROPOSAL: ' + json.dumps(proposal, ensure_ascii=False)) if proposal else None,
         )
         return {"ok": True, "order": preview_order(order)}
+    except operational.OperationalDayExpired as exc:
+        return {'ok':False,'error':'EXPIRED','message':str(exc)}
     except WorkOrderPermissionDenied:
         return {"ok": False, "error": "DENIED", "message": "شما اجازهٔ مدیریت حکم کار را ندارید."}
     except OilSourceChanged as exc:

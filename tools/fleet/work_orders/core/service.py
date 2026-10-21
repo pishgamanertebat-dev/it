@@ -325,6 +325,10 @@ def create_work_order(
         )
     )
 
+    from .operational import require_date
+    if spec.code in {'OIL_CHANGE', 'GREASING', 'AIR_FILTER'}:
+        require_date(jalali_date)
+
     if spec.code == 'AIR_FILTER':
         from .review import normalize_shift
         selected_shifts = normalize_shift(shift).split('-')
@@ -355,7 +359,7 @@ def create_work_order(
                 revision_of, reissue_reason, operation_id, work_order_type=spec.code, shift=shift)
             if oil_identity[2]:
                 con.rollback()
-                return get_work_order(oil_identity[2])
+                return dict(get_work_order(oil_identity[2]), creation_outcome='reused')
 
         work_order_no = (
             _next_work_order_no(
@@ -527,17 +531,18 @@ def create_work_order(
 
         if oil_identity:
             if revision_of:
-                con.execute('UPDATE service_work_orders SET superseded_by=?,updated_at=CURRENT_TIMESTAMP WHERE work_order_no=?', (work_order_no,revision_of))
-                oil_safety.audit(con,revision_of,'SUPERSEDED',replacement=work_order_no,actor=created_by)
+                parent = oil_safety.current(con, revision_of)
+                if parent['status'] != 'SENT':
+                    con.execute('UPDATE service_work_orders SET superseded_by=?,updated_at=CURRENT_TIMESTAMP WHERE work_order_no=?', (work_order_no,revision_of))
+                    oil_safety.audit(con,revision_of,'SUPERSEDED',replacement=work_order_no,actor=created_by)
                 oil_safety.audit(con,work_order_no,'REISSUED' if reissue_reason else 'REVISION_READY',previous=revision_of,reason=reissue_reason,actor=created_by)
+            require_date(jalali_date)
         if authorization_check:
             authorization_check()
         con.commit()
         cleanup_output = False
 
-        return get_work_order(
-            work_order_no
-        )
+        return dict(get_work_order(work_order_no), creation_outcome='created')
 
     except Exception:
 

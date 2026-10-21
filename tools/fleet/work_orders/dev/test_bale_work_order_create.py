@@ -21,6 +21,7 @@ class WorkOrderCreateTests(PermissionDatabaseTestCase):
             schema.create_schema(con)
         for target, value in (
             ("tools.fleet.work_orders.core.db.DB_PATH", self.db_path),
+            ("tools.fleet.work_orders.core.permissions.DB_PATH", self.db_path),
             ("tools.fleet.work_orders.core.service.WORK_ORDER_OUTPUT_ROOT", self.output_root),
         ):
             patcher = patch(target, value)
@@ -28,6 +29,7 @@ class WorkOrderCreateTests(PermissionDatabaseTestCase):
             self.addCleanup(patcher.stop)
 
     def create(self, *, jalali_date='1405/06/15'):
+        self.test_today = jalali_date
         return service.create_work_order(work_order_type="AIR_FILTER", jalali_date=jalali_date, shift="صبح", machine_codes=["465","710","711","712","713","714"], created_by="bale:455740857")
 
     def review_pdf(self, number, actor='455740857'):

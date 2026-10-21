@@ -29,6 +29,7 @@ class GreasingSafetyTests(unittest.TestCase):
                     jalali_date='1405/07/25',shift='روزانه',machine_codes=['EX1252'])
 
     def create(self, request=None):
+        self.fixture.test_today = (request or self.request())['jalali_date']
         result=create_worker.execute_request(request or self.request(),db_path=self.db_path)
         self.assertTrue(result['ok'],result)
         return result['order']['work_order_no']
@@ -84,7 +85,8 @@ class GreasingSafetyTests(unittest.TestCase):
             result=create_worker.execute_request(req,db_path=self.db_path)
             again=create_worker.execute_request(req,db_path=self.db_path)
         self.assertTrue(result['ok'],result)
-        self.assertEqual(result,again)
+        self.assertEqual(result['orders'][0]['work_order_no'],again['orders'][0]['work_order_no'])
+        self.assertEqual(again['orders'][0]['creation_outcome'],'reused')
         after=service.get_work_order(old)
         self.assertEqual(after['status'],'SENT')
         self.assertEqual(after['sent_at'],before['sent_at'])

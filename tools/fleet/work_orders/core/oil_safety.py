@@ -44,6 +44,8 @@ def current(con, number):
     row = con.execute('SELECT * FROM service_work_orders WHERE work_order_no=?', (number,)).fetchone()
     if not row:
         raise ValueError('حکم پیدا نشد.')
+    from .operational import require_order
+    require_order(row)
     if row['work_order_type'] in RELIABLE_TYPES and 'superseded_by' in row.keys() and row['superseded_by']:
         raise ValueError('این نسخه منسوخ است؛ نسخهٔ معتبر: ' + row['superseded_by'])
     return row
@@ -51,6 +53,8 @@ def current(con, number):
 
 def creation(con, date, items, owner, revision_of=None, reissue_reason=None, operation_id=None,
              work_order_type='OIL_CHANGE', shift=None):
+    from .operational import require_date
+    require_date(date)
     greasing = work_order_type == 'GREASING'
     air_filter = work_order_type == 'AIR_FILTER'
     multiple = greasing or air_filter
@@ -67,9 +71,14 @@ def creation(con, date, items, owner, revision_of=None, reissue_reason=None, ope
     payload = [service_key, actions, revision_of, operation_id if reason else None]
     operation_key = hashlib.sha256(json.dumps(payload, sort_keys=True).encode()).hexdigest()
     existing = con.execute('SELECT * FROM service_work_orders WHERE operation_key=?', (operation_key,)).fetchone()
+    # Keep cancelled operation identities in history; a later explicit creation
+    # gets a new identity and remains idempotent on subsequent requests.
+    while existing and existing['status'] in {'CANCELLED', 'VOID'}:
+        operation_key = hashlib.sha256((operation_key + ':after:' + existing['work_order_no']).encode()).hexdigest()
+        existing = con.execute('SELECT * FROM service_work_orders WHERE operation_key=?', (operation_key,)).fetchone()
     if existing:
         if existing['created_by'] != owner:
-            raise ValueError('حکم این سرویس توسط حساب دیگری ساخته شده است.')
+            raise conflict_error(con, [existing], codes)
         return operation_key, service_key, existing['work_order_no']
     if multiple:
         candidates = con.execute('''SELECT * FROM service_work_orders WHERE work_order_type=?
@@ -90,12 +99,23 @@ def creation(con, date, items, owner, revision_of=None, reissue_reason=None, ope
         parent = current(con, revision_of)
         if parent['created_by'] != owner or parent['work_order_type'] != work_order_type:
             raise ValueError('اصلاح یا صدور مجدد فقط برای حکم همین نوع و متعلق به خودتان مجاز است.')
+        if parent['status'] not in {'FILE_READY', 'ASSIGNED', 'APPROVED', 'SENT'}:
+            raise ValueError('این حکم قابل اصلاح یا صدور مجدد نیست: ' + parent['status'])
         parent_items = con.execute('SELECT machine_code FROM service_work_order_items WHERE work_order_id=?', (parent['id'],)).fetchall()
         if (parent['jalali_date'] != date or (air_filter and parent['shift'] != shift) or
                 (not multiple and (len(parent_items) != 1 or parent_items[0][0].upper() != code))):
             raise ValueError('نسخهٔ جدید باید متعلق به همان سرویس و دستگاه باشد.')
-        if len(active) != 1 or active[0]['work_order_no'] != revision_of:
+        lineage = revision_lineage(con, parent)
+        allowed = {r['work_order_no'] for r in lineage}
+        if not active or any(r['work_order_no'] not in allowed for r in active):
             raise ValueError('چند حکم قبلی برای این سرویس وجود دارد؛ ابتدا تصمیم مسئول NET لازم است.')
+        descendants = con.execute('''WITH RECURSIVE children AS (
+            SELECT work_order_no,status,superseded_by FROM service_work_orders WHERE revision_of=?
+            UNION ALL SELECT w.work_order_no,w.status,w.superseded_by FROM service_work_orders w
+            JOIN children c ON w.revision_of=c.work_order_no)
+            SELECT work_order_no FROM children WHERE superseded_by IS NULL AND status NOT IN ('CANCELLED','VOID')''', (revision_of,)).fetchall()
+        if descendants:
+            raise ValueError('اصلاحیهٔ جاری قبلاً ساخته شده است: ' + '، '.join(r[0] for r in descendants))
         dispatch = con.execute('SELECT state FROM service_work_order_dispatch WHERE work_order_no=?', (revision_of,)).fetchone()
         if dispatch and dispatch['state'] in {'SENDING', 'UNCERTAIN'}:
             raise ValueError('ابتدا نتیجهٔ ارسال نسخهٔ قبلی را تعیین تکلیف کنید.')
@@ -106,9 +126,34 @@ def creation(con, date, items, owner, revision_of=None, reissue_reason=None, ope
             old_items = con.execute('SELECT machine_code,action_code FROM service_work_order_items WHERE work_order_id=?', (active[0]['id'],)).fetchall()
             if (multiple and sorted(tuple(r) for r in old_items) == actions) or (not multiple and len(old_items) == 1 and old_items[0][1] == items[0]['action_code']):
                 return operation_key, service_key, active[0]['work_order_no']
-        numbers = '، '.join(r['work_order_no'] for r in active)
-        raise ValueError('برای این سرویس حکم موجود است: ' + numbers + '؛ از اصلاح همان حکم یا صدور مجدد با علت استفاده کنید.')
+        raise conflict_error(con, active, codes)
     return operation_key, service_key, None
+
+
+def conflict_error(con, rows, codes):
+    details = []
+    for row in rows:
+        selected = {r[0] for r in con.execute('SELECT machine_code FROM service_work_order_items WHERE work_order_id=?', (row['id'],))}
+        details.append(f"{row['work_order_no']} | دستگاه: {', '.join(sorted(selected.intersection(codes)))} | صادرکننده: {row['created_by']} | وضعیت: {row['status']}")
+    return ValueError('تعارض حکم همان روز؛ صدور متوقف شد:\n' + '\n'.join(details) + '\nمدیریت پیش‌نویس فقط توسط مالک مجاز است؛ دستگاهی از انتخاب حذف نشد.')
+
+
+def revision_lineage(con, row):
+    rows, seen = [], set()
+    while row and row['work_order_no'] not in seen:
+        rows.append(row)
+        seen.add(row['work_order_no'])
+        row = con.execute('SELECT * FROM service_work_orders WHERE work_order_no=?', (row['revision_of'],)).fetchone() if row['revision_of'] else None
+    return rows
+
+
+def supersede_delivered_parent(con, number):
+    """A SENT parent stays current until the replacement has delivery evidence."""
+    row = con.execute('SELECT * FROM service_work_orders WHERE work_order_no=?', (number,)).fetchone()
+    for parent in revision_lineage(con, row)[1:]:
+        if parent['status'] == 'SENT' and not parent['superseded_by']:
+            con.execute('UPDATE service_work_orders SET superseded_by=?,updated_at=CURRENT_TIMESTAMP WHERE work_order_no=?', (number, parent['work_order_no']))
+            audit(con, parent['work_order_no'], 'SUPERSEDED_AFTER_DELIVERY', replacement=number)
 
 
 def recover_stale(con, now=None):
@@ -182,12 +227,23 @@ def complete(con, number, attempt, *, error=None):
         return False
     dispatch = con.execute('SELECT * FROM service_work_order_dispatch WHERE work_order_no=?', (number,)).fetchone()
     if not dispatch or dispatch['attempt_id'] != attempt or dispatch['state'] != 'SENDING':
+        known = con.execute('SELECT 1 FROM service_work_order_delivery_attempts WHERE id=? AND work_order_no=? AND transfer_started_at IS NOT NULL', (attempt,number)).fetchone()
+        from .operational import operational_today
+        historical = con.execute('SELECT jalali_date FROM service_work_orders WHERE work_order_no=?', (number,)).fetchone()
+        if known and historical and historical[0] != operational_today():
+            audit(con, number, 'FENCED_TRANSFER_RESULT', attempt_id=attempt, result='API_RETURNED' if error is None else type(error).__name__)
         return False  # A late completion cannot undo an operator decision or a new attempt.
     state = 'SENT' if error is None else ('UNCERTAIN' if dispatch['transfer_started_at'] else 'FAILED')
     now = time.time()
     con.execute('UPDATE service_work_order_dispatch SET state=?,updated_at=? WHERE work_order_no=?', (state, now, number))
     con.execute('UPDATE service_work_order_delivery_attempts SET state=?,finished_at=?,error=? WHERE id=?', (state, now, type(error).__name__ if error else None, attempt))
     audit(con, number, state, attempt_id=attempt)
+    if state == 'SENT':
+        supersede_delivered_parent(con, number)
+    from .operational import operational_today
+    date = con.execute('SELECT jalali_date FROM service_work_orders WHERE work_order_no=?', (number,)).fetchone()[0]
+    if date != operational_today():
+        audit(con, number, 'LATE_TRANSFER_RESULT', attempt_id=attempt, result=state, operational_date=date)
     return state
 
 
@@ -202,12 +258,14 @@ def authorize_manager(con, actor, chat):
 def pending(con, actor, chat):
     authorize_manager(con, actor, chat)
     recover_stale(con)
+    from .operational import operational_today
     return [dict(r) for r in con.execute('''SELECT w.work_order_no,d.staff_name,d.recipient_id,d.attempt_id,
         a.claimed_at,a.transfer_started_at,a.error FROM service_work_order_dispatch d
         JOIN service_work_orders w USING(work_order_no)
         JOIN service_work_order_delivery_attempts a ON a.id=d.attempt_id
         WHERE w.work_order_type IN ('OIL_CHANGE','GREASING','AIR_FILTER') AND w.created_by=? AND d.state='UNCERTAIN'
-        ORDER BY a.claimed_at''', (f'bale:{actor}',))]
+        AND w.jalali_date=? AND w.superseded_by IS NULL
+        ORDER BY a.claimed_at''', (f'bale:{actor}', operational_today()))]
 
 
 def resolve(con, number, attempt, actor, chat, decision, reason):
@@ -230,5 +288,6 @@ def resolve(con, number, attempt, actor, chat, decision, reason):
     if decision == 'RECEIVED':
         con.execute("""UPDATE service_work_orders SET status='SENT',sent_at=COALESCE(sent_at,CURRENT_TIMESTAMP),
             pdf_path=COALESCE(?,pdf_path),last_send_error=NULL,updated_at=CURRENT_TIMESTAMP WHERE work_order_no=?""", (old['artifact_path'], number))
+        supersede_delivered_parent(con, number)
     audit(con, number, 'DELIVERY_DECISION', actor=str(actor), attempt_id=attempt, decision=decision, reason=reason.strip())
     return state

@@ -106,7 +106,9 @@ class AirFilterSafetyTests(unittest.TestCase):
         request=dict(action='reissue',bale_id=shared.MANAGER,work_order_no=old,reason='verified test correction',operation_id='af-reissue')
         result=create_worker.execute_request(request,db_path=self.db_path)
         self.assertTrue(result['ok'],result)
-        self.assertEqual(result,create_worker.execute_request(request,db_path=self.db_path))
+        repeated=create_worker.execute_request(request,db_path=self.db_path)
+        self.assertEqual(result['orders'][0]['work_order_no'],repeated['orders'][0]['work_order_no'])
+        self.assertEqual(repeated['orders'][0]['creation_outcome'],'reused')
         after=service.get_work_order(old)
         for key in ('status','sent_at','send_attempts','pdf_path','excel_path'):
             self.assertEqual(before[key],after[key])
@@ -156,6 +158,7 @@ class AirFilterSafetyTests(unittest.TestCase):
         with test_database(self.db_path) as con:
             con.execute("INSERT INTO machines(canonical_code) VALUES ('719')")
         with self.assertRaisesRegex(ValueError,'مبهم'):
+            self.fixture.test_today='1405/07/26'
             service.create_work_order(work_order_type='AIR_FILTER',jalali_date='1405/07/26',shift='صبح',machine_codes=['719'],created_by='bale:'+shared.MANAGER)
 
     def test_no_baseline_is_manual_addable_without_fabricating_automatic_proposal(self):

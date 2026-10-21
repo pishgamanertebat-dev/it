@@ -18,6 +18,7 @@ from tools.fleet.work_orders.types.oil_change.builder import TEMPLATES
 class OilServiceEditTests(PermissionDatabaseTestCase):
     def setUp(self):
         super().setUp()
+        self.test_today = '1405/06/23'
         self.source = sample_source('PC1250-8', 'EX1252', last=1800, remaining=100)
         self.output_root = self.db_path.parent / 'orders'
         with test_database(self.db_path) as con:

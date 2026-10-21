@@ -7,7 +7,7 @@ from tools.fleet.work_orders.types.greasing.builder import build_document
 
 class GreasingPrintTests(unittest.TestCase):
     def test_variable_rows_preserve_independent_result_cells_and_signature(self):
-        root=Path('E:/KomatsoAI/runtime/greasing-fixes-20261017')
+        root=Path(__file__).resolve().parents[4]/'runtime/greasing-print-tests'
         root.mkdir(parents=True,exist_ok=True)
         with tempfile.TemporaryDirectory(dir=root) as tmp:
             for count in (1,2,5,6,7,20,40,100):

@@ -10,6 +10,7 @@ from tools.fleet.work_orders.dev.test_permissions import PermissionDatabaseTestC
 class StaffInboxTests(PermissionDatabaseTestCase, unittest.IsolatedAsyncioTestCase):
     def setUp(self):
         super().setUp()
+        self.test_today = '1405/06/18'
         flow.receipt_choices.clear()
         flow.busy.clear()
         self.replies = []

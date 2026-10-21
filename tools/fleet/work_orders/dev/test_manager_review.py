@@ -64,7 +64,7 @@ class ManagerDeliveryTests(CreationFlowTests):
             if request['action'] == 'confirm_review':
                 return {'ok': True, 'work_order_type': 'AIR_FILTER'}
             return {'ok': True, 'order': {'work_order_no': request['work_order_no'], 'work_order_type': 'AIR_FILTER',
-                    'label': 'هواکش', 'item_count': 1, 'file_name': 'order.xlsx'}}
+                    'label': 'هواکش', 'item_count': 1, 'file_name': 'order.xlsx','status':'FILE_READY','reviewable':True}}
         async def upload(*args):
             pass
         self.handler.worker = worker
@@ -133,7 +133,7 @@ class ManagerDeliveryTests(CreationFlowTests):
             captured.update(kwargs)
             captured['body'] = kwargs['document'].read()
         gateway = SimpleNamespace(adapters={'bale': SimpleNamespace(_bot=SimpleNamespace(send_document=send_document))})
-        with patch('tools.fleet.work_orders.channels.bale.message_handler.export_staff_pdf', return_value=pdf), \
+        with patch('tools.fleet.work_orders.core.delivery.prepare_manager_pdf', return_value=(pdf,pdf.read_bytes())), \
              patch('tools.fleet.work_orders.channels.bale.message_handler.store_manager_pdf'):
             await send_manager_excel(gateway, '455740857', order)
         self.assertEqual(captured['filename'], pdf.name)
