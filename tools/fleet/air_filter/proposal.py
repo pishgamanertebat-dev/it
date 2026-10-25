@@ -124,7 +124,11 @@ def read_source(path=SOURCE, target=None):
     return result, cutoff, plan, issues, hashlib.sha256(payload).hexdigest()
 
 
-def evaluate_machine(machine, cutoff, plan):
+def evaluate_machine(machine, cutoff, plan, forecast_horizon_hours=3):
+    if (isinstance(forecast_horizon_hours, bool) or
+            not isinstance(forecast_horizon_hours, (int, float)) or
+            not math.isfinite(forecast_horizon_hours) or forecast_horizon_hours < 0):
+        raise ValueError('بازهٔ پیش‌بینی باید عددی متناهی و نامنفی بر حسب ساعت باشد.')
     code,name = machine['code'],machine['name']
     result = {'code':code,'name':name,'components':{},'issues':[], 'action_code':None}
     if not code or machine.get('duplicate'):
@@ -181,15 +185,26 @@ def evaluate_machine(machine, cutoff, plan):
         if 'calendar' in rule:
             value = jalali_ordinal(*plan) - jalali_ordinal(*base)
             threshold = rule['calendar']
-            alert = threshold
             unit = 'روز'
         else:
             if any(wh is None for md,wh in hours if md > base):
                 continue
             value = sum(wh for md,wh in hours if md > base and wh is not None and wh > 0)
-            threshold,alert = rule[k]
+            threshold,_ = rule[k]
             unit = 'ساعت'
-        component.update(value=value,threshold=threshold,unit=unit,state='DUE' if value >= threshold else 'NEAR_DUE' if value >= alert else 'OK')
+        # Forecast only classifies the unchanged recorded total. Never add
+        # hypothetical hours to it or use an empty post-service sum as evidence.
+        remaining = threshold - value
+        state = 'DUE' if remaining <= 0 else 'OK'
+        if unit == 'ساعت':
+            component['remaining_hours'] = remaining
+            if 0 < remaining <= forecast_horizon_hours:
+                if any(md > base and wh is not None for md,wh in hours):
+                    state = 'NEAR_DUE'
+                else:
+                    state = 'NEEDS_REVIEW'
+                    result['issues'].append(f'{label}: کارکرد ثبت‌شده پس از آخرین سرویس مشخص نیست؛ پیش‌بینی انجام نشد')
+        component.update(value=value,threshold=threshold,unit=unit,state=state)
     if result['components'].get('inner',{}).get('state') == 'DUE':
         result['action_code'] = BOTH
     elif result['components'].get('outer',{}).get('state') == 'DUE':
@@ -197,18 +212,22 @@ def evaluate_machine(machine, cutoff, plan):
     return result
 
 
-def build_proposal(path=SOURCE, target=None):
+def build_proposal(path=SOURCE, target=None, forecast_horizon_hours=3):
     machines,cutoff,plan,issues,digest = read_source(path,target)
-    evaluated = [evaluate_machine(m,cutoff,plan) for m in machines]
+    evaluated = [evaluate_machine(m,cutoff,plan,forecast_horizon_hours) for m in machines]
     selected = []
     warnings = []
     for m in evaluated:
         if m['action_code']:
             evidence = '; '.join(f"{'داخلی' if k == 'inner' else 'بیرونی'}: {c['value']:g}/{c['threshold']} {c['unit']}؛ آخرین انجام {c['last_service']}" for k,c in m['components'].items() if c['value'] is not None)
             selected.append({'machine_code':m['code'],'machine_name':m['name'],'action_code':m['action_code'],'action_text':ACTIONS[m['action_code']], 'evidence':evidence, 'components':m['components']})
-        for field,comp in m['components'].items():
-            if comp['state'] == 'NEAR_DUE':
-                warnings.append(f"{m['code']} {'داخلی' if field == 'inner' else 'بیرونی'}: {comp['value']:g} از {comp['threshold']} {comp['unit']}")
+        # A mixed DUE/NEAR_DUE unit stays in its single selected card, which
+        # displays both component states. Warning-only units are never items.
+        near = [f"{'داخلی' if field == 'inner' else 'بیرونی'}: {comp['remaining_hours']:g} ساعت باقی‌مانده"
+                for field,comp in m['components'].items() if comp['state'] == 'NEAR_DUE']
+        if near and not m['action_code']:
+            warnings.append(f"{m['code']} : " + '؛ '.join(near))
         issues.extend({'code':m['code'],'reason':reason} for reason in m['issues'])
     return {'cutoff':fmt_date(cutoff),'plan_date':fmt_date(plan),'source_sha256':digest,
-            'items':selected,'warnings':warnings,'review':issues,'machines':evaluated}
+            'items':selected,'warnings':warnings,'review':issues,'machines':evaluated,
+            'forecast_horizon_hours':forecast_horizon_hours}

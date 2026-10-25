@@ -116,11 +116,12 @@ def _status_text(component):
 def _component_card(field, component):
     label = 'گریس‌کاری کامل' if field == 'greasing' else ('هواکش داخلی' if field == 'inner' else 'هواکش بیرونی')
     due = component.get('state') == 'DUE'
-    icon = '🔴' if due else '🟢'
+    near = component.get('state') == 'NEAR_DUE' and field in {'inner', 'outer'}
+    icon = '🔴' if due else '🟡' if near else '🟢'
     lines = [
         f"⏱ {'فاصله تا تاریخ حکم' if field == 'greasing' and component['unit'] == 'روز' else 'کارکرد'}: {component['value']:g} {component['unit']}",
         f"🎯 دوره سرویس: {component['threshold']} {component['unit']}",
-        f"⚠️ وضعیت: {_status_text(component)}",
+        f"⚠️ وضعیت: {'نزدیک موعد — پیش‌بینی؛ ' if near else ''}{_status_text(component)}",
         f"📅 آخرین سرویس: {component['last_service']}",
     ]
     # The greasing action is already printed immediately above the component
@@ -133,7 +134,8 @@ def render(proposal):
     oil = proposal.get('work_order_type') == 'OIL_CHANGE'
     label = 'تعویض روغن' if oil else 'گریس‌کاری' if greasing else 'هواکش'
     lines = [f"پیشنهاد حکم {label} برای {proposal['plan_date']}", f"داده‌ها تا: {proposal['cutoff']}"]
-    lines += ['', 'دستگاه‌های انتخاب‌شده:']
+    air_filter = not oil and not greasing
+    lines += ['', 'دستگاه‌های انتخاب‌شده (موعدرسیده یا انتخاب صریح مسئول نت):' if air_filter else 'دستگاه‌های انتخاب‌شده:']
     for i,item in enumerate(proposal['items'],1):
         if oil:
             action_parts = item['action_text'].split(' — ', 1)
@@ -144,10 +146,16 @@ def render(proposal):
                 lines += [f"سرویس مورد نیاز: {item['action_text']}", '']
         else:
             lines += ['', f"{i}) دستگاه {item['machine_code']}", item['action_text'], '']
+        if air_filter and not item.get('manual_note') and any(
+                c.get('state') == 'DUE' for c in item.get('components', {}).values()):
+            lines.append('🔴 موعدرسیده')
         if item.get('manual_note'):
             lines += [item['manual_note'], '']
         fields = ('greasing',) if greasing else (('inner', 'outer') if item['action_code'] == BOTH else ('outer',))
         components = item.get('components', {})
+        if air_filter:
+            fields = tuple(k for k in ('inner', 'outer') if k in fields or
+                           components.get(k, {}).get('state') == 'NEAR_DUE')
         rendered = False
         if oil and components.get('oil_change'):
             c = components['oil_change']
@@ -185,7 +193,11 @@ def render(proposal):
     if source_warnings and not oil:
         lines += ['', '⚠️ وضعیت اطلاعات:'] + source_warnings
     if proposal.get('warnings'):
-        lines += ['', '⚠️ نزدیک موعد:'] + proposal['warnings']
+        heading = (f"⚠️ نزدیک موعد — پیش‌بینی تا {proposal.get('forecast_horizon_hours', 3):g} ساعت کارکرد دیگر:"
+                   if air_filter and 'forecast_horizon_hours' in proposal else '⚠️ نزدیک موعد:')
+        lines += ['', heading] + proposal['warnings']
+        if air_filter and 'forecast_horizon_hours' in proposal:
+            lines += ['این موارد اختیاری‌اند و به حکم اضافه نشده‌اند؛ برای انتخاب از «اضافه» استفاده کنید و سپس تأیید کنید.']
     if proposal.get('review'):
         lines += ['', '🔎 نیازمند بررسی داده:'] + [f"{i['code']}: {i['reason']}" for i in proposal['review']]
     if not greasing and not oil:

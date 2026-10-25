@@ -18,7 +18,7 @@ class ProposalTests(unittest.TestCase):
     def test_all_hour_thresholds_and_alert_boundaries(self):
         for name,code,outer,oa,inner,ia in [('دامپتراک','710',20,17,100,90),('کامیون سهند زرد','S1',10,7,50,45),('کامیون آب پاش','TA1',10,7,50,45),('خاور','TR1',10,7,10,7)]:
             for field,due,alert in [('outer',outer,oa),('inner',inner,ia)]:
-                for hours,state in [(alert-1,'OK'),(alert,'NEAR_DUE'),(due-1,'NEAR_DUE'),(due,'DUE')]:
+                for hours,state in [(due-4,'OK'),(due-3,'NEAR_DUE'),(due-1,'NEAR_DUE'),(due,'DUE')]:
                     with self.subTest(name=name,field=field,hours=hours):
                         r=self.evaluate(name,[day((6,1),24,inner='صبح'),day((6,8),hours)],code)
                         self.assertEqual(r['components'][field]['state'],state)
@@ -96,7 +96,7 @@ class ProposalTests(unittest.TestCase):
         self.assertEqual(result['components']['outer']['last_service'],'1405/06/01')
 
     def test_inner_warning_does_not_replace_outer_due(self):
-        r=self.evaluate('دامپتراک',[day((5,1),inner='صبح'),day((5,2),70),day((6,1),outer='صبح'),day((6,8),20)])
+        r=self.evaluate('دامپتراک',[day((5,1),inner='صبح'),day((5,2),77),day((6,1),outer='صبح'),day((6,8),20)])
         self.assertEqual(r['components']['inner']['state'],'NEAR_DUE')
         self.assertEqual(r['action_code'],OUTER)
 
