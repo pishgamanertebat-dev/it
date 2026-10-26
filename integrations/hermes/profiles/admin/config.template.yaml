@@ -10,6 +10,10 @@ skills:
 tools:
   tool_search:
     enabled: 'off'
+display:
+  platforms:
+    bale:
+      tool_progress: 'off'
 gateway:
   strict: true
   trust_recent_files: false

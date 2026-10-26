@@ -702,6 +702,8 @@ def shared_routing(info):
 
 
 def register(ctx):
+    from integrations.hermes.technical_media import transform_technical_media
+    ctx.register_hook("transform_llm_output", transform_technical_media)
     ctx.register_hook("pre_tool_call", pre_tool_call)
     ctx.register_hook("subagent_start", subagent_start)
     ctx.register_hook("subagent_stop", subagent_stop)
