@@ -13,6 +13,7 @@ from .store import AuthorizationStore, FUNCTION_READ, now
 
 NET_MANAGER = 'net_manager'
 NET_DEPUTY = 'net_manager_deputy'
+NET_STAFF = 'net_staff'
 NET_PROFILE = 'net'
 NET_EXTENSION = 'net_roles_v1'
 WO_DOMAIN = 'work_orders'
@@ -36,6 +37,39 @@ RESOURCES = {
 }
 DOMAINS = {WO_DOMAIN: WO_CAPABILITIES, REPAIRS_DOMAIN: REPAIRS_CAPABILITIES}
 logger = logging.getLogger(__name__)
+
+
+def assign_net_staff(con, users, *, actor):
+    """Local operator only: profile membership without capabilities or authority.
+
+    The caller owns the backup and transaction, allowing roster and membership
+    changes to commit together. Existing roles and domain markers stay intact.
+    """
+    if not con.in_transaction:
+        raise ValueError('An explicit backed-up transaction is required')
+    AuthorizationStore._version(con)
+    if not con.execute('SELECT 1 FROM auth_extensions WHERE name=?', (NET_EXTENSION,)).fetchone():
+        raise sqlite3.DatabaseError('Existing NET infrastructure required')
+    con.execute('INSERT OR IGNORE INTO auth_roles VALUES (?,?)', (NET_STAFF, 'نیروی نت'))
+    if con.execute('SELECT display_name FROM auth_roles WHERE role=?', (NET_STAFF,)).fetchone() != ('نیروی نت',):
+        raise sqlite3.DatabaseError('Conflicting NET staff role')
+    con.execute('INSERT OR IGNORE INTO auth_role_profiles VALUES (?,?,100,1)', (NET_STAFF, NET_PROFILE))
+    if con.execute('SELECT profile,priority,active FROM auth_role_profiles WHERE role=?', (NET_STAFF,)).fetchone() != (NET_PROFILE,100,1):
+        raise sqlite3.DatabaseError('Conflicting NET staff profile mapping')
+    if con.execute('SELECT 1 FROM auth_role_capabilities WHERE role=?', (NET_STAFF,)).fetchone():
+        raise sqlite3.DatabaseError('NET staff membership must not grant capabilities')
+    for user in dict.fromkeys(map(str, users)):
+        if (not re.fullmatch(r'[1-9][0-9]*', user) or
+                con.execute("SELECT chat_id,registration_status FROM channel_users WHERE platform='bale' AND user_id=?", (user,)).fetchone() != (user,'approved')):
+            raise ValueError('Approved private Bale identity required')
+        profiles = con.execute("""SELECT profile,priority FROM auth_role_profiles WHERE active=1 AND
+            (role=? OR role IN (SELECT role FROM auth_user_roles WHERE platform='bale' AND user_id=? AND active=1))
+            ORDER BY priority DESC""", (NET_STAFF,user)).fetchall()
+        if {p for p, priority in profiles if priority == profiles[0][1]} != {NET_PROFILE}:
+            raise ValueError('Conflicting effective profile; NET staff assignment refused')
+        if con.execute("SELECT active FROM auth_user_roles WHERE platform='bale' AND user_id=? AND role=?", (user,NET_STAFF)).fetchone() != (1,):
+            AuthorizationStore._assign_roles(con, [(user,NET_STAFF)], actor=actor)
+    con.execute('INSERT OR IGNORE INTO auth_extensions VALUES (?,?)', ('net_staff_profile_v1',now()))
 
 
 def repairs_sections(actor, settings, *, store=None):
