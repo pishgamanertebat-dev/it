@@ -126,7 +126,16 @@ def creation(con, date, items, owner, revision_of=None, reissue_reason=None, ope
             old_items = con.execute('SELECT machine_code,action_code FROM service_work_order_items WHERE work_order_id=?', (active[0]['id'],)).fetchall()
             if (multiple and sorted(tuple(r) for r in old_items) == actions) or (not multiple and len(old_items) == 1 and old_items[0][1] == items[0]['action_code']):
                 return operation_key, service_key, active[0]['work_order_no']
-        raise conflict_error(con, active, codes)
+        error = str(conflict_error(con, active, codes))
+        if not multiple and len(active) == 1 and active[0]['created_by'] == owner:
+            old = con.execute('SELECT action_code FROM service_work_order_items WHERE work_order_id=?', (active[0]['id'],)).fetchall()
+            if len(old) == 1:
+                from ..types.oil_change.builder import parse_action
+                previous = parse_action(old[0]['action_code'])[1]
+                requested = parse_action(items[0]['action_code'])[1]
+                error += (f"\nنوبت قبلی: {previous} ساعتی؛ نوبت درخواستی: {requested} ساعتی."
+                          f"\nبرای تغییر فقط از مسیر ویرایش مجاز همان حکم استفاده کنید: ویرایش {active[0]['work_order_no']}")
+        raise ValueError(error)
     return operation_key, service_key, None
 
 

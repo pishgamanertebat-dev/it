@@ -19,7 +19,7 @@ def prepare_manager_pdf(number, actor):
     """Render a private snapshot, then fence its publication against dispatch."""
     from .operational import require_reviewable
     from .permissions import require_work_order_permission
-    from .review import approved_pdf_bytes, last_record, DocumentReviewRequired
+    from .review import approved_pdf_bytes, document_identity, last_record, DocumentReviewRequired
     con = connect_db()
     try:
         row = require_reviewable(con, number, actor)
@@ -31,6 +31,14 @@ def prepare_manager_pdf(number, actor):
                 data = None  # A deliberate new preview requires a fresh review.
             if data is not None:
                 return Path(row['pdf_path']), data
+        preview = last_record(row, 'MANAGER_DOCUMENT_PREVIEW')
+        if preview:
+            try:
+                identity, data = document_identity(row)
+                if all(preview.get(k) == v for k, v in identity.items()) and data.rstrip().endswith(b'%%EOF'):
+                    return Path(row['pdf_path']), data
+            except DocumentReviewRequired:
+                pass  # Rebuild only this permitted draft from its saved workbook.
         source = Path(row['excel_path'])
         workbook = source.read_bytes()
         fingerprint = hashlib.sha256(workbook).hexdigest()
@@ -48,6 +56,8 @@ def prepare_manager_pdf(number, actor):
                 require_work_order_permission(actor, capabilities=('work_orders.read_own',))
                 if live['excel_path'] != row['excel_path'] or hashlib.sha256(source.read_bytes()).hexdigest() != fingerprint:
                     raise ValueError('Excel changed during PDF preview; fresh review required')
+                if not data.startswith(b'%PDF-') or not data.rstrip().endswith(b'%%EOF'):
+                    raise ValueError('PDF export incomplete; draft preserved for a fresh preview')
                 destination = source.with_suffix('.pdf')
                 rendered.replace(destination)
                 return destination, data

@@ -11,6 +11,8 @@ import time
 import secrets
 import hashlib
 import io
+import contextvars
+from functools import partial
 from copy import copy
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
@@ -39,6 +41,25 @@ from tools.fleet.work_orders.channels.bale.work_order_menu import (
 
 
 logger = logging.getLogger(__name__)
+
+# Keep executor futures alive even if their awaiting form is cancelled. Cancelling
+# a to_thread Task would otherwise hide an Excel/PDF thread that is still running.
+_preparation_futures = set()
+
+
+async def _prepare_in_thread(gateway, function, *args, **kwargs):
+    future = asyncio.get_running_loop().run_in_executor(
+        None, partial(contextvars.copy_context().run, function, *args, **kwargs))
+    _preparation_futures.add(future)
+    def finished(done):
+        _preparation_futures.discard(done)
+        if not done.cancelled() and done.exception() is not None:
+            logger.error('Work-order preparation failed', exc_info=done.exception())
+    future.add_done_callback(finished)
+    tracker = getattr(gateway, '_track_deferred_agent_worker', None)
+    if callable(tracker):
+        tracker(future, None)
+    return await asyncio.shield(future)
 
 TRANSIENT_WORK_ORDER_STAGES = frozenset({
     'MENU', 'PROPOSAL', 'REMOVE', 'ADD_CODES', 'ADD_ACTION', 'SHIFT',
@@ -155,7 +176,7 @@ async def send_manager_excel(gateway, chat_id, order):
     source = Path(order["file_path"])
     excel_sha256 = hashlib.sha256(source.read_bytes()).hexdigest()
     from tools.fleet.work_orders.core.delivery import prepare_manager_pdf
-    pdf_path, pdf_bytes = await asyncio.to_thread(prepare_manager_pdf, order['work_order_no'], str(chat_id))
+    pdf_path, pdf_bytes = await _prepare_in_thread(gateway, prepare_manager_pdf, order['work_order_no'], str(chat_id))
     # Use the existing configured bot. The adapter's generic send_document can
     # report success for a text fallback even when the attachment upload failed.
     require_work_order_permission(chat_id, capabilities=('work_orders.read_own',))
@@ -165,7 +186,7 @@ async def send_manager_excel(gateway, chat_id, order):
             caption=manager_excel_caption(order),
         )
     if order.get("work_order_no"):
-        await asyncio.to_thread(store_manager_pdf, order["work_order_no"], pdf_path,
+        await _prepare_in_thread(gateway, store_manager_pdf, order["work_order_no"], pdf_path,
                                 pdf_bytes=pdf_bytes, excel_sha256=excel_sha256)
 
 
@@ -798,6 +819,13 @@ class WorkOrderMenuHandler:
         task = loop.create_task(self._run_request(key, session, request, gateway, send, **options))
         self.tasks.add(task)
         task.add_done_callback(self.tasks.discard)
+
+        # The form returns before PDF creation finishes, so _running_agents never
+        # sees it. Reuse Hermes' existing deferred-worker drain, without changing
+        # Gateway accounting or pretending an executor thread can be cancelled.
+        tracker = getattr(gateway, '_track_deferred_agent_worker', None)
+        if callable(tracker):
+            tracker(task, None)
 
     def handle(self, event, gateway, *, send, _accepted=False, _edit_message_id=None):
         source = event.source

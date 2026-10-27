@@ -31,6 +31,7 @@ def preflight(request, items, actor):
     from tools.fleet.work_orders.core import oil_safety
     con = connect_db()
     failures = []
+    recovered = []
     proposal = request.get('proposal') or {}
     try:
         con.execute('BEGIN IMMEDIATE')
@@ -40,12 +41,14 @@ def preflight(request, items, actor):
                 parent = proposal.get('revision_of')
                 if parent and service.get_work_order(parent)['items'][0]['machine_code'] != item['machine_code']:
                     parent = None
-                oil_safety.creation(con,request['jalali_date'],[item],f'bale:{actor}',parent,
+                identity = oil_safety.creation(con,request['jalali_date'],[item],f'bale:{actor}',parent,
                     proposal.get('reissue_reason') if parent else None,proposal.get('operation_id') if parent else None)
+                if identity[2]:
+                    recovered.append(preview_order(dict(service.get_work_order(identity[2]), creation_outcome='reused')))
             except ValueError as exc:
                 failures.append({'machine_code':item['machine_code'],'reason':str(exc)})
                 logging.getLogger(__name__).warning('Oil preflight stopped machine=%s reason=%s',item['machine_code'],str(exc))
-        return failures
+        return failures, recovered
     finally:
         con.rollback()
         con.close()
@@ -296,15 +299,17 @@ def execute_request(request: dict, *, db_path=None) -> dict:
                     raise ValueError('دستگاه حکم قبلی باید در نسخهٔ اصلاحی باقی بماند؛ برای حذف کامل حکم تصمیم جداگانه لازم است.')
             # Preflight the full selection. The commit-time guard below stays
             # authoritative if another NET issuer wins the race afterwards.
-            conflicts = preflight(request, items, actor.bale_id)
+            conflicts, recovered = preflight(request, items, actor.bale_id)
             if conflicts:
                 reasons = {f['machine_code']:f['reason'] for f in conflicts}
+                recovered_codes = {service.get_work_order(o['work_order_no'])['items'][0]['machine_code'] for o in recovered}
                 failures = [{'machine_code':i['machine_code'],
                              'reason':reasons.get(i['machine_code'],'ساخت آغاز نشد؛ ابتدا تعارض همین درخواست رفع و انتخاب دوباره تأیید شود.')}
-                            for i in items]
-                return {'ok':False,'error':'CONFLICT','failures':failures,
-                        'message':'هیچ حکم تازه‌ای در این درخواست ساخته نشد.\n\n' +
-                                  '\n\n'.join(f"{f['machine_code']} ساخته نشد: {f['reason']}" for f in failures)}
+                            for i in items if i['machine_code'] not in recovered_codes]
+                message = 'هیچ حکم تازه‌ای در این درخواست ساخته نشد.\n\n' + '\n\n'.join(
+                    f"{f['machine_code']} ساخته نشد: {f['reason']}" for f in failures)
+                return {'ok':False,'partial':bool(recovered),'error':'CONFLICT','failures':failures,
+                        'orders':recovered,'message':message,'batch_error':message}
             orders = []
             for index, item in enumerate(items):
                 try:
@@ -322,8 +327,11 @@ def execute_request(request: dict, *, db_path=None) -> dict:
                 except Exception as exc:
                     reason = str(exc) if isinstance(exc, ValueError) else type(exc).__name__
                     logging.getLogger(__name__).error('Oil order batch stopped machine=%s reason=%s', item['machine_code'], reason)
+                    known = {o['work_order_no'] for o in orders}
+                    orders.extend(o for o in recovered if o['work_order_no'] not in known)
+                    recovered_codes = {service.get_work_order(o['work_order_no'])['items'][0]['machine_code'] for o in orders}
                     failures = [{'machine_code':i['machine_code'], 'reason':reason if n==index else 'ساخت آغاز نشد؛ بررسی و تأیید تازه لازم است.'}
-                                for n,i in enumerate(items) if n >= index]
+                                for n,i in enumerate(items) if n >= index and i['machine_code'] not in recovered_codes]
                     return {'ok':False,'partial':bool(orders),'error':'PARTIAL' if orders else 'CREATE_FAILED',
                             'orders':orders,'failures':failures,
                             'message':'\n'.join(f"{f['machine_code']} ساخته نشد: {f['reason']}" for f in failures),
