@@ -702,6 +702,7 @@ def shared_routing(info):
 
 
 def register(ctx):
+    from integrations.hermes.admin_parts_policy import admin_parts_policy
     from integrations.hermes.technical_media import transform_technical_media
     ctx.register_hook("transform_llm_output", transform_technical_media)
     ctx.register_hook("pre_tool_call", pre_tool_call)
@@ -709,6 +710,7 @@ def register(ctx):
     ctx.register_hook("subagent_stop", subagent_stop)
     ctx.register_system_prompt_section("komatso.technical.prepared-manual", prepared_policy, max_chars=1400)
     ctx.register_system_prompt_section("komatso.technical.routing", shared_routing, max_chars=3000)
+    ctx.register_system_prompt_section("komatso.admin.parts-source", admin_parts_policy, max_chars=4000)
     models = manual_models()
     register_operations(ctx, [
         Operation(TOOL, TOOLSET, tool_schema(models), manual_evidence, TOOL_DESCRIPTION),

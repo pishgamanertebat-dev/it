@@ -15,8 +15,16 @@ def main():
     ap.add_argument('--platform',choices=['bale','telegram'],default='bale')
     ap.add_argument('--surface-only',action='store_true')
     ap.add_argument('--user-id',help='Existing approved identity; no assignment or transport send')
+    ap.add_argument('--history-file',type=Path,help='Private transcript from the same controlled conversation')
+    ap.add_argument('--session-id',help='Reuse that controlled session for follow-up MEDIA ownership')
     ap.add_argument('--output',type=Path,required=True)
     args=ap.parse_args()
+    if bool(args.history_file) != bool(args.session_id):
+        ap.error('--history-file and --session-id must be supplied together')
+    prior=json.loads(args.history_file.read_text(encoding='utf-8')) if args.history_file else None
+    identity={'user_id':args.user_id,'profile':args.profile,'platform':args.platform}
+    if prior and (prior.get('identity')!=identity or prior.get('session_id')!=args.session_id):
+        ap.error('Follow-up identity and session must match the controlled transcript')
     args.output.mkdir(parents=True,exist_ok=True)
     profile_home=HOME if args.profile=='default' else HOME/'profiles'/args.profile
     os.environ['HERMES_HOME']=str(profile_home)
@@ -58,7 +66,8 @@ def main():
         max_iterations=resolve_turn_limit((cfg.get('agent') or {}).get('max_turns')),quiet_mode=True,platform=args.platform,cwd=str(ROOT),
         skip_context_files=bool((cfg.get('agent') or {}).get('skip_context_files')),load_soul_identity=True,
         skip_background_review=True,session_db=None,
-        user_id=args.user_id,chat_id=args.user_id,chat_type='dm' if args.user_id else None)
+        user_id=args.user_id,chat_id=args.user_id,chat_type='dm' if args.user_id else None,
+        session_id=args.session_id)
     names={t['function']['name'] for t in agent.tools}
     expected={'web_search','web_extract','skills_list','skill_view','delegate_task',
               'maintenance_manual_evidence','maintenance_partbook_lookup'}
@@ -74,18 +83,23 @@ def main():
              'toolsets':toolsets,'model':model,'reasoning_config':resolve_reasoning_config(cfg,model)}
     (args.output/'surface.json').write_text(json.dumps(surface,ensure_ascii=False,indent=2),encoding='utf-8')
     if args.surface_only:
+        from agent.system_prompt import build_system_prompt
+        (args.output/'system-prompt.txt').write_text(build_system_prompt(agent),encoding='utf-8')
         agent.close();logging.getLogger().removeHandler(log);log.close()
         print(json.dumps({k:surface[k] for k in ['profile','platform','tools','tool_count']},ensure_ascii=True));return
     if names != expected:raise RuntimeError('Unexpected benchmark tool surface: '+str(sorted(names)))
     question=args.question_file.read_text(encoding='utf-8').strip()
+    history=prior['messages'] if prior else None
     try:
         started=time.perf_counter()
-        result=agent.run_conversation(question,conversation_history=None)
+        result=agent.run_conversation(question,conversation_history=history)
         elapsed=time.perf_counter()-started
         messages=result.get('messages') or []
         answer=result.get('final_response') or ''
         calls=[];packets=[]
-        for message in messages:
+        # Count this turn's calls separately from the genuine retained history.
+        turn_start=max((i for i,m in enumerate(messages) if m.get('role')=='user'),default=0)
+        for message in messages[turn_start:]:
             for call in message.get('tool_calls') or []:
                 f=call.get('function',call);a=f.get('arguments') or '{}'
                 calls.append({'name':f.get('name'),'arguments':json.loads(a) if isinstance(a,str) else a})
@@ -96,7 +110,7 @@ def main():
         api=[dict(input=int(m[1]),output=int(m[2]),latency=float(m[3])) for m in
              re.finditer(r'API call #\d+: .*? in=(\d+) out=(\d+).*?latency=([0-9.]+)s',(args.output/'agent.log').read_text(encoding='utf-8'))]
         media=[s[6:].strip() for s in answer.splitlines() if s.startswith('MEDIA:')]
-        report={'session_id':agent.session_id,'fresh_session':True,'history_messages':0,
+        report={'session_id':agent.session_id,'fresh_session':not bool(history),'history_messages':len(history or []),
                 'question':question,'question_sha256':hashlib.sha256(question.encode()).hexdigest(),
                 'profile':args.profile,'platform':args.platform,'approved_identity_bound':bool(args.user_id),'tool_schema':agent.tools,'tool_count':len(calls),
                 'wall_seconds':round(elapsed,2),'api_calls':result.get('api_calls'),'tool_calls':calls,
@@ -109,8 +123,9 @@ def main():
                 'final_answer':answer,'finish_reason':result.get('finish_reason'),
                 'broad':any(c['arguments'].get('broad') for c in calls),
                 'refine':sum(c['arguments'].get('phase')=='retrieve' for c in calls)>1}
-        (args.output/'transcript.json').write_text(json.dumps({'messages':messages},ensure_ascii=False,default=str),encoding='utf-8')
+        (args.output/'transcript.json').write_text(json.dumps({'messages':messages,'identity':identity,'session_id':agent.session_id},ensure_ascii=False,default=str),encoding='utf-8')
         (args.output/'summary.json').write_text(json.dumps(report,ensure_ascii=False,indent=2,default=str),encoding='utf-8')
+        (args.output/'system-prompt.txt').write_text(agent._cached_system_prompt or '',encoding='utf-8')
         print(json.dumps({k:report[k] for k in ['session_id','wall_seconds','api_calls','tool_sequence','media_count','media_files_exist','refine','broad']},ensure_ascii=True))
     finally:
         agent.close();logging.getLogger().removeHandler(log);log.close()
