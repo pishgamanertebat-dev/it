@@ -1,6 +1,6 @@
 """Native output hook -> strict attachment filtering, with isolated profile scopes."""
 from contextlib import contextmanager
-import base64
+from io import BytesIO
 import importlib.util
 import json
 import os
@@ -10,13 +10,16 @@ import tempfile
 from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
+from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[2]
 CORE = Path('C:/Users/win-10/AppData/Local/hermes/hermes-agent')
 sys.path[:0] = [str(ROOT), str(CORE), str(CORE/'venv/Lib/site-packages')]
 import tools
 tools.__path__.append(str(CORE/'tools'))
-PNG = base64.b64decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/l9sAAAAASUVORK5CYII=')
+_png_stream = BytesIO()
+Image.new('RGB', (1, 1), 'white').save(_png_stream, format='PNG')
+PNG = _png_stream.getvalue()  # the old hardcoded fixture had an invalid IDAT CRC
 
 
 class AdminTechnicalMediaTests(unittest.TestCase):

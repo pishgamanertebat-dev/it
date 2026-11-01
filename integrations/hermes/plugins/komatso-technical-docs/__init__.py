@@ -704,15 +704,27 @@ def shared_routing(info):
 def register(ctx):
     from integrations.hermes.admin_parts_policy import admin_parts_policy
     from integrations.hermes.technical_media import transform_technical_media
+    from integrations.hermes.pdf_region import REGION_TOOL, REGION_DESCRIPTION, region_schema
     ctx.register_hook("transform_llm_output", transform_technical_media)
     ctx.register_hook("pre_tool_call", pre_tool_call)
     ctx.register_hook("subagent_start", subagent_start)
     ctx.register_hook("subagent_stop", subagent_stop)
     ctx.register_system_prompt_section("komatso.technical.prepared-manual", prepared_policy, max_chars=1400)
-    ctx.register_system_prompt_section("komatso.technical.routing", shared_routing, max_chars=3000)
+    ctx.register_system_prompt_section("komatso.technical.routing", shared_routing, max_chars=4000)
     ctx.register_system_prompt_section("komatso.admin.parts-source", admin_parts_policy, max_chars=4000)
     models = manual_models()
     register_operations(ctx, [
         Operation(TOOL, TOOLSET, tool_schema(models), manual_evidence, TOOL_DESCRIPTION),
         Operation(PART_TOOL, TOOLSET, part_schema(part_model_names()), part_lookup, PART_DESCRIPTION),
+        Operation(REGION_TOOL, TOOLSET, region_schema(), region_evidence, REGION_DESCRIPTION),
     ])
+
+
+def region_evidence(args, session_id="", **kwargs):
+    from hermes_constants import get_hermes_home
+    from integrations.hermes.pdf_region import render_region
+    try:
+        return json.dumps(render_region(args, session_id=session_id,
+                                       home=get_hermes_home().resolve(), resolver=_resolver), ensure_ascii=False)
+    except (OSError, ValueError, KeyError, TypeError, subprocess.TimeoutExpired) as exc:
+        return json.dumps({"success": False, "error": str(exc)}, ensure_ascii=False)
