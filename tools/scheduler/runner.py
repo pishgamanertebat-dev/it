@@ -77,9 +77,13 @@ def validate_external_misfire(entries):
 
 def load_config(path=CONFIG, registry=TASKS):
     config = yaml.safe_load(Path(path).read_text(encoding='utf-8'))
-    only_keys(config, ['version', 'timezone', 'misfire_grace_seconds', 'schedules', 'external_misfire', 'preflight'], 'config')
+    only_keys(config, ['version', 'timezone', 'misfire_grace_seconds', 'schedules', 'external_misfire', 'preflight', 'mechanical_reminders', 'maintenance_reminders'], 'config')
     from .preflight import validate_config as validate_preflight
     preflight_hours=validate_preflight(config.get('preflight'))
+    from .completion_reminder import validate_config as validate_reminders
+    reminder_hours = validate_reminders(config.get('mechanical_reminders'))
+    from .completion_reminder import validate_maintenance_config
+    maintenance_hours, maintenance_users = validate_maintenance_config(config.get('maintenance_reminders'))
     if type(config.get('version')) is not int or config['version'] != 1:
         raise ValueError('version must be 1')
     tz = config.get('timezone', 'local')
@@ -96,6 +100,9 @@ def load_config(path=CONFIG, registry=TASKS):
                         'timezone', 'trigger', 'params', 'misfire'], 'schedule')
         job = dict(raw)
         job['preflight_hours']=preflight_hours if job.get('task') in REPORT_TASKS else ()
+        job['mechanical_reminder_hours'] = reminder_hours if job.get('task') == 'mechanical_driver_daily' else ()
+        job['maintenance_reminder_hours'] = maintenance_hours if job.get('task') == 'maintenance_daily_report' else ()
+        job['maintenance_reminder_recipients'] = maintenance_users if job.get('task') == 'maintenance_daily_report' else ()
         name = job.get('id')
         if not isinstance(name, str) or not re.fullmatch(r'[A-Za-z0-9_-]{1,80}', name) or name in ids:
             raise ValueError('Every schedule needs a unique, stable ASCII id')
@@ -471,6 +478,11 @@ def tick(config=CONFIG, state=STATE, now=None, registry=TASKS, authorization=Non
     conn = connect(state)
     try:
         _delivery_notifier(conn, jobs, now, authorization, activate=True)
+        try:
+            from .completion_reminder import run_reminders
+            run_reminders(conn, jobs, now, authorization if authorization is not None else AuthorizationStore())
+        except Exception as exc:
+            logger.error('Completion reminders failed: %s', type(exc).__name__)
         try:
             from .preflight import run_preflights
             run_preflights(conn,jobs,now,authorization if authorization is not None else AuthorizationStore())

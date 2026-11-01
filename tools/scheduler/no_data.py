@@ -14,7 +14,7 @@ def notice_text(title, target, latest=None):
 
 
 def notify_missing(title, target, latest, recipients, *, on_receipt=None, closed=None,
-                   reason='date_missing'):
+                   reason='date_missing', notify=True):
     """Re-resolve recipients; an uncertain notice never blocks a later actual report."""
     from .tasks import BaleSender, TransportUnavailable, closed_sets
     closed = closed or {}
@@ -23,6 +23,9 @@ def notify_missing(title, target, latest, recipients, *, on_receipt=None, closed
     initial = tuple(dict.fromkeys(recipients()))
     if initial and set(initial) <= report_sent:
         return {'status': 'succeeded'}
+    if not notify:
+        return {'status': 'waiting_for_data', 'reason': reason, 'latest_date': latest,
+                'notice_delivery_state': 'suppressed'}
     sender = None
     failed, uncertain, sent = [], [], []
     try:

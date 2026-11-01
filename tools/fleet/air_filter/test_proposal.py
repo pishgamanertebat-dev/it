@@ -16,7 +16,7 @@ class ProposalTests(unittest.TestCase):
         return evaluate_machine(dict(code=code,name=name,daily=daily),cutoff,plan)
 
     def test_all_hour_thresholds_and_alert_boundaries(self):
-        for name,code,outer,oa,inner,ia in [('دامپتراک','710',20,17,100,90),('کامیون سهند زرد','S1',10,7,50,45),('کامیون آب پاش','TA1',10,7,50,45),('خاور','TR1',10,7,10,7)]:
+        for name,code,outer,oa,inner,ia in [('دامپتراک','710',40,37,200,190),('کامیون سهند زرد','S1',10,7,50,45),('کامیون آب پاش','TA1',10,7,50,45),('خاور','TR1',10,7,10,7)]:
             for field,due,alert in [('outer',outer,oa),('inner',inner,ia)]:
                 for hours,state in [(due-4,'OK'),(due-3,'NEAR_DUE'),(due-1,'NEAR_DUE'),(due,'DUE')]:
                     with self.subTest(name=name,field=field,hours=hours):
@@ -26,10 +26,10 @@ class ProposalTests(unittest.TestCase):
     def test_cross_month_excludes_service_day_and_future(self):
         r=self.evaluate('دامپتراک',[day((5,31),24,inner='صبح'),day((6,1),11),day((6,8),9),day((6,9),100,inner='ظهر')])
         self.assertEqual(r['components']['outer']['value'],20)
-        self.assertEqual(r['action_code'],OUTER)
+        self.assertIsNone(r['action_code'])
 
     def test_inner_service_resets_outer_and_due_includes_both(self):
-        r=self.evaluate('دامپتراک',[day((5,1),inner='صبح'),day((5,2),100),day((6,8),outer='صبح')])
+        r=self.evaluate('دامپتراک',[day((5,1),inner='صبح'),day((5,2),200),day((6,8),outer='صبح')])
         self.assertEqual(r['action_code'],BOTH)
         r=self.evaluate('دامپتراک',[day((5,1),outer='صبح'),day((6,7),inner='شب'),day((6,8),3)])
         self.assertEqual(r['components']['outer']['value'],3)
@@ -96,7 +96,7 @@ class ProposalTests(unittest.TestCase):
         self.assertEqual(result['components']['outer']['last_service'],'1405/06/01')
 
     def test_inner_warning_does_not_replace_outer_due(self):
-        r=self.evaluate('دامپتراک',[day((5,1),inner='صبح'),day((5,2),77),day((6,1),outer='صبح'),day((6,8),20)])
+        r=self.evaluate('دامپتراک',[day((5,1),inner='صبح'),day((5,2),157),day((6,1),outer='صبح'),day((6,8),40)])
         self.assertEqual(r['components']['inner']['state'],'NEAR_DUE')
         self.assertEqual(r['action_code'],OUTER)
 

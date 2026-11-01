@@ -33,7 +33,7 @@ def source_file(path):
         ws.cell(row, 3, code)
         ws.cell(row, 4, 24)  # Service-day hours remain excluded.
         ws.cell(row, 5, 'صبح')
-        ws.cell(row, 7, 14)
+        ws.cell(row, 7, 34)
         ws.cell(row, 10, hours)
     wb.save(path)
     wb.close()
@@ -50,32 +50,32 @@ class ForecastTests(unittest.TestCase):
         for horizon in (0, 3, 6):
             for remaining in (-1, 0, 1, 3, 4, 6, 7):
                 with self.subTest(horizon=horizon, remaining=remaining):
-                    r = self.evaluate(20 - remaining, horizon)
+                    r = self.evaluate(40 - remaining, horizon)
                     c = r['components']['outer']
                     expected = 'DUE' if remaining <= 0 else 'NEAR_DUE' if remaining <= horizon else 'OK'
                     self.assertEqual(c['state'], expected)
                     self.assertEqual(c['remaining_hours'], remaining)
-                    self.assertEqual(c['value'], 20 - remaining)
+                    self.assertEqual(c['value'], 40 - remaining)
                     self.assertEqual(r['action_code'], OUTER if remaining <= 0 else None)
 
     def test_inner_and_outer_independent_and_mixed_states_keep_due_action(self):
-        # 97 inner / 20 outer: the outer is due, inner is forecast-only.
-        daily = [day((6, 1), 24, inner='صبح'), day((6, 2), 77),
-                 day((6, 20), 0, outer='شب'), day((6, 22), 20)]
+        # 197 inner / 40 outer: the outer is due, inner is forecast-only.
+        daily = [day((6, 1), 24, inner='صبح'), day((6, 2), 157),
+                 day((6, 20), 0, outer='شب'), day((6, 22), 40)]
         r = self.evaluate(None, daily=daily)
         self.assertEqual((r['components']['inner']['state'], r['components']['outer']['state']), ('NEAR_DUE', 'DUE'))
         self.assertEqual(r['action_code'], OUTER)
-        # 100 inner / 17 outer: preserve the existing BOTH action.
-        daily[1]['hours'] = 83
-        daily[-1]['hours'] = 17
+        # 200 inner / 37 outer: preserve the existing BOTH action.
+        daily[1]['hours'] = 163
+        daily[-1]['hours'] = 37
         r = self.evaluate(None, daily=daily)
         self.assertEqual((r['components']['inner']['state'], r['components']['outer']['state']), ('DUE', 'NEAR_DUE'))
         self.assertEqual(r['action_code'], BOTH)
 
     def test_missing_baseline_and_untrustworthy_hours_never_forecast(self):
-        variants = [[day((6, 22), 19)],
+        variants = [[day((6, 22), 39)],
                     [day((6, 20), inner='صبح'), day((6, 22), 'نامشخص')],
-                    [day((6, 20), inner='صبح'), day((6, 22), 19, outer='نامشخص')]]
+                    [day((6, 20), inner='صبح'), day((6, 22), 39, outer='نامشخص')]]
         for daily in variants:
             with self.subTest(daily=daily):
                 r = self.evaluate(None, daily=daily)
@@ -92,11 +92,11 @@ class ForecastTests(unittest.TestCase):
         self.assertEqual(r['components']['outer']['state'], 'NEAR_DUE')  # Explicit recorded zero.
 
     def test_five_recorded_hours_once_and_forecast_never_changes_input(self):
-        daily = [day((6, 20), 24, inner='صبح'), day((6, 21), 14), day((6, 22), 5)]
+        daily = [day((6, 20), 24, inner='صبح'), day((6, 21), 34), day((6, 22), 5)]
         before = deepcopy(daily)
         for horizon in (0, 3, 6):
             r = self.evaluate(None, horizon, daily)
-            self.assertEqual(r['components']['outer']['value'], 19)
+            self.assertEqual(r['components']['outer']['value'], 39)
             self.assertEqual(r['components']['outer']['last_service'], '1405/06/20')
             self.assertIsNone(r['action_code'])
         self.assertEqual(daily, before)
@@ -127,8 +127,8 @@ class ForecastTests(unittest.TestCase):
             self.assertEqual(before, (path.read_bytes(), path.stat().st_mtime_ns))
 
     def test_mixed_machine_one_card_with_both_component_states(self):
-        r = self.evaluate(None, daily=[day((6, 1), inner='صبح'), day((6, 2), 77),
-                                      day((6, 20), outer='صبح'), day((6, 22), 20)])
+        r = self.evaluate(None, daily=[day((6, 1), inner='صبح'), day((6, 2), 157),
+                                      day((6, 20), outer='صبح'), day((6, 22), 40)])
         with patch.object(af, 'read_source', return_value=([{}], (6, 22), (6, 23), [], 'test')), \
                 patch.object(af, 'evaluate_machine', return_value=r):
             p = af.build_proposal()
@@ -188,7 +188,7 @@ class ForecastOrderTests(unittest.TestCase):
         proposal_form.add_items(p, r['items'], OUTER)
         self.assertFalse(p['warnings'])
         self.assertIn('با انتخاب مسئول نت', p['items'][-1]['manual_note'])
-        self.assertEqual(p['items'][-1]['components']['outer']['value'], 19)
+        self.assertEqual(p['items'][-1]['components']['outer']['value'], 39)
         self.assert_excel(self.create(p), ['710', '719'])
         self.assertEqual(path.read_bytes(), before)
 

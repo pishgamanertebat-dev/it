@@ -161,8 +161,13 @@ class FamilyTests(unittest.TestCase):
                 events=[]
                 result=TASKS[job['task']][1]('A',{'date':TARGET},authorization=auth,on_receipt=lambda *args:events.append(args))
                 self.assertEqual(result['status'],'waiting_for_data')
-                self.assertEqual([e[3] for e in events],['notice','notice'])
-                sender.return_value.message.assert_called_once()
+                if job['task'] in {'driver_daily','mechanical_driver_daily','maintenance_daily_report'}:
+                    self.assertEqual(events, [])
+                    self.assertEqual(result['notice_delivery_state'], 'suppressed')
+                    sender.assert_not_called()
+                else:
+                    self.assertEqual([e[3] for e in events],['notice','notice'])
+                    sender.return_value.message.assert_called_once()
                 sender.return_value.document.assert_not_called();sender.return_value.photo.assert_not_called()
 
     def test_overflow_latest_ignores_duplicate_or_malformed_dates(self):

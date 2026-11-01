@@ -95,7 +95,11 @@ class OfficeDeliveryTests(Fixture, unittest.TestCase):
             with self.subTest(task=task):
                 self.state=self.directory/(task+'.db');self.job(task);self.calls=[];self.present=False
                 self.run_at();self.run_at(61)
-                self.assertEqual([(u,a) for u,a,d,c in self.calls],[('101','notice'),('202','notice')])
+                self.assertEqual([(u,a) for u,a,d,c in self.calls],
+                                 [] if task=='driver_daily' else [('101','notice'),('202','notice')])
+                if task=='driver_daily':
+                    self.assertEqual(self.rows('runs')[0]['notice_delivery_state'], 'suppressed')
+                    self.assertEqual(self.rows('receipts')[0]['status'], 'pending')
                 self.assertTrue(all(TARGET in c for u,a,d,c in self.calls))
                 self.assertEqual(self.rows('runs')[0]['status'],'waiting_for_data')
                 self.present=True;self.run_at(182);self.run_at(483)

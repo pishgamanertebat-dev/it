@@ -54,7 +54,7 @@ def deliver(recipient, params, *, authorization=None, on_receipt=None, closed=No
                 dates=report.get('available_dates', [])
                 return notify_missing('گزارش روزانه تعمیرات ماشین‌آلات', expected, max(dates) if dates else None,
                                       lambda: recipients().recipients, on_receipt=on_receipt, closed=closed,
-                                      reason=result['reason'])
+                                      reason=result['reason'], notify=False)
             if report['date']!=expected or result['status']!='ready':raise ValueError('Unexpected report date/status')
             path=Path(result['pdf'])
             if path.parent.resolve()!=Path(directory).resolve():raise ValueError('Unexpected output path')

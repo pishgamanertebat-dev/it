@@ -4,7 +4,14 @@ timezone: Asia/Tehran
 misfire_grace_seconds: 900
 preflight:
   enabled: true
-  hours: [8, 11]
+  hours: [6, 7, 8, 11]
+mechanical_reminders:
+  enabled: true
+  hours: [8, 15]
+maintenance_reminders:
+  enabled: true
+  hours: [11, 15]
+  recipients: ["1732374823", "654806764", "387679249"]
 schedules:
   - id: overflow_daily_test
     enabled: true
@@ -16,8 +23,8 @@ schedules:
       horizon_days: 7
     trigger:
       type: cron
-      hour: 12
-      minute: 0
+      hour: 7
+      minute: 45
     params: {}
   - id: repairs_daily
     enabled: false
@@ -63,8 +70,8 @@ schedules:
       horizon_days: 7
     trigger:
       type: cron
-      hour: 12
-      minute: 0
+      hour: 7
+      minute: 45
     params: {}
   - id: driver_daily_mechanical
     enabled: true

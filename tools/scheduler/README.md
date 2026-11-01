@@ -109,11 +109,40 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\scheduler\instal
 
 All six enabled deterministic daily report families use the exact previous Tehran
 calendar day of their original due. No older report substitutes for it. A missing
-source day returns `waiting_for_data`, sends one Persian text notice to each
-currently authorized recipient, and keeps bounded source retries active for the
+source day returns `waiting_for_data` and keeps bounded source retries active for the
 existing seven-day horizon. Latest dates come from each domain parser, never file
 names. A driver day with a valid exact-date sheet and no defects remains a valid
 report; maintenance requires actual target-date activity rows.
+
+Driver-report completion reminders run at 08:00 and 15:00 Asia/Tehran, only for
+the active mechanical report recipients (currently Shayesteh and Karamali).
+Each slot reads the exact previous Tehran day independently of PDF receipts.
+A missing day or a completely blank mechanical section gets one reminder per
+recipient per slot; an existing mechanical entry suppresses that slot. An empty
+section is described as empty, without claiming that a machine has a defect.
+The afternoon slot rereads the source, so filling it stops the second reminder.
+The workbook has no explicit completion marker: partially filled sections cannot
+be classified from blank device cells alone. Unreadable or invalid workbooks are
+technical failures, never proof of missing entries. Definite transport failures
+retry within the slot's hour; uncertain sends remain closed. Reminder decisions
+and receipts persist separately from PDF delivery.
+
+Office and mechanical driver-report jobs suppress their old missing-day messages
+at 09:00. Emami and Pakdel receive the actual driver PDFs without file-completion
+reminders. Metalwork and overflow missing-data notices keep their existing
+recipient policies. Maintenance completion reminders run at 11:00 and 15:00 for
+the explicit approved private identities Karamali, Shayesteh and Sadegh Sadeghian.
+Their active mechanical/metalwork report eligibility is rechecked before each
+message. These reminders grant no workbook access or maintenance PDF subscription.
+The exact previous-day maintenance scan must contain an activity row; a date-only
+template or an older date does not satisfy it. Source errors never become a
+completion accusation. Office maintenance missing-day messages at 12:00 are
+suppressed; actual PDF delivery and its recipients retain their existing behavior.
+Both reminder families share receipt handling with distinct schedule/slot keys.
+Overflow delivery for all current recipients is now
+07:45; driver PDFs remain at 09:00 and maintenance remains at 12:00.
+Overflow preflight retains its one-hour window (06:45 to 07:45). Existing original
+dues and report receipts remain authoritative when a delivery clock changes.
 
 Receipts use `(schedule_id, due, recipient_id, delivery_kind)` with independent
 `notice` and `report` identities. `pending`, `sending`, `sent`, `failed`, `uncertain`

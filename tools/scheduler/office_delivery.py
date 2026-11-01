@@ -46,7 +46,7 @@ def deliver(task, params, *, authorization, on_receipt=None, closed=None, on_art
             if report['date'] != target:
                 raise ValueError('Driver output date mismatch')
             if report.get('sections') and all(v['status'] == 'date_missing' for v in report['sections'].values()):
-                return notify_missing('گزارش روزانه رانندگان', target, report.get('latest_date'), recipients, on_receipt=on_receipt, closed=closed)
+                return notify_missing('گزارش روزانه رانندگان', target, report.get('latest_date'), recipients, on_receipt=on_receipt, closed=closed, notify=False)
             if len(result['documents']) != 2:
                 raise ValueError('Driver output must contain two PDFs')
             artifacts = [(s, Path(p), report['sections'][s]['title'] + ' ' + target, True) for s, p in zip(SECTIONS, result['documents'])]

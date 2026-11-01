@@ -48,6 +48,16 @@ class Directory:
 
 
 class AlertTests(unittest.TestCase):
+    def test_suppressed_driver_notice_is_not_a_failed_delivery(self):
+        from .delivery_alert import _required_kind
+        run = dict(status='waiting_for_data', error='date_missing', data_state='missing',
+                   notice_delivery_state='suppressed')
+        self.assertIsNone(_required_kind(run))
+        run['status'] = 'no_data_final'
+        self.assertIsNone(_required_kind(run))
+        run.update(status='retry_wait', error='TransportUnavailable', data_state='ready')
+        self.assertEqual(_required_kind(run), 'report')
+
     def test_maintenance_generation_failure_is_not_labelled_as_bale_send_failure(self):
         from tools.scheduler.delivery_alert import _problems, format_exception
         self.arm()

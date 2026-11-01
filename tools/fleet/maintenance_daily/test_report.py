@@ -317,7 +317,7 @@ class DeliveryTests(MaintenanceFixture,unittest.TestCase):
         self.sender.document.side_effect=[RuntimeError('uncertain'),None];r,b=self.run_delivery();self.assertEqual(r['status'],'failed');self.assertEqual(r['sent_count'],1);self.assertEqual(r['failed_count'],1);self.assertEqual(self.sender.document.call_count,2);self.assertTrue(all(not p.exists() for p in self.outputs))
     def test_zero_records_no_empty_pdf_send(self):
         r,b=self.run_delivery(lambda date,directory:{'status':'skipped','reason':'no_target_date_records','report':dict(self.r,devices=[],devices_matched=0,rows_matched=0)})
-        self.assertEqual(r['status'],'waiting_for_data');self.assertEqual(r['reason'],'no_target_date_records');self.sender.message.assert_called();self.sender.document.assert_not_called()
+        self.assertEqual(r['status'],'waiting_for_data');self.assertEqual(r['reason'],'no_target_date_records');self.assertEqual(r['notice_delivery_state'],'suppressed');self.sender.message.assert_not_called();self.sender.document.assert_not_called()
     def test_invalid_pdf_date_source_or_generation_failure_never_send_cleanup(self):
         for failure in ['date','pdf','source','generation']:
             with self.subTest(failure=failure):
@@ -335,6 +335,27 @@ class DeliveryTests(MaintenanceFixture,unittest.TestCase):
             with self.subTest(params=params),self.assertRaises(ValueError):maintenance_daily_report(None,params,authorization=self.auth)
 
 class SchedulerTests(MaintenanceFixture,unittest.TestCase):
+    def test_suppressed_missing_notice_still_delivers_late_pdf_once(self):
+        p,base=self.config();p,_=self.config(dict(base,misfire={'policy':'replay','horizon_days':7}))
+        state=self.directory/'late-data.db';now=datetime(2026,10,6,9,0,tzinfo=ZoneInfo('Asia/Tehran'))
+        absent={'status':'skipped','reason':'no_target_date_records',
+                'report':dict(self.r,devices=[],devices_matched=0,rows_matched=0)}
+        with patch.object(delivery,'build',return_value=absent),patch('tools.scheduler.tasks.BaleSender',return_value=self.sender):
+            self.assertEqual(tick(p,state,now=now,authorization=self.auth),0)
+        self.sender.message.assert_not_called();self.sender.document.assert_not_called()
+        with closing(sqlite3.connect(state)) as c:
+            self.assertEqual(c.execute('SELECT status,notice_delivery_state FROM runs').fetchone(),
+                             ('waiting_for_data','suppressed'))
+            self.assertEqual(c.execute("SELECT count(*) FROM receipts WHERE delivery_kind='notice'").fetchone()[0],0)
+        self.sender.document.side_effect=['501','502']
+        with patch.object(delivery,'build',side_effect=self.fake_build),patch.object(delivery,'validate_pdf',return_value={'pages':1,'bytes':12}),patch.object(delivery,'verify_source_digest'),patch('tools.scheduler.tasks.BaleSender',return_value=self.sender):
+            tick(p,state,now=now+timedelta(seconds=61),authorization=self.auth)
+            tick(p,state,now=now+timedelta(seconds=182),authorization=self.auth)
+        self.assertEqual(self.sender.document.call_count,2)
+        with closing(sqlite3.connect(state)) as c:
+            self.assertEqual(c.execute('SELECT status FROM runs').fetchone()[0],'succeeded')
+            self.assertEqual(c.execute("SELECT count(*) FROM receipts WHERE delivery_kind='report' AND status='sent'").fetchone()[0],2)
+
     def test_layout_error_retries_automatically_at_same_due_and_cannot_duplicate(self):
         from tools.scheduler import runner
         from tools.scheduler.report_errors import ReportFailure

@@ -13,7 +13,7 @@ def rule_for(code, name):
     if name == 'بلدوزر' or code in {'151', '152'}:
         return {'inner': (10, 7), 'outer': (10, 7), 'together': True}
     if name == 'دامپتراک':
-        return {'inner': (100, 90), 'outer': (20, 17)}
+        return {'inner': (200, 190), 'outer': (40, 37)}
     if name in {'کامیون سهند زرد', 'کامیون آب پاش'}:
         return {'inner': (50, 45), 'outer': (10, 7)}
     if name == 'خاور':

@@ -145,6 +145,8 @@ def _required_kind(run):
     missing = (status in {'waiting_for_data', 'no_data_final'}
                or _column(run, 'data_state') == 'missing' or error in MISSING_ERRORS)
     if missing and status != 'succeeded' and error not in TRANSPORT_ERRORS and _column(run, 'data_state') != 'ready':
+        if _column(run, 'notice_delivery_state') == 'suppressed':
+            return None
         return 'notice'
     if status in {'succeeded', 'uncertain', 'partial', 'retry_wait', 'failed'}:
         return 'report'

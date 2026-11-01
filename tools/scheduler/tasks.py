@@ -314,7 +314,7 @@ def driver_daily(recipient, params, *, authorization=None, on_receipt=None, clos
         if result['report'].get('sections') and all(c['status'] == 'date_missing' for c in result['report']['sections'].values()):
             return notify_missing('گزارش روزانه رانندگان', expected, result['report'].get('latest_date'),
                                   lambda: (recipient,) if authorized() is None else (),
-                                  on_receipt=on_receipt, closed=closed)
+                                  on_receipt=on_receipt, closed=closed, notify=False)
         if result['report']['date'] != expected or len(result['documents']) != 2:
             raise ValueError('Driver output must contain two PDFs for the exact requested day')
         sender = BaleSender()
@@ -383,7 +383,7 @@ def _mechanical_push(params, *, capability, read_capability, pdf=False, authoriz
             if result['report']['sections']['mechanical']['status'] == 'date_missing':
                 return notify_missing('گزارش روزانه معایب مکانیکی رانندگان', expected,
                                       result['report'].get('latest_date'), recipients,
-                                      on_receipt=on_receipt, closed=closed)
+                                      on_receipt=on_receipt, closed=closed, notify=False)
             if (not result.get('ok') or result['report']['date']!=expected
                     or len(result['documents'])!=1):
                 raise ValueError('One mechanical PDF for the exact requested day is required')

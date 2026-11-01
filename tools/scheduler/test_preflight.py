@@ -48,6 +48,18 @@ class PreflightTests(unittest.TestCase):
         self.run_check(self.at(11),[self.job(12,'maintenance_daily_report','noon')])
         self.assertEqual(self.sent,[])
 
+    def test_0745_overflow_preflight_spans_both_clock_hours_once(self):
+        self.setup_checker()
+        job = self.job(7, 'mechanical_overflow', 'early-overflow')
+        job['preflight_hours'] = (6, 7, 8, 11)
+        job['trigger'] = CronTrigger(hour=7, minute=45, timezone=TZ)
+        self.run_check(self.at(6, 44), [job])
+        self.checker.assert_not_called()
+        self.run_check(self.at(6, 45), [job])
+        self.run_check(self.at(7, 1), [job])
+        self.run_check(self.at(7, 45), [job])
+        self.assertEqual(self.checker.call_count, 1)
+
     def test_layout_failure_named_location_once_and_retries_after_fix(self):
         self.checker=Mock(side_effect=ReportFailure('pdf_layout',stage='layout',sheet='461',row=11,column=3))
         self.run_check(self.at(11),[self.job(12,'maintenance_daily_report','noon')])

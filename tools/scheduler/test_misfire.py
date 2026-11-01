@@ -139,6 +139,20 @@ class CatchUpTests(unittest.TestCase):
         self.assertEqual([call[1] for call in self.calls], ['1405/07/14', '1405/07/15'])
         self.assertEqual(self.rows()[-1]['due'], '2026-10-08T08:30:00+00:00')
 
+    def test_move_noon_to_0745_preserves_today_and_next_day_sends_once(self):
+        self.write([self.overflow(trigger=dict(type='cron', hour=12, minute=0))])
+        self.tick_at(datetime(2026, 10, 7, 12, 0, tzinfo=TZ))
+        original = self.rows()[0]['due']
+        self.write([self.overflow(trigger=dict(type='cron', hour=7, minute=45))])
+        self.tick_at(datetime(2026, 10, 7, 13, 0, tzinfo=TZ))
+        self.assertEqual(len(self.calls), 1)
+        self.assertEqual(self.rows()[0]['due'], original)
+        self.tick_at(datetime(2026, 10, 8, 7, 44, tzinfo=TZ))
+        self.assertEqual(len(self.calls), 1)
+        self.tick_at(datetime(2026, 10, 8, 7, 45, tzinfo=TZ))
+        self.tick_at(datetime(2026, 10, 8, 12, 0, tzinfo=TZ))
+        self.assertEqual([call[1] for call in self.calls], ['1405/07/14', '1405/07/15'])
+
     def test_move_to_nine_preserves_pending_day_and_notice_receipt(self):
         self.write([self.driver()])
         ready = {'value': False}
@@ -442,6 +456,11 @@ class ProductionScheduleTests(unittest.TestCase):
         self.assertEqual(jobs['maintenance_daily_report']['recipient_capability'],
                          'reports.maintenance.daily_receive')
         self.assertNotIn('recipient', jobs['overflow_daily_test'])
+        for name in ('overflow_daily_test', 'overflow_daily_mechanical'):
+            self.assertEqual(jobs[name]['trigger'], {'type': 'cron', 'hour': 7, 'minute': 45})
+        self.assertEqual(raw['mechanical_reminders'], {'enabled': True, 'hours': [8, 15]})
+        self.assertEqual(raw['maintenance_reminders'], {'enabled': True, 'hours': [11, 15],
+            'recipients': ['1732374823', '654806764', '387679249']})
         external = {item['id']: item for item in raw['external_misfire']}
         self.assertEqual(external['3ccb658aed3c'], {'id': '3ccb658aed3c', 'name': 'mine-file-sync', 'policy': 'latest_only'})
         load_config(ROOT / 'settings/schedules.yaml')
