@@ -45,6 +45,10 @@ def validate_maintenance_config(raw):
 
 
 def reminder_recipients(job, store):
+    if job['task'] == 'machinery_performance_daily_report':
+        from tools.authorization.machinery_performance import REMINDER_CAPABILITY, REMINDER_USER
+        resolved = store.resolve_active_recipients(REMINDER_CAPABILITY)
+        return tuple(u for u in resolved.recipients if u == REMINDER_USER) if resolved.status == 'ready' else ()
     if job['task'] == 'oil_balance_daily_report':
         from tools.authorization.oil_balance import REMINDER_CAPABILITY
         resolved = store.resolve_active_recipients(REMINDER_CAPABILITY)
@@ -200,7 +204,8 @@ def run_reminders(conn, jobs, now, store, *, checker=None, sender_factory=None):
     from .tasks import overflow_report_date
     now = now.astimezone(TEHRAN)
     hour_fields = {TASK: 'mechanical_reminder_hours', MAINTENANCE_TASK: 'maintenance_reminder_hours',
-                   'oil_balance_daily_report': 'oil_balance_reminder_hours'}
+                   'oil_balance_daily_report': 'oil_balance_reminder_hours',
+                   'machinery_performance_daily_report': 'machinery_performance_reminder_hours'}
     selected = [j for j in jobs if j.get('enabled', True) and j['task'] in hour_fields
                 and now.hour in j.get(hour_fields[j['task']], ())]
     if not selected:
@@ -211,6 +216,10 @@ def run_reminders(conn, jobs, now, store, *, checker=None, sender_factory=None):
     target = overflow_report_date(now)
     for job in selected:
         try:
+            if job['task'] == 'machinery_performance_daily_report':
+                from tools.fleet.machinery_performance.reminder import run
+                run(conn, job, now, store, checker=checker, sender_factory=sender_factory)
+                continue
             if job['task'] == 'oil_balance_daily_report':
                 from tools.fleet.oil_balance.reminder import run
                 run(conn, job, now, store, checker=checker, sender_factory=sender_factory)

@@ -34,6 +34,7 @@ MECH_DRIVER_RECEIVE = 'reports.driver_daily.mechanical_daily_receive'
 FILE_RESOURCES = {
     MAINTENANCE_RECORDS_READ: 'تعمیرات 1405.xlsx',
     DRIVER_REPORT_READ: 'گزارش روزانه رانندگان2.xlsx',
+    'reports.machinery_performance.read': 'عملکرد ماشین آلات.xlsx',
 }
 FUNCTION_CAPABILITIES = (FUNCTION_READ, *FILE_RESOURCES)
 MECHANICAL_ROLES = (
@@ -471,7 +472,10 @@ class AuthorizationStore:
             # No manager/deputy profile rows or unexpected grants may sneak into an existing seed.
             for role, expected in MECHANICAL_ROLE_CAPABILITIES.items():
                 actual = {r[0] for r in conn.execute('SELECT capability FROM auth_role_capabilities WHERE role=?', (role,))}
-                if actual != set(expected):
+                permitted = set(expected)
+                if (role == MECHANICAL_STAFF and conn.execute("SELECT 1 FROM auth_extensions WHERE name='machinery_performance_v1'").fetchone()):
+                    permitted.add('reports.machinery_performance.read')
+                if actual != permitted:
                     raise sqlite3.DatabaseError('Conflicting mechanical role capabilities')
             if conn.execute('SELECT 1 FROM auth_role_profiles WHERE role IN (?,?)',
                             (MECHANICAL_MANAGER, MECHANICAL_MANAGER_DEPUTY)).fetchone():

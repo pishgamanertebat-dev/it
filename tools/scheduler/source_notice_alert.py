@@ -115,7 +115,7 @@ def scan_source_notices(conn, jobs, now, store, *, sender_factory=None):
                 if recipient not in expected:
                     continue
                 text = notice_text(_title(job), _target(notice['due']), _label(store, recipient))
-                for operator in operators:
+                for operator in (_operators(store,job) if job['task']=='machinery_performance_daily_report' else operators):
                     _send(conn, (job['id'], notice['due'], recipient, operator), text, now, factory)
         except Exception as exc:
             logger.error('Source notice alert scan failed schedule=%s error=%s', job['id'], type(exc).__name__)

@@ -566,3 +566,13 @@ def oil_balance_daily_report(recipient, params, *, authorization=None, on_receip
 
 TASKS['oil_balance_daily_report'] = (validate_oil_balance, oil_balance_daily_report)
 MULTI_RECIPIENT_TASKS['oil_balance_daily_report'] = OIL_BALANCE_DAILY_RECEIVE
+
+from tools.authorization.machinery_performance import CAPABILITY as PERFORMANCE_DAILY_RECEIVE
+from tools.fleet.machinery_performance.delivery import validate_params as validate_performance
+
+def machinery_performance_daily_report(recipient, params, *, authorization=None, on_receipt=None, closed=None):
+    from tools.fleet.machinery_performance.delivery import deliver
+    return deliver(recipient, params, authorization=authorization, on_receipt=on_receipt, closed=closed)
+
+TASKS['machinery_performance_daily_report'] = (validate_performance, machinery_performance_daily_report)
+MULTI_RECIPIENT_TASKS['machinery_performance_daily_report'] = PERFORMANCE_DAILY_RECEIVE

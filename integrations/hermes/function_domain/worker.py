@@ -14,7 +14,7 @@ ALLOWED={
     'metadata':{'path'},
     'read':{'path','sheet','offset','limit'},
     'attach':{'path'},
-    'report':{'kind','date'},
+    'report':{'kind','date','machine_code','mode','output'},
 }
 
 def private_identity(identity):
@@ -26,6 +26,10 @@ def authorized(identity,store):
 
 def report_authorized(identity,store,kind):
     if not private_identity(identity):return False
+    if kind=='machinery_performance':
+        from tools.fleet.machinery_performance.report import SOURCE_NAME
+        scope=store.function_scope(identity['user_id'],'bale')
+        return scope.all or SOURCE_NAME in scope.files
     if kind=='overflow':
         return (store.function_scope(identity['user_id'],'bale').all
                 or store.can_read_overflow(identity['user_id'],identity['chat_id']))
@@ -76,6 +80,23 @@ def run(request,*,store=None,reader=None,cache=CACHE):
                         snapshot=Path(tmp)/'source.xlsx';snapshot.write_bytes(reader.snapshot('سرریز روزانه.xlsx'))
                         report=load_report(date,snapshot)
                     result={'ok':True,'report':report,'images':render_report(report,out)}
+                elif args['kind']=='machinery_performance':
+                    from tools.fleet.machinery_performance.report import load,select,TOTAL_COLUMNS
+                    report=select(load(date,reader=reader),mode=args.get('mode','daily'),
+                                  comparison='average_gt_limit',machine_code=args.get('machine_code'))
+                    ready=bool(report['rows'] and not report['missing_codes'])
+                    result=dict(status='ready' if ready else 'waiting_for_data',date=report['date'],
+                                mode=report['mode'],source_sha256=report['source_sha256'],
+                                missing_codes=report['missing_codes'],ambiguous_code=report['ambiguous_code'],
+                                devices=[dict(name=r['name'],code=r['code'],metrics=dict(zip(TOTAL_COLUMNS,r['values'])),
+                                              fuel_alert=r['alarm']) for r in report['rows']],
+                                meaning='daily=exact date; monthly=saved monthly totals at preparation time; fuel=litres diesel; fuel average=litres/work hours; service counts=counts; zero work hours=undefined average')
+                    if args.get('output','data') not in {'data','pdf'}:
+                        raise ValueError('Unsupported performance output')
+                    if ready and args.get('output')=='pdf':
+                        from tools.fleet.machinery_performance.render import render,validate_pdf
+                        pdf=out/'machinery-performance.pdf';render(report,pdf);validate_pdf(pdf,report)
+                        result['attachment']=str(pdf)
                 else:raise ValueError('Unknown report kind')
         except Exception:
             # Only this fixed private cache directory is ever cleaned; operational sources are untouched.

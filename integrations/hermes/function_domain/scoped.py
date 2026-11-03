@@ -75,7 +75,8 @@ class ScopedReader:
         tag_info.argtypes=[wintypes.HANDLE,ctypes.c_int,ctypes.c_void_p,wintypes.DWORD];tag_info.restype=wintypes.BOOL
         # Parents share READ/WRITE but never DELETE: no rename/junction substitution.
         # Files share READ only: an active writer cannot change a parsed snapshot.
-        handle=create(str(path),0x80 if directory else 0x80000000,3 if directory else 1,
+        shared_read = getattr(self, '_stable_snapshot_shared_read', False)
+        handle=create(str(path),0x80 if directory else 0x80000000,3 if directory or shared_read else 1,
                       None,3,0x00200000 | (0x02000000 if directory else 0),None)
         if handle==ctypes.c_void_p(-1).value:raise ctypes.WinError(ctypes.get_last_error())
         owned=True
@@ -165,4 +166,25 @@ class ScopedReader:
             if size>maximum:raise ValueError('File exceeds this operation limit; use paged reads or attachment')
             data=f.read(maximum+1)
             if len(data)>maximum:raise ValueError('File exceeds operation limit')
+            return data
+
+    def stable_snapshot(self,relative,*,maximum=MAX_PARSE_BYTES):
+        """Trusted report-only read of a saved workbook still open in Excel.
+
+        Same path/identity scope and read-only handle, with shared WRITE but never
+        DELETE. Compare both complete byte reads and file metadata while parents
+        stay pinned. The general read/attachment tools keep exclusive snapshots.
+        """
+        reader=ScopedReader(self.root,allowed_files=self.allowed_files)
+        reader._stable_snapshot_shared_read=True
+        with reader.open(relative) as (_,stream):
+            before=os.fstat(stream.fileno())
+            if before.st_size>maximum:raise ValueError('File exceeds operation limit')
+            data=stream.read(maximum+1)
+            stream.seek(0)
+            repeated=stream.read(maximum+1)
+            after=os.fstat(stream.fileno())
+            if (len(data)>maximum or data!=repeated or
+                    (before.st_size,before.st_mtime_ns)!=(after.st_size,after.st_mtime_ns)):
+                raise OSError('Source changed during stable snapshot')
             return data

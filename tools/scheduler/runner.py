@@ -77,12 +77,13 @@ def validate_external_misfire(entries):
 
 def load_config(path=CONFIG, registry=TASKS):
     config = yaml.safe_load(Path(path).read_text(encoding='utf-8'))
-    only_keys(config, ['version', 'timezone', 'misfire_grace_seconds', 'schedules', 'external_misfire', 'preflight', 'mechanical_reminders', 'maintenance_reminders', 'oil_balance_reminders'], 'config')
+    only_keys(config, ['version', 'timezone', 'misfire_grace_seconds', 'schedules', 'external_misfire', 'preflight', 'mechanical_reminders', 'maintenance_reminders', 'oil_balance_reminders', 'machinery_performance_reminders'], 'config')
     from .preflight import validate_config as validate_preflight
     preflight_hours=validate_preflight(config.get('preflight'))
     from .completion_reminder import validate_config as validate_reminders
     reminder_hours = validate_reminders(config.get('mechanical_reminders'))
     oil_balance_hours = validate_reminders(config.get('oil_balance_reminders'), label='oil_balance_reminders', default_hours=(11, 16))
+    performance_hours = validate_reminders(config.get('machinery_performance_reminders'), label='machinery_performance_reminders', default_hours=(14, 17))
     from .completion_reminder import validate_maintenance_config
     maintenance_hours, maintenance_users = validate_maintenance_config(config.get('maintenance_reminders'))
     if type(config.get('version')) is not int or config['version'] != 1:
@@ -105,6 +106,7 @@ def load_config(path=CONFIG, registry=TASKS):
         job['maintenance_reminder_hours'] = maintenance_hours if job.get('task') == 'maintenance_daily_report' else ()
         job['maintenance_reminder_recipients'] = maintenance_users if job.get('task') == 'maintenance_daily_report' else ()
         job['oil_balance_reminder_hours'] = oil_balance_hours if job.get('task') == 'oil_balance_daily_report' else ()
+        job['machinery_performance_reminder_hours'] = performance_hours if job.get('task') == 'machinery_performance_daily_report' else ()
         name = job.get('id')
         if not isinstance(name, str) or not re.fullmatch(r'[A-Za-z0-9_-]{1,80}', name) or name in ids:
             raise ValueError('Every schedule needs a unique, stable ASCII id')
@@ -167,13 +169,13 @@ def load_config(path=CONFIG, registry=TASKS):
                     or type(spec['minute']) is not int
                     or any(j['task']=='maintenance_daily_report' for j in jobs)):
                 raise ValueError('Maintenance requires one fixed daily Tehran job with its canonical id')
-        if job['task'] == 'oil_balance_daily_report':
-            if (job['id'] != 'oil_balance_daily_report' or set(spec)-{'type', 'hour', 'minute', 'start_date'}
+        if job['task'] in {'oil_balance_daily_report', 'machinery_performance_daily_report'}:
+            if (job['id'] != job['task'] or set(spec)-{'type', 'hour', 'minute', 'start_date'}
                     or spec['type'] != 'cron' or type(spec['hour']) is not int
                     or type(spec['minute']) is not int or spec['minute'] != 0
                     or job['misfire']['policy'] != 'replay'
-                    or any(j['task']=='oil_balance_daily_report' for j in jobs)):
-                raise ValueError('Oil balance requires one receipt-protected daily Tehran job')
+                    or any(j['task']==job['task'] for j in jobs)):
+                raise ValueError('Report requires one receipt-protected daily Tehran job')
         jobs.append(job)
     return tz, grace, jobs
 
@@ -368,7 +370,7 @@ def _execute(conn, job, due, now, registry, authorization, replay, previous):
                             ' requested previous-day report: %s', params['date'])
         if job['task'] in MULTI_RECIPIENT_TASKS:
             params['date'] = overflow_report_date(due)
-            if job['task'] in {'maintenance_daily_report', 'oil_balance_daily_report'}:
+            if job['task'] in {'maintenance_daily_report', 'oil_balance_daily_report', 'machinery_performance_daily_report'}:
                 params['occurrence'] = due.isoformat()
         if replay and job['task'] in REPORT_TASKS and registry[job['task']][1] is TASKS[job['task']][1]:
             from .no_data import current_recipients
@@ -509,6 +511,16 @@ def tick(config=CONFIG, state=STATE, now=None, registry=TASKS, authorization=Non
                 failed = _execute(conn, job, due, now, registry, authorization, False, None) or failed
                 continue
             rows = _rows_for(conn, job['id'])
+            if job['task'] == 'machinery_performance_daily_report':
+                from tools.fleet.machinery_performance.queue import plan
+                dues = plan(conn, job, now, rows)
+                rows = _rows_for(conn, job['id'])
+                for due in dues:
+                    row = rows.get(due_storage_key(due))
+                    if not _claim_replay(conn, job, due, row, now):
+                        continue
+                    failed = _execute(conn, job, due, now, registry, authorization, True, row) or failed
+                continue
             with conn:
                 conn.execute("""UPDATE runs SET status='no_data_final',next_attempt_at=NULL,finished=?
                     WHERE schedule_id=? AND due<? AND status IN ('waiting_for_data','retry_wait','skipped')

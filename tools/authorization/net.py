@@ -56,8 +56,13 @@ def assign_net_staff(con, users, *, actor):
     con.execute('INSERT OR IGNORE INTO auth_role_profiles VALUES (?,?,100,1)', (NET_STAFF, NET_PROFILE))
     if con.execute('SELECT profile,priority,active FROM auth_role_profiles WHERE role=?', (NET_STAFF,)).fetchone() != (NET_PROFILE,100,1):
         raise sqlite3.DatabaseError('Conflicting NET staff profile mapping')
-    if con.execute('SELECT 1 FROM auth_role_capabilities WHERE role=?', (NET_STAFF,)).fetchone():
+    expected = {'reports.machinery_performance.read'} if con.execute("SELECT 1 FROM auth_extensions WHERE name='machinery_performance_v1'").fetchone() else set()
+    actual = {r[0] for r in con.execute('SELECT capability FROM auth_role_capabilities WHERE role=?', (NET_STAFF,))}
+    if actual - expected:
         raise sqlite3.DatabaseError('NET staff membership must not grant capabilities')
+    # The owner's later performance extension grants this one read-only workbook.
+    if expected and not actual:
+        con.execute('INSERT INTO auth_role_capabilities VALUES (?,?)', (NET_STAFF, 'reports.machinery_performance.read'))
     for user in dict.fromkeys(map(str, users)):
         if (not re.fullmatch(r'[1-9][0-9]*', user) or
                 con.execute("SELECT chat_id,registration_status FROM channel_users WHERE platform='bale' AND user_id=?", (user,)).fetchone() != (user,'approved')):

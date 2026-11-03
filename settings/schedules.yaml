@@ -131,6 +131,21 @@ schedules:
       start_date: "2026-11-03T00:00:00+03:30"
     params: {}
 
+  - id: machinery_performance_daily_report
+    enabled: true
+    task: machinery_performance_daily_report
+    recipient_capability: reports.machinery_performance.daily_receive
+    timezone: Asia/Tehran
+    misfire:
+      policy: replay
+      horizon_days: 7
+    trigger:
+      type: cron
+      hour: 15
+      minute: 0
+      start_date: "2026-11-03T00:00:00+03:30"
+    params: {}
+
 external_misfire:
   - id: 3ccb658aed3c
     name: mine-file-sync
@@ -139,3 +154,7 @@ external_misfire:
 oil_balance_reminders:
   enabled: true
   hours: [11, 16]
+
+machinery_performance_reminders:
+  enabled: true
+  hours: [14, 17]

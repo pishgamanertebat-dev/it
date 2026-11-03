@@ -37,6 +37,7 @@ REPORT_TITLES = {
     'driver_daily_metalwork': 'گزارش روزانه معایب آهنگری رانندگان',
     'maintenance_daily_report': 'گزارش روزانه تعمیرات ماشین‌آلات',
     'oil_balance_daily_report': 'گزارش روزانه موازنه روغن',
+    'machinery_performance_daily_report': 'عملکرد مصرف ماشین آلات',
 }
 _SCHEMA = (
     '''CREATE TABLE IF NOT EXISTS notifier_meta (
@@ -350,9 +351,13 @@ def _fingerprint(problems):
         for item in problems))
 
 
-def _operators(store):
+def _operators(store, job=None):
     try:
-        resolution = store.resolve_active_recipients(DELIVERY_FAILURE_RECEIVE)
+        capability = DELIVERY_FAILURE_RECEIVE
+        if job and job.get('task') == 'machinery_performance_daily_report':
+            from tools.authorization.machinery_performance import REMINDER_CAPABILITY
+            capability = REMINDER_CAPABILITY
+        resolution = store.resolve_active_recipients(capability)
     except Exception:
         logger.error('Delivery alert recipient resolution failed')
         return ()
@@ -360,6 +365,8 @@ def _operators(store):
         return ()
     found = []
     for user in resolution.recipients:
+        if job and job.get('task') == 'machinery_performance_daily_report' and user != '641220453':
+            continue
         if isinstance(user, str) and re.fullmatch(r'[1-9][0-9]*', user) and user not in found:
             found.append(user)
     return tuple(found)
@@ -635,6 +642,6 @@ def scan_delivery_exceptions(conn, jobs, now, authorization=None, *, sender_fact
         try:
             runs = list(conn.execute('SELECT * FROM runs WHERE schedule_id=?', (job['id'],)))
             for run in runs:
-                _process_run(conn, job, run, store, operators, now, factory)
+                _process_run(conn, job, run, store, _operators(store, job) if job['task']=='machinery_performance_daily_report' else operators, now, factory)
         except Exception as exc:
             logger.error('Delivery exception scan failed schedule=%s error=%s', job.get('id'), type(exc).__name__)

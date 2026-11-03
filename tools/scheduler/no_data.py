@@ -77,6 +77,9 @@ def current_recipients(task, store):
         return tuple(result.recipients) if result.status == 'ready' else ()
     result = store.resolve_active_recipients(MULTI_RECIPIENT_TASKS[task])
     users = result.recipients if result.status == 'ready' else ()
+    if task == 'machinery_performance_daily_report':
+        from tools.authorization.machinery_performance import REPORT_USERS
+        users = tuple(u for u in users if u in REPORT_USERS)
     if task in {'mechanical_driver_daily', 'mechanical_overflow'}:
         capability = DRIVER_REPORT_READ if task == 'mechanical_driver_daily' else OVERFLOW_READ
         users = tuple(u for u in users if store.has_capability(u, capability))

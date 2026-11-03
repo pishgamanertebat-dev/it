@@ -153,17 +153,22 @@ class FamilyTests(unittest.TestCase):
         from .runner import load_config
         jobs=[j for j in load_config()[2] if j.get('enabled',True)]
         self.assertEqual({j['task'] for j in jobs}, {'overflow', 'driver_daily', 'mechanical_overflow',
-            'mechanical_driver_daily', 'metalwork_driver_daily', 'maintenance_daily_report', 'oil_balance_daily_report'})
+            'mechanical_driver_daily', 'metalwork_driver_daily', 'maintenance_daily_report', 'oil_balance_daily_report',
+            'machinery_performance_daily_report'})
         report={'date':TARGET,'latest_date':'1405/07/12','sections':{k:{'status':'date_missing'} for k in ('mechanical','metalwork')}}
         missing={'ok':False,'report':report,'documents':[]}
         from unittest.mock import AsyncMock
         for job in jobs:
-            with self.subTest(task=job['task']), patch('tools.scheduler.tasks.BaleSender') as sender, patch('tools.scheduler.tasks.build_report',AsyncMock(return_value=dict(ok=False,reason='date_missing',latest_date='1405/07/12'))), patch('integrations.hermes.function_domain.driver_report.build_driver_pdf',return_value=missing), patch('tools.fleet.maintenance_daily.delivery.build',return_value={'status':'skipped','reason':'no_target_date_records','report':dict(date=TARGET,available_dates=['1405/07/12'],source_sha256='fixture',sheets_scanned=1,devices_matched=0,rows_matched=0)}), patch('tools.fleet.oil_balance.delivery.build',return_value={'status':'waiting_for_data','report':dict(available_dates=['1405/07/12'])}):
+            with self.subTest(task=job['task']), patch('tools.scheduler.tasks.BaleSender') as sender, patch('tools.scheduler.tasks.build_report',AsyncMock(return_value=dict(ok=False,reason='date_missing',latest_date='1405/07/12'))), patch('integrations.hermes.function_domain.driver_report.build_driver_pdf',return_value=missing), patch('tools.fleet.maintenance_daily.delivery.build',return_value={'status':'skipped','reason':'no_target_date_records','report':dict(date=TARGET,available_dates=['1405/07/12'],source_sha256='fixture',sheets_scanned=1,devices_matched=0,rows_matched=0)}), patch('tools.fleet.oil_balance.delivery.build',return_value={'status':'waiting_for_data','report':dict(available_dates=['1405/07/12'])}), patch('tools.fleet.machinery_performance.delivery.prepare',return_value={'status':'waiting_for_data'}):
                 events=[]
-                recipient=job['recipient'] if job['task']=='oil_balance_daily_report' else 'A'
-                result=TASKS[job['task']][1](recipient,{'date':TARGET},authorization=auth,on_receipt=lambda *args:events.append(args))
+                recipient=job['recipient'] if job['task'] in {'oil_balance_daily_report','machinery_performance_daily_report'} else 'A'
+                selected_auth=auth
+                if job['task']=='machinery_performance_daily_report':
+                    selected_auth=Mock()
+                    selected_auth.resolve_active_recipients.return_value=SimpleNamespace(status='ready',recipients=('397185913','641220453'))
+                result=TASKS[job['task']][1](recipient,{'date':TARGET},authorization=selected_auth,on_receipt=lambda *args:events.append(args))
                 self.assertEqual(result['status'],'waiting_for_data')
-                if job['task'] in {'driver_daily','mechanical_driver_daily','maintenance_daily_report','oil_balance_daily_report'}:
+                if job['task'] in {'driver_daily','mechanical_driver_daily','maintenance_daily_report','oil_balance_daily_report','machinery_performance_daily_report'}:
                     self.assertEqual(events, [])
                     self.assertEqual(result['notice_delivery_state'], 'suppressed')
                     sender.assert_not_called()

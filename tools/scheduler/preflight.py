@@ -25,6 +25,10 @@ def validate_config(raw):
 def probe(job,target,directory):
     """An older sample may exercise layout; its age alone is never an error."""
     task=job['task']
+    if task=='machinery_performance_daily_report':
+        from tools.fleet.machinery_performance.report import build
+        result=build(target,directory,mode='monthly',comparison='average_gt_limit')
+        return {'status':'passed' if result['status']=='ready' else 'no_data', 'sample_date':target}
     if task=='oil_balance_daily_report':
         from tools.fleet.oil_balance.report import build
         result=build(target,directory)
@@ -102,7 +106,7 @@ def _alert(conn,job,due,code,detail,now,store,sender_factory):
     fingerprint=code+'|'+(detail or '')
     if case is None or case['fingerprint']!=fingerprint:
         case=_insert_case(conn,key,due,fingerprint,text,now)
-    _dispatch(conn,case,'exception',case['exception_text'],_operators(store),now,sender_factory)
+    _dispatch(conn,case,'exception',case['exception_text'],_operators(store,job),now,sender_factory)
 
 
 def run_preflights(conn,jobs,now,store,*,checker=None,sender_factory=None,connection_probe=None):
