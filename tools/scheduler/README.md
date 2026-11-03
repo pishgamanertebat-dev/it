@@ -109,8 +109,16 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\scheduler\instal
 
 All six enabled deterministic daily report families use the exact previous Tehran
 calendar day of their original due. No older report substitutes for it. A missing
-source day returns `waiting_for_data` and keeps bounded source retries active for the
-existing seven-day horizon. Latest dates come from each domain parser, never file
+source day returns `waiting_for_data`. For office/mechanical overflow and driver
+reports, maintenance and oil balance, missing files expire **36 hours after their
+original scheduled due**, including exactly at that boundary. They become
+`no_data_final` with `missing_date_expired`; later uploads of that expired day are
+not sent automatically. Subsequent days keep their own due dates and retries: a
+ready day sends normally, while a missing day waits for its own 36-hour deadline.
+The seven-day downtime replay horizon remains unchanged. Delivery/technical
+failures, partial or uncertain sends, and existing receipts are not expired by
+this missing-file rule. Metalwork and machinery-performance queue policies remain
+unchanged. Latest dates come from each domain parser, never file
 names. A driver day with a valid exact-date sheet and no defects remains a valid
 report; maintenance requires actual target-date activity rows.
 

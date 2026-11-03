@@ -31,6 +31,12 @@ CONFIG = ROOT / 'settings/schedules.yaml'
 STATE = ROOT / 'runtime/scheduler/runs.sqlite3'
 logger = logging.getLogger(__name__)
 REPORT_TASKS = {'overflow', 'driver_daily', *MULTI_RECIPIENT_TASKS}
+# Daily files sent to the office/mechanical recipients. Other report queues retain
+# their own policies (in particular the performance report's readiness-based FIFO).
+MISSING_EXPIRY_TASKS = frozenset({
+    'overflow', 'driver_daily', 'mechanical_overflow', 'mechanical_driver_daily',
+    'maintenance_daily_report', 'oil_balance_daily_report'})
+MISSING_EXPIRY = timedelta(hours=36)
 
 
 def only_keys(value, allowed, label):
@@ -225,6 +231,36 @@ def _rows_for(conn, schedule_id):
             (schedule_id,)):
         found[row['due']] = dict(row)
     return found
+
+
+def _expire_missing_reports(conn, job, now, *, preview=False):
+    """Close only missing daily files; keep delivery receipts and failures intact."""
+    if job['task'] not in MISSING_EXPIRY_TASKS:
+        return set()
+    with conn:
+        if not preview:
+            conn.execute('BEGIN IMMEDIATE')
+        expired = {r['due'] for r in conn.execute('''SELECT due FROM runs
+            WHERE schedule_id=? AND due<=?
+              AND status IN ('waiting_for_data','retry_wait','skipped')
+              AND error IN ('date_missing','no_target_date_records')
+              AND COALESCE(data_state,'missing')='missing'
+              AND NOT EXISTS (SELECT 1 FROM receipts AS receipt
+                  WHERE receipt.schedule_id=runs.schedule_id AND receipt.due=runs.due
+                    AND receipt.delivery_kind='report'
+                    AND receipt.status IN ('sent','sending','uncertain'))
+              AND NOT EXISTS (SELECT 1 FROM office_artifact_receipts AS artifact
+                  WHERE artifact.schedule_id=runs.schedule_id AND artifact.due=runs.due
+                    AND artifact.status IN ('sent','sending','uncertain'))''',
+            (job['id'], due_storage_key(now-MISSING_EXPIRY)))}
+        if not preview:
+            conn.executemany('''UPDATE runs SET status='no_data_final',next_attempt_at=NULL,
+                finished=?,error='missing_date_expired' WHERE schedule_id=? AND due=?''',
+                [(now.astimezone(timezone.utc).isoformat(), job['id'], due) for due in expired])
+    if expired and not preview:
+        logger.info('Missing daily files expired schedule_id=%s count=%s limit_hours=36',
+                    job['id'], len(expired))
+    return expired
 
 
 def _closed(conn, key, kind="report"):
@@ -521,12 +557,15 @@ def tick(config=CONFIG, state=STATE, now=None, registry=TASKS, authorization=Non
                         continue
                     failed = _execute(conn, job, due, now, registry, authorization, True, row) or failed
                 continue
-            with conn:
-                conn.execute("""UPDATE runs SET status='no_data_final',next_attempt_at=NULL,finished=?
-                    WHERE schedule_id=? AND due<? AND status IN ('waiting_for_data','retry_wait','skipped')
-                    AND (data_state='missing' OR error IN ('date_missing','no_target_date_records'))""",
-                    (now.astimezone(timezone.utc).isoformat(), job['id'],
-                     due_storage_key(now-timedelta(days=job['misfire']['horizon_days']))))
+            if job['task'] in MISSING_EXPIRY_TASKS:
+                _expire_missing_reports(conn, job, now)
+            else:
+                with conn:
+                    conn.execute("""UPDATE runs SET status='no_data_final',next_attempt_at=NULL,finished=?
+                        WHERE schedule_id=? AND due<? AND status IN ('waiting_for_data','retry_wait','skipped')
+                        AND (data_state='missing' OR error IN ('date_missing','no_target_date_records'))""",
+                        (now.astimezone(timezone.utc).isoformat(), job['id'],
+                         due_storage_key(now-timedelta(days=job['misfire']['horizon_days']))))
             rows = _rows_for(conn, job['id'])
             dues, flooded, _gaps = replay_plan(
                 job['trigger'], now, job['misfire']['horizon_days'], rows,
@@ -539,6 +578,8 @@ def tick(config=CONFIG, state=STATE, now=None, registry=TASKS, authorization=Non
                 if not _claim_replay(conn, job, due, row, now):
                     continue
                 failed = _execute(conn, job, due, now, registry, authorization, True, row) or failed
+            # A first attempt after downtime can discover an already-expired day.
+            _expire_missing_reports(conn, job, now)
         _delivery_notifier(conn, jobs, now, authorization, scan=True)
         # Copies retry from their own outbox, never through the staff send/archive flow.
         try:
@@ -575,6 +616,8 @@ def plan_replay(config=CONFIG, state=STATE, now=None, registry=TASKS):
             if not job.get('enabled', True) or job['misfire']['policy'] != 'replay':
                 continue
             rows = _rows_for(conn, job['id'])
+            for key in _expire_missing_reports(conn, job, now, preview=True):
+                rows[key]['status'] = 'no_data_final'
             dues, flooded, gaps = replay_plan(
                 job['trigger'], now, job['misfire']['horizon_days'], rows,
                 daily_identity=job['task'] in REPORT_TASKS)

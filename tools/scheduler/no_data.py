@@ -10,7 +10,7 @@ def notice_text(title, target, latest=None):
         text += f' آخرین اطلاعات معتبر موجود مربوط به تاریخ {latest} است.'
     else:
         text += ' تاریخ معتبر دیگری در اطلاعات موجود پیدا نشد.'
-    return text + ' پس از ثبت اطلاعات تاریخ موردنظر، گزارش در بازه پیگیری هفت‌روزه به‌صورت خودکار ارسال خواهد شد.'
+    return text + ' در مهلت پیگیری خودکار، پس از ثبت اطلاعات تاریخ موردنظر گزارش ارسال خواهد شد؛ پس از پایان مهلت، پیگیری روزهای بعد ادامه می‌یابد.'
 
 
 def notify_missing(title, target, latest, recipients, *, on_receipt=None, closed=None,

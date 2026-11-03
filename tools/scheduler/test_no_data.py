@@ -7,7 +7,8 @@ import io, sqlite3, tempfile, unittest
 from contextlib import closing
 import openpyxl, yaml
 from zoneinfo import ZoneInfo
-from .runner import tick, connect, _save_receipt, _closed, STATE
+from .runner import (tick, connect, _save_receipt, _closed, STATE, _expire_missing_reports,
+                     MISSING_EXPIRY_TASKS, plan_replay)
 from .tasks import ROOT, TransportUnavailable, TransportUncertain
 from .no_data import notice_text
 from tools.fleet.overflow.report import load_report, ReportError
@@ -23,6 +24,7 @@ class NoDataTests(unittest.TestCase):
         self.temp=tempfile.TemporaryDirectory(dir=root);self.addCleanup(self.temp.cleanup)
         self.dir=Path(self.temp.name);self.config=self.dir/'config.yaml';self.state=self.dir/'state.db'
         self.users=['A','B'];self.present=False;self.latest='1405/07/12';self.delivery=[]
+        self.ready_dates=set();self.requested=[]
         self.auth=Mock()
         self.auth.has_capability.return_value=True
         self.auth.resolve_active_recipients.side_effect=lambda _: SimpleNamespace(status='ready',recipients=tuple(self.users))
@@ -38,10 +40,11 @@ class NoDataTests(unittest.TestCase):
     def send(self,kind,user,text):
         self.delivery.append((kind,user,text));return str(len(self.delivery))
     async def worker(self,date,directory):
-        self.assertEqual(date,TARGET)
-        if not self.present:return dict(ok=False,reason='date_missing',message='missing',latest_date=self.latest)
+        self.requested.append(date)
+        if not (self.present and date==TARGET) and date not in self.ready_dates:
+            return dict(ok=False,reason='date_missing',message='missing',latest_date=self.latest)
         p=Path(directory)/'test.png';p.write_bytes(b'test')
-        return dict(ok=True,images=[p],report=dict(date=TARGET))
+        return dict(ok=True,images=[p],report=dict(date=date))
     def run_at(self,seconds=0):return tick(self.config,self.state,DUE+timedelta(seconds=seconds),authorization=self.auth)
     def row(self):
         with closing(sqlite3.connect(self.state)) as c:
@@ -90,12 +93,55 @@ class NoDataTests(unittest.TestCase):
         self.run_at();self.run_at(7*86400+1)
         self.assertEqual(self.row()['status'],'no_data_final')
         self.assertEqual(sum(x[0]=='notice' for x in self.delivery if TARGET in x[2]),2)
-    def test_late_within_horizon_is_delivered(self):
-        self.run_at();self.present=True;self.run_at(6*86400)
+    def test_late_within_36_hours_is_delivered(self):
+        self.run_at();self.present=True;self.run_at(26*3600)
         self.assertEqual(self.row()['status'],'succeeded')
+
+    def test_expiry_boundary_uses_original_due_and_ignores_retry_backoff(self):
+        self.run_at();self.run_at(36*3600-1)
+        self.assertEqual(self.row()['status'],'waiting_for_data')
+        self.assertIsNotNone(self.row()['next_attempt_at'])
+        before=self.row()['attempt']
+        self.run_at(36*3600)
+        self.assertEqual((self.row()['status'],self.row()['error']),
+                         ('no_data_final','missing_date_expired'))
+        self.assertEqual(self.row()['attempt'],before)
+        self.assertIsNone(self.row()['next_attempt_at'])
+
+    def test_expired_day_is_not_sent_when_added_later_and_next_days_continue(self):
+        self.run_at()
+        self.ready_dates.add('1405/07/15')
+        self.run_at(36*3600)
+        self.assertEqual(self.row()['status'],'no_data_final')
+        self.assertEqual([x[1] for x in self.delivery if x[0]=='report'],['A','B'])
+        self.present=True;self.ready_dates.add('1405/07/16');self.requested.clear()
+        self.run_at(48*3600);self.run_at(48*3600+61)
+        self.assertNotIn(TARGET,self.requested)
+        reports=[x for x in self.delivery if x[0]=='report']
+        self.assertEqual(len(reports),4)
+        self.assertTrue(all(TARGET not in x[2] for x in reports))
+        self.assertEqual(sum(TARGET in x[2] for x in self.delivery if x[0]=='notice'),2)
+
+    def test_newer_missing_day_waits_then_sends_when_ready(self):
+        self.run_at();self.run_at(36*3600)
+        self.assertEqual(self.row()['status'],'no_data_final')
+        self.assertFalse(any(x[0]=='report' for x in self.delivery))
+        self.ready_dates.add('1405/07/15');self.run_at(36*3600+901)
+        self.assertEqual([x[1] for x in self.delivery if x[0]=='report'],['A','B'])
+
+    def test_read_only_plan_omits_expired_missing_day_without_finalizing_it(self):
+        self.run_at()
+        planned=plan_replay(self.config,self.state,DUE+timedelta(hours=36))
+        self.assertNotIn(TARGET,[p['target_date'] for p in planned])
+        self.assertIn('1405/07/15',[p['target_date'] for p in planned])
+        self.assertEqual(self.row()['status'],'waiting_for_data')
     def test_disabled_job_untouched(self):
         self.job['enabled']=False;self.write();self.run_at()
         self.assertEqual(self.delivery,[]);self.assertEqual(self.receipts(),[])
+    def test_disabling_pending_job_keeps_its_history_untouched(self):
+        self.run_at();before=self.row()
+        self.job['enabled']=False;self.write();self.run_at(36*3600)
+        self.assertEqual(self.row(),before)
     def test_sent_recipient_excluded_from_notice_and_report_retry(self):
         self.run_at();c=connect(self.state)
         _save_receipt(c,('test','2026-10-07T05:30:00+00:00'),'A','sent','actual-A')
@@ -119,6 +165,82 @@ class NoDataTests(unittest.TestCase):
             c.execute("update runs set status='running',next_attempt_at=NULL");c.commit()
         self.delivery=[];self.run_at(901);self.run_at(962)
         self.assertEqual([x[:2] for x in self.delivery],[('report','B')]);self.assertEqual(self.row()['status'],'succeeded')
+
+
+class ExpiryProtectionTests(unittest.TestCase):
+    def setUp(self):
+        self.conn=connect(':memory:');self.addCleanup(self.conn.close)
+        self.job=dict(id='fixture',task='overflow')
+        self.due=DUE.astimezone(ZoneInfo('UTC')).isoformat()
+        self.now=DUE+timedelta(hours=36)
+        self.seed()
+
+    def seed(self,**changes):
+        row=dict(schedule_id='fixture',due=self.due,recipient='A',task=self.job['task'],
+                 status='waiting_for_data',started=self.due,error='date_missing',data_state='missing')
+        row.update(changes)
+        with self.conn:
+            self.conn.execute('DELETE FROM runs')
+            self.conn.execute('INSERT INTO runs('+','.join(row)+') VALUES ('+','.join('?' for _ in row)+')',tuple(row.values()))
+
+    def row(self):return dict(self.conn.execute('SELECT * FROM runs').fetchone())
+
+    def test_all_six_target_report_types_expire_without_newer_ready_data(self):
+        self.assertEqual(MISSING_EXPIRY_TASKS,{'overflow','driver_daily','mechanical_overflow',
+            'mechanical_driver_daily','maintenance_daily_report','oil_balance_daily_report'})
+        for task in MISSING_EXPIRY_TASKS:
+            for reason in ('date_missing','no_target_date_records'):
+                with self.subTest(task=task,reason=reason):
+                    self.job['task']=task;self.seed(error=reason)
+                    self.assertEqual(_expire_missing_reports(self.conn,self.job,self.now),{self.due})
+                    self.assertEqual(self.row()['status'],'no_data_final')
+
+    def test_transport_source_failures_and_closed_or_active_runs_are_preserved(self):
+        cases=[dict(status=s) for s in ('succeeded','uncertain','running','partial','failed')]
+        cases += [dict(status='retry_wait',error=e) for e in
+                  ('delivery_failed','transport_unavailable','PermissionError','source_invalid','pdf_export')]
+        cases += [dict(data_state='ready')]
+        for case in cases:
+            with self.subTest(case=case):
+                self.seed(**case);before=self.row()
+                self.assertEqual(_expire_missing_reports(self.conn,self.job,self.now),set())
+                self.assertEqual(self.row(),before)
+
+    def test_report_and_individual_pdf_receipts_protect_partial_deliveries(self):
+        for table in ('receipts','office_artifact_receipts'):
+            for state in ('sent','sending','uncertain'):
+                with self.subTest(table=table,state=state):
+                    with self.conn:
+                        self.conn.execute('DELETE FROM receipts')
+                        self.conn.execute('DELETE FROM office_artifact_receipts')
+                        if table=='receipts':
+                            self.conn.execute('INSERT INTO receipts VALUES (?,?,?,?,?,?,?)',
+                                ('fixture',self.due,'A','report',state,'saved-mid',self.due))
+                        else:
+                            self.conn.execute('INSERT INTO office_artifact_receipts VALUES (?,?,?,?,?,?,?,?)',
+                                ('fixture',self.due,'A','mechanical',state,'saved-mid','saved-hash',self.due))
+                    before=[tuple(r) for r in self.conn.execute('SELECT * FROM '+table)]
+                    self.assertEqual(_expire_missing_reports(self.conn,self.job,self.now),set())
+                    self.assertEqual([tuple(r) for r in self.conn.execute('SELECT * FROM '+table)],before)
+
+    def test_notice_receipts_do_not_block_expiry_and_are_preserved(self):
+        for state in ('sent','sending','uncertain','failed'):
+            with self.subTest(state=state):
+                self.seed()
+                with self.conn:
+                    self.conn.execute('DELETE FROM receipts')
+                    self.conn.execute('INSERT INTO receipts VALUES (?,?,?,?,?,?,?)',
+                        ('fixture',self.due,'A','notice',state,'notice-mid',self.due))
+                before=[tuple(r) for r in self.conn.execute('SELECT * FROM receipts')]
+                self.assertEqual(_expire_missing_reports(self.conn,self.job,self.now),{self.due})
+                self.assertEqual([tuple(r) for r in self.conn.execute('SELECT * FROM receipts')],before)
+
+    def test_other_report_queues_and_external_jobs_are_unchanged(self):
+        for task in ('metalwork_driver_daily','machinery_performance_daily_report','repairs','sync'):
+            with self.subTest(task=task):
+                self.job['task']=task;before=self.row()
+                self.assertEqual(_expire_missing_reports(self.conn,self.job,self.now),set())
+                self.assertEqual(self.row(),before)
 
 class ParserTests(unittest.TestCase):
     def test_driver_invalid_and_ambiguous_dates_not_latest(self):
