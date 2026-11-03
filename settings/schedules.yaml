@@ -4,7 +4,7 @@ timezone: Asia/Tehran
 misfire_grace_seconds: 900
 preflight:
   enabled: true
-  hours: [6, 7, 8, 11]
+  hours: [6, 7, 8, 11, 14]
 mechanical_reminders:
   enabled: true
   hours: [8, 15]
@@ -115,7 +115,27 @@ schedules:
       minute: 0
     params: {}
 
+
+  - id: oil_balance_daily_report
+    enabled: true
+    task: oil_balance_daily_report
+    recipient_capability: reports.oil_balance.daily_receive
+    timezone: Asia/Tehran
+    misfire:
+      policy: replay
+      horizon_days: 7
+    trigger:
+      type: cron
+      hour: 15
+      minute: 0
+      start_date: "2026-11-03T00:00:00+03:30"
+    params: {}
+
 external_misfire:
   - id: 3ccb658aed3c
     name: mine-file-sync
     policy: latest_only
+
+oil_balance_reminders:
+  enabled: true
+  hours: [11, 16]

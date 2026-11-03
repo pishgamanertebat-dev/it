@@ -25,6 +25,10 @@ def validate_config(raw):
 def probe(job,target,directory):
     """An older sample may exercise layout; its age alone is never an error."""
     task=job['task']
+    if task=='oil_balance_daily_report':
+        from tools.fleet.oil_balance.report import build
+        result=build(target,directory)
+        return {'status':'passed' if result['status']=='ready' else 'no_data', 'sample_date':target}
     if task=='maintenance_daily_report':
         from tools.fleet.maintenance_daily import report as m
         try:

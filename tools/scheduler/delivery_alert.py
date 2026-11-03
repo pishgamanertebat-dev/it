@@ -36,6 +36,7 @@ REPORT_TITLES = {
     'driver_daily_mechanical': 'گزارش روزانه معایب مکانیکی رانندگان',
     'driver_daily_metalwork': 'گزارش روزانه معایب آهنگری رانندگان',
     'maintenance_daily_report': 'گزارش روزانه تعمیرات ماشین‌آلات',
+    'oil_balance_daily_report': 'گزارش روزانه موازنه روغن',
 }
 _SCHEMA = (
     '''CREATE TABLE IF NOT EXISTS notifier_meta (
