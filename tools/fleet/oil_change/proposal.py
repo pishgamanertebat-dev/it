@@ -7,6 +7,7 @@ from tools.fleet.work_orders.types.oil_change.builder import action_for, get_ite
 from .source import SOURCE, PLANNING_SOURCE, read_source, number
 from .scope import excluded_codes, included_plans
 
+DUE_HOURS = 20
 WARNING_HOURS = 30
 MODEL_MAP = {
     ('دامپتراک','785-5'):'HD785-5', ('دامپتراک','785-7'):'HD785-7',
@@ -56,7 +57,7 @@ def evaluate(source):
             last_service = format_shift(machine['last_service']) if machine['last_service'] else 'ثبت زرد در سال عملیاتی موجود نیست'
             component = dict(remaining=remaining, current_meter=machine['current_meter'], target_meter=machine['target_meter'],
                              last_interval=interval-200 if interval>200 else 2000, next_interval=interval,
-                             last_service=last_service, state='DUE' if remaining<=0 else 'NEAR_DUE' if remaining<=WARNING_HOURS else 'OK')
+                             last_service=last_service, state='DUE' if remaining<DUE_HOURS else 'NEAR_DUE' if remaining<WARNING_HOURS else 'OK')
             items.append(dict(**item, source_row=machine['row'], planning_row=plan['row'], components={'oil_change':component}))
             # A legacy D155 row can resolve to D151/D152. Track that exact
             # source record, never all rows sharing its raw model code.
@@ -68,7 +69,7 @@ def evaluate(source):
             continue
         if clean(machine['code']).upper() in excluded:
             continue
-        if machine['code'] and machine['code'].upper() not in seen and number(machine['remaining']) and machine['remaining'] <= WARNING_HOURS:
+        if machine['code'] and machine['code'].upper() not in seen and number(machine['remaining']) and machine['remaining'] < WARNING_HOURS:
             review.append({'code':machine['code'],'reason':f"مانده {machine['remaining']:g} ساعت؛ در برنامه‌ریزی سرویس نوبت و مدل معتبر ندارد."})
     return items, review
 

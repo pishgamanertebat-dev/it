@@ -340,14 +340,25 @@ class OilUnifiedTests(menus.InlineMenusTests):
         self.assertEqual(s.stage,'PROPOSAL')
 
     async def test_near_due_warning_returns_after_removal(self):
-        s = await self.start(self.combined(1,remaining=14))
+        s = await self.start(self.combined(1,remaining=24))
         original = deepcopy(s.proposal['evaluations'])
         self.assertEqual(len(s.proposal['warnings']),1)
         await self.choose_oil('HD800');await self.click('interval_keep');await self.click('edit_apply')
         self.assertFalse(s.proposal['warnings'])
         await self.click('edit_done');await self.click('remove');await self.enter('1');await self.enter('تایید حذف')
         self.assertEqual(len(s.proposal['warnings']),1)
-        self.assertIn('14 ساعت',s.proposal['warnings'][0])
+        self.assertIn('24 ساعت',s.proposal['warnings'][0])
+        self.assertEqual(s.proposal['evaluations'],original)
+
+    async def test_under_20_is_selected_without_warning_and_removal_keeps_that_state(self):
+        s = await self.start(self.combined(1,remaining=17))
+        self.assertEqual([i['machine_code'] for i in s.proposal['items']], ['HD800'])
+        self.assertEqual(s.proposal['warnings'], [])
+        original = deepcopy(s.proposal['evaluations'])
+        await self.click('edit_done')
+        await self.click('remove');await self.enter('1');await self.enter('تایید حذف')
+        self.assertEqual(s.proposal['items'], [])
+        self.assertEqual(s.proposal['warnings'], [])
         self.assertEqual(s.proposal['evaluations'],original)
 
     async def test_editor_never_rereads_source_and_creation_requires_refresh(self):

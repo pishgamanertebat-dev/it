@@ -26,15 +26,33 @@ class ProposalTests(unittest.TestCase):
             with self.assertRaises(ValueError): next_interval(bad)
 
     def test_warning_boundaries_and_source_plan_date(self):
-        for remaining, state, selected, warned in [(-1,'DUE',1,0),(0,'DUE',1,0),(.5,'NEAR_DUE',0,1),(24,'NEAR_DUE',0,1),(24.5,'NEAR_DUE',0,1),(30,'NEAR_DUE',0,1),(30.5,'OK',0,0)]:
-            with patch('tools.fleet.oil_change.proposal.read_source',return_value=sample_source(remaining=remaining)):
-                proposal=build_proposal()
-            self.assertEqual(proposal['plan_date'],'1405/06/23')
-            self.assertEqual(proposal['evaluations'][0]['components']['oil_change']['state'],state)
-            self.assertEqual(len(proposal['items']),selected)
-            self.assertEqual(len(proposal['warnings']),warned)
-            if warned:
-                self.assertEqual(proposal['warnings'], [f'HD708 : تا موعد بعدی {remaining:g} ساعت، برای سرویس 400 ساعتی'])
+        cases = [(-1,'DUE',1,0),(0,'DUE',1,0),(.5,'DUE',1,0),(17,'DUE',1,0),
+                 (19.999,'DUE',1,0),(20,'NEAR_DUE',0,1),(20.001,'NEAR_DUE',0,1),
+                 (24,'NEAR_DUE',0,1),(29.999,'NEAR_DUE',0,1),(30,'OK',0,0),(30.5,'OK',0,0)]
+        for remaining, state, selected, warned in cases:
+            with self.subTest(remaining=remaining):
+                with patch('tools.fleet.oil_change.proposal.read_source',return_value=sample_source(remaining=remaining)):
+                    proposal=build_proposal()
+                self.assertEqual(proposal['plan_date'],'1405/06/23')
+                component = proposal['evaluations'][0]['components']['oil_change']
+                self.assertEqual(component['state'],state)
+                self.assertEqual((component['remaining'],component['current_meter'],component['target_meter']),
+                                 (remaining,1002,1000))
+                self.assertEqual(len(proposal['items']),selected)
+                self.assertEqual(len(proposal['warnings']),warned)
+                if warned:
+                    self.assertEqual(proposal['warnings'], [f'HD708 : تا موعد بعدی {remaining:g} ساعت، برای سرویس 400 ساعتی'])
+
+    def test_unplanned_units_under_warning_threshold_require_review(self):
+        for remaining, expected in [(17,True),(20,True),(29.999,True),(30,False)]:
+            with self.subTest(remaining=remaining):
+                source = sample_source(remaining=remaining)
+                source['plans'] = []
+                with patch('tools.fleet.oil_change.proposal.read_source',return_value=source):
+                    proposal = build_proposal()
+                self.assertEqual(proposal['items'], [])
+                self.assertEqual(proposal['warnings'], [])
+                self.assertEqual(bool(proposal['review']), expected)
 
     def test_confirmed_bulldozer_alias_and_legacy_identity(self):
         for raw,model,canonical in [('W151','D155A-6','D151'),('W152','D155A-2','D152')]:
@@ -60,8 +78,8 @@ class ProposalTests(unittest.TestCase):
         self.assertEqual([r['code'] for r in review], ['D155','HD151'])
         with patch('tools.fleet.oil_change.proposal.read_source',return_value=source):
             proposal = build_proposal()
-        self.assertEqual([i['machine_code'] for i in proposal['items']], ['D152'])
-        self.assertEqual(proposal['warnings'], ['D151 : تا موعد بعدی 12 ساعت، برای سرویس 400 ساعتی'])
+        self.assertEqual([i['machine_code'] for i in proposal['items']], ['D151','D152'])
+        self.assertEqual(proposal['warnings'], [])
 
     def test_ambiguous_or_invalid_legacy_rows_are_not_silenced(self):
         for ambiguous in (True, False):
@@ -77,7 +95,7 @@ class ProposalTests(unittest.TestCase):
             self.assertEqual(sum(r['code']=='D155' for r in review), 2 if ambiguous else 1)
 
     def test_pc1250_is_supported_by_automatic_planning(self):
-        source = sample_source('PC1250-8', 'EX1252', last=1800, remaining=30)
+        source = sample_source('PC1250-8', 'EX1252', last=1800, remaining=29)
         items, review = evaluate(source)
         self.assertEqual(review, [])
         self.assertEqual(items[0]['machine_code'], 'EX1252')
