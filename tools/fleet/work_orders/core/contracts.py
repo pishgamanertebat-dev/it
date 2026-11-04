@@ -33,6 +33,9 @@ class WorkOrderTypeSpec:
     # type-specific document generation.
     builder_module: Optional[str] = None
 
+    # This document is delivered only to its authenticated issuer.
+    manager_only: bool = False
+
 
     def validate(self) -> None:
 
@@ -53,7 +56,7 @@ class WorkOrderTypeSpec:
 
         if self.operational:
 
-            if not self.staff_role:
+            if not self.staff_role and not self.manager_only:
                 raise ValueError(
                     f"{self.code}: operational type "
                     "must define staff_role"

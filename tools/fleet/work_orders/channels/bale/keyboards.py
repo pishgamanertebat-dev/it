@@ -77,7 +77,7 @@ COMMANDS = {'add': 'اضافه', 'remove': 'حذف', 'confirm': 'تایید', 'c
             'interval_keep': 'حفظ نوبت', 'proposal_back': 'بازگشت به پیشنهاد',
             'proposal_refresh': 'دریافت پیشنهاد تازه', 'proposal_inspect': 'بررسی آخرین حکم'}
 
-MENU_TYPES = {'oil': 'OIL_CHANGE', 'greasing': 'GREASING', 'air_filter': 'AIR_FILTER'}
+MENU_TYPES = {'oil': 'OIL_CHANGE', 'greasing': 'GREASING', 'air_filter': 'AIR_FILTER', 'car_wash': 'CAR_WASH'}
 SHIFT_COMMANDS = {'shift_morning': 'صبح', 'shift_noon': 'ظهر',
                   'shift_morning_noon': 'صبح-ظهر', 'shift_evening': 'عصر',
                   'shift_night': 'شب', 'shift_back': 'برگشت'}
@@ -93,7 +93,7 @@ def entry_keyboard():
     from tools.fleet.work_orders.core.registry import list_work_order_types
     enabled = {item['key'] for item in list_work_order_types(enabled_only=True)}
     buttons = [action(name, label, 'MENU') for name, label in (
-        ('oil', 'تعویض روغن'), ('greasing', 'گریس کاری'), ('air_filter', 'هواکش'))
+        ('oil', 'تعویض روغن'), ('greasing', 'گریس کاری'), ('air_filter', 'هواکش'), ('car_wash', 'کارواش'))
         if MENU_TYPES[name] in enabled]
     buttons.append(action('delivery_review', '🔎 بررسی ارسال', 'MENU'))
     buttons.append(action('cancel', 'انصراف', 'MENU'))
@@ -114,6 +114,11 @@ def staff_keyboard(options):
 
 
 def keyboard_for(session, *, review=False):
+    if session.work_order_type == 'CAR_WASH' and session.stage != 'REMOVE':
+        from .car_wash_form import keyboard
+        result = keyboard(session)
+        if result is not None:
+            return result
     if session.work_order_type == 'OIL_CHANGE':
         if session.stage == 'EDIT_CODE':
             return oil_edit_code_keyboard(session)
@@ -150,6 +155,9 @@ def keyboard_for(session, *, review=False):
 
 
 def command_for(action_name, *, order_no='', proposal=None):
+    if action_name.startswith('wash_'):
+        from .car_wash_form import command
+        return command(action_name, proposal, order_no)
     if action_name.startswith('edit_unit_') and action_name[10:].isdecimal():
         from tools.fleet.work_orders.channels.bale.proposal_form import oil_edit_candidates
         candidates = oil_edit_candidates(proposal)

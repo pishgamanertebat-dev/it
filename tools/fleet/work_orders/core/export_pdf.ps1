@@ -14,7 +14,7 @@ try {
     $excel.AskToUpdateLinks = $false
     $excel.AutomationSecurity = 3
     # OC is the oil-change order prefix. Prevent A4-to-Letter substitution only here.
-    if ([IO.Path]::GetFileName($SourcePath) -match '^(OC|GR|AF)-') {
+    if ([IO.Path]::GetFileName($SourcePath) -match '^(OC|GR|AF|CW)-') {
         $originalMapPaperSize = $excel.MapPaperSize
         $excel.MapPaperSize = $false
     }
@@ -36,7 +36,7 @@ try {
             }
         }
     }
-    if ([IO.Path]::GetFileName($SourcePath) -match '^(GR|AF)-') {
+    if ([IO.Path]::GetFileName($SourcePath) -match '^(GR|AF|CW)-') {
         foreach ($sheet in $book.Worksheets) {
             $setup = $sheet.PageSetup
             try {

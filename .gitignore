@@ -105,6 +105,7 @@ cache/
 *.iso
 *.xlsx
 !templates/repairs/daily_report.xlsx
+!templates/work_orders/car_wash/car_wash_work_order_v1.xlsx
 *.txt
 *.csv
 *.md

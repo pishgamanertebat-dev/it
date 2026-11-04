@@ -9,7 +9,7 @@ import time
 
 
 LEASE_SECONDS = 600
-RELIABLE_TYPES = ('OIL_CHANGE', 'GREASING', 'AIR_FILTER')
+RELIABLE_TYPES = ('OIL_CHANGE', 'GREASING', 'AIR_FILTER', 'CAR_WASH')
 
 
 def migrate(con):
@@ -57,13 +57,15 @@ def creation(con, date, items, owner, revision_of=None, reissue_reason=None, ope
     require_date(date)
     greasing = work_order_type == 'GREASING'
     air_filter = work_order_type == 'AIR_FILTER'
-    multiple = greasing or air_filter
+    car_wash = work_order_type == 'CAR_WASH'
+    multiple = greasing or air_filter or car_wash
     if not multiple and len(items) != 1:
         raise ValueError('هر حکم تعویض روغن باید فقط یک دستگاه داشته باشد.')
     code = items[0]['machine_code'].upper()
     codes = sorted(i['machine_code'] for i in items)
     service_key = (f'AIR_FILTER:{date}:{shift}:' + json.dumps(codes) if air_filter else
-                   f'GREASING:{date}:' + json.dumps(codes) if greasing else f'OIL_CHANGE:{date}:{code}')
+                   f'GREASING:{date}:' + json.dumps(codes) if greasing else
+                   f'CAR_WASH:{date}:' + json.dumps(codes) if car_wash else f'OIL_CHANGE:{date}:{code}')
     reason = str(reissue_reason or '').strip()
     if reason and (not revision_of or not operation_id):
         raise ValueError('صدور مجدد به شمارهٔ قبلی، علت و هویت پایدار درخواست نیاز دارد.')

@@ -75,7 +75,8 @@ def reviewed_staff_pdf(stored_path, excel_path: Path) -> Path:
     return export_staff_pdf(excel_path)
 
 
-def store_manager_pdf(work_order_no: str, pdf_path: Path, *, pdf_bytes=None, excel_sha256=None) -> None:
+def store_manager_pdf(work_order_no: str, pdf_path: Path, *, pdf_bytes=None, excel_sha256=None,
+                      delivery_receipt=None) -> None:
     """Remember the exact PDF delivered to the manager so staff dispatch reuses it."""
     con = connect_db()
     try:
@@ -95,6 +96,13 @@ def store_manager_pdf(work_order_no: str, pdf_path: Path, *, pdf_bytes=None, exc
             """,
             (str(pdf_path), 'MANAGER_DOCUMENT_PREVIEW: '+json.dumps(record), work_order_no),
         )
+        if delivery_receipt is not None:
+            if (row['work_order_type'] != 'CAR_WASH'
+                    or row['created_by'] != 'bale:' + str(delivery_receipt.get('recipient_id'))
+                    or not delivery_receipt.get('message_id')):
+                raise ValueError('رسید تحویل PDF با صادرکنندهٔ حکم تطابق ندارد.')
+            con.execute("UPDATE service_work_orders SET notes=notes||char(10)||? WHERE work_order_no=?",
+                        ('MANAGER_ONLY_PDF_DELIVERED: ' + json.dumps({**identity, **delivery_receipt}), work_order_no))
         con.commit()
     finally:
         con.close()
@@ -149,6 +157,9 @@ def send_work_order(
 
         from . import oil_safety
         oil = order['work_order_type'] in oil_safety.RELIABLE_TYPES
+        from .registry import get_work_order_spec
+        if get_work_order_spec(order['work_order_type']).manager_only:
+            raise ValueError('این حکم فقط به صادرکننده تحویل می‌شود.')
         oil_safety.current(con, work_order_no)
 
         def authorize_publish():

@@ -47,6 +47,8 @@ def approve_work_order(
 
         from .oil_safety import current
         live = current(con, work_order_no)
+        if live['work_order_type'] == 'CAR_WASH':
+            raise ValueError('حکم کارواش مرحلهٔ تأیید ارسال به سرویسکار ندارد.')
         if live['work_order_type'] in {'GREASING','AIR_FILTER'}:
             from .review import approved_pdf_bytes
             approved_pdf_bytes(live)

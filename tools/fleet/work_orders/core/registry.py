@@ -4,11 +4,12 @@ from tools.fleet.work_orders.core.contracts import WorkOrderTypeSpec
 from tools.fleet.work_orders.types.air_filter.definition import SPEC as AIR_FILTER
 from tools.fleet.work_orders.types.oil_change.definition import SPEC as OIL_CHANGE
 from tools.fleet.work_orders.types.greasing.definition import SPEC as GREASING
+from tools.fleet.work_orders.types.car_wash.definition import SPEC as CAR_WASH
 
 
 # Each type's definition is the single source of metadata for Core and channels.
 WORK_ORDER_REGISTRY = {
-    spec.code: spec for spec in (AIR_FILTER, OIL_CHANGE, GREASING)
+    spec.code: spec for spec in (AIR_FILTER, OIL_CHANGE, GREASING, CAR_WASH)
 }
 for _spec in WORK_ORDER_REGISTRY.values():
     _spec.validate()

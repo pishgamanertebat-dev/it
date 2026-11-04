@@ -159,12 +159,12 @@ class ProposalFormTests(CreationFlowTests):
         self.assertEqual(proposal['items'][0]['components']['outer'], component)
         text = render(proposal)
         self.assertIn('با انتخاب مسئول نت اضافه شد.', text)
-        self.assertIn('🟢 هواکش بیرونی', text)
+        self.assertIn('🟡 هواکش بیرونی', text)
         self.assertIn('⏱ کارکرد: 4 ساعت', text)
         self.assertIn('🎯 دوره سرویس: 5 ساعت', text)
-        self.assertIn('⚠️ وضعیت: 1 ساعت تا موعد سرویس', text)
+        self.assertIn('⚠️ وضعیت: نزدیک موعد — پیش‌بینی؛ 1 ساعت تا موعد سرویس', text)
         self.assertIn('📅 آخرین سرویس: 1405/06/20', text)
-        self.assertLess(text.index('با انتخاب مسئول نت اضافه شد.'), text.index('🟢 هواکش بیرونی'))
+        self.assertLess(text.index('با انتخاب مسئول نت اضافه شد.'), text.index('🟡 هواکش بیرونی'))
 
     def test_added_greasing_keeps_full_card_and_manual_note(self):
         from tools.fleet.work_orders.channels.bale.proposal_form import add_items, render

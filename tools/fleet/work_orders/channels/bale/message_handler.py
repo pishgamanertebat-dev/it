@@ -64,6 +64,7 @@ async def _prepare_in_thread(gateway, function, *args, **kwargs):
 TRANSIENT_WORK_ORDER_STAGES = frozenset({
     'MENU', 'PROPOSAL', 'REMOVE', 'ADD_CODES', 'ADD_ACTION', 'SHIFT',
     'EDIT_CODE', 'EDIT_BATCH_CODES', 'EDIT_INTERVAL', 'EDIT_CONFIRM', 'OIL_RECOVERY',
+    'WASH_EDIT', 'WASH_NAME', 'WASH_CONFIRM', 'WASH_REVIEW',
 })
 
 
@@ -138,7 +139,8 @@ def manager_excel_caption(order):
     summary = str(order.get('item_summary') or '').strip()
     if summary:
         lines.append(summary)
-    lines.append('هنوز برای سرویسکار ارسال نشده است.')
+    lines.append('نسخهٔ چاپی برای خود مسئول نت.' if order.get('work_order_type') == 'CAR_WASH'
+                 else 'هنوز برای سرویسکار ارسال نشده است.')
     caption = '\n'.join(lines)
     return caption if len(caption) <= CAPTION_LIMIT else caption[:CAPTION_LIMIT - 1] + '…'
 
@@ -151,6 +153,8 @@ def manager_review_reply(order, *, preview=False):
 
 def manager_excel_details(order, *, preview=False, independent=False):
     number = order['work_order_no']
+    if order.get('work_order_type') == 'CAR_WASH':
+        return f"حکم کارواش {number}\nتعداد دستگاه: {order['item_count']}\nPDF این حکم برای خودتان تهیه شده است."
     if independent:
         text = f"✅ حکم مستقل {number}\n{order.get('item_summary') or ''}\nحکم هنوز برای سرویسکار ارسال نشده است."
         return text.replace('\n\n', '\n')
@@ -181,13 +185,19 @@ async def send_manager_excel(gateway, chat_id, order):
     # report success for a text fallback even when the attachment upload failed.
     require_work_order_permission(chat_id, capabilities=('work_orders.read_own',))
     with io.BytesIO(pdf_bytes) as document:
-        await adapter._bot.send_document(
+        sent = await adapter._bot.send_document(
             chat_id=chat_id, document=document, filename=pdf_path.name,
             caption=manager_excel_caption(order),
         )
     if order.get("work_order_no"):
+        receipt = None
+        if order.get('work_order_type') == 'CAR_WASH':
+            message_id = sent.get('message_id') if isinstance(sent, dict) else getattr(sent, 'message_id', None)
+            if not message_id:
+                raise RuntimeError('نتیجهٔ تحویل PDF قابل تأیید نیست؛ پیش از ارسال دوباره دریافت فایل را بررسی کنید.')
+            receipt = {'recipient_id': str(chat_id), 'message_id': str(message_id)}
         await _prepare_in_thread(gateway, store_manager_pdf, order["work_order_no"], pdf_path,
-                                pdf_bytes=pdf_bytes, excel_sha256=excel_sha256)
+                                pdf_bytes=pdf_bytes, excel_sha256=excel_sha256, delivery_receipt=receipt)
 
 
 class WorkOrderMenuHandler:
@@ -660,6 +670,9 @@ class WorkOrderMenuHandler:
                     elif result.get('error') == 'INVALID_INPUT' and request['action'] == 'validate_add':
                         session.stage = 'ADD_CODES'
                         reply = result['message'] + '\nکدها را اصلاح کنید یا بنویسید: برگشت'
+                    elif session.work_order_type == 'CAR_WASH' and session.proposal is not None:
+                        session.stage = 'PROPOSAL'
+                        reply = result.get('message', 'ساخت حکم متوقف شد.') + '\nبرای محاسبهٔ تازه بنویسید: کارواش'
                     elif result.get("error") == "INVALID_INPUT" and request["action"] == "validate_machines":
                         session.stage = "MACHINES"
                         reply = result["message"] + "\nکد دستگاه‌ها را اصلاح و دوباره ارسال کنید."
@@ -721,7 +734,9 @@ class WorkOrderMenuHandler:
                     session.proposal = result['proposal']
                     session.oil_recovery = ''
                     session.jalali_date = session.proposal['plan_date']
-                    reply = ('نسخهٔ ارسال‌شده تا ثبت ارسال موفق اصلاحیه معتبر می‌ماند. گیرندهٔ اصلاحیه را دوباره انتخاب می‌کنید.\n'
+                    reply = ('نسخهٔ قبلی محفوظ است؛ حکم اصلاح‌شده فقط به خودتان تحویل می‌شود.\n'
+                             if session.work_order_type == 'CAR_WASH' else
+                             'نسخهٔ ارسال‌شده تا ثبت ارسال موفق اصلاحیه معتبر می‌ماند. گیرندهٔ اصلاحیه را دوباره انتخاب می‌کنید.\n'
                              if request['action']=='revision_draft' else 'نسخهٔ قبلی محفوظ است؛ تغییرات پس از تأیید در شماره‌ای تازه ثبت می‌شود.\n') + render(session.proposal)
                 elif result.get('order') and result['order'].get('reviewable') is not True:
                     session.stage = 'RESULT'
@@ -776,10 +791,15 @@ class WorkOrderMenuHandler:
                     try:
                         require_work_order_permission(key[1], db_path=self.db_path)
                         await self.document_sender(gateway, chat_id, order)
-                        session.stage = "REVIEW"
-                        review_context(key[1], chat_id, 'manager', number=session.order_no, stage='REVIEW', db_path=self.db_path)
-                        reply_key = self._review_card(key, session.order_no, session.work_order_type)
-                        reply = manager_review_reply(order, preview=preview)
+                        if session.work_order_type == 'CAR_WASH':
+                            session.stage = 'WASH_RESULT'
+                            reply_key = key
+                            reply = f'PDF حکم کارواش {session.order_no} برای خودتان ارسال شد.\nبرای ویرایش یا دریافت دوباره از دکمه‌های زیر استفاده کنید.'
+                        else:
+                            session.stage = "REVIEW"
+                            review_context(key[1], chat_id, 'manager', number=session.order_no, stage='REVIEW', db_path=self.db_path)
+                            reply_key = self._review_card(key, session.order_no, session.work_order_type)
+                            reply = manager_review_reply(order, preview=preview)
                         if preview and staff_ids:
                             leave_staff = True
                     except Exception:
@@ -842,7 +862,7 @@ class WorkOrderMenuHandler:
             if isinstance(raw_scope, dict) and raw_scope.get('bale_inline_callback') is True:
                 send(gateway, chat_id, 'شما اجازهٔ مدیریت حکم کار را ندارید.')
                 return {'action': 'skip', 'reason': 'inline-rejected'}
-            if normalize_text(event.text or '') == 'حکم کار':
+            if normalize_text(event.text or '') in {'حکم کار', 'کارواش'}:
                 send(gateway, chat_id, 'شما اجازهٔ مدیریت حکم کار را ندارید.')
                 return {'action': 'skip', 'reason': 'work-order-permission-denied'}
             return None
@@ -854,8 +874,9 @@ class WorkOrderMenuHandler:
         resume_send = re.fullmatch(r'ادامه ارسال ((?:OC|GR|AF)-1405-\d{2}-\d{2}-\d+)', special_text)
         reissue = re.fullmatch(r'صدور مجدد ((?:OC|GR|AF)-1405-\d{2}-\d{2}-\d+) (.+)', special_text)
         delivery_command = text == 'بررسی ارسال' or delivery_decision or resume_send or reissue
-        is_entry = text == "حکم کار"
-        review_command = re.fullmatch(r"(ثبت تایید|ثبت تأیید|ارسال مجدد|اصلاح|ویرایش) ((?:AF|GR|OC)-1405-\d{2}-\d{2}-\d+)", normalize_digits(text))
+        is_wash_entry = text == 'کارواش'
+        is_entry = text == "حکم کار" or is_wash_entry
+        review_command = re.fullmatch(r"(ثبت تایید|ثبت تأیید|ارسال مجدد|اصلاح|ویرایش) ((?:AF|GR|OC|CW)-1405-\d{2}-\d{2}-\d+)", normalize_digits(text))
         key = ("bale", user_id or "", chat_id)
         now = self.clock()
         if gateway is not None and not self._lifecycle_restored:
@@ -1040,6 +1061,14 @@ class WorkOrderMenuHandler:
                 self._start_request(key, session, {"action": action, "bale_id": user_id, "work_order_no": number}, gateway, send)
                 reply = {"preview": "در حال ارسال فایل…", "edit": "در حال باز کردن فرم اصلاح…", "confirm_review": "در حال ثبت تأیید بررسی فایل…"}[action]
                 reason = "work-order-review"
+            elif is_wash_entry:
+                if session and session.ui_cleanup:
+                    self._delete_cancelled_messages(key, session, gateway)
+                session = self.pending[key] = FormSession(expires=now + 600, work_order_type='CAR_WASH')
+                self._start_request(key, session, {'action': 'propose', 'bale_id': user_id,
+                    'chat_id': chat_id, 'work_order_type': 'CAR_WASH'}, gateway, send,
+                    notice='در حال بررسی سابقه و پیشنهاد کارواش…')
+                reply = ''
             elif is_entry:
                 if session and session.ui_cleanup:
                     self._delete_cancelled_messages(key, session, gateway)
@@ -1118,6 +1147,16 @@ class WorkOrderMenuHandler:
                     reply = render(session.proposal)
                 else:
                     reply = session.result
+            elif (session.work_order_type == 'CAR_WASH' and session.proposal is not None
+                  and session.stage in {'PROPOSAL', 'REMOVE', 'WASH_EDIT', 'WASH_NAME', 'WASH_CONFIRM', 'WASH_REVIEW'}):
+                from .car_wash_form import handle as handle_wash
+                reply, request = handle_wash(session, text, accepted=_accepted)
+                if session.stage == 'REMOVE' and reply is None:
+                    reply = self._removal_text(session)
+                if request:
+                    request.update(bale_id=user_id, chat_id=chat_id)
+                    self._start_request(key, session, request, gateway, send,
+                                        notice='در حال ساخت حکم کارواش و PDF…')
             elif (session.work_order_type == 'OIL_CHANGE' and session.proposal is not None
                   and session.stage in OIL_EDIT_STAGES):
                 from tools.fleet.work_orders.channels.bale.oil_editor import handle

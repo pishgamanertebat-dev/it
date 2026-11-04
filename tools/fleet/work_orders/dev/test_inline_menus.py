@@ -132,19 +132,19 @@ class InlineMenusTests(PermissionDatabaseTestCase, unittest.IsolatedAsyncioTestC
         await self.settle()
         self.assertFalse(self.requests)
 
-    async def test_entry_five_buttons_and_all_type_callbacks(self):
-        for action, work_type in [('oil','OIL_CHANGE'), ('greasing','GREASING'), ('air_filter','AIR_FILTER')]:
+    async def test_entry_buttons_and_all_type_callbacks(self):
+        for action, work_type in [('oil','OIL_CHANGE'), ('greasing','GREASING'), ('air_filter','AIR_FILTER'), ('car_wash','CAR_WASH')]:
             self.message('حکم کار')
             await self.settle()
             entry = self.sent[-1]
             labels = [b['text'] for row in entry['reply_markup']['inline_keyboard'] for b in row]
-            self.assertEqual(labels, ['تعویض روغن','گریس کاری','هواکش','🔎 بررسی ارسال','انصراف'])
+            self.assertEqual(labels, ['تعویض روغن','گریس کاری','هواکش','کارواش','🔎 بررسی ارسال','انصراف'])
             self.assertNotIn('شمارهٔ نوع', entry['text'])
             self.message('', data=self.button(entry, action), origin=len(self.sent))
             await self.settle()
             self.assertEqual(self.requests[-1]['work_order_type'], work_type)
             self.assertEqual(self.requests[-1]['action'], 'propose')
-        self.assertEqual(len(self.removed), 3)
+        self.assertEqual(len(self.removed), 4)
 
     async def test_delivery_recovery_button_uses_authenticated_actor_and_chat(self):
         self.message('حکم کار')
@@ -737,7 +737,7 @@ class InlineMenusTests(PermissionDatabaseTestCase, unittest.IsolatedAsyncioTestC
         from copy import deepcopy
         from tools.fleet.oil_change.test_proposal import sample_source
         source = sample_source('HD785-5', 'HD706', last=1600)
-        for code, last, remaining in [('HD464', 1600, 90.5), ('HD465', 800, 14)]:
+        for code, last, remaining in [('HD464', 1600, 90.5), ('HD465', 800, 40)]:
             extra = sample_source('HD465-7R', code, last=last, remaining=remaining)
             source['machines'] += extra['machines']
             source['plans'] += extra['plans']
@@ -777,7 +777,7 @@ class InlineMenusTests(PermissionDatabaseTestCase, unittest.IsolatedAsyncioTestC
     async def test_oil_edit_accepts_single_typed_code_alongside_inline_selection(self):
         from tools.fleet.oil_change.test_proposal import sample_source
         from tools.fleet.work_orders.channels.bale.proposal_form import oil_edit_item
-        source = sample_source('HD465-7R', 'HD465', last=800, remaining=14)
+        source = sample_source('HD465-7R', 'HD465', last=800, remaining=40)
         session = await self.oil_edit_step(source, add_code=None)
         self.message('ویرایش اکسل'); await self.settle()
         for code in ('HD465','hd465','HD۴۶۵','465','۴۶۵','٤٦٥'):

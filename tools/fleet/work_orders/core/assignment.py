@@ -45,6 +45,9 @@ def assign_work_order(
 
         from .oil_safety import current
         current(con, work_order_no)
+        from .registry import get_work_order_spec
+        if get_work_order_spec(order['work_order_type']).manager_only:
+            raise ValueError('این حکم فقط برای صادرکننده است و به سرویسکار ارجاع نمی‌شود.')
 
         if order["assigned_staff_id"]:
 

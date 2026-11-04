@@ -44,6 +44,8 @@ def staff_display_name(staff, work_order_type):
 
 
 def staff_menu(work_order_type=None):
+    if work_order_type == 'CAR_WASH':
+        return 'حکم کارواش فقط برای خود مسئول نت است.', []
     options = staff_options()
     lines = ["سرویسکار را انتخاب کنید:"]
     lines.extend(f"{i}) {staff_display_name(s, work_order_type)}" for i, s in enumerate(options, 1))
@@ -62,6 +64,8 @@ def prepare_dispatch(number, actor, chat, staff_id, roster_id=None):
         current(con, number)
         if not row or row['created_by'] != f'bale:{actor}':
             raise ValueError('این حکم متعلق به شما نیست.')
+        if row['work_order_type'] == 'CAR_WASH':
+            raise ValueError('حکم کارواش به سرویسکار ارجاع نمی‌شود.')
         staff = next((s for s in staff_options() if s['id'] == staff_id and s.get('roster_id') == roster_id), None)
         if not staff:
             raise ValueError('این سرویسکار فعال نیست.')

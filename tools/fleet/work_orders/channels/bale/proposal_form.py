@@ -130,6 +130,9 @@ def _component_card(field, component):
 
 
 def render(proposal):
+    if proposal.get('work_order_type') == 'CAR_WASH':
+        from .car_wash_form import render as render_wash
+        return render_wash(proposal)
     greasing = proposal.get('work_order_type') == 'GREASING'
     oil = proposal.get('work_order_type') == 'OIL_CHANGE'
     label = 'تعویض روغن' if oil else 'گریس‌کاری' if greasing else 'هواکش'

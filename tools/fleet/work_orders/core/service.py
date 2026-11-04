@@ -326,7 +326,7 @@ def create_work_order(
     )
 
     from .operational import require_date
-    if spec.code in {'OIL_CHANGE', 'GREASING', 'AIR_FILTER'}:
+    if spec.code in {'OIL_CHANGE', 'GREASING', 'AIR_FILTER', 'CAR_WASH'}:
         require_date(jalali_date)
 
     if spec.code == 'AIR_FILTER':

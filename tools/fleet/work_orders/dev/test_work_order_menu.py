@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import unittest
 import importlib
+from pathlib import Path
 from dataclasses import replace
 from types import SimpleNamespace
 from unittest.mock import patch
@@ -30,10 +31,10 @@ class WorkOrderMenuTests(PermissionDatabaseTestCase):
     def select(self, value, bale_id="455740857"):
         return resolve_work_order_selection(value, bale_id=bale_id, db_path=self.db_path)
 
-    def test_menu_lists_three_types_in_requested_order(self):
+    def test_menu_lists_four_types_in_requested_order(self):
         self.assertEqual(
-            self.menu().splitlines()[-3:],
-            ["1) هواکش", "2) تعویض روغن", "3) گریس‌کاری"],
+            self.menu().splitlines()[-4:],
+            ["1) هواکش", "2) تعویض روغن", "3) گریس‌کاری", "4) کارواش"],
         )
 
     def test_air_filter_selection_accepts_persian_and_arabic_digits(self):
@@ -48,7 +49,7 @@ class WorkOrderMenuTests(PermissionDatabaseTestCase):
         self.assertTrue(self.select('۲')['enabled'])
 
     def test_invalid_selections_are_rejected(self):
-        for value in (0, -1, 4, "", "text", True, 1.0, "1.0", None, "9" * 5000):
+        for value in (0, -1, 5, "", "text", True, 1.0, "1.0", None, "9" * 5000):
             with self.subTest(value=str(value)[:20]), self.assertRaises(InvalidWorkOrderSelection):
                 self.select(value)
 
@@ -91,8 +92,8 @@ class WorkOrderMenuTests(PermissionDatabaseTestCase):
 
 class RegistryCompatibilityTests(unittest.TestCase):
     def test_dictionary_and_core_interfaces_agree(self):
-        self.assertEqual(len(registry.list_work_order_specs()), 3)
-        self.assertEqual([item["key"] for item in registry.list_work_order_types()], ["AIR_FILTER", "OIL_CHANGE", "GREASING"])
+        self.assertEqual(len(registry.list_work_order_specs()), 4)
+        self.assertEqual([item["key"] for item in registry.list_work_order_types()], ["AIR_FILTER", "OIL_CHANGE", "GREASING", "CAR_WASH"])
         for item in registry.list_work_order_types(enabled_only=False):
             spec = registry.get_work_order_spec(item["key"])
             self.assertEqual(item["enabled"], spec.operational)
@@ -124,6 +125,7 @@ class RegistryCompatibilityTests(unittest.TestCase):
 
 class CoreLifecycleRegressionTests(PermissionDatabaseTestCase):
     def test_registry_change_preserves_create_assign_approve_send(self):
+        self.test_today = '1405/06/11'
         schema = importlib.import_module(
             "tools.fleet.work_orders.migrations.001_create_work_order_schema_v1"
         )
@@ -133,7 +135,7 @@ class CoreLifecycleRegressionTests(PermissionDatabaseTestCase):
             schema.create_schema(con)
             con.execute("INSERT INTO service_staff (id, display_name, bale_id, service_role, active) VALUES (1, 'TEST STAFF', '1003', 'AIR_FILTER', 1)")
 
-        def build_document(*, output_path, jalali_date, items, shift):
+        def build_document(*, output_path, jalali_date, items, shift, work_order=None):
             output_path.parent.mkdir(parents=True, exist_ok=True)
             output_path.write_bytes(b"TEST DOCUMENT - NOT FOR DELIVERY")
 
@@ -156,12 +158,16 @@ class CoreLifecycleRegressionTests(PermissionDatabaseTestCase):
             patch('tools.fleet.work_orders.core.delivery.archive_delivered_order'),
             patch.object(service.importlib, "import_module", return_value=builder),
         ):
-            order = service.create_work_order(work_order_type="AIR_FILTER", jalali_date="1405/06/11", shift="TEST", machine_codes=["714"], created_by="TEST")
+            order = service.create_work_order(work_order_type="AIR_FILTER", jalali_date="1405/06/11", shift="صبح", machine_codes=["714"], created_by="bale:455740857")
             number = order["work_order_no"]
             self.assertEqual(number, "AF-1405-06-11-001")
             self.assertEqual(order["status"], "FILE_READY")
             self.assertEqual(order["work_order_label_fa"], "هواکش")
             self.assertEqual(len(service.list_eligible_staff("AIR_FILTER")), 1)
+            from tools.fleet.work_orders.core.delivery import store_manager_pdf
+            from tools.fleet.work_orders.core.review import confirm_document_review
+            store_manager_pdf(number, export_pdf(Path(order['excel_path'])))
+            confirm_document_review(number, '455740857')
             with self.assertRaises(RuntimeError):
                 approve_work_order(work_order_no=number, approved_by="TEST")
             with self.assertRaises(RuntimeError):

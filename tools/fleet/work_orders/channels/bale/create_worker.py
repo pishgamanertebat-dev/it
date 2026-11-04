@@ -161,6 +161,8 @@ def execute_request(request: dict, *, db_path=None) -> dict:
                 from tools.fleet.oil_change.proposal import build_proposal
             elif request.get('work_order_type') == 'GREASING':
                 from tools.fleet.greasing.proposal import build_proposal
+            elif request.get('work_order_type') == 'CAR_WASH':
+                from tools.fleet.car_wash.proposal import build_proposal
             else:
                 from tools.fleet.air_filter.proposal import build_proposal
             proposal = build_proposal()
@@ -179,6 +181,8 @@ def execute_request(request: dict, *, db_path=None) -> dict:
                 raise ValueError('دستگاه ناشناخته یا تکراری در منبع است؛ برای بیل و لودر کد کامل EX یا W را وارد کنید.')
             return {'ok': True, 'items': get_items(request['machine_codes'], source_machines=machines)}
         if request["action"] == "confirm_review":
+            if service.get_work_order(request['work_order_no'])['work_order_type'] == 'CAR_WASH':
+                raise ValueError('حکم کارواش مستقیماً به خودتان تحویل می‌شود و مرحلهٔ انتخاب سرویسکار ندارد.')
             review = confirm_document_review(request["work_order_no"], actor.bale_id)
             order = service.get_work_order(request['work_order_no'])
             return {"ok": True, "review": review, 'work_order_type':order['work_order_type']}
@@ -222,6 +226,21 @@ def execute_request(request: dict, *, db_path=None) -> dict:
                     raise ValueError("اصلاح فقط پیش از انتخاب سرویسکار امکان‌پذیر است.")
                 revision = ({'reissue_reason':request['reason'].strip(),'operation_id':request.get('operation_id')}
                             if action == 'revision_draft' else {})
+                if order['work_order_type'] == 'CAR_WASH':
+                    from tools.fleet.car_wash.proposal import build_proposal
+                    proposal = build_proposal()
+                    available = {i['machine_code']: i for i in proposal['catalog']}
+                    proposal['items'] = []
+                    for stored in order['items']:
+                        code = stored['machine_code']
+                        item = available.get(code)
+                        if item is None:
+                            item = {k: stored[k] for k in ('machine_code', 'machine_name', 'action_code', 'action_text')}
+                            proposal['manual_items'][code] = stored['machine_name']
+                        proposal['items'].append(item)
+                    proposal['revision_of'] = order['work_order_no']
+                    proposal.update(revision)
+                    return {'ok': True, 'work_order_type': 'CAR_WASH', 'proposal': proposal}
                 if order['work_order_type'] == 'OIL_CHANGE':
                     from tools.fleet.oil_change.proposal import build_proposal
                     proposal = build_proposal()
@@ -261,6 +280,24 @@ def execute_request(request: dict, *, db_path=None) -> dict:
             raise ValueError("درخواست نامعتبر است.")
         operational.require_date(request['jalali_date'])
         proposal = request.get('proposal')
+        if work_order_type == 'CAR_WASH':
+            # The builder checks this fingerprint on its own snapshot too.
+            if not proposal or not proposal.get('source_sha256'):
+                raise ValueError('ابتدا پیشنهاد تازهٔ کارواش بگیرید.')
+            manual = proposal.get('manual_items', {})
+            codes = request.get('machine_codes', [])
+            if not isinstance(manual, dict) or not set(manual).issubset(codes):
+                raise ValueError('افزودن دستی باید متعلق به دستگاه‌های همین حکم باشد.')
+            actions = {code: {'action_code': 'CAR_WASH', 'source_sha256': proposal['source_sha256'],
+                             **({'manual': True, 'machine_name': manual[code]} if code in manual else {})}
+                       for code in codes}
+            order = service.create_work_order(
+                authorization_check=authorize_create, work_order_type='CAR_WASH',
+                jalali_date=request['jalali_date'], shift='روزانه', machine_codes=codes,
+                created_by=f'bale:{actor.bale_id}', item_actions=actions,
+                revision_of=proposal.get('revision_of'),
+                notes='CAR_WASH_PROPOSAL: ' + json.dumps(proposal, ensure_ascii=False))
+            return {'ok': True, 'order': preview_order(order)}
         if proposal and proposal.get('source_sha256'):
             import hashlib
             if work_order_type == 'OIL_CHANGE':

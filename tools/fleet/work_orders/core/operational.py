@@ -35,7 +35,7 @@ def require_date(value):
 
 
 def require_order(row):
-    if row['work_order_type'] in {'OIL_CHANGE', 'GREASING', 'AIR_FILTER'}:
+    if row['work_order_type'] in {'OIL_CHANGE', 'GREASING', 'AIR_FILTER', 'CAR_WASH'}:
         require_date(row['jalali_date'])
 
 

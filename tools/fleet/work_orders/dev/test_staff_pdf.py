@@ -71,7 +71,7 @@ class StaffPdfTests(StaffDispatchTests):
         number = order['work_order_no']
         excel = Path(order['excel_path'])
         pdf = excel.with_suffix('.pdf')
-        pdf.write_bytes(b'%PDF-1.7\nMANAGER COPY')
+        pdf.write_bytes(b'%PDF-1.7\nMANAGER COPY\n%%EOF')
         preview = {'work_order_no': number, 'label': 'هواکش', 'item_count': len(order['items']),
                    'file_name': excel.name, 'file_path': str(excel)}
         captured = {}
@@ -82,13 +82,13 @@ class StaffPdfTests(StaffDispatchTests):
 
         gateway = SimpleNamespace(adapters={'bale': SimpleNamespace(_bot=SimpleNamespace(send_document=send_document))})
         def render(snapshot):
-            target=Path(snapshot).with_suffix('.pdf');target.write_bytes(b'%PDF-1.7\nMANAGER COPY');return target
+            target=Path(snapshot).with_suffix('.pdf');target.write_bytes(b'%PDF-1.7\nMANAGER COPY\n%%EOF');return target
         with patch('tools.fleet.work_orders.core.delivery.export_staff_pdf', side_effect=render) as export:
             asyncio.run(send_manager_excel(gateway, '455740857', preview))
             export.assert_called_once()
             self.assertEqual(Path(export.call_args.args[0]).name,excel.name)
         self.assertEqual(captured['filename'], pdf.name)
-        self.assertEqual(captured['body'], b'%PDF-1.7\nMANAGER COPY')
+        self.assertEqual(captured['body'], b'%PDF-1.7\nMANAGER COPY\n%%EOF')
         with test_database(self.db_path) as con:
             stored = con.execute('SELECT pdf_path FROM service_work_orders WHERE work_order_no=?', (number,)).fetchone()[0]
         self.assertEqual(stored, str(pdf))
@@ -99,7 +99,7 @@ class StaffPdfTests(StaffDispatchTests):
             send_work_order(work_order_no=number, sender=sender)
         self.assertEqual(sender.send_document.call_args.kwargs['file_path'], str(pdf))
         self.assertEqual(sender.send_document.call_args.kwargs['file_name'], pdf.name)
-        self.assertEqual(pdf.read_bytes(), b'%PDF-1.7\nMANAGER COPY')
+        self.assertEqual(pdf.read_bytes(), b'%PDF-1.7\nMANAGER COPY\n%%EOF')
 
     def test_missing_approved_pdf_does_not_regenerate_send_excel_or_mark_sent(self):
         order = self.prepared_order()
