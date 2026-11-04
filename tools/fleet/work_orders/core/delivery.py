@@ -102,7 +102,7 @@ def store_manager_pdf(work_order_no: str, pdf_path: Path, *, pdf_bytes=None, exc
                     or not delivery_receipt.get('message_id')):
                 raise ValueError('رسید تحویل PDF با صادرکنندهٔ حکم تطابق ندارد.')
             con.execute("UPDATE service_work_orders SET notes=notes||char(10)||? WHERE work_order_no=?",
-                        ('MANAGER_ONLY_PDF_DELIVERED: ' + json.dumps({**identity, **delivery_receipt}), work_order_no))
+                        ('MANAGER_PDF_DELIVERED: ' + json.dumps({**identity, **delivery_receipt}), work_order_no))
         con.commit()
     finally:
         con.close()
@@ -160,6 +160,10 @@ def send_work_order(
         from .registry import get_work_order_spec
         if get_work_order_spec(order['work_order_type']).manager_only:
             raise ValueError('این حکم فقط به صادرکننده تحویل می‌شود.')
+        if order['work_order_type'] == 'CAR_WASH':
+            from .staff_dispatch import car_wash_recipient
+            if not car_wash_recipient(con, order['assigned_staff_id']):
+                raise ValueError('گیرندهٔ فعال حکم کارواش فقط مهدی کارگری است.')
         oil_safety.current(con, work_order_no)
 
         def authorize_publish():
@@ -263,7 +267,7 @@ def send_work_order(
                 status='SENT',
                 pdf_path=?,
                 send_attempts =
-                    send_attempts + CASE WHEN work_order_type IN ('OIL_CHANGE','GREASING','AIR_FILTER') THEN 0 ELSE 1 END,
+                    send_attempts + CASE WHEN work_order_type IN ('OIL_CHANGE','GREASING','AIR_FILTER','CAR_WASH') THEN 0 ELSE 1 END,
                 sent_at=CURRENT_TIMESTAMP,
                 last_send_error=NULL,
                 updated_at=CURRENT_TIMESTAMP

@@ -171,7 +171,7 @@ def recover_stale(con, now=None):
     now = time.time() if now is None else now
     rows = con.execute('''SELECT d.* FROM service_work_order_dispatch d
         JOIN service_work_orders w USING(work_order_no)
-        WHERE w.work_order_type IN ('OIL_CHANGE','GREASING','AIR_FILTER') AND d.state='SENDING'
+        WHERE w.work_order_type IN ('OIL_CHANGE','GREASING','AIR_FILTER','CAR_WASH') AND d.state='SENDING'
         AND COALESCE(d.transfer_started_at,d.claimed_at,CAST(strftime('%s',w.updated_at) AS REAL),0) <= ?''', (now - LEASE_SECONDS,)).fetchall()
     for row in rows:
         attempt = row['attempt_id']
@@ -274,7 +274,7 @@ def pending(con, actor, chat):
         a.claimed_at,a.transfer_started_at,a.error FROM service_work_order_dispatch d
         JOIN service_work_orders w USING(work_order_no)
         JOIN service_work_order_delivery_attempts a ON a.id=d.attempt_id
-        WHERE w.work_order_type IN ('OIL_CHANGE','GREASING','AIR_FILTER') AND w.created_by=? AND d.state='UNCERTAIN'
+        WHERE w.work_order_type IN ('OIL_CHANGE','GREASING','AIR_FILTER','CAR_WASH') AND w.created_by=? AND d.state='UNCERTAIN'
         AND w.jalali_date=? AND w.superseded_by IS NULL
         ORDER BY a.claimed_at''', (f'bale:{actor}', operational_today()))]
 

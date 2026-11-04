@@ -38,7 +38,7 @@ def approved_pdf_bytes(row):
     """Read once: the validated bytes, rather than a reopenable path, reach transport."""
     review = last_record(row,'MANAGER_DOCUMENT_REVIEW')
     if not review or not review.get('pdf_sha256'):
-        if row['work_order_type'] in {'GREASING','AIR_FILTER'} or last_record(row,'MANAGER_DOCUMENT_PREVIEW'):
+        if row['work_order_type'] in {'GREASING','AIR_FILTER','CAR_WASH'} or last_record(row,'MANAGER_DOCUMENT_PREVIEW'):
             raise DocumentReviewRequired('تأیید PDF لازم است؛ بنویسید: ارسال مجدد ' + row['work_order_no'])
         return None  # Existing non-greasing CLI contracts retain their prior behavior.
     identity,data = document_identity(row)
@@ -82,7 +82,7 @@ def confirm_document_review(work_order_no: str, bale_id: str) -> dict:
             fingerprint = hashlib.sha256(Path(row["excel_path"]).read_bytes()).hexdigest()
             preview = last_record(row,'MANAGER_DOCUMENT_PREVIEW')
             identity = None
-            if preview or row['work_order_type'] in {'GREASING','AIR_FILTER'}:
+            if preview or row['work_order_type'] in {'GREASING','AIR_FILTER','CAR_WASH'}:
                 identity,_ = document_identity(row)
                 if not preview or any(preview.get(k)!=v for k,v in identity.items()):
                     raise DocumentReviewRequired('فایل با نسخهٔ نمایش‌داده‌شده یکسان نیست؛ دریافت و بررسی تازه لازم است.')

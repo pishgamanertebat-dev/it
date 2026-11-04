@@ -1625,7 +1625,7 @@ def _handle_bale(event, gateway, **kwargs):
     # Only a persisted assigned recipient can acknowledge here; this does not
     # grant registration approval or access to the manager's work-order menu.
     receipt_text = " ".join(text.translate(str.maketrans("كي", "کی")).replace("\u200c", " ").split())
-    if receipt_text.isdecimal() or receipt_text in {"حکم کار", "تایید", "تأیید"} or receipt_text.startswith(("تایید AF-", "تأیید AF-", "تایید GR-", "تأیید GR-", "تایید OC-", "تأیید OC-")):
+    if receipt_text.isdecimal() or receipt_text in {"حکم کار", "تایید", "تأیید"} or receipt_text.startswith(("تایید AF-", "تأیید AF-", "تایید GR-", "تأیید GR-", "تایید OC-", "تأیید OC-", "تایید CW-", "تأیید CW-")):
         result = _handle_work_order_menu(event, gateway, receipt_only=True)
         if result is not None:
             return result

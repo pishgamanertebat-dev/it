@@ -48,6 +48,10 @@ def assign_work_order(
         from .registry import get_work_order_spec
         if get_work_order_spec(order['work_order_type']).manager_only:
             raise ValueError('این حکم فقط برای صادرکننده است و به سرویسکار ارجاع نمی‌شود.')
+        if order['work_order_type'] == 'CAR_WASH':
+            from .staff_dispatch import car_wash_recipient
+            if not car_wash_recipient(con, staff_id):
+                raise ValueError('گیرندهٔ فعال حکم کارواش فقط مهدی کارگری است.')
 
         if order["assigned_staff_id"]:
 

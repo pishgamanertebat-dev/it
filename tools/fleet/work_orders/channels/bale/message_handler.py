@@ -139,7 +139,7 @@ def manager_excel_caption(order):
     summary = str(order.get('item_summary') or '').strip()
     if summary:
         lines.append(summary)
-    lines.append('نسخهٔ چاپی برای خود مسئول نت.' if order.get('work_order_type') == 'CAR_WASH'
+    lines.append('هنوز برای مسئول کارواش ارسال نشده است.' if order.get('work_order_type') == 'CAR_WASH'
                  else 'هنوز برای سرویسکار ارسال نشده است.')
     caption = '\n'.join(lines)
     return caption if len(caption) <= CAPTION_LIMIT else caption[:CAPTION_LIMIT - 1] + '…'
@@ -154,7 +154,7 @@ def manager_review_reply(order, *, preview=False):
 def manager_excel_details(order, *, preview=False, independent=False):
     number = order['work_order_no']
     if order.get('work_order_type') == 'CAR_WASH':
-        return f"حکم کارواش {number}\nتعداد دستگاه: {order['item_count']}\nPDF این حکم برای خودتان تهیه شده است."
+        return f"حکم کارواش {number}\nتعداد دستگاه: {order['item_count']}\nپس از تأیید بررسی فایل، مهدی کارگری را برای ارسال همین PDF انتخاب کنید."
     if independent:
         text = f"✅ حکم مستقل {number}\n{order.get('item_summary') or ''}\nحکم هنوز برای سرویسکار ارسال نشده است."
         return text.replace('\n\n', '\n')
@@ -718,9 +718,10 @@ class WorkOrderMenuHandler:
                     session.work_order_type = result.get('work_order_type', session.work_order_type)
                     _menu, session.staff_options = staff_menu(session.work_order_type)
                     session.stage = "STAFF"
-                    reply = f"✅ تایید بررسی فایل حکم {session.order_no} ثبت شد.\nسرویسکار را از دکمه‌های زیر انتخاب کنید.\nبرای بررسی یا ویرایش همین حکم، «بازگشت» را بزنید."
+                    recipient_label = 'مسئول کارواش' if session.work_order_type == 'CAR_WASH' else 'سرویسکار'
+                    reply = f"✅ تایید بررسی فایل حکم {session.order_no} ثبت شد.\n{recipient_label} را از دکمه‌های زیر انتخاب کنید.\nبرای بررسی یا ویرایش همین حکم، «بازگشت» را بزنید."
                     if not session.staff_options:
-                        reply = f"✅ تایید بررسی فایل حکم {session.order_no} ثبت شد.\nسرویسکار فعالی موجود نیست؛ برای بررسی همین حکم «بازگشت» را بزنید."
+                        reply = f"✅ تایید بررسی فایل حکم {session.order_no} ثبت شد.\n{recipient_label} فعالی موجود نیست؛ برای بررسی همین حکم «بازگشت» را بزنید."
                     session.result = reply
                 elif request["action"] in {"edit", "revision_draft"}:
                     from tools.fleet.work_orders.channels.bale.proposal_form import render
@@ -734,9 +735,7 @@ class WorkOrderMenuHandler:
                     session.proposal = result['proposal']
                     session.oil_recovery = ''
                     session.jalali_date = session.proposal['plan_date']
-                    reply = ('نسخهٔ قبلی محفوظ است؛ حکم اصلاح‌شده فقط به خودتان تحویل می‌شود.\n'
-                             if session.work_order_type == 'CAR_WASH' else
-                             'نسخهٔ ارسال‌شده تا ثبت ارسال موفق اصلاحیه معتبر می‌ماند. گیرندهٔ اصلاحیه را دوباره انتخاب می‌کنید.\n'
+                    reply = ('نسخهٔ ارسال‌شده تا ثبت ارسال موفق اصلاحیه معتبر می‌ماند. گیرندهٔ اصلاحیه را دوباره انتخاب می‌کنید.\n'
                              if request['action']=='revision_draft' else 'نسخهٔ قبلی محفوظ است؛ تغییرات پس از تأیید در شماره‌ای تازه ثبت می‌شود.\n') + render(session.proposal)
                 elif result.get('order') and result['order'].get('reviewable') is not True:
                     session.stage = 'RESULT'
@@ -791,15 +790,10 @@ class WorkOrderMenuHandler:
                     try:
                         require_work_order_permission(key[1], db_path=self.db_path)
                         await self.document_sender(gateway, chat_id, order)
-                        if session.work_order_type == 'CAR_WASH':
-                            session.stage = 'WASH_RESULT'
-                            reply_key = key
-                            reply = f'PDF حکم کارواش {session.order_no} برای خودتان ارسال شد.\nبرای ویرایش یا دریافت دوباره از دکمه‌های زیر استفاده کنید.'
-                        else:
-                            session.stage = "REVIEW"
-                            review_context(key[1], chat_id, 'manager', number=session.order_no, stage='REVIEW', db_path=self.db_path)
-                            reply_key = self._review_card(key, session.order_no, session.work_order_type)
-                            reply = manager_review_reply(order, preview=preview)
+                        session.stage = "REVIEW"
+                        review_context(key[1], chat_id, 'manager', number=session.order_no, stage='REVIEW', db_path=self.db_path)
+                        reply_key = self._review_card(key, session.order_no, session.work_order_type)
+                        reply = manager_review_reply(order, preview=preview)
                         if preview and staff_ids:
                             leave_staff = True
                     except Exception:
@@ -870,9 +864,9 @@ class WorkOrderMenuHandler:
         raw = getattr(event, 'raw_message', None)
         callback = isinstance(raw, dict) and raw.get('bale_inline_callback') is True
         special_text = normalize_digits(text)
-        delivery_decision = re.fullmatch(r'(رسیده است|ارسال مجدد مجاز است) ((?:OC|GR|AF)-1405-\d{2}-\d{2}-\d+) (\d+) (.+)', special_text)
-        resume_send = re.fullmatch(r'ادامه ارسال ((?:OC|GR|AF)-1405-\d{2}-\d{2}-\d+)', special_text)
-        reissue = re.fullmatch(r'صدور مجدد ((?:OC|GR|AF)-1405-\d{2}-\d{2}-\d+) (.+)', special_text)
+        delivery_decision = re.fullmatch(r'(رسیده است|ارسال مجدد مجاز است) ((?:OC|GR|AF|CW)-1405-\d{2}-\d{2}-\d+) (\d+) (.+)', special_text)
+        resume_send = re.fullmatch(r'ادامه ارسال ((?:OC|GR|AF|CW)-1405-\d{2}-\d{2}-\d+)', special_text)
+        reissue = re.fullmatch(r'صدور مجدد ((?:OC|GR|AF|CW)-1405-\d{2}-\d{2}-\d+) (.+)', special_text)
         delivery_command = text == 'بررسی ارسال' or delivery_decision or resume_send or reissue
         is_wash_entry = text == 'کارواش'
         is_entry = text == "حکم کار" or is_wash_entry
@@ -1257,8 +1251,9 @@ class WorkOrderMenuHandler:
                 if not 1 <= choice <= len(session.staff_options):
                     raise ValueError('این گزینه هنوز تعریف نشده است؛ سرویسکار فعال را انتخاب کنید.')
                 staff = session.staff_options[choice - 1]
+                recipient_label = 'مسئول کارواش' if session.work_order_type == 'CAR_WASH' else 'سرویسکار'
                 self._start_request(key, session, {'action': 'dispatch', 'staff_id': staff['id'], 'roster_id':staff.get('roster_id')}, gateway, send,
-                    notice='در حال ارسال حکم برای سرویسکار…')
+                    notice=f'در حال ارسال حکم برای {recipient_label}…')
                 reply = ''
                 reason = 'work-order-dispatch'
             elif session.stage == "MACHINES":

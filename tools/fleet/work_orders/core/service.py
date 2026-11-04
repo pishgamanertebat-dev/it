@@ -570,6 +570,10 @@ def list_eligible_staff(
     work_order_type: str,
 ) -> list[dict]:
 
+    if work_order_type == 'CAR_WASH':
+        from .staff_dispatch import staff_options
+        return staff_options(work_order_type)
+
     spec = get_work_order_spec(
         work_order_type
     )

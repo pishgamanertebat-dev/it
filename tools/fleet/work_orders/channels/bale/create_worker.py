@@ -181,8 +181,6 @@ def execute_request(request: dict, *, db_path=None) -> dict:
                 raise ValueError('دستگاه ناشناخته یا تکراری در منبع است؛ برای بیل و لودر کد کامل EX یا W را وارد کنید.')
             return {'ok': True, 'items': get_items(request['machine_codes'], source_machines=machines)}
         if request["action"] == "confirm_review":
-            if service.get_work_order(request['work_order_no'])['work_order_type'] == 'CAR_WASH':
-                raise ValueError('حکم کارواش مستقیماً به خودتان تحویل می‌شود و مرحلهٔ انتخاب سرویسکار ندارد.')
             review = confirm_document_review(request["work_order_no"], actor.bale_id)
             order = service.get_work_order(request['work_order_no'])
             return {"ok": True, "review": review, 'work_order_type':order['work_order_type']}

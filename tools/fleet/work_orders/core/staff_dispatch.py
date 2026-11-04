@@ -9,6 +9,15 @@ from tools.fleet.work_orders.core.assignment import assign_work_order
 from tools.fleet.work_orders.core.approval import approve_work_order
 
 
+CAR_WASH_RECIPIENT_ID = '1028780913'
+
+
+def car_wash_recipient(con, staff_id=None):
+    row = con.execute('''SELECT id,display_name,bale_id,service_role,active FROM service_staff
+        WHERE bale_id=? AND service_role='CAR_WASH' AND active=1''', (CAR_WASH_RECIPIENT_ID,)).fetchone()
+    return dict(row) if row and (staff_id is None or row['id'] == staff_id) else None
+
+
 def create_schema(con):
     con.execute("""CREATE TABLE IF NOT EXISTS service_work_order_dispatch (
         work_order_no TEXT PRIMARY KEY REFERENCES service_work_orders(work_order_no),
@@ -26,15 +35,18 @@ def create_schema(con):
             con.execute(f'ALTER TABLE service_work_order_dispatch ADD COLUMN {name} {kind}')
 
 
-def staff_options():
+def staff_options(work_order_type=None):
     con = connect_db()
     try:
+        if work_order_type == 'CAR_WASH':
+            staff = car_wash_recipient(con)
+            return [staff] if staff else []
         roster = [dict(r) for r in con.execute('''SELECT s.id,r.id AS roster_id,r.display_name,s.bale_id
             FROM service_staff_roster r JOIN service_staff s ON s.id=r.staff_id
-            WHERE r.active=1 AND s.active=1 ORDER BY r.id''')]
+            WHERE r.active=1 AND s.active=1 AND s.service_role!='CAR_WASH' ORDER BY r.id''')]
         if roster:
             return roster
-        return [dict(r) for r in con.execute("SELECT id,display_name,bale_id FROM service_staff WHERE active=1 AND notes='BALE_DISPATCH_PILOT' ORDER BY id")]
+        return [dict(r) for r in con.execute("SELECT id,display_name,bale_id FROM service_staff WHERE active=1 AND service_role!='CAR_WASH' AND notes='BALE_DISPATCH_PILOT' ORDER BY id")]
     finally:
         con.close()
 
@@ -44,12 +56,11 @@ def staff_display_name(staff, work_order_type):
 
 
 def staff_menu(work_order_type=None):
-    if work_order_type == 'CAR_WASH':
-        return 'حکم کارواش فقط برای خود مسئول نت است.', []
-    options = staff_options()
-    lines = ["سرویسکار را انتخاب کنید:"]
+    options = staff_options(work_order_type)
+    lines = ['مسئول کارواش را انتخاب کنید:' if work_order_type == 'CAR_WASH' else 'سرویسکار را انتخاب کنید:']
     lines.extend(f"{i}) {staff_display_name(s, work_order_type)}" for i, s in enumerate(options, 1))
-    lines.extend(f"{i}) هنوز تعریف نشده (غیرفعال)" for i in range(len(options) + 1, 4))
+    if work_order_type != 'CAR_WASH':
+        lines.extend(f"{i}) هنوز تعریف نشده (غیرفعال)" for i in range(len(options) + 1, 4))
     return "\n".join(lines), options
 
 
@@ -64,9 +75,7 @@ def prepare_dispatch(number, actor, chat, staff_id, roster_id=None):
         current(con, number)
         if not row or row['created_by'] != f'bale:{actor}':
             raise ValueError('این حکم متعلق به شما نیست.')
-        if row['work_order_type'] == 'CAR_WASH':
-            raise ValueError('حکم کارواش به سرویسکار ارجاع نمی‌شود.')
-        staff = next((s for s in staff_options() if s['id'] == staff_id and s.get('roster_id') == roster_id), None)
+        staff = next((s for s in staff_options(row['work_order_type']) if s['id'] == staff_id and s.get('roster_id') == roster_id), None)
         if not staff:
             raise ValueError('این سرویسکار فعال نیست.')
         previous = con.execute('SELECT roster_id FROM service_work_order_dispatch WHERE work_order_no=?', (number,)).fetchone()
@@ -119,7 +128,7 @@ def finish_send(number, state):
         with con:
             # Oil transitions must be fenced by attempt identity in oil_safety.
             con.execute("""UPDATE service_work_order_dispatch SET state=? WHERE work_order_no=?
-                AND NOT EXISTS (SELECT 1 FROM service_work_orders w WHERE w.work_order_no=? AND w.work_order_type IN ('OIL_CHANGE','GREASING','AIR_FILTER'))""", (state, number, number))
+                AND NOT EXISTS (SELECT 1 FROM service_work_orders w WHERE w.work_order_no=? AND w.work_order_type IN ('OIL_CHANGE','GREASING','AIR_FILTER','CAR_WASH'))""", (state, number, number))
     finally:
         con.close()
 

@@ -131,6 +131,14 @@ class RegistryCompatibilityTests(unittest.TestCase):
         self.assertEqual(self.dispatch(self.event(platform="telegram", user="synthetic-existing")), [])
         self.assertEqual(self.dispatch(self.event(chat_type="group")), [])
 
+    def test_car_wash_numbered_receipt_reaches_assigned_recipient_handler(self):
+        result = {'action': 'skip', 'reason': 'staff-receipt'}
+        with patch.object(self.bale, '_handle_work_order_menu', return_value=result) as handler:
+            for verb in ('تایید', 'تأیید'):
+                event = self.event(verb + ' CW-1405-08-13-001')
+                self.assertEqual(self.dispatch(event), [result])
+                handler.assert_called_with(event, self.gateway, receipt_only=True)
+
     def test_bale_onboarding_approval_and_pairing(self):
         self.assertEqual(self.dispatch(self.event())[0]["reason"], "bale-registration-started")
         self.assertEqual(self.dispatch(self.event("Synthetic Full Name"))[0]["reason"],

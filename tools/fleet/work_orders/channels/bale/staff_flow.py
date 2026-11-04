@@ -171,7 +171,7 @@ def handle_staff_receipt(event, gateway, *, send):
         return None
     text = ' '.join((event.text or '').translate(str.maketrans('كي', 'کی')).replace('\u200c', ' ').split())
     text = text.translate(str.maketrans('۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩','01234567890123456789'))
-    match = re.fullmatch(r'(?:تایید|تأیید)(?: ((?:AF|GR|OC)-1405-\d{2}-\d{2}-\d+))?', text)
+    match = re.fullmatch(r'(?:تایید|تأیید)(?: ((?:AF|GR|OC|CW)-1405-\d{2}-\d{2}-\d+))?', text)
     choice_key = (actor, str(source.chat_id))
     choices = receipt_choices.get(choice_key)
     numeric_choice = text.isdecimal() and choices is not None

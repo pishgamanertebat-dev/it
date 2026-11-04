@@ -67,7 +67,8 @@ def keyboard(session):
     elif stage == 'WASH_REVIEW':
         rows = [(action('wash_back', '↩️ بازگشت به پیشنهاد', stage),)]
     elif stage == 'WASH_RESULT':
-        rows = [(action('wash_preview', '📄 دریافت دوباره PDF', stage),
+        rows = [(action('review_confirm', '✅ تایید بررسی فایل', stage),),
+                (action('wash_preview', '📄 دریافت دوباره PDF', stage),
                  action('wash_order_edit', '✏️ ویرایش همین حکم', stage)),
                 (action('wash_new', '↩️ بازگشت به کارواش', stage),)]
     else:
