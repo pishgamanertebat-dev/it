@@ -316,10 +316,125 @@ class AlertTests(unittest.TestCase):
         self.assertEqual(len(self.sent), 2)
         self.assertTrue(self.sent[1][1].startswith('✅ مشکل ارسال گزارش برطرف شد'))
         self.assertIn(self.target, self.sent[1][1])
-        self.assertIn('تمام گیرندگان مورد انتظار اکنون دریافت کرده‌اند.', self.sent[1][1])
+        self.assertIn('گیرنده الف — ارسال گزارش تأیید شد', self.sent[1][1])
+        self.assertIn('گیرنده ب — ارسال گزارش تأیید شد', self.sent[1][1])
+        self.assertIn('شناسه پیام: 22', self.sent[1][1])
         self.scan(self.after(21))
         self.scan(self.after(50))
         self.assertEqual(len(self.sent), 2)
+
+    def preflight_alert(self, due=None):
+        from .preflight import _alert
+        conn = connect(self.state)
+        try:
+            _alert(conn, self.job(), due or self.due, 'TransportUnavailable', None,
+                   self.moment, self.store, self.sender)
+        finally:
+            conn.close()
+
+    def test_preflight_recovery_waits_for_actual_delivery_and_is_sent_once(self):
+        self.arm()
+        self.store.labels.update(A='امامی', B='هوشمند پاکدل')
+        self.preflight_alert()
+        # Even a recovered preflight with no real run/receipts must not claim delivery.
+        self.scan(self.moment)
+        self.assertEqual(len(self.sent), 1)
+        self.add_run('succeeded')
+        self.add_receipt('A', 'report', 'sent', '11')
+        self.add_receipt('B', 'report', 'sent', '22')
+        before = self.snapshot()
+        with self.assertLogs('tools.scheduler.delivery_alert', level='INFO') as logs:
+            self.scan(self.after(1))
+        text = self.sent[-1][1]
+        self.assertIn('امامی — ارسال گزارش تأیید شد', text)
+        self.assertIn('هوشمند پاکدل — ارسال گزارش تأیید شد', text)
+        self.assertIn('موعد: 10:00', text)
+        self.assertIn('recipient_name=هوشمند پاکدل', '\n'.join(logs.output))
+        self.scan(self.after(2))
+        self.assertEqual(len(self.sent), 2)
+        self.assertEqual(self.snapshot(), before)
+
+    def test_preflight_uncertain_delivery_is_not_cleared_or_resent(self):
+        self.arm()
+        self.preflight_alert()
+        self.add_run('uncertain', 'uncertain')
+        self.add_receipt('A', 'report', 'sent', '11')
+        self.add_receipt('B', 'report', 'uncertain')
+        before = self.snapshot()
+        self.scan(self.after(1))
+        self.scan(self.after(2))
+        self.assertFalse(any(text.startswith('✅') for _, text in self.sent))
+        self.assertEqual(self.snapshot(), before)
+
+    def test_preflight_recovery_requires_every_office_artifact_receipt(self):
+        self.arm()
+        self.preflight_alert()
+        self.add_run('succeeded')
+        self.add_receipt('A', 'report', 'sent')
+        self.add_receipt('B', 'report', 'sent', '22')
+        conn = connect(self.state)
+        with conn:
+            for artifact, status, mid in [('mechanical', 'sent', '11'), ('metalwork', 'uncertain', None)]:
+                conn.execute('INSERT INTO office_artifact_receipts VALUES (?,?,?,?,?,?,?,?)',
+                             (JOB_ID, self.due, 'A', artifact, status, mid, None, self.due))
+        conn.close()
+        self.scan(self.after(1))
+        self.assertEqual(len(self.sent), 1)
+        conn = connect(self.state)
+        with conn:
+            conn.execute("UPDATE office_artifact_receipts SET status='sent',message_id='12' WHERE artifact_id='metalwork'")
+        conn.close()
+        self.scan(self.after(2))
+        self.assertEqual(len(self.sent), 2)
+        self.assertIn('شناسه پیام: 11,12', self.sent[-1][1])
+
+    def test_preflight_recovery_notification_retries_without_resending_report(self):
+        self.arm()
+        self.preflight_alert()
+        self.add_run('succeeded')
+        self.add_receipt('A', 'report', 'sent', '11')
+        self.add_receipt('B', 'report', 'sent', '22')
+        before = self.snapshot()
+        self.fail_send = True
+        self.scan(self.after(1))
+        self.fail_send = False
+        self.scan(self.after(2))
+        self.scan(self.after(3))
+        self.assertEqual(len(self.sent), 2)
+        self.assertEqual(self.snapshot(), before)
+
+    def test_preflight_old_completed_backlog_is_quiet_but_late_delivery_recovers(self):
+        self.arm()
+        old_due = due_storage_key(self.moment - timedelta(days=2))
+        self.preflight_alert(old_due)
+        self.add_run('succeeded', due=old_due)
+        self.add_receipt('A', 'report', 'sent', '11', due=old_due)
+        self.add_receipt('B', 'report', 'sent', '22', due=old_due)
+        conn = connect(self.state)
+        with conn:
+            conn.execute('UPDATE runs SET finished=?', (old_due,))
+        conn.close()
+        self.scan(self.moment)
+        self.assertEqual(len(self.sent), 1)
+        conn = connect(self.state)
+        with conn:
+            conn.execute('UPDATE runs SET finished=?', (due_storage_key(self.after(1)),))
+        conn.close()
+        self.scan(self.after(1))
+        self.assertEqual(len(self.sent), 2)
+
+    def test_notice_recovery_does_not_claim_the_report_was_sent(self):
+        self.arm()
+        self.add_run('waiting_for_data', 'date_missing', data_state='missing', notice='retry_wait')
+        self.add_receipt('A', 'notice', 'sent', '11')
+        self.add_receipt('B', 'notice', 'failed')
+        self.scan(self.moment)
+        self.scan(self.after(15))
+        self.set_receipt('B', 'sent', '22', kind='notice')
+        self.scan(self.after(16))
+        self.assertEqual(len(self.sent), 2)
+        self.assertIn('خود گزارش ارسال نشده است', self.sent[-1][1])
+        self.assertNotIn('ارسال گزارش تأیید شد', self.sent[-1][1])
 
     def test_waiting_for_data_with_notice_sent_does_not_alert_the_operator(self):
         self.arm()
@@ -533,6 +648,7 @@ class AlertTests(unittest.TestCase):
         order = []
         auth = Mock()
         auth.resolve_daily_recipient.return_value = RecipientResolution('ready', '101', 1)
+        auth.identity_label.return_value = 'امامی'
 
         def handler(recipient, params, **kwargs):
             order.append('run')
@@ -542,8 +658,10 @@ class AlertTests(unittest.TestCase):
                    side_effect=lambda *args, **kwargs: order.append('activate') or False), \
                 patch('tools.scheduler.delivery_alert.scan_delivery_exceptions',
                       side_effect=lambda *args, **kwargs: order.append('scan')):
-            tick(path, self.state, self.moment, {'overflow': (lambda params: None, handler)}, auth)
+            with self.assertLogs('tools.scheduler.runner', level='INFO') as logs:
+                tick(path, self.state, self.moment, {'overflow': (lambda params: None, handler)}, auth)
         self.assertEqual(order, ['activate', 'run', 'scan'])
+        self.assertIn('recipient_name=امامی', '\n'.join(logs.output))
 
 
 class CapabilityTests(Fixture, unittest.TestCase):

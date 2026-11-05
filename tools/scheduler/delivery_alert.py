@@ -94,6 +94,9 @@ def ensure_activation(conn, now):
     ensure_schema(conn)
     from .source_notice_alert import ensure_activation as activate_source_notices
     activate_source_notices(conn, now)
+    with conn:
+        conn.execute("INSERT OR IGNORE INTO notifier_meta(key,value) VALUES ('preflight_recovery_activated_at',?)",
+                     (_iso(now),))
     if conn.execute("SELECT 1 FROM notifier_meta WHERE key='activated_at'").fetchone():
         return False
     with conn:
@@ -336,13 +339,53 @@ def format_exception(title, target, due_clock, problems):
     return '\n'.join(lines)
 
 
-def format_recovery(title, target):
-    return '\n'.join((
-        '✅ مشکل ارسال گزارش برطرف شد',
-        f'گزارش: {title}',
-        f'تاریخ: {target}',
-        'تمام گیرندگان مورد انتظار اکنون دریافت کرده‌اند.',
-    ))
+def format_recovery(title, target, due_clock, recipients):
+    delivered = bool(recipients) and all(
+        item['kind'] == 'report' and item['status'] == 'sent' for item in recipients)
+    lines = ['✅ مشکل ارسال گزارش برطرف شد' if delivered else '✅ وضعیت هشدار ارسال به‌روزرسانی شد',
+             f'گزارش: {title}', f'تاریخ: {target}', f'موعد: {due_clock}']
+    for item in recipients:
+        if item['status'] == 'sent':
+            state = ('ارسال گزارش تأیید شد' if item['kind'] == 'report' else
+                     'اعلان نبود اطلاعات ارسال شد؛ خود گزارش ارسال نشده است')
+        elif item['status'] in {'uncertain', 'sending', 'unconfirmed'}:
+            state = 'نتیجه ارسال قابل تأیید نیست'
+        elif item['status'] == 'revoked':
+            state = 'گیرنده از فهرست ارسال خارج شده؛ ارسال تأیید نشده است'
+        else:
+            state = 'ارسال تأیید نشده است'
+        lines.append(f"گیرنده: {item['label']} — {state}")
+        if item['message_id']:
+            lines.append(f"شناسه پیام: {item['message_id']}")
+    return '\n'.join(lines)
+
+
+def _delivery_summary(conn, job, run, expected, store):
+    kind = _required_kind(run) or 'report'
+    rows = {row['recipient_id']: row for row in conn.execute(
+        'SELECT * FROM receipts WHERE schedule_id=? AND due=? AND delivery_kind=?',
+        (job['id'], run['due'], kind))}
+    artifacts = {}
+    if kind == 'report':
+        for row in conn.execute('SELECT * FROM office_artifact_receipts WHERE schedule_id=? AND due=? ORDER BY recipient_id,artifact_id',
+                                (job['id'], run['due'])):
+            artifacts.setdefault(row['recipient_id'], []).append(row)
+    summary = []
+    for user in sorted(set(expected) | set(rows)):
+        row = rows.get(user)
+        status = row['status'] if row else 'missing'
+        message_id = row['message_id'] if row else None
+        parts = artifacts.get(user, ())
+        if status == 'sent' and parts:
+            if all(part['status'] == 'sent' and part['message_id'] for part in parts):
+                message_id = ','.join(part['message_id'] for part in parts)
+            else:
+                status, message_id = 'unconfirmed', None
+        if status == 'sent' and not message_id:
+            status = 'unconfirmed'
+        summary.append(dict(recipient=user, label=_label(store, user), kind=kind,
+                            status=status, message_id=message_id))
+    return summary
 
 
 def _fingerprint(problems):
@@ -564,8 +607,8 @@ def _close_undelivered(conn, schedule_id, due, now):
             (_iso(now), schedule_id, due))
 
 
-def _recover(conn, job, run, operators, now, sender_factory):
-    schedule_id, due = job['id'], run['due']
+def _recover(conn, job, run, operators, now, sender_factory, recipients, *, case_schedule_id=None):
+    schedule_id, due = case_schedule_id or job['id'], run['due']
     sent = conn.execute(
         '''SELECT case_row.episode FROM delivery_alert_case AS case_row
            WHERE case_row.schedule_id=? AND case_row.due=?
@@ -580,7 +623,7 @@ def _recover(conn, job, run, operators, now, sender_factory):
         _close_undelivered(conn, schedule_id, due, now)
         return
     case = _reload(conn, schedule_id, due, sent['episode'])
-    text = case['recovery_text'] or format_recovery(_title(job), _target(due))
+    text = case['recovery_text'] or format_recovery(_title(job), _target(due), _clock(due), recipients)
     if not case['recovery_text']:
         with conn:
             conn.execute('''UPDATE delivery_alert_case SET recovery_text=?, updated=?
@@ -588,6 +631,10 @@ def _recover(conn, job, run, operators, now, sender_factory):
                 (text, _iso(now), schedule_id, due, case['episode']))
         case = _reload(conn, schedule_id, due, case['episode'])
     if _dispatch(conn, case, 'recovery', text, operators, now, sender_factory):
+        for item in recipients:
+            logger.info('delivery_alert_recovery schedule_id=%s original_due=%s recipient=%s recipient_name=%s kind=%s state=%s message_id=%s',
+                        schedule_id, due, item['recipient'], item['label'], item['kind'],
+                        item['status'], item['message_id'] or '')
         with conn:
             conn.execute('''UPDATE delivery_alert_case SET recovery_status='sent', updated=?
                 WHERE schedule_id=? AND due=? AND recovery_status!='closed' ''',
@@ -620,7 +667,26 @@ def _process_run(conn, job, run, store, operators, now, sender_factory):
         return
     if still_waiting:
         return
-    _recover(conn, job, run, operators, now, sender_factory)
+    if (_open_case(conn, job['id'], run['due']) is None
+            and _open_case(conn, 'preflight_' + job['id'], run['due']) is None):
+        return
+    recipients = _delivery_summary(conn, job, run, expected, store)
+    if not recipients or any(item['status'] not in {'sent', 'revoked'} for item in recipients):
+        return
+    _recover(conn, job, run, operators, now, sender_factory, recipients)
+    # A successful connection/layout check is not proof that the report was sent.
+    delivered = {item['recipient'] for item in recipients
+                 if item['kind'] == 'report' and item['status'] == 'sent'}
+    if run['status'] != 'succeeded' or not expected or not set(expected) <= delivered:
+        return
+    activated = _parse(conn.execute(
+        "SELECT value FROM notifier_meta WHERE key='preflight_recovery_activated_at'").fetchone()[0])
+    # Include today's warnings and later deliveries, without replaying the old resolved backlog.
+    if (_parse(run['due']).astimezone(TEHRAN).date() < activated.astimezone(TEHRAN).date()
+            and (not run['finished'] or _parse(run['finished']) < activated)):
+        return
+    _recover(conn, job, run, operators, now, sender_factory, recipients,
+             case_schedule_id='preflight_' + job['id'])
 
 
 def scan_delivery_exceptions(conn, jobs, now, authorization=None, *, sender_factory=None):

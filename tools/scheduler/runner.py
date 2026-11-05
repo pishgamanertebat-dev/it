@@ -506,10 +506,13 @@ def _execute(conn, job, due, now, registry, authorization, replay, previous):
             'recovery schedule_id=%s original_due=%s recovered_at=%s reason=%s target_date=%s attempt=%s recipient_count=%s artifact=%s outcome=%s',
             job['id'], due.isoformat(), now.isoformat(timespec='seconds'), reason, target, attempt,
             len(receipts), _artifact(status, error), status)
+        from .delivery_alert import _label
+        receipt_store = authorization if authorization is not None else AuthorizationStore()
         for receipt in receipts:
             logger.info(
-                'recovery_recipient schedule_id=%s original_due=%s recipient=%s kind=%s state=%s message_id=%s',
-                job['id'], due.isoformat(), receipt['recipient_id'], receipt['delivery_kind'], receipt['status'], receipt['message_id'] or '')
+                'recovery_recipient schedule_id=%s original_due=%s recipient=%s recipient_name=%s kind=%s state=%s message_id=%s',
+                job['id'], due.isoformat(), receipt['recipient_id'], _label(receipt_store, receipt['recipient_id']),
+                receipt['delivery_kind'], receipt['status'], receipt['message_id'] or '')
     else:
         with conn:
             conn.execute('UPDATE runs SET status=?,finished=?,error=?,error_detail=? WHERE schedule_id=? AND due=?',
