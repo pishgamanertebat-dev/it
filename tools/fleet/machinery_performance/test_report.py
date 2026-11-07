@@ -110,17 +110,26 @@ class PerformanceReportTests(unittest.TestCase):
 
     def test_pdf_contains_all_source_cells_and_red_rows(self):
         import fitz
+        from tools.fleet.oil_balance.render import pdf_key
         report=select(self.report(),mode='monthly',comparison='average_gt_limit')
         root=Path('runtime/machinery-performance-tests');root.mkdir(exist_ok=True,parents=True)
         with tempfile.TemporaryDirectory(dir=root) as tmp:
-            pdf=render(report,Path(tmp)/'report.pdf')
-            result=validate_pdf(pdf,report)
-            self.assertEqual(result['rows'],3)
-            with fitz.open(pdf) as doc:
-                self.assertTrue(any(d.get('fill') and d['fill'][0]>.99 and .87<d['fill'][1]<.89 for d in doc[0].get_drawings()))
-            # 714 exists elsewhere on the page; validation must check its cell.
-            report['pdf_cells'][1]['values'][1]='714'
-            with self.assertRaises(ReportFailure):validate_pdf(pdf,report)
+            for fuel_only in (False, True):
+                with self.subTest(fuel_only=fuel_only):
+                    pdf=render(report,Path(tmp)/'report.pdf',fuel_only=fuel_only)
+                    result=validate_pdf(pdf,report)
+                    self.assertEqual(result['rows'],3)
+                    with fitz.open(pdf) as doc:
+                        text=pdf_key(doc[0].get_text())
+                        self.assertTrue(any(d.get('fill') and d['fill'][0]>.99 and .87<d['fill'][1]<.89 for d in doc[0].get_drawings()))
+                    for column in TOTAL_COLUMNS:
+                        if fuel_only and column not in TOTAL_COLUMNS[9:11]:
+                            self.assertNotIn(pdf_key(column),text)
+                        else:
+                            self.assertIn(pdf_key(column),text)
+                    # 714 exists elsewhere on the page; validation must check its cell.
+                    report['pdf_cells'][1]['values'][1]='714'
+                    with self.assertRaises(ReportFailure):validate_pdf(pdf,report)
 
     def test_pin_preserves_original_bytes_and_detects_corruption(self):
         from . import delivery
@@ -129,13 +138,13 @@ class PerformanceReportTests(unittest.TestCase):
         @contextmanager
         def source():yield b'fixture',report['source_sha256']
         with tempfile.TemporaryDirectory(dir=root) as tmp:
-            out=Path(tmp);pdf=render(report,out/'generated.pdf')
+            out=Path(tmp);pdf=render(report,out/'generated.pdf',fuel_only=True)
             with patch.object(delivery,'build',return_value=dict(status='ready',report=report,pdf=str(pdf))) as builder,patch.object(delivery,'source_snapshot',source):
                 first=delivery.prepare(TARGET,outbox=out/'outbox')
                 original=Path(first['pdf']).read_bytes()
                 second=delivery.prepare(TARGET,outbox=out/'outbox')
                 self.assertEqual(Path(second['pdf']).read_bytes(),original)
-                builder.assert_called_once()
+                builder.assert_called_once_with(TARGET,unittest.mock.ANY,mode='monthly',comparison='average_gt_limit',fuel_only=True)
             Path(second['pdf']).write_bytes(b'corrupt')
             with self.assertRaises(ReportFailure):delivery.pinned(TARGET,outbox=out/'outbox')
 

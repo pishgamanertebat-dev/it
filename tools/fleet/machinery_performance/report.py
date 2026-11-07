@@ -227,13 +227,13 @@ def select(report, *, mode, comparison, machine_code=None):
     return selected
 
 
-def build(target, directory, *, mode, comparison, reader=None, year=1405, machine_code=None):
+def build(target, directory, *, mode, comparison, reader=None, year=1405, machine_code=None, fuel_only=False):
     from pathlib import Path
     from .render import render, validate_pdf
     report = select(load(target, reader=reader, year=year), mode=mode, comparison=comparison, machine_code=machine_code)
     if not report['rows'] or report['missing_codes']:
         return {'status': 'waiting_for_data', 'report': report}
     path = Path(directory) / ('machinery-performance-' + report['date'].replace('/', '-') + '.pdf')
-    render(report, path)
+    render(report, path, fuel_only=fuel_only)
     validation = validate_pdf(path, report)
     return {'status': 'ready', 'report': report, 'pdf': str(path), 'validation': validation}

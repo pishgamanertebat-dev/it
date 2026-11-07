@@ -27,7 +27,7 @@ def probe(job,target,directory):
     task=job['task']
     if task=='machinery_performance_daily_report':
         from tools.fleet.machinery_performance.report import build
-        result=build(target,directory,mode='monthly',comparison='average_gt_limit')
+        result=build(target,directory,mode='monthly',comparison='average_gt_limit',fuel_only=True)
         return {'status':'passed' if result['status']=='ready' else 'no_data', 'sample_date':target}
     if task=='oil_balance_daily_report':
         from tools.fleet.oil_balance.report import build

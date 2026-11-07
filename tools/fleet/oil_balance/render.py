@@ -1,17 +1,16 @@
-"""Readable Persian vector PDF containing only stock and the selected day's rows."""
+"""Readable Persian vector PDF containing only the current inventory summary."""
 import hashlib
 import html
 from pathlib import Path
 
 from tools.scheduler.report_errors import ReportFailure
-from .report import key, TITLE, STOCK_LABEL
+from .report import key, STOCK_LABEL
 
 FONTS = Path('C:/Windows/Fonts')
 CSS = '''@font-face{font-family:Oil;src:url(tahoma.ttf)}
 @font-face{font-family:Oil;src:url(tahomabd.ttf);font-weight:bold}
 body{font-family:Oil;font-size:11px;color:#183348;margin:0}
 p{margin:0;line-height:1.5;text-align:center}'''
-WIDTHS = (6, 13, 17, 10, 10, 9, 14, 8, 13)
 
 
 def pdf_key(value):
@@ -32,7 +31,7 @@ def render(report, output, *, test_sample=False):
     archive = fitz.Archive(str(FONTS))
     fragments = []
     page = None
-    left, right, bottom = 28, 814, 552
+    left, right = 28, 814
 
     def insert(text, rect, *, size=11, bold=False, color='#183348', align='center'):
         style = f'font-size:{size}px;color:{color};text-align:{align};' + ('font-weight:bold;' if bold else '')
@@ -62,22 +61,16 @@ def render(report, output, *, test_sample=False):
         page = doc.new_page(width=842, height=595)
         page.draw_rect(fitz.Rect(0, 0, 842, 9), fill=(.08, .20, .28), color=None)
         insert('گزارش روزانه موازنه روغن', fitz.Rect(left, 23, right, 60), size=20, bold=True, align='right')
-        insert('تاریخ تعویض‌ها: ' + report['date'], fitz.Rect(left, 66, right, 95), size=15, bold=True, align='right')
+        insert('تاریخ گزارش: ' + report['date'], fitz.Rect(left, 66, right, 95), size=15, bold=True, align='right')
         if test_sample:
             insert('نمونه جهت بررسی', fitz.Rect(left, 68, left+185, 94), size=12, color='#9c5422')
         y = row(['نوع', *[v['label'] for v in report['inventory']]], 111, 42, (28,18,18,20,16), header=True)
         y = row([STOCK_LABEL, *[v['display'] for v in report['inventory']]], y, 43, (28,18,18,20,16), stock=True)
         insert('موجودی فعلی مطابق فایل هنگام تهیه گزارش است.', fitz.Rect(left, y+7, right, y+29), size=10, align='right')
-        insert(TITLE, fitz.Rect(left, y+42, right, y+74), size=15, bold=True, align='right')
-        return row(report['columns'], y+81, 53, WIDTHS, header=True)
 
     partial = output.with_suffix('.partial.pdf')
     try:
-        y = new_page()
-        for record in report['rows']:
-            if y+43 > bottom:
-                y = new_page()
-            y = row(record['values'], y, 43, WIDTHS, source=record['source_row'])
+        new_page()
         for page in doc:
             insert(f"{page.number+1} / {doc.page_count}", fitz.Rect(left, 563, right, 587), size=9)
         doc.subset_fonts()
@@ -108,23 +101,24 @@ def validate_pdf(path, report):
                 if abs(page.rect.width-842) > 1 or abs(page.rect.height-595) > 1 or page.get_images():
                     raise ValueError('Landscape vector PDF required')
                 text = page.get_text()
-                if report['date'] not in text or pdf_key(TITLE) not in pdf_key(text):
+                if report['date'] not in text or pdf_key(STOCK_LABEL) not in pdf_key(text):
                     raise ValueError('Report date or title missing')
                 page.get_pixmap(matrix=fitz.Matrix(.5,.5))
             cells = report.get('pdf_cells')
-            if not cells:
-                raise ValueError('Per-cell validation required')
-            seen = []
+            expected = [
+                ['نوع', *[v['label'] for v in report['inventory']]],
+                [STOCK_LABEL, *[v['display'] for v in report['inventory']]],
+            ]
+            if (doc.page_count != 1 or not cells or len(cells) != len(expected)
+                    or [c['values'] for c in cells] != expected
+                    or any(c['source_row'] is not None or len(c['rects']) != 5 for c in cells)):
+                raise ValueError('Only the inventory summary may be rendered')
             for fragment in cells:
-                if fragment['source_row'] is not None:
-                    seen.append(fragment['source_row'])
                 for value, rect in zip(fragment['values'], fragment['rects']):
                     actual = pdf_key(doc[fragment['page']].get_text(clip=fitz.Rect(rect)))
                     if value and pdf_key(value) not in actual:
                         raise ValueError('Extracted PDF cell differs from source')
-            if seen != [r['source_row'] for r in report['rows']]:
-                raise ValueError('Missing or repeated source rows')
-            return {'pages': doc.page_count, 'bytes': path.stat().st_size, 'rows': len(seen),
+            return {'pages': doc.page_count, 'bytes': path.stat().st_size, 'rows': 0, 'inventory_values': len(report['inventory']),
                     'searchable': True, 'pdf_sha256': hashlib.sha256(path.read_bytes()).hexdigest()}
     except Exception as exc:
         raise ReportFailure('pdf_validation', stage='validation') from exc

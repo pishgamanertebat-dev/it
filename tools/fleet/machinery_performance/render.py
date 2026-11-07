@@ -11,6 +11,8 @@ from .report import TITLE
 FONTS = Path('C:/Windows/Fonts')
 PAGE_WIDTH, PAGE_HEIGHT = 1191, 842
 WIDTHS = (15, 7, *([78/11] * 11))
+FUEL_WIDTHS = (36, 14, 25, 25)
+FUEL_COLUMNS = ('میانگین مصرف سوخت', 'حد مجاز')
 CSS = '''@font-face{font-family:Perf;src:url(tahoma.ttf)}
 @font-face{font-family:Perf;src:url(tahomabd.ttf);font-weight:bold}
 body{font-family:Perf;color:#183348;margin:0}p{margin:0;line-height:1.4;text-align:center}'''
@@ -25,7 +27,7 @@ def caption(report):
     return TITLE + '\nتاریخ: ' + report['date'] + '\n' + warning
 
 
-def render(report, output, *, test_sample=False):
+def render(report, output, *, test_sample=False, fuel_only=False):
     import fitz
     if not report['rows'] or len(report['rows']) > 500:
         raise ReportFailure('pdf_validation', stage='validation')
@@ -36,6 +38,8 @@ def render(report, output, *, test_sample=False):
     page = None
     cells = []
     left, right = 24, PAGE_WIDTH - 24
+    widths = FUEL_WIDTHS if fuel_only else WIDTHS
+    columns = list(FUEL_COLUMNS) if fuel_only else report['columns']
 
     def insert(text, rect, size=13, color='#183348', bold=False):
         style = f'font-size:{size}px;color:{color};' + ('font-weight:bold' if bold else '')
@@ -47,7 +51,7 @@ def render(report, output, *, test_sample=False):
     def row(values, y, height, *, header=False, source=None, alarm=False):
         x = right
         rects = []
-        for value, width in zip(values, WIDTHS):
+        for value, width in zip(values, widths):
             x0 = x - (right-left)*width/100
             rect = fitz.Rect(x0, y, x, y+height)
             fill = (.08,.20,.28) if header else ((1,.88,.88) if alarm else (.96,.97,.98))
@@ -58,7 +62,7 @@ def render(report, output, *, test_sample=False):
         size = 12 if header else 13
         style = f'font-size:{size}px;color:{color};' + ('font-weight:bold;' if header or alarm else '')
         contents = ''.join(f'<td style="width:{(right-left)*width/100}px"><p dir="auto">'+html.escape(value)+'</p></td>'
-                           for value, width in reversed(list(zip(values, WIDTHS))))
+                           for value, width in reversed(list(zip(values, widths))))
         body = '<table style="'+style+'"><tr>'+contents+'</tr></table>'
         spare, scale = page.insert_htmlbox(fitz.Rect(left, y+4, right, y+height-2), body,
                                           css=CSS+'table{width:100%;table-layout:fixed;border-collapse:collapse}td{padding:0;vertical-align:top}td p{padding:0 3px}',
@@ -79,9 +83,10 @@ def render(report, output, *, test_sample=False):
             if test_sample:
                 label = 'نمونه جهت بررسی — ' + label
             insert(label, fitz.Rect(left,99,right,128), size=14)
-            y = row(['نوع دستگاه','کد دستگاه',*report['columns']], 140, 75, header=True)
+            y = row(['نوع دستگاه','کد دستگاه',*columns], 140, 75, header=True)
             for record in report['rows'][offset:offset+14]:
-                y = row([record['name'],record['code'],*record['display']], y, 38,
+                display = record['display'][9:11] if fuel_only else record['display']
+                y = row([record['name'],record['code'],*display], y, 38,
                         source=record['source_row'], alarm=record['alarm'])
             alert = 'ردیف‌های قرمز مشمول هشدار مصرف سوخت هستند.' if report['alert_codes'] else 'عبور از حد مجاز مشاهده نشد.'
             insert(alert, fitz.Rect(left,765,right,790), size=12, color='#9b1515')
@@ -92,6 +97,7 @@ def render(report, output, *, test_sample=False):
         doc.save(partial, garbage=4, deflate=True)
         partial.replace(output)
         report['pdf_cells'] = cells
+        report['pdf_view'] = 'fuel_summary' if fuel_only else 'full'
     except ReportFailure:
         raise
     except Exception as exc:
@@ -119,6 +125,13 @@ def validate_pdf(path, report):
                 page.get_pixmap(matrix=fitz.Matrix(.4,.4))
             if not report.get('pdf_cells'):
                 raise ValueError('Missing cell inventory')
+            view = report.get('pdf_view', 'full')
+            if view not in {'full', 'fuel_summary'}:
+                raise ValueError('Unknown PDF view')
+            fuel_only = view == 'fuel_summary'
+            columns = list(FUEL_COLUMNS) if fuel_only else report['columns']
+            header = ['نوع دستگاه', 'کد دستگاه', *columns]
+            expected_rows = iter(report['rows'])
             # Index glyphs once per page. Re-extracting/shaping a whole page for
             # every cell makes this wide monthly table take minutes to verify.
             glyphs = []
@@ -135,6 +148,13 @@ def validate_pdf(path, report):
             for fragment in report['pdf_cells']:
                 if fragment['source_row'] is not None:
                     seen.append(fragment['source_row'])
+                    record = next(expected_rows)
+                    display = record['display'][9:11] if fuel_only else record['display']
+                    expected = [record['name'], record['code'], *display]
+                else:
+                    expected = header
+                if fragment['values'] != expected or len(fragment['rects']) != len(expected):
+                    raise ValueError('Unexpected PDF columns or values')
                 for value, rect in zip(fragment['values'], fragment['rects']):
                     x0,y0,x1,y1 = rect
                     actual = pdf_key(''.join(c for x,y,c in glyphs[fragment['page']] if x0<=x<=x1 and y0<=y<=y1))

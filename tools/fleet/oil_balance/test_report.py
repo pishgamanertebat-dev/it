@@ -207,13 +207,15 @@ class PDFTests(unittest.TestCase):
             path = Path(directory)/'report.pdf'
             render(report, path)
             validation = validate_pdf(path, report)
-            self.assertEqual((validation['pages'], validation['rows']), (1, 2))
+            self.assertEqual((validation['pages'], validation['rows'], validation['inventory_values']), (1, 0, 4))
             wrong = copy.deepcopy(report)
             wrong['pdf_cells'][-1]['values'][3] = '999'
             with self.assertRaises(ReportFailure):
                 validate_pdf(path, wrong)
 
-    def test_many_rows_paginate_and_all_cells_remain_readable(self):
+    def test_daily_details_are_omitted_even_with_many_source_rows(self):
+        import fitz
+        from .render import pdf_key
         report = self.report(workbook(rows=[[n, TARGET, 'بیل مکانیکی', 1255, n] for n in range(1, 18)]))
         root = Path('runtime/oil-balance-tests')
         root.mkdir(parents=True, exist_ok=True)
@@ -221,8 +223,13 @@ class PDFTests(unittest.TestCase):
             path = Path(directory)/'many.pdf'
             render(report, path)
             result = validate_pdf(path, report)
-            self.assertGreater(result['pages'], 1)
-            self.assertEqual(result['rows'], 17)
+            self.assertEqual((result['pages'], result['rows']), (1, 0))
+            with fitz.open(path) as doc:
+                text = pdf_key(doc[0].get_text())
+            self.assertNotIn(pdf_key('بیل مکانیکی'), text)
+            self.assertNotIn(pdf_key('کد دستگاه'), text)
+            self.assertNotIn(pdf_key(TITLE), text)
+            self.assertIn(pdf_key(STOCK_LABEL), text)
 
 
 if __name__ == '__main__':

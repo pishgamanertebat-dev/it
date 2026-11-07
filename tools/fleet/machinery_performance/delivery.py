@@ -51,7 +51,7 @@ def prepare(target, *, outbox=OUTBOX):
     outbox = Path(outbox)
     outbox.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix='prepare-', dir=outbox) as tmp:
-        result = build(target, tmp, mode='monthly', comparison='average_gt_limit')
+        result = build(target, tmp, mode='monthly', comparison='average_gt_limit', fuel_only=True)
         if result['status'] != 'ready':
             return result
         # Confirm the live source remained the snapshot used for this artifact.

@@ -89,7 +89,7 @@ def deliver(recipient, params, *, authorization=None, on_receipt=None, closed=No
                     continue
                 note_receipt(on_receipt, user, 'sending')
                 try:
-                    mid = sender.document(user, path, 'گزارش روزانه موازنه روغن\nتاریخ تعویض‌ها: ' + expected)
+                    mid = sender.document(user, path, 'گزارش روزانه موازنه روغن\nتاریخ گزارش: ' + expected)
                     if mid in (None, ''):
                         raise RuntimeError('Delivery receipt missing')
                     sent.append(user)
