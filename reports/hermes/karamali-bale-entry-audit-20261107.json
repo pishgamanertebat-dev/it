@@ -1,0 +1,138 @@
+{
+  "audit_date_tehran": "1405/08/16",
+  "client_date": "2026-11-07",
+  "generated_at_tehran": "2026-11-07T12:18:12.061483+03:30",
+  "identity": {
+    "platform": "bale",
+    "user_id": "1732374823",
+    "chat_id": "1732374823",
+    "display_name": "محسن",
+    "verified_name": "محسن کرمعلی",
+    "registration_status": "approved",
+    "first_seen_at": "2026-10-05T08:42:07+03:30",
+    "verified_at": "2026-10-05T08:43:56+03:30",
+    "updated_at": "2026-11-07T10:57:23+03:30"
+  },
+  "roles": [
+    {
+      "platform": "bale",
+      "user_id": "1732374823",
+      "role": "mechanical_manager_deputy",
+      "active": 1,
+      "assigned_at": "2026-10-05T09:47:52.741986+00:00",
+      "assigned_by": "explicit-user-mechanical-phase",
+      "updated_at": "2026-10-05T09:47:52.741986+00:00"
+    },
+    {
+      "platform": "bale",
+      "user_id": "1732374823",
+      "role": "mechanical_staff",
+      "active": 1,
+      "assigned_at": "2026-10-05T09:47:52.741986+00:00",
+      "assigned_by": "explicit-user-mechanical-phase",
+      "updated_at": "2026-10-05T09:47:52.741986+00:00"
+    }
+  ],
+  "sessions": [
+    {
+      "id": "20261106_135614_c52ab9e9",
+      "source": "bale",
+      "user_id": "1732374823",
+      "chat_id": "1732374823",
+      "display_name": "محسن",
+      "message_count": 5,
+      "tool_call_count": 0,
+      "started_at": 1793960774.4679606
+    }
+  ],
+  "messages": [
+    {
+      "id": 1966,
+      "role": "user",
+      "content": "🔄 شروع گفتگوی جدید\n1.دامتراک 707 تعویض واترپمپ2. باز کردن موتور لودر 473 3.باز کردن پمپ فرمان 472 4.تعویض لاکپشتی جلو5.باز کردن راذیات اب تراک716. 6تعمیر سیم کشی چراغ های بغل 711.8.تعمیر چراغ های دکل روی پیکور ودکمه پیکور9. باز کردن سیم کشی موتور 473 تعویض جنت افتر دامتراک 718\nدر تاریخ13ابان 1405\n🔄 شروع گفتگوی جدید",
+      "tool_calls": null,
+      "tool_name": null,
+      "platform_message_id": "7188",
+      "timestamp": 1793887199.0,
+      "timestamp_tehran": "2026-11-05T17:29:59+03:30"
+    },
+    {
+      "id": 1968,
+      "role": "assistant",
+      "content": "**شرح کارهای تعمیراتی — تاریخ ۱۳ آبان ۱۴۰۵**\n\n- **دامپتراک 707:** تعویض واترپمپ.\n- **لودر 473:** باز کردن موتور و باز کردن سیم‌کشی موتور.\n- **دستگاه 472:** باز کردن پمپ فرمان.\n- **دستگاه با کد نامشخص:** تعویض لاک‌پشتی جلو.\n- **دامپتراک 716:** باز کردن رادیاتور آب.\n- **دستگاه 711:** تعمیر سیم‌کشی چراغ‌های بغل.\n- **پیکور با کد نامشخص:** تعمیر چراغ‌های دکل و دکمه پیکور.\n- **دامپتراک 718:** تعویض «جنت افتر».\n\nلطفاً کد دستگاه مربوط به **تعویض لاک‌پشتی جلو** و کد **پیکور** را مشخص کنید.\n\nاین متن فقط مرتب‌سازی گزارش ارسالی شماست و در فایل تعمیرات ثبت نشده است.",
+      "tool_calls": null,
+      "tool_name": null,
+      "platform_message_id": null,
+      "timestamp": 1793960805.415277,
+      "timestamp_tehran": "2026-11-06T13:56:45.415277+03:30"
+    },
+    {
+      "id": 1974,
+      "role": "user",
+      "content": "شرح کارهای تعمیراتی_14ابان1405.\n\n-لودر472:بستن پمپ فرمان.2بستن دسته دنده\n_دامپتراک 707:باز کردن پمپ گازوئیلRسمت راننده.\n-دامپتراک 716:بستن رادیات اب.\n-دامپتراک 702 بستن لاکپشتی عقب تو شاسی \n    -تعوبض برف پاکن بیل:۱۰۰۱\n-تعویض برف پاکن بیل521:\n-تعویض برف پاکن دامپتراک720:\n-تعویض برف پاکن لودر 473 \n-تعویض برف پاکن دامپتراک 717\n-تعویض برف پاکن دامپتراک708",
+      "tool_calls": null,
+      "tool_name": null,
+      "platform_message_id": "7260",
+      "timestamp": 1794036443.0,
+      "timestamp_tehran": "2026-11-07T10:57:23+03:30"
+    },
+    {
+      "id": 1975,
+      "role": "assistant",
+      "content": "**شرح کارهای تعمیراتی — تاریخ ۱۴ آبان ۱۴۰۵**\n\n- **لودر 472:** بستن پمپ فرمان و بستن دسته‌دنده.\n- **دامپتراک 707:** باز کردن پمپ گازوئیل R سمت راننده.\n- **دامپتراک 716:** بستن رادیاتور آب.\n- **دامپتراک 702:** بستن لاک‌پشتی عقب داخل شاسی.\n- **بیل ۱۰۰۱:** تعویض برف‌پاک‌کن.\n- **بیل 521:** تعویض برف‌پاک‌کن.\n- **دامپتراک 720:** تعویض برف‌پاک‌کن.\n- **لودر 473:** تعویض برف‌پاک‌کن.\n- **دامپتراک 717:** تعویض برف‌پاک‌کن.\n- **دامپتراک 708:** تعویض برف‌پاک‌کن.\n\nاین متن فقط مرتب‌سازی گزارش ارسالی شماست و در فایل تعمیرات ثبت نشده است.",
+      "tool_calls": null,
+      "tool_name": null,
+      "platform_message_id": null,
+      "timestamp": 1794036453.2491438,
+      "timestamp_tehran": "2026-11-07T10:57:33.249144+03:30"
+    }
+  ],
+  "journals": {
+    "repairs-entry": {
+      "path": "E:\\KomatsoAI\\runtime\\repairs-entry\\audit.sqlite3",
+      "actor_total": 0,
+      "status_counts": [
+        {
+          "actor": "455740857",
+          "status": "succeeded",
+          "count": 3
+        },
+        {
+          "actor": "mine-file-sync",
+          "status": "succeeded",
+          "count": 37
+        }
+      ]
+    },
+    "maintenance-entry": {
+      "path": "E:\\KomatsoAI\\runtime\\maintenance-entry\\audit.sqlite3",
+      "actor_total": 0,
+      "status_counts": [
+        {
+          "actor": "455740857",
+          "status": "succeeded",
+          "count": 1
+        }
+      ]
+    }
+  },
+  "workbooks": [
+    {
+      "path": "E:\\Function\\تعمیرات 1405.xlsx",
+      "sha256": "841da662ce91f2973cef091a922a7caa74ee82c62502a9c2aae8f1c1e6e20e13"
+    },
+    {
+      "path": "E:\\Function\\گزارش روزانه رانندگان2.xlsx",
+      "sha256": "0e2d522bb6476a3b9942640464e7981364709434092ad8a9e69c6aeff20239d3"
+    }
+  ],
+  "remote_content_verified": false,
+  "remote_read_error": "Access is denied",
+  "conclusions": {
+    "messages_from_registered_account": true,
+    "confirmed_bale_edits": 0,
+    "both_replies_explicitly_say_not_saved": true,
+    "manual_entry_in_other_copy_unknown": true,
+    "save_operation_not_invoked_for_the_two_messages": true
+  }
+}

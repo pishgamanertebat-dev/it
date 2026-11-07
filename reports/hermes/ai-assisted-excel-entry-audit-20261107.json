@@ -1,0 +1,601 @@
+{
+  "audit_time_tehran": "2026-11-07T12:55:13.533263+03:30",
+  "scope": "READ-ONLY AUDIT; offline fixture writes only",
+  "configs": {
+    "repairs_entry": {
+      "allowed_users": [
+        "641220453",
+        "455740857",
+        "1294822197"
+      ],
+      "reply_menu_hidden_users": [
+        "641220453",
+        "1294822197"
+      ],
+      "department_sections": {
+        "654806764": "mechanical",
+        "1732374823": "mechanical",
+        "387679249": "metalwork"
+      },
+      "source": "E:\\Function\\گزارش روزانه رانندگان2.xlsx",
+      "template": "E:\\KomatsoAI\\templates\\repairs\\daily_report.xlsx"
+    },
+    "maintenance_entry": {
+      "allowed_users": [
+        "455740857",
+        "654806764"
+      ],
+      "source": "E:\\Function\\تعمیرات 1405.xlsx"
+    }
+  },
+  "workbook_before": {
+    "repairs_entry": {
+      "path": "E:\\Function\\گزارش روزانه رانندگان2.xlsx",
+      "size": 792798,
+      "sha256": "0e2d522bb6476a3b9942640464e7981364709434092ad8a9e69c6aeff20239d3"
+    },
+    "maintenance_entry": {
+      "path": "E:\\Function\\تعمیرات 1405.xlsx",
+      "size": 190366,
+      "sha256": "841da662ce91f2973cef091a922a7caa74ee82c62502a9c2aae8f1c1e6e20e13"
+    }
+  },
+  "actors": [
+    {
+      "identity": {
+        "platform": "bale",
+        "user_id": "1732374823",
+        "chat_id": "1732374823",
+        "verified_name": "محسن کرمعلی",
+        "registration_status": "approved"
+      },
+      "roles": [
+        {
+          "role": "mechanical_manager_deputy",
+          "active": 1
+        },
+        {
+          "role": "mechanical_staff",
+          "active": 1
+        }
+      ],
+      "capabilities": [
+        {
+          "capability": "maintenance.records.read",
+          "resource": "E:\\Function\\تعمیرات 1405.xlsx"
+        },
+        {
+          "capability": "repairs.driver_report.read",
+          "resource": "E:\\Function\\گزارش روزانه رانندگان2.xlsx"
+        },
+        {
+          "capability": "reports.driver_daily.mechanical_daily_receive",
+          "resource": "reports.driver_daily.mechanical"
+        },
+        {
+          "capability": "reports.machinery_performance.read",
+          "resource": "E:\\Function\\عملکرد ماشین آلات.xlsx"
+        },
+        {
+          "capability": "reports.overflow.mechanical_daily_receive",
+          "resource": "reports.overflow"
+        },
+        {
+          "capability": "reports.overflow.read",
+          "resource": "reports.overflow"
+        }
+      ],
+      "profile": "maintenance",
+      "repairs_sections": [
+        "mechanical"
+      ],
+      "maintenance_allowed": false,
+      "work_order_permission": {
+        "status": "DENIED",
+        "reason": "UNKNOWN_USER",
+        "bale_id": "1732374823",
+        "role": null,
+        "source": "legacy"
+      },
+      "domain_decisions": {
+        "repairs.driver_report": {
+          "allowed": false,
+          "source": "legacy",
+          "reason": "unmigrated"
+        },
+        "work_orders": {
+          "allowed": false,
+          "source": "legacy",
+          "reason": "unmigrated"
+        }
+      }
+    },
+    {
+      "identity": {
+        "platform": "bale",
+        "user_id": "654806764",
+        "chat_id": "654806764",
+        "verified_name": "سعیدشایسته",
+        "registration_status": "approved"
+      },
+      "roles": [
+        {
+          "role": "mechanical_manager",
+          "active": 1
+        },
+        {
+          "role": "mechanical_staff",
+          "active": 1
+        }
+      ],
+      "capabilities": [
+        {
+          "capability": "maintenance.records.read",
+          "resource": "E:\\Function\\تعمیرات 1405.xlsx"
+        },
+        {
+          "capability": "repairs.driver_report.read",
+          "resource": "E:\\Function\\گزارش روزانه رانندگان2.xlsx"
+        },
+        {
+          "capability": "reports.driver_daily.mechanical_daily_receive",
+          "resource": "reports.driver_daily.mechanical"
+        },
+        {
+          "capability": "reports.machinery_performance.read",
+          "resource": "E:\\Function\\عملکرد ماشین آلات.xlsx"
+        },
+        {
+          "capability": "reports.overflow.mechanical_daily_receive",
+          "resource": "reports.overflow"
+        },
+        {
+          "capability": "reports.overflow.read",
+          "resource": "reports.overflow"
+        }
+      ],
+      "profile": "maintenance",
+      "repairs_sections": [
+        "mechanical"
+      ],
+      "maintenance_allowed": true,
+      "work_order_permission": {
+        "status": "DENIED",
+        "reason": "UNKNOWN_USER",
+        "bale_id": "654806764",
+        "role": null,
+        "source": "legacy"
+      },
+      "domain_decisions": {
+        "repairs.driver_report": {
+          "allowed": false,
+          "source": "legacy",
+          "reason": "unmigrated"
+        },
+        "work_orders": {
+          "allowed": false,
+          "source": "legacy",
+          "reason": "unmigrated"
+        }
+      }
+    },
+    {
+      "identity": {
+        "platform": "bale",
+        "user_id": "641220453",
+        "chat_id": "641220453",
+        "verified_name": "حمید هدایتی",
+        "registration_status": "approved"
+      },
+      "roles": [
+        {
+          "role": "machinery_performance_completion_recipient",
+          "active": 1
+        },
+        {
+          "role": "machinery_performance_daily_recipient",
+          "active": 1
+        },
+        {
+          "role": "net_manager",
+          "active": 1
+        },
+        {
+          "role": "oil_balance_completion_recipient",
+          "active": 1
+        }
+      ],
+      "capabilities": [
+        {
+          "capability": "function.read_all",
+          "resource": "E:\\Function"
+        },
+        {
+          "capability": "repairs.driver_report.append",
+          "resource": "E:\\Function\\گزارش روزانه رانندگان2.xlsx"
+        },
+        {
+          "capability": "repairs.driver_report.clear",
+          "resource": "E:\\Function\\گزارش روزانه رانندگان2.xlsx"
+        },
+        {
+          "capability": "repairs.driver_report.daily_sheet_create",
+          "resource": "E:\\Function\\گزارش روزانه رانندگان2.xlsx"
+        },
+        {
+          "capability": "repairs.driver_report.edit",
+          "resource": "E:\\Function\\گزارش روزانه رانندگان2.xlsx"
+        },
+        {
+          "capability": "reports.machinery_performance.completion_remind",
+          "resource": "reports.machinery_performance.daily"
+        },
+        {
+          "capability": "reports.machinery_performance.daily_receive",
+          "resource": "reports.machinery_performance.daily"
+        },
+        {
+          "capability": "reports.oil_balance.completion_remind",
+          "resource": "reports.oil_balance.daily"
+        },
+        {
+          "capability": "work_orders.air_filter.archive_append",
+          "resource": "E:\\Function\\لیست روزانه هواکش .xlsx"
+        },
+        {
+          "capability": "work_orders.approve",
+          "resource": "work_orders.own"
+        },
+        {
+          "capability": "work_orders.assign",
+          "resource": "work_orders.own"
+        },
+        {
+          "capability": "work_orders.create",
+          "resource": "work_orders.own"
+        },
+        {
+          "capability": "work_orders.greasing.archive_append",
+          "resource": "E:\\Function\\لیست روزانه گریسکاری.xlsx"
+        },
+        {
+          "capability": "work_orders.read_own",
+          "resource": "work_orders.own"
+        },
+        {
+          "capability": "work_orders.review",
+          "resource": "work_orders.own"
+        },
+        {
+          "capability": "work_orders.send",
+          "resource": "work_orders.own"
+        }
+      ],
+      "profile": "net",
+      "repairs_sections": [
+        "mechanical",
+        "metalwork"
+      ],
+      "maintenance_allowed": false,
+      "work_order_permission": {
+        "status": "ALLOWED",
+        "reason": "AUTHORIZED",
+        "bale_id": "641220453",
+        "role": "MAINTENANCE_MANAGER",
+        "source": "central"
+      },
+      "domain_decisions": {
+        "repairs.driver_report": {
+          "allowed": true,
+          "source": "central",
+          "reason": "authorized"
+        },
+        "work_orders": {
+          "allowed": true,
+          "source": "central",
+          "reason": "authorized"
+        }
+      }
+    },
+    {
+      "identity": {
+        "platform": "bale",
+        "user_id": "387679249",
+        "chat_id": "387679249",
+        "verified_name": "صادق،صادقیان،",
+        "registration_status": "approved"
+      },
+      "roles": [
+        {
+          "role": "metalwork_staff",
+          "active": 1
+        }
+      ],
+      "capabilities": [
+        {
+          "capability": "reports.driver_daily.metalwork_daily_receive",
+          "resource": "reports.driver_daily.metalwork"
+        }
+      ],
+      "profile": "maintenance",
+      "repairs_sections": [
+        "metalwork"
+      ],
+      "maintenance_allowed": false,
+      "work_order_permission": {
+        "status": "DENIED",
+        "reason": "UNKNOWN_USER",
+        "bale_id": "387679249",
+        "role": null,
+        "source": "legacy"
+      },
+      "domain_decisions": {
+        "repairs.driver_report": {
+          "allowed": false,
+          "source": "legacy",
+          "reason": "unmigrated"
+        },
+        "work_orders": {
+          "allowed": false,
+          "source": "legacy",
+          "reason": "unmigrated"
+        }
+      }
+    }
+  ],
+  "pairing": {
+    "1732374823": true,
+    "654806764": true,
+    "641220453": true,
+    "387679249": true
+  },
+  "journals": {
+    "repairs-entry": {
+      "tables": [
+        "edits",
+        "fault_sync_sources",
+        "fault_sync_failures"
+      ],
+      "actor_counts": [
+        {
+          "actor": "455740857",
+          "status": "succeeded",
+          "count": 3
+        },
+        {
+          "actor": "mine-file-sync",
+          "status": "succeeded",
+          "count": 37
+        }
+      ],
+      "latest": [
+        {
+          "rowid": 40,
+          "actor": "mine-file-sync",
+          "status": "succeeded",
+          "created": "2026-11-07T04:26:39.713689+00:00",
+          "before_hash": "b9b75c17d714588cfd56c2f59df60e78c9237476e454526639afa1197ab5b578",
+          "after_hash": "0e2d522bb6476a3b9942640464e7981364709434092ad8a9e69c6aeff20239d3"
+        },
+        {
+          "rowid": 39,
+          "actor": "mine-file-sync",
+          "status": "succeeded",
+          "created": "2026-11-07T03:40:46.782732+00:00",
+          "before_hash": "c6cce9bf2de57ec15ed3a43247eceb14d72d7c955a1c842db2f904cef8d78297",
+          "after_hash": "b9b75c17d714588cfd56c2f59df60e78c9237476e454526639afa1197ab5b578"
+        },
+        {
+          "rowid": 38,
+          "actor": "mine-file-sync",
+          "status": "succeeded",
+          "created": "2026-11-06T03:22:42.660803+00:00",
+          "before_hash": "62541d3282d98ae4b8f0a6e4135a11ede29152366fa4ebd4758707c2370931cf",
+          "after_hash": "c6cce9bf2de57ec15ed3a43247eceb14d72d7c955a1c842db2f904cef8d78297"
+        }
+      ],
+      "sync_sources": [
+        {
+          "source": "E:\\Function\\گزارش روزانه رانندگان2.xlsx",
+          "start_rowid": 3,
+          "initial_hash": "122bd93b156d907e7cb4f43fe77263d2b62c2ce4acbdf8c5f8bf84089bb1d55c",
+          "upstream_hash": "122bd93b156d907e7cb4f43fe77263d2b62c2ce4acbdf8c5f8bf84089bb1d55c",
+          "enabled_at": "2026-10-10T09:38:37.650579+00:00"
+        }
+      ]
+    },
+    "maintenance-entry": {
+      "tables": [
+        "edits"
+      ],
+      "actor_counts": [
+        {
+          "actor": "455740857",
+          "status": "succeeded",
+          "count": 1
+        }
+      ],
+      "latest": [
+        {
+          "rowid": 1,
+          "actor": "455740857",
+          "status": "succeeded",
+          "created": "2026-09-17T19:19:15.616561+00:00",
+          "before_hash": "2b20aff51d7779b3a4672cdcb58b8da83efdfad3ac84419aba55a25783f80f81",
+          "after_hash": "ef01a6e7daab986723d5201fe8251494f396651de89f20eb82d05236b6cb9630"
+        }
+      ]
+    }
+  },
+  "incident_messages": [
+    {
+      "id": 1966,
+      "session_id": "20261106_135614_c52ab9e9",
+      "role": "user",
+      "content": "🔄 شروع گفتگوی جدید\n1.دامتراک 707 تعویض واترپمپ2. باز کردن موتور لودر 473 3.باز کردن پمپ فرمان 472 4.تعویض لاکپشتی جلو5.باز کردن راذیات اب تراک716. 6تعمیر سیم کشی چراغ های بغل 711.8.تعمیر چراغ های دکل روی پیکور ودکمه پیکور9. باز کردن سیم کشی موتور 473 تعویض جنت افتر دامتراک 718\nدر تاریخ13ابان 1405\n🔄 شروع گفتگوی جدید",
+      "tool_calls": null,
+      "tool_name": null,
+      "platform_message_id": "7188",
+      "timestamp": 1793887199.0
+    },
+    {
+      "id": 1968,
+      "session_id": "20261106_135614_c52ab9e9",
+      "role": "assistant",
+      "content": "**شرح کارهای تعمیراتی — تاریخ ۱۳ آبان ۱۴۰۵**\n\n- **دامپتراک 707:** تعویض واترپمپ.\n- **لودر 473:** باز کردن موتور و باز کردن سیم‌کشی موتور.\n- **دستگاه 472:** باز کردن پمپ فرمان.\n- **دستگاه با کد نامشخص:** تعویض لاک‌پشتی جلو.\n- **دامپتراک 716:** باز کردن رادیاتور آب.\n- **دستگاه 711:** تعمیر سیم‌کشی چراغ‌های بغل.\n- **پیکور با کد نامشخص:** تعمیر چراغ‌های دکل و دکمه پیکور.\n- **دامپتراک 718:** تعویض «جنت افتر».\n\nلطفاً کد دستگاه مربوط به **تعویض لاک‌پشتی جلو** و کد **پیکور** را مشخص کنید.\n\nاین متن فقط مرتب‌سازی گزارش ارسالی شماست و در فایل تعمیرات ثبت نشده است.",
+      "tool_calls": null,
+      "tool_name": null,
+      "platform_message_id": null,
+      "timestamp": 1793960805.415277
+    },
+    {
+      "id": 1974,
+      "session_id": "20261106_135614_c52ab9e9",
+      "role": "user",
+      "content": "شرح کارهای تعمیراتی_14ابان1405.\n\n-لودر472:بستن پمپ فرمان.2بستن دسته دنده\n_دامپتراک 707:باز کردن پمپ گازوئیلRسمت راننده.\n-دامپتراک 716:بستن رادیات اب.\n-دامپتراک 702 بستن لاکپشتی عقب تو شاسی \n    -تعوبض برف پاکن بیل:۱۰۰۱\n-تعویض برف پاکن بیل521:\n-تعویض برف پاکن دامپتراک720:\n-تعویض برف پاکن لودر 473 \n-تعویض برف پاکن دامپتراک 717\n-تعویض برف پاکن دامپتراک708",
+      "tool_calls": null,
+      "tool_name": null,
+      "platform_message_id": "7260",
+      "timestamp": 1794036443.0
+    },
+    {
+      "id": 1975,
+      "session_id": "20261106_135614_c52ab9e9",
+      "role": "assistant",
+      "content": "**شرح کارهای تعمیراتی — تاریخ ۱۴ آبان ۱۴۰۵**\n\n- **لودر 472:** بستن پمپ فرمان و بستن دسته‌دنده.\n- **دامپتراک 707:** باز کردن پمپ گازوئیل R سمت راننده.\n- **دامپتراک 716:** بستن رادیاتور آب.\n- **دامپتراک 702:** بستن لاک‌پشتی عقب داخل شاسی.\n- **بیل ۱۰۰۱:** تعویض برف‌پاک‌کن.\n- **بیل 521:** تعویض برف‌پاک‌کن.\n- **دامپتراک 720:** تعویض برف‌پاک‌کن.\n- **لودر 473:** تعویض برف‌پاک‌کن.\n- **دامپتراک 717:** تعویض برف‌پاک‌کن.\n- **دامپتراک 708:** تعویض برف‌پاک‌کن.\n\nاین متن فقط مرتب‌سازی گزارش ارسالی شماست و در فایل تعمیرات ثبت نشده است.",
+      "tool_calls": null,
+      "tool_name": null,
+      "platform_message_id": null,
+      "timestamp": 1794036453.2491438
+    }
+  ],
+  "sync_state": {
+    "source": "\\\\192.168.20.251\\share\\",
+    "destination": "E:\\Function",
+    "health_status": "success",
+    "sync_healthy": true,
+    "last_successful_run": "2026-11-07T09:24:22.701155+00:00",
+    "last_failure_reason": "worker inactivity deadline",
+    "bindings": {
+      "تعمیرات 1405.xlsx": "تعمیرات 1405.xlsx",
+      "گزارش روزانه رانندگان2.xlsx": "گزارش روزانه رانندگان2.xlsx"
+    }
+  },
+  "gateway": {
+    "pid": 11596,
+    "gateway_state": "running",
+    "updated_at": "2026-11-07T09:24:22.207412+00:00",
+    "code_sha": "e7208cd01179d21494b7f46478cd7db85481ed90",
+    "code_version": "0.21.4",
+    "served_profiles": [
+      "default",
+      "admin",
+      "maintenance",
+      "net"
+    ]
+  },
+  "files": {
+    "E:\\KomatsoAI\\tools\\fleet\\repairs\\entry_service.py": "ec868f33c7918db909e1841ae84cf7ac94edbd98d81c8bf06e59a143dfe1cba2",
+    "E:\\KomatsoAI\\tools\\fleet\\repairs\\maintenance_service.py": "e507241b435a5dce1f96a0c088e85a048387563b6bba63b310a8c9ba384347d6",
+    "E:\\KomatsoAI\\tools\\fleet\\repairs\\entry_bale.py": "d941d4ba501f07698d2463c30eea6e8444fd5e87986678335448fbe0d72d6cf0",
+    "E:\\KomatsoAI\\tools\\fleet\\repairs\\maintenance_bale.py": "60fb747bd7199e239d16fb4670cbadef39c3017bd248b46f17d8065b678c7ea6",
+    "E:\\KomatsoAI\\tools\\fleet\\repairs\\sync_service.py": "9b8e359248def54d281ac6f0ebe2de55bd664bbeae83f087685ac9637a5fb847",
+    "E:\\KomatsoAI\\tools\\fleet\\repairs\\sync_cells.py": "b76b3539d163692f46c1077155190dddccb9b1654b25be8213e2381175a2333c",
+    "E:\\KomatsoAI\\tools\\authorization\\net.py": "69007794e9fccf53a2dc5180ecacd6f89c2fe82d302bcd233b88f5bf6bc36705",
+    "E:\\KomatsoAI\\tools\\bale_ui\\runtime.py": "6602d9c9470abb61b8fa5c4238bb10934a20ab84258adccbd452be71ed3bdc07",
+    "E:\\KomatsoAI\\integrations\\hermes\\plugins\\komatso-bale-registry\\__init__.py": "268e8edb1b6311209531e861437ddf3704987ab73193ea08304da4858974c456",
+    "C:\\Users\\win-10\\AppData\\Local\\hermes\\plugins\\komatso-bale-registry\\__init__.py": "268e8edb1b6311209531e861437ddf3704987ab73193ea08304da4858974c456",
+    "C:\\Users\\win-10\\AppData\\Local\\hermes\\profiles\\maintenance\\plugins\\komatso-bale-registry\\__init__.py": "5190f7b63bb56317021c2c186a676839bb4357d4e0112d55c5c5fdb8ab9106ef",
+    "C:\\Users\\win-10\\AppData\\Local\\hermes\\profiles\\net\\plugins\\komatso-bale-registry\\__init__.py": "5190f7b63bb56317021c2c186a676839bb4357d4e0112d55c5c5fdb8ab9106ef",
+    "C:\\Users\\win-10\\AppData\\Local\\hermes\\scripts\\mine_file_sync.py": "e0d27f2a2b87fd8818770fcb8e3f189c466188de34b748fe5dafd8c10012ca38"
+  },
+  "daily_sheet_count": 205,
+  "daily_latest": [
+    {
+      "date": "1405/08/14",
+      "sheet": "گزارش رورانه1405.08.14"
+    },
+    {
+      "date": "1405/08/13",
+      "sheet": "گزارش رورانه1405.08.13"
+    },
+    {
+      "date": "1405/08/12",
+      "sheet": "گزارش رورانه1405.08.12"
+    }
+  ],
+  "sample_machine_resolution": {
+    "707": {
+      "code": "HD707",
+      "name": "دامپتراک کوماتسو _5_785"
+    },
+    "473": {
+      "code": "473",
+      "name": "لودر 470"
+    },
+    "472": {
+      "code": "W472",
+      "name": "لودر 470-3"
+    },
+    "716": {
+      "code": "HD716",
+      "name": "دامپتراک کوماتسو_7_785"
+    },
+    "711": {
+      "code": "HD711",
+      "name": "دامپتراک کوماتسو_7_785"
+    },
+    "718": {
+      "error": "کد دستگاه در فهرست موجود نیست؛ کد کامل و دقیق دستگاه را وارد کنید."
+    },
+    "HD718": {
+      "error": "کد دستگاه در فهرست موجود نیست؛ کد کامل و دقیق دستگاه را وارد کنید."
+    }
+  },
+  "offline_tests": {
+    "classes_and_methods": [
+      "tools.fleet.repairs.test_entry_service.EntryServiceTests",
+      "tools.fleet.repairs.test_maintenance_service.MaintenanceServiceTests",
+      "tools.fleet.repairs.test_entry_bale.EntryBaleTests",
+      "tools.fleet.repairs.test_maintenance_bale.MaintenanceBaleTests",
+      "tools.fleet.repairs.test_department_entry.DepartmentWriterTests",
+      "tools.fleet.repairs.test_department_entry.DepartmentUITests.test_live_menu_and_scopes_for_five_users",
+      "tools.fleet.repairs.test_sync_service.FaultSyncTests"
+    ],
+    "run": 61,
+    "failures": 1,
+    "errors": 0,
+    "skipped": 0,
+    "successful": false
+  },
+  "offline_sync_loss_reproduction": {
+    "source": "copy of operational maintenance workbook",
+    "real_sync_function": "mine_file_sync.atomic_copy",
+    "commit_result": {
+      "sheet": "707",
+      "code": "707",
+      "canonical": "HD707",
+      "name": "دامپتراک کوماتسو707",
+      "date": "1405/08/16",
+      "row": 26
+    },
+    "before_hash": "841da662ce91f2973cef091a922a7caa74ee82c62502a9c2aae8f1c1e6e20e13",
+    "after_commit_hash": "85b76c0e252de0f256ad002969baaae97a3ca4114ab21dce2059b4e590c77134",
+    "after_sync_hash": "841da662ce91f2973cef091a922a7caa74ee82c62502a9c2aae8f1c1e6e20e13",
+    "bale_row_retained_after_sync": false,
+    "journal_status_after_sync": "succeeded",
+    "all_writes_temporary": true
+  },
+  "workbook_after": {
+    "repairs_entry": {
+      "sha256": "0e2d522bb6476a3b9942640464e7981364709434092ad8a9e69c6aeff20239d3"
+    },
+    "maintenance_entry": {
+      "sha256": "841da662ce91f2973cef091a922a7caa74ee82c62502a9c2aae8f1c1e6e20e13"
+    }
+  },
+  "operational_workbook_hashes_equal": {
+    "repairs_entry": true,
+    "maintenance_entry": true
+  }
+}
