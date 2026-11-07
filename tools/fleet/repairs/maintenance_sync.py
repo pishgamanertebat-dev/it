@@ -1,10 +1,4 @@
-"""Fail-closed mine import boundary for the repair-event workbook.
-
-There is no stable event identity in the mine's historical rows. Until that
-contract is established, differing snapshots MUST NOT be merged or replaced.
-Retain both exact inputs and a failure record in the existing Writer journal.
-This is a guard, not an append queue or an automatic reconciliation system.
-"""
+"""Guard mine imports, continuing only from an explicit owner-approved baseline."""
 from contextlib import closing
 from datetime import datetime, timezone
 import hashlib
@@ -68,10 +62,20 @@ def guard_snapshot(staged, destination, *, config=CONFIG, runtime=RUNTIME):
                     reason TEXT NOT NULL, operations TEXT NOT NULL,
                     first_seen TEXT NOT NULL, last_seen TEXT NOT NULL, attempts INTEGER NOT NULL)''')
             reason = ''
+            from .maintenance_baseline import sync_from_baseline
+            active = False
             try:
-                recover_prepared(db, source, current_hash)
-            except EntryError:
-                reason = 'MAINTENANCE_SYNC_UNCERTAIN_OPERATION'
+                result = sync_from_baseline(db, source, original, incoming, runtime)
+                if result is not None:
+                    return result
+            except EntryError as exc:
+                active = True
+                reason = str(exc)
+            if not active:
+                try:
+                    recover_prepared(db, source, current_hash)
+                except EntryError:
+                    reason = 'MAINTENANCE_SYNC_UNCERTAIN_OPERATION'
             rows = db.execute('''SELECT operation,status,before_hash,after_hash FROM edits
                 WHERE source=? COLLATE NOCASE ORDER BY rowid''', (str(source),)).fetchall()
             operations = [dict(row) for row in rows]

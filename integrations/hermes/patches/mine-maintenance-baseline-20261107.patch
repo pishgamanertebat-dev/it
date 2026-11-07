@@ -1,0 +1,21 @@
+--- scripts/mine_file_sync.py
++++ scripts/mine_file_sync.py
+@@ -226,0 +227 @@
++    return json.loads(stdout.decode('utf8'))
+@@ -232,0 +234 @@
++    publication = None
+@@ -258,2 +260,2 @@
+-                publish_fault_report(temporary, destination, pulse=pulse,
+-                                     module="tools.fleet.repairs.maintenance_sync")
++                publication = publish_fault_report(temporary, destination, pulse=pulse,
++                                                   module="tools.fleet.repairs.maintenance_sync")
+@@ -267,0 +270,2 @@
++
++    return publication
+@@ -430 +434,5 @@
+-                atomic_copy(src, dst, before, pulse)
++                publication = atomic_copy(src, dst, before, pulse)
++                if dst.resolve() == MAINTENANCE_REPORT.resolve() and isinstance(publication, dict):
++                    result["maintenance_guard"] = publication
++                    if publication.get("status") in ("unchanged", "identical_noop"):
++                        kind = "skipped"
