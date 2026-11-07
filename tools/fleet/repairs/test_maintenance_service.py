@@ -71,7 +71,11 @@ class MaintenanceServiceTests(unittest.TestCase):
                 self.assertIn('$4', str(sheet.print_area))
             finally:
                 book.close()
-        self.assertEqual(len(list((self.root/'journal/backups').glob('*.xlsx'))), 3)
+        # Three pre-images plus the final published image (shared endpoints
+        # between commits are content-addressed and stored only once).
+        with closing(sqlite3.connect(self.root/'journal/audit.sqlite3')) as con:
+            hashes = {value for row in con.execute('SELECT before_hash,after_hash FROM edits') for value in row}
+        self.assertEqual({p.stem for p in (self.root/'journal/backups').glob('*.xlsx')}, hashes)
 
     def test_ambiguous_unknown_and_disallowed_leave_source_untouched(self):
         before = self.source.read_bytes()

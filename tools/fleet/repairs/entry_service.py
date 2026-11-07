@@ -486,7 +486,8 @@ def publish_candidate(source, original, candidate, db, actor, request, result, *
     return result
 
 
-def commit_workbook(actor, request, settings, mutate, *, runtime, day=None, command='شرح خرابی', authorization_check=None):
+def commit_workbook(actor, request, settings, mutate, *, runtime, day=None, command='شرح خرابی', authorization_check=None,
+                    replay_check=None):
     """Journal and atomically replace an existing workbook for a confirmed operation."""
     operation = str(request.get('operation', ''))
     if not re.fullmatch(r'[a-f0-9]{32}', operation):
@@ -508,6 +509,8 @@ def commit_workbook(actor, request, settings, mutate, *, runtime, day=None, comm
                     if previous['fingerprint'] != fingerprint:
                         raise EntryError('اطلاعات تأیید تغییر کرده است؛ فرم را دوباره باز کنید.')
                     if previous['status'] == 'succeeded':
+                        if replay_check:
+                            replay_check(db, source, digest, previous)
                         return json.loads(previous['result'])
                 if request.get('date') != (day or jalali_today()):
                     raise EntryError(f'روز عوض شده است؛ «{command}» را دوباره برای تاریخ امروز باز کنید.')

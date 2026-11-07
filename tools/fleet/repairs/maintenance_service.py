@@ -8,7 +8,7 @@ import re
 import openpyxl
 from openpyxl.cell.cell import ILLEGAL_CHARACTERS_RE
 
-from .entry_service import EntryError, ROOT, key, copy_style, commit_workbook
+from .entry_service import EntryError, EntryAuthorizationDenied, ROOT, key, copy_style, commit_workbook
 from tools.fleet.report_caption import jalali_today
 
 CONFIG = ROOT / 'settings/maintenance_entry.json'
@@ -20,7 +20,7 @@ FIELDS = {'date': ('تاریخ',), 'mechanic': ('نام مکانیک', 'تعمی
 def permission(actor, config=CONFIG):
     settings = json.loads(Path(config).read_text(encoding='utf-8'))
     if not actor or str(actor) not in settings['allowed_users']:
-        raise PermissionError('اجازهٔ ثبت تعمیرات را ندارید.')
+        raise EntryAuthorizationDenied('اجازهٔ ثبت تعمیرات را ندارید.')
     return settings
 
 
@@ -103,7 +103,13 @@ def append_record(book, request):
                             vertical='center', wrap_text=True, readingOrder=2)
         # Excel has no stored automatic row-height calculation. Estimate using
         # this column's width and font size, including explicit newlines.
-        width = sheet.column_dimensions[cell.column_letter].width or 13
+        # Indexing DimensionHolder creates a new column definition and can
+        # override an existing grouped width. Measuring must not mutate it.
+        dimension = sheet.column_dimensions.get(cell.column_letter)
+        if dimension is None:
+            dimension = next((value for value in sheet.column_dimensions.values()
+                              if (value.min or 0) <= col <= (value.max or 0)), None)
+        width = (dimension.width if dimension is not None else sheet.sheet_format.defaultColWidth) or 13
         size = cell.font.sz or 11
         capacity = max(1, int((width - 2) * 11 / size))
         lines = sum(max(1, math.ceil(len(line) / capacity)) for line in str(value).split('\n'))
@@ -124,7 +130,22 @@ def commit(actor, request, *, config=CONFIG, runtime=RUNTIME, day=None):
     for field in ('mechanic', 'description', 'parts'):
         validate_text(request.get(field), 200 if field == 'mechanic' else 1800)
     return commit_workbook(actor, request, settings, lambda book: append_record(book, request),
-                           runtime=runtime, day=day, command='تعمیرات')
+                           runtime=runtime, day=day, command='تعمیرات',
+                           authorization_check=lambda: permission(actor, config), replay_check=verify_replay)
+
+
+def verify_replay(db, source, current_hash, previous):
+    """Never return a historical success when its continued presence is unproven.
+
+    Use the operation's exact published hash and subsequent Writer hash chain;
+    a row number or equal description cannot establish repair-event identity.
+    """
+    rows = db.execute('''SELECT rowid,* FROM edits WHERE source=? COLLATE NOCASE
+        AND status='succeeded' ORDER BY rowid''', (str(source),)).fetchall()
+    chain = rows[next(index for index, row in enumerate(rows) if row['operation'] == previous['operation']):]
+    if (chain[-1]['after_hash'] != current_hash
+            or any(row['before_hash'] != older['after_hash'] for older, row in zip(chain, chain[1:]))):
+        raise EntryError('نتیجهٔ این عملیات در نسخهٔ فعلی قابل اثبات نیست؛ همان شناسهٔ ثبت باید بررسی شود. ثبت تازه نسازید.')
 
 
 def main():

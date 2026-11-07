@@ -1,0 +1,65 @@
+--- scripts/mine_file_sync.py
++++ scripts/mine_file_sync.py
+@@ -187,9 +187,11 @@
+ 
+ 
+ FAULT_REPORT = Path("E:/Function/گزارش روزانه رانندگان2.xlsx")
+-
+-
+-def publish_fault_report(staged, destination, pulse=lambda **kw: None):
++MAINTENANCE_REPORT = Path("E:/Function/تعمیرات 1405.xlsx")
++
++
++def publish_fault_report(staged, destination, pulse=lambda **kw: None,
++                         module="tools.fleet.repairs.sync_service"):
+     """The single shared fault workbook uses the project journal and atomic writer."""
+     project = Path('E:/KomatsoAI')
+     # Launch the native project interpreter, not the Windows venv redirector;
+@@ -197,7 +199,7 @@
+     cfg = dict(line.split(' = ', 1) for line in (project / '.venv/pyvenv.cfg').read_text().splitlines() if ' = ' in line)
+     interpreter = Path(cfg['home']) / 'python.exe'
+     bootstrap = ('import sys,runpy;sys.path.insert(0,' + repr(str(project / '.venv/Lib/site-packages')) +
+-                 ');runpy.run_module("tools.fleet.repairs.sync_service",run_name="__main__")')
++                 ');runpy.run_module("' + module + '",run_name="__main__")')
+     process = subprocess.Popen([str(interpreter),
+             '-E', '-s', '-B', '-X', 'utf8', '-c', bootstrap,
+             '--staged', str(staged), '--destination', str(destination)],
+@@ -220,7 +222,8 @@
+     if process.returncode:
+         message = stdout.decode('utf8', errors='replace').strip()
+         raise OSError(message or 'FAULT_SYNC_WORKER_FAILED: current local file preserved')
+-    LOG.info('fault_merge %s', stdout.decode('utf8', errors='replace').strip())
++    LOG.info('%s %s', 'fault_merge' if module.endswith('.sync_service') else 'maintenance_guard',
++             stdout.decode('utf8', errors='replace').strip())
+ 
+ 
+ def atomic_copy(source, destination, before, pulse):
+@@ -251,6 +254,9 @@
+             os.utime(temporary, ns=(before.st_atime_ns, before.st_mtime_ns))
+             if destination.resolve() == FAULT_REPORT.resolve():
+                 publish_fault_report(temporary, destination, pulse=pulse)
++            elif destination.resolve() == MAINTENANCE_REPORT.resolve():
++                publish_fault_report(temporary, destination, pulse=pulse,
++                                     module="tools.fleet.repairs.maintenance_sync")
+             else:
+                 os.replace(temporary, destination)
+     finally:
+@@ -416,7 +422,7 @@
+             except FileNotFoundError:
+                 local = None
+             if (local is not None and signature(local) == signature(before)
+-                    and dst.resolve() != FAULT_REPORT.resolve()):
++                    and dst.resolve() not in {FAULT_REPORT.resolve(), MAINTENANCE_REPORT.resolve()}):
+                 result["skipped"] += 1
+                 continue
+             kind = "updated" if local is not None else "copied"
+@@ -429,6 +435,9 @@
+             result["skipped_unstable"] += 1
+             event("skipped_unstable", relative, exc)
+         except OSError as exc:
++            if dst.resolve() == MAINTENANCE_REPORT.resolve():
++                result["maintenance_guard"] = {"status": "blocked", "error": str(exc)}
++                LOG.error("maintenance_sync_blocked relative_path=%s exception=%s", relative, exc)
+             if getattr(exc, "winerror", None) in NETWORK_ERRORS:
+                 raise
+             if isinstance(exc, (PermissionError, FileNotFoundError)) or getattr(exc, "winerror", None) in {32, 33}:
