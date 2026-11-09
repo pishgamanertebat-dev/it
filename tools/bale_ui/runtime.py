@@ -95,6 +95,22 @@ def dispatch(event, gateway, *, send, bale_approved=False):
     from tools.fleet.work_orders.channels.bale.message_handler import _handler as work_order
     from tools.fleet.repairs.entry_bale import _handler as repairs_entry
     from tools.fleet.repairs.maintenance_bale import _handler as maintenance_entry
+    # Optional extraction is composed after the established command paths.
+    # Its imports never load a model client or an Excel dependency.
+    from tools.fleet.repairs.entry_extract import enabled as daily_ai_enabled
+    daily_ai = None
+    if daily_ai_enabled():
+        try:
+            from tools.fleet.repairs.entry_ai_bale import _handler as daily_ai
+            repairs_entry.safe_capture = True
+        except Exception:
+            import logging
+            logging.getLogger(__name__).exception('Daily draft unavailable; manual forms remain available')
+    if daily_ai is not None and 'daily_ai' not in router.handlers:
+        router.register('daily_ai', daily_ai.handle)
+    if daily_ai is None:
+        router.handlers.pop('daily_ai', None)
+        repairs_entry.safe_capture = False
     if 'repairs_entry' not in router.handlers:
         router.register('repairs_entry', repairs_entry.handle)
     if 'maintenance_entry' not in router.handlers:
@@ -105,6 +121,25 @@ def dispatch(event, gateway, *, send, bale_approved=False):
     raw = getattr(event, 'raw_message', None)
     if not (isinstance(raw, dict) and raw.get('bale_inline_callback') is True):
         from tools.fleet.repairs.entry_bale import normalized
+        clean = normalized(event.text)
+        actor = str(getattr(event.source, 'user_id', '') or '')
+        chat = str(event.source.chat_id)
+        import time
+        current_order = work_order.pending.get(('bale', actor, chat))
+        order_open = bool(current_order and current_order.expires > time.time() and current_order.stage != 'RESULT')
+        if daily_ai is not None and not order_open and clean not in {'شرح خرابی', 'تعمیرات', 'حکم کار', 'انصراف', 'لغو', '/cancel'} and not clean.startswith('/'):
+            # Existing forms retain commands and callbacks. AI never consumes
+            # their plain text as another code/description without user choice.
+            form_open = repairs_entry.active_for(actor, chat) or maintenance_entry.active_for(actor, chat)
+            result = daily_ai.handle(event, gateway, send=send, allow_start=not form_open)
+            if result is not None:
+                if form_open:
+                    for handler in (repairs_entry, maintenance_entry):
+                        session = handler.sessions.get((actor, chat))
+                        if session:
+                            session['paused'] = True
+                            handler.persist()
+                return result
         if normalized(event.text) in {'شرح خرابی', 'تعمیرات'}:
             import time
             key = ('bale', str(getattr(event.source, 'user_id', '') or ''), str(event.source.chat_id))

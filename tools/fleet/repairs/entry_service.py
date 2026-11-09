@@ -144,13 +144,13 @@ def selected_date(value, current=None):
         raise EntryError(str(exc)) from exc
 
 
-def preview(actor, code, section, *, config=CONFIG, day=None, fleet_db=FLEET_DB, date=None):
+def preview(actor, code, section, *, config=CONFIG, day=None, fleet_db=FLEET_DB, date=None, _book=None):
     settings = permission(actor, config, section=section)
     if section not in SECTIONS:
         raise EntryError('بخش انتخاب‌شده معتبر نیست.')
     current = day or entry_dates.today()
     day = selected_date(date or current, current)
-    book = openpyxl.load_workbook(settings['source'])
+    book = _book if _book is not None else openpyxl.load_workbook(settings['source'])
     try:
         selected = machine(book, code, fleet_db)
         sheet = today_sheet(book, day)
@@ -164,7 +164,8 @@ def preview(actor, code, section, *, config=CONFIG, day=None, fleet_db=FLEET_DB,
                 current = text_value(sheet.cell(row, cols[section]).value)
         return {**selected, 'date': day, 'section': section, 'expected': current}
     finally:
-        book.close()
+        if _book is None:
+            book.close()
 
 
 @contextmanager
@@ -415,7 +416,7 @@ def set_description(book, selected, section, description, day, expected, templat
     return result
 
 
-def commit(actor, request, *, config=CONFIG, runtime=RUNTIME, day=None, fleet_db=FLEET_DB):
+def commit(actor, request, *, config=CONFIG, runtime=RUNTIME, day=None, fleet_db=FLEET_DB, approval_check=None):
     settings = permission(actor, config, section=request.get('section'), clearing=not request.get('description'))
     operation = str(request.get('operation', ''))
     if not re.fullmatch(r'[a-f0-9]{32}', operation):
@@ -441,12 +442,16 @@ def commit(actor, request, *, config=CONFIG, runtime=RUNTIME, day=None, fleet_db
                        if mode == 'append' else request)
     def check_date():
         selected_date(request.get('date'), day)
+    def check_authorization():
+        permission(actor, config, section=section, clearing=not description)
+        if approval_check:
+            approval_check()
     def mutate(book):
         selected = machine(book, request['code'], fleet_db)
         return set_description(book, selected, section, description, request['date'],
                                expected, settings['template'], allow_create=request['date'] == (day or entry_dates.today()))
     return commit_workbook(actor, journal_request, settings, mutate, runtime=runtime, day=day,
-                           authorization_check=lambda: permission(actor, config, section=section, clearing=not description),
+                           authorization_check=check_authorization,
                            date_check=check_date)
 
 
@@ -574,7 +579,10 @@ def main():
     import sys
     request = json.load(sys.stdin)
     try:
-        if request['action'] == 'dates':
+        if str(request['action']).startswith('ai_'):
+            from .entry_draft import execute
+            result = execute(request)
+        elif request['action'] == 'dates':
             permission(request['actor'])
             result = {'dates': entry_dates.choices()}
         elif request['action'] == 'preview':

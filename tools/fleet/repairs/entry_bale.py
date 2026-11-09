@@ -4,6 +4,7 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import re
 from pathlib import Path
 import secrets
 import subprocess
@@ -48,6 +49,9 @@ def keyboard(stage, sections=tuple(LABELS), *, dates=(), existing=False, retry=F
         return Action(name, label, 'repairs.edit', frozenset({stage}))
     if stage == 'SECTION':
         rows = [(button(s, LABELS[s]),) for s in sections]
+    elif stage == 'CAPTURE':
+        rows = [(button('use_text', 'استفاده از این پیام در فرم'),),
+                (button('discard_text', 'این پیام برای گفتگو بود'),)]
     elif stage == 'DATE':
         rows = [(button('date_' + day.replace('/', ''), ('امروز — ' if index == 0 else '') + entry_dates.readable(day)),)
                 for index, day in enumerate(dates)]
@@ -99,7 +103,8 @@ class RepairsEntryHandler:
                 'شرح معایب مکانیکی': 'mechanical', 'شرح معایب آهنگری': 'metalwork', 'شرح معایب اهنگری': 'metalwork'}
     exit_commands = {'حکم کار', 'تعمیرات'}
 
-    def __init__(self, *, state_store=None, run=worker, authorize=permitted, clock=time.time, sections=sections_for):
+    def __init__(self, *, state_store=None, run=worker, authorize=permitted, clock=time.time, sections=sections_for, safe_capture=False):
+        self.safe_capture = safe_capture
         self.store = state_store
         self.run = run
         self.authorize = authorize
@@ -148,7 +153,7 @@ class RepairsEntryHandler:
     def active_for(self, actor, chat):
         key = (str(actor), str(chat))
         session = self.sessions.get(key)
-        return key in self.busy or bool(session and session.get('expires', 0) > self.clock())
+        return key in self.busy or bool(session and not session.get('paused') and session.get('expires', 0) > self.clock())
 
     def actor_keyboard(self, stage, actor):
         # Maintenance inherits lifecycle only and retains its own keyboard.
@@ -224,6 +229,19 @@ class RepairsEntryHandler:
             await self.reply(key, gateway, send, f'اجازهٔ ثبت {self.entry_command} را ندارید.')
             return
         session = self.sessions.get(key)
+        if session and session['stage'] == 'CAPTURE':
+            if command not in {'use_text', 'discard_text', 'finish', 'entry'}:
+                await self.reply(key, gateway, send, 'ابتدا مشخص کنید این پیام ورودی فرم است یا برای گفتگو فرستاده شده است.')
+                return
+            if command in {'use_text', 'discard_text'}:
+                session['stage'] = session.pop('capture_stage')
+                pending = session.pop('capture_text')
+                if command == 'discard_text':
+                    session['paused'] = True
+                    self.persist()
+                    await self.reply(key, gateway, send, 'فرم متوقف شد؛ پیام گفتگو را دوباره بفرستید. برای بازگشت به فرم، دکمهٔ همان فرم را بزنید یا «شرح خرابی» را بنویسید.')
+                    return
+                command, text = '', pending
         sections = self.sections(key[0])
         if (not sections or (command in LABELS and command not in sections)
                 or (command == 'clear' and len(sections) != 2)
@@ -399,11 +417,24 @@ class RepairsEntryHandler:
                 return {'action': 'skip', 'reason': 'repairs-entry-stale'}
         else:
             command = self.commands.get(clean, '')
+            if session and session.get('paused') and not command:
+                return None
             if clean in self.exit_commands:
                 self.sessions.pop(key, None)
                 self.persist()
                 self.lifecycle.spawn(self.lifecycle.retire(key, gateway))
                 return None
+            if (self.safe_capture and self.namespace == 'repairs_entry' and session and not command
+                    and actor in {'1732374823', '654806764', '641220453', '387679249'}
+                    and session['stage'] in {'CODE', 'DESCRIPTION'}
+                    and str(getattr(event, 'reply_to_message_id', '')) != session.get('message_id')
+                    and (session['stage'] == 'DESCRIPTION' or not re.fullmatch(r'[A-Za-z0-9۰-۹٠-٩ -]{1,30}', text.strip()))):
+                session.update(capture_stage=session['stage'], capture_text=text, stage='CAPTURE')
+                self.persist()
+                self.start_task(key, self.reply(key, gateway, send, 'این پیام برای ورود کد/شرح در فرم روزانه است؟ فقط پس از انتخاب شما در فرم استفاده می‌شود.'), gateway, send)
+                return {'action': 'skip', 'reason': 'repairs-entry-input-choice'}
+        if session:
+            session.pop('paused', None)
         if token:
             self.seen[token] = self.clock() + 1800
         async def execute():
