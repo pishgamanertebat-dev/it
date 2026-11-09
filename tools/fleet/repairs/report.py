@@ -68,8 +68,45 @@ def latest_sheet(source):
 
 
 def export_pdf(source, sheet, output, work_dir, columns):
+    # The plan and the renderer read the same private snapshot. Never trust the
+    # saved PrintArea (older and newly copied daily sheets can both omit E).
+    book = openpyxl.load_workbook(source, read_only=True, data_only=True, keep_links=False)
+    try:
+        ws = book[sheet]
+        if ws.max_row > 10000 or ws.max_column > 128:
+            raise ValueError('Driver sheet dimensions exceed safe reporting limit')
+        last_row = 2
+        source_columns = ws.max_column
+        parts = []
+        for number, row in enumerate(ws.iter_rows(min_row=3, values_only=True), 3):
+            values = [row[c-1] if c <= len(row) else None for c in columns]
+            if not any(normalize(v) for v in values):
+                continue
+            if not all(normalize(v) for v in values[:3]):
+                raise ValueError(f'Incomplete driver identity at row {number}')
+            last_row = number
+            # Excel cannot grow a row beyond 409 points. Split large cells in
+            # the private copy into bounded continuation rows before AutoFit.
+            text = str(values[3] if values[3] is not None else '')
+            chunks = []
+            while text:
+                end = min(len(text), 360)
+                newline = [m.end() for m in re.finditer('\n', text[:end])]
+                if len(newline) > 6:
+                    end = newline[5]
+                elif end < len(text):
+                    space = text.rfind(' ', 0, end)
+                    if space > end // 2:
+                        end = space + 1
+                chunks.append(text[:end]); text = text[end:]
+            if len(chunks) > 1:
+                parts.append({'row': number, 'chunks': chunks})
+    finally:
+        book.close()
     request = Path(work_dir) / 'export.json'
-    request.write_text(json.dumps(dict(source=str(source), sheet=sheet, output=str(output), columns=columns), ensure_ascii=False), encoding='utf-8')
+    request.write_text(json.dumps(dict(source=str(source), sheet=sheet, output=str(output),
+        columns=columns, last_row=last_row, source_columns=source_columns,
+        continuations=parts), ensure_ascii=False), encoding='utf-8')
     powershell = Path(os.environ.get('SystemRoot', 'C:/Windows')) / 'System32/WindowsPowerShell/v1.0/powershell.exe'
     command = [str(powershell), '-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass',
                '-File', str(Path(__file__).with_name('export_pdf.ps1')), '-RequestPath', str(request)]
@@ -106,9 +143,20 @@ def build_report(output_dir, source=None, *, section='mechanical'):
         report = latest_sheet(snapshot)
         columns = section_columns(snapshot, report['sheet'], section)
         output = output_dir / f"repairs-{section}-{report['date'].replace('/', '-')}.pdf"
-        export_pdf(snapshot, report['sheet'], output, directory, columns)
+        if output.exists():
+            raise FileExistsError('Repairs PDF output already exists')
+        from integrations.hermes.function_domain.driver_report import load_driver, render_pdf_notice
+        from .pdf_validation import validate_driver_pdf
+        import hashlib
+        data = snapshot.read_bytes()
+        expected = load_driver(report['date'], data=data)
+        if expected['sections'][section]['status'] == 'ready':
+            export_pdf(snapshot, report['sheet'], output, directory, columns)
+        else:
+            render_pdf_notice(expected, section, output)
+        validation = validate_driver_pdf(output, expected, section, hashlib.sha256(data).hexdigest())
     title = 'گزارش روزانه تعمیرات مکانیکی' if section == 'mechanical' else 'گزارش روزانه آهنگری'
-    return {**report, 'section': section, 'pdf': str(output),
+    return {**report, 'section': section, 'pdf': str(output), 'validation': validation,
             'caption': report_caption(title, report['date'], latest=True)}
 
 

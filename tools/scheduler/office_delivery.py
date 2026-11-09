@@ -29,6 +29,7 @@ def deliver(task, params, *, authorization, on_receipt=None, closed=None, on_art
     runtime = tasks.ROOT / 'runtime/scheduler'
     runtime.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix='office-', dir=runtime) as directory:
+        failures={}
         if task == 'overflow':
             result = asyncio.run(tasks.build_report(target, directory))
             if not result.get('ok'):
@@ -41,17 +42,20 @@ def deliver(task, params, *, authorization, on_receipt=None, closed=None, on_art
             caption = tasks.overflow_report_caption(result['report']['date'], target)
             artifacts = [(f'page:{i}', Path(p), caption if i == 0 else '', False) for i, p in enumerate(result['images'])]
         else:
-            result = build_driver_pdf(target, directory, missing_result=True)
+            result = build_driver_pdf(target, directory, missing_result=True, allow_partial=True)
             report = result['report']
             if report['date'] != target:
                 raise ValueError('Driver output date mismatch')
             if report.get('sections') and all(v['status'] == 'date_missing' for v in report['sections'].values()):
                 return notify_missing('گزارش روزانه رانندگان', target, report.get('latest_date'), recipients, on_receipt=on_receipt, closed=closed, notify=False)
-            if len(result['documents']) != 2:
+            failures=result.get('failures',{})
+            if len(result['documents'])+len(failures) != 2:
                 raise ValueError('Driver output must contain two PDFs')
-            artifacts = [(s, Path(p), report['sections'][s]['title'] + ' ' + target, True) for s, p in zip(SECTIONS, result['documents'])]
+            paths=result.get('artifacts',dict(zip(SECTIONS,result['documents'])))
+            artifacts = [(s, Path(paths[s]) if s in paths else None,
+                          report['sections'][s]['title']+' '+target,True) for s in SECTIONS]
         # Persist every obligation before transport, including the second PDF.
-        states = {}
+        states = {};blocked=set()
         for user in users:
             for artifact, path, caption, pdf in artifacts:
                 state = prior.get((user, artifact), 'pending')
@@ -59,6 +63,8 @@ def deliver(task, params, *, authorization, on_receipt=None, closed=None, on_art
                     state = 'sent'  # Honor legacy aggregate receipts on upgrade.
                 elif user in uncertain and not any(u == user for u, a in prior):
                     state = 'uncertain'
+                if state not in {'sent','uncertain','revoked'} and artifact in failures:
+                    state='failed';blocked.add(artifact)
                 states[user, artifact] = state
                 if on_artifact_receipt:
                     on_artifact_receipt(user, artifact, state, None, None)
@@ -67,6 +73,8 @@ def deliver(task, params, *, authorization, on_receipt=None, closed=None, on_art
             for user in users:
                 for artifact, path, caption, pdf in artifacts:
                     if states[user, artifact] in {'sent', 'uncertain', 'revoked'}:
+                        continue
+                    if artifact in failures:
                         continue
                     def receipt(state, message_id=None, digest=None):
                         states[user, artifact] = state
@@ -81,6 +89,13 @@ def deliver(task, params, *, authorization, on_receipt=None, closed=None, on_art
                         if pdf and not data.startswith(b'%PDF-'):
                             raise ValueError('Invalid office PDF')
                         digest = hashlib.sha256(data).hexdigest()
+                        expected_hash=result.get('validation',{}).get(artifact,{}).get('pdf_sha256')
+                        if expected_hash and digest!=expected_hash:
+                            from tools.fleet.repairs.pdf_validation import DriverPDFInvalid
+                            failures[artifact]=DriverPDFInvalid(report,artifact,'visibility_uncertain')
+                            blocked.add(artifact)
+                            receipt('failed')
+                            continue
                         if sender is None:
                             sender = tasks.BaleSender()
                         sender.check_connection()
@@ -104,6 +119,11 @@ def deliver(task, params, *, authorization, on_receipt=None, closed=None, on_art
             if sender is not None:
                 sender.close()
         outcome = outcome_from_receipts(states.values())
+        if blocked:
+            failure=next((failures[s] for s in blocked if failures[s].code=='driver_pdf_content'),
+                         failures[next(iter(blocked))])
+            return {'status':'failed','reason':failure.code,'failure_details':failure.details,
+                    'sent_count':sum(v=='sent' for v in states.values())}
         retry = [u for u in users if any(states[u, a] in {'pending', 'failed'} for a, p, c, pdf in artifacts)]
         unknown = [u for u in users if any(states[u, a] == 'uncertain' for a, p, c, pdf in artifacts)]
         if retry:

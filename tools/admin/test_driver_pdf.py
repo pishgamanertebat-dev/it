@@ -14,7 +14,10 @@ class DriverPDFTests(AdminFixture,unittest.TestCase):
         try:
             values=[str(row[c-1]) for row in book[sheet].iter_rows(values_only=True) for c in columns if c<=len(row) and row[c-1] is not None]
         finally:book.close()
-        doc=fitz.open();page=doc.new_page();page.insert_text((30,30),' | '.join(''.join(c for c in v if ord(c)<128) for v in values));doc.save(output);doc.close()
+        from tools.fleet.repairs.test_pdf_validation import make_pdf
+        from integrations.hermes.function_domain.driver_report import load_driver
+        report=load_driver('1405/07/10',data=Path(source).read_bytes())
+        make_pdf(output,report,'metalwork' if columns[-1]==5 else 'mechanical')
     def test_native_export_exact_sheet_isolated_columns_one_snapshot_and_no_source_write(self):
         self.workbook([('newest','1405/07/12','TODAY_MECH','TODAY_METAL'),('requested','1405/07/10','MECH_ONLY','METAL_ONLY'),('oldlast','1405/07/09','OLD_MECH','OLD_METAL')])
         self.original=(self.data/SOURCE_NAME).read_bytes()

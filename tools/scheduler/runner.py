@@ -355,6 +355,8 @@ def _adjust_replay(status, error, result):
     retry_ids = result.get('retry_recipients') or []
     sent_count = result.get('sent_count') or 0
     process_failed = status == 'failed'
+    if status=='failed' and error=='driver_pdf_content':
+        return status,error,True
     if uncertain and not retry_ids:
         status, error, process_failed = 'uncertain', 'uncertain', True
     elif status == 'failed' and (retry_ids or error in RETRYABLE_FAILURE):
@@ -443,6 +445,8 @@ def _execute(conn, job, due, now, registry, authorization, replay, previous):
                 if error=='invalid_source':
                     failure=ReportFailure('source_invalid',stage='source')
                     error,error_detail=failure.code,failure.serialized()
+                elif error in REPORT_FAILURES and result.get('failure_details') is not None:
+                    error_detail=ReportFailure(error,**result['failure_details']).serialized()
             if isinstance(result, dict) and result.get('status') == 'skipped':
                 status, error = 'skipped', result['reason']
             if isinstance(result, dict) and result.get('status') == 'uncertain':

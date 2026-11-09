@@ -111,8 +111,13 @@ class RepairsTests(unittest.TestCase):
         book.save(self.source)
         book.close()
         original = self.source.read_bytes()
+        def native(source,sheet,output,directory,columns):
+            from .test_pdf_validation import make_pdf
+            from integrations.hermes.function_domain.driver_report import load_driver
+            expected=load_driver('1405/06/17',data=Path(source).read_bytes())
+            make_pdf(output,expected,'metalwork' if columns[-1]==5 else 'mechanical')
         for section, columns in [('mechanical', [1, 2, 3, 4]), ('metalwork', [1, 2, 3, 5])]:
-            with patch('tools.fleet.repairs.report.export_pdf') as exporter:
+            with patch('tools.fleet.repairs.report.export_pdf',side_effect=native) as exporter:
                 result = build_report(Path(self.temp.name) / section, self.source, section=section)
             self.assertEqual(exporter.call_args.args[-1], columns)
             self.assertIn(section, Path(result['pdf']).name)

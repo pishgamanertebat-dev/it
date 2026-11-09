@@ -47,12 +47,16 @@ def probe(job,target,directory):
         return {'status':'passed','sample_date':report['date']}
     if task in {'driver_daily','mechanical_driver_daily','metalwork_driver_daily'}:
         from integrations.hermes.function_domain.driver_report import load_driver,build_driver_pdf
+        from integrations.hermes.function_domain.driver_report import SOURCE_NAME
+        from integrations.hermes.function_domain.scoped import ScopedReader
         try:
-            report=load_driver(target)
+            data=ScopedReader().snapshot(SOURCE_NAME)
+            report=load_driver(target,data=data)
             sample=target if report.get('sheet') else report.get('latest_date')
             if not sample:return {'status':'no_data'}
         except Exception as exc:raise classify(exc,'source') from exc
-        try:build_driver_pdf(sample,directory,missing_result=True)
+        sections={'mechanical_driver_daily':('mechanical',),'metalwork_driver_daily':('metalwork',)}.get(task)
+        try:build_driver_pdf(sample,directory,missing_result=True,sections=sections,data=data)
         except ReportFailure:raise
         except Exception as exc:
             if isinstance(exc,OSError):raise classify(exc,'source') from exc
@@ -87,6 +91,7 @@ def _claim(conn,key,now):
         row=conn.execute('SELECT * FROM report_preflight_runs WHERE schedule_id=? AND due=?',key).fetchone()
         if row:
             if row['status'] in {'passed','no_data'}:return False
+            if row['error_code']=='driver_pdf_content':return False
             if row['status']=='running' and now.astimezone(timezone.utc)<_parse(row['checked'])+timedelta(minutes=15):return False
             if row['next_attempt_at'] and now.astimezone(timezone.utc)<_parse(row['next_attempt_at']):return False
         conn.execute('''INSERT INTO report_preflight_runs(schedule_id,due,status,checked)
@@ -139,7 +144,7 @@ def run_preflights(conn,jobs,now,store,*,checker=None,sender_factory=None,connec
         if previous and previous['error_code']:
             _alert(conn,job,key[1],previous['error_code'],previous['error_detail'],now,store,factory)
         if not _claim(conn,key,now):continue
-        task=job['task'];family=('driver' if 'driver_daily' in task else 'overflow' if 'overflow' in task else task)
+        task=job['task'];family=(task if 'driver_daily' in task else 'overflow' if 'overflow' in task else task)
         target=overflow_report_date(due)
         cachekey=(family,target)
         if cachekey not in cache:
@@ -159,7 +164,7 @@ def run_preflights(conn,jobs,now,store,*,checker=None,sender_factory=None,connec
         with conn:
             conn.execute('''UPDATE report_preflight_runs SET status=?,checked=?,error_code=?,error_detail=?,
                 next_attempt_at=?,sample_date=? WHERE schedule_id=? AND due=?''',
-                (result['status'],_iso(now),code,detail,_iso(now+timedelta(minutes=5)) if code else None,
+                (result['status'],_iso(now),code,detail,_iso(now+timedelta(minutes=5)) if code and code!='driver_pdf_content' else None,
                  result.get('sample_date'),*key))
         logger.info('Report preflight schedule=%s due=%s status=%s error=%s',*key,result['status'],code)
         if code:_alert(conn,job,key[1],code,detail,now,store,factory)

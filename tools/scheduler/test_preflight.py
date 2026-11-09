@@ -80,10 +80,10 @@ class PreflightTests(unittest.TestCase):
         self.fail_send=False;self.run_check(self.at(8,1));self.run_check(self.at(8,2))
         self.assertEqual(len(self.sent),1);self.assertEqual(self.sent[0][0],'900')
 
-    def test_driver_family_is_generated_once_for_multiple_schedules(self):
+    def test_driver_sections_have_independent_preflight_results(self):
         self.setup_checker()
         jobs=[self.job(task=task,name=task) for task in ('driver_daily','mechanical_driver_daily','metalwork_driver_daily')]
-        self.run_check(self.at(8),jobs);self.assertEqual(self.checker.call_count,1)
+        self.run_check(self.at(8),jobs);self.assertEqual(self.checker.call_count,3)
 
     def test_late_or_disabled_checks_never_run(self):
         self.setup_checker();self.run_check(self.at(9));self.checker.assert_not_called()
@@ -117,10 +117,28 @@ class PreflightTests(unittest.TestCase):
 
     def test_missing_driver_day_tests_older_sample_without_missing_data_warning(self):
         from integrations.hermes.function_domain import driver_report as driver
-        with patch.object(driver,'load_driver',return_value={'latest_date':'1405/07/12'}),patch.object(driver,'build_driver_pdf') as build:
+        with patch('integrations.hermes.function_domain.scoped.ScopedReader.snapshot',return_value=b'snapshot'),patch.object(driver,'load_driver',return_value={'latest_date':'1405/07/12'}),patch.object(driver,'build_driver_pdf') as build:
             result=probe(self.job(),'1405/07/13',self.dir)
         self.assertEqual(result,{'status':'passed','sample_date':'1405/07/12'})
         self.assertEqual(build.call_args.args[0],'1405/07/12')
+        self.assertEqual(build.call_args.kwargs['sections'],('mechanical',))
+        self.assertEqual(build.call_args.kwargs['data'],b'snapshot')
+
+    def test_bad_metalwork_never_marks_mechanical_failed_and_is_not_retried(self):
+        def check(job,target,directory):
+            if job['task']=='metalwork_driver_daily':
+                raise ReportFailure('driver_pdf_content',stage='validation',section='metalwork',
+                                    date=target,sheet='sheet-17',defect='title_missing')
+            return {'status':'passed','sample_date':target}
+        self.checker=Mock(side_effect=check)
+        jobs=[self.job(task=t,name=t) for t in ('mechanical_driver_daily','metalwork_driver_daily')]
+        self.run_check(self.at(8),jobs);self.run_check(self.at(8,5),jobs)
+        self.assertEqual(self.checker.call_count,2)
+        c=connect(self.state)
+        rows={r['schedule_id']:r for r in c.execute('SELECT * FROM report_preflight_runs')}
+        self.assertEqual(rows['mechanical_driver_daily']['status'],'passed')
+        self.assertEqual(rows['metalwork_driver_daily']['error_code'],'driver_pdf_content')
+        self.assertIsNone(rows['metalwork_driver_daily']['next_attempt_at']);c.close()
 
     def test_missing_overflow_day_tests_older_sample_without_missing_data_warning(self):
         from tools.fleet.overflow import report as overflow

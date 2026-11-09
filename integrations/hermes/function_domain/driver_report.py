@@ -47,10 +47,17 @@ def load_driver(date,reader=None,*,data=None):
             found=[i for i,v in enumerate(headers) if key(v)==key(label)]
             if len(found)!=1:raise ValueError('Missing or ambiguous driver report column: '+label)
             indices.append(found[0])
-        sections={name:[] for name in SECTIONS}
-        for row in ws.iter_rows(min_row=3,values_only=True):
+        sections={name:[] for name in SECTIONS};base['inventory']=[]
+        base['sheet_number']=book.sheetnames.index(ws.title)+1
+        base['columns']=dict(zip(['ordinal','identity','code',*SECTIONS],(i+1 for i in indices)))
+        for number,row in enumerate(ws.iter_rows(min_row=3,values_only=True),3):
             values=[row[i] if i<len(row) else None for i in indices]
-            if not any(values[:3]):continue
+            if not any(normalize(v) for v in values):continue
+            if not all(normalize(v) for v in values[:3]):
+                raise ValueError(f'Incomplete driver identity at row {number}')
+            if any(normalize(r['values'][2])==normalize(values[2]) for r in base['inventory']):
+                raise ValueError(f'Duplicate driver code at row {number}')
+            base['inventory'].append({'row':number,'values':values})
             for index,name in enumerate(SECTIONS,3):
                 if normalize(values[index]):sections[name].append(values[:3]+[str(values[index])])
         for name,label in SECTIONS.items():
@@ -112,7 +119,8 @@ def render_pdf_notice(report, section, output):
         doc.subset_fonts();doc.save(output,garbage=4,deflate=True)
 
 
-def build_driver_pdf(date, output_dir, reader=None, *, sections=None, missing_result=False):
+def build_driver_pdf(date, output_dir, reader=None, *, sections=None, missing_result=False,
+                     data=None, allow_partial=False):
     """Native Excel PDFs from one immutable snapshot of the exact requested day."""
     selected=tuple(SECTIONS) if sections is None else tuple(sections)
     if not selected or len(set(selected))!=len(selected) or any(s not in SECTIONS for s in selected):
@@ -120,14 +128,17 @@ def build_driver_pdf(date, output_dir, reader=None, *, sections=None, missing_re
     from tempfile import TemporaryDirectory
     from tools.fleet.repairs.report import export_pdf, section_columns
     from tools.scheduler.report_errors import ReportFailure,classify
+    from tools.fleet.repairs.pdf_validation import validate_driver_pdf
+    import hashlib,json
     reader=reader or ScopedReader()
-    data=reader.snapshot(SOURCE_NAME)
+    data=reader.snapshot(SOURCE_NAME) if data is None else data
+    snapshot_hash=hashlib.sha256(data).hexdigest()
     try:report=load_driver(date,reader,data=data)
     except Exception as exc:raise classify(exc,'source') from exc
     if missing_result and all(report['sections'][section]['status']=='date_missing' for section in selected):
         return {'ok':False,'reason':'date_missing','report':report,'documents':[]}
     out=Path(output_dir).resolve();out.mkdir(parents=True,exist_ok=True)
-    documents=[]
+    documents=[];artifacts={};validations={};failures={}
     with TemporaryDirectory(prefix='driver-excel-',dir=out) as directory:
         work=Path(directory);snapshot=work/'source.xlsx'
         # Only this private temporary copy is opened by Excel. Source is never edited.
@@ -135,17 +146,24 @@ def build_driver_pdf(date, output_dir, reader=None, *, sections=None, missing_re
         for section in selected:
             path=out/f'driver-{section}-{report["date"].replace("/","-")}.pdf'
             content=report['sections'][section]
-            if content['status']=='ready':
-                try:columns=section_columns(snapshot,report['sheet'],section)
-                except Exception as exc:raise classify(exc,'source') from exc
-                try:export_pdf(snapshot,report['sheet'],path,work,columns)
-                except Exception as exc:raise ReportFailure('pdf_export',stage='export',sheet=report['sheet']) from exc
-            else:
-                render_pdf_notice(report,section,path)
-            import fitz
-            with fitz.open(path) as pdf:
-                if not pdf.page_count or not any(p.get_text().strip() for p in pdf):raise ValueError('Empty driver PDF')
-            if path.stat().st_size>45*1024*1024:raise ValueError('Driver PDF exceeds document transport limit')
+            if path.exists():raise FileExistsError('Driver PDF output already exists')
+            try:
+                if content['status']=='ready':
+                    try:columns=section_columns(snapshot,report['sheet'],section)
+                    except Exception as exc:raise classify(exc,'source') from exc
+                    try:export_pdf(snapshot,report['sheet'],path,work,columns)
+                    except Exception as exc:raise ReportFailure('pdf_export',stage='export',sheet=report['sheet'],
+                        date=report['date'],section=section,sheet_number=report.get('sheet_number')) from exc
+                else:
+                    render_pdf_notice(report,section,path)
+                validations[section]=validate_driver_pdf(path,report,section,snapshot_hash)
+            except ReportFailure as exc:
+                if not allow_partial:raise
+                failures[section]=exc
+                continue
+            path.with_suffix('.validation.json').write_text(json.dumps(validations[section],ensure_ascii=False,indent=2),encoding='utf-8')
+            artifacts[section]=str(path)
             documents.append(str(path))
-    if len(documents)!=len(selected):raise ValueError('Missing requested driver PDFs')
-    return {'ok':True,'report':report,'documents':documents,'format':'pdf'}
+    if not allow_partial and len(documents)!=len(selected):raise ValueError('Missing requested driver PDFs')
+    return {'ok':not failures,'report':report,'documents':documents,'format':'pdf',
+            'artifacts':artifacts,'validation':validations,'failures':failures,'snapshot_sha256':snapshot_hash}
