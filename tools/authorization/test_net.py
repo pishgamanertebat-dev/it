@@ -76,7 +76,7 @@ class NetFixture(unittest.TestCase):
         migrate_net(self.auth,self.root/'backups',assignments=[('101',NET_MANAGER),('202',NET_DEPUTY)],actor='fixture')
 
     def request(self, actor='101', section='mechanical', code='HD714', text='new'):
-        return dict(entry_service.preview(actor,code,section,**self.kw),description=text,operation=uuid.uuid4().hex)
+        return dict(entry_service.preview(actor,code,section,**self.kw),description=text,write_mode='replace',operation=uuid.uuid4().hex)
 
     def build(self, *, output_path, **kw):
         output_path.parent.mkdir(parents=True,exist_ok=True)

@@ -11,7 +11,9 @@ CONFIG = ROOT / 'settings/maintenance_entry.json'
 
 def permitted(actor):
     try:
-        return bool(actor) and str(actor) in json.loads(CONFIG.read_text(encoding='utf-8'))['allowed_users']
+        from .maintenance_permission import permission
+        permission(actor, CONFIG)
+        return True
     except (OSError, ValueError, KeyError):
         return False
 

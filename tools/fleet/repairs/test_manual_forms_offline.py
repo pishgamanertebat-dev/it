@@ -16,7 +16,7 @@ class DriversOfflineTests(drivers_tests.EntryBaleTests):
             await self.deliver(self.event('ثبت قطعی مکانیکی'))
             operation = self.handler.sessions[self.key]['request']['operation']
             self.handler.run = AsyncMock(side_effect=TimeoutError('unknown outcome'))
-            await self.deliver(self.action_event('confirm'))
+            await self.deliver(self.action_event('replace'))
             self.assertFalse(any('✅' in message['text'] for message in self.messages))
             self.assertEqual(self.handler.sessions[self.key]['request']['operation'], operation)
             self.handler.run = self.run_worker

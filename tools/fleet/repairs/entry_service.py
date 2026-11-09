@@ -17,9 +17,10 @@ import uuid
 
 import openpyxl
 
-from tools.fleet.overflow.report import normalize, validate_date
+from tools.fleet.overflow.report import normalize
 from tools.fleet.report_caption import jalali_today
 from .report import ROOT, SECTIONS
+from . import entry_dates
 
 CONFIG = ROOT / 'settings/repairs_entry.json'
 RUNTIME = ROOT / 'runtime/repairs-entry'
@@ -68,7 +69,10 @@ def dated_sheets(book):
         found = set()
         for cell in sheet[1]:
             for raw in re.findall(r'(?<!\d)1[34]\d{2}[/.-]\d{1,2}[/.-]\d{1,2}(?!\d)', normalize(cell.value)):
-                found.add(validate_date(raw))
+                try:
+                    found.add(entry_dates.formatted(entry_dates.jalali_date(raw)))
+                except ValueError as exc:
+                    raise EntryError('تاریخ سربرگ شیت معتبر نیست؛ فایل باید بررسی شود.') from exc
         if len(found) == 1:
             result.append((found.pop(), sheet))
         elif found:
@@ -81,7 +85,7 @@ def dated_sheets(book):
 def today_sheet(book, day):
     matches = [s for d, s in dated_sheets(book) if d == day]
     if len(matches) > 1:
-        raise EntryError('چند شیت برای امروز وجود دارد؛ ابتدا فایل باید اصلاح شود.')
+        raise EntryError('چند شیت برای تاریخ انتخابی وجود دارد؛ ابتدا فایل باید اصلاح شود.')
     return matches[0] if matches else None
 
 
@@ -125,7 +129,7 @@ def machine(book, entered, fleet_db=FLEET_DB):
 def find_row(sheet, code, cols):
     rows = [r for r in range(3, sheet.max_row + 1) if key(sheet.cell(r, cols['code']).value) == key(code)]
     if len(rows) > 1:
-        raise EntryError('این دستگاه در شیت امروز تکراری است؛ ابتدا فایل باید بررسی شود.')
+        raise EntryError('این دستگاه در شیت تاریخ انتخابی تکراری است؛ ابتدا فایل باید بررسی شود.')
     return rows[0] if rows else None
 
 
@@ -133,15 +137,25 @@ def text_value(value):
     return '' if value is None else str(value)
 
 
-def preview(actor, code, section, *, config=CONFIG, day=None, fleet_db=FLEET_DB):
+def selected_date(value, current=None):
+    try:
+        return entry_dates.validate_selected(value, current)
+    except ValueError as exc:
+        raise EntryError(str(exc)) from exc
+
+
+def preview(actor, code, section, *, config=CONFIG, day=None, fleet_db=FLEET_DB, date=None):
     settings = permission(actor, config, section=section)
     if section not in SECTIONS:
         raise EntryError('بخش انتخاب‌شده معتبر نیست.')
-    day = day or jalali_today()
+    current = day or entry_dates.today()
+    day = selected_date(date or current, current)
     book = openpyxl.load_workbook(settings['source'])
     try:
         selected = machine(book, code, fleet_db)
         sheet = today_sheet(book, day)
+        if sheet is None and day != current:
+            raise EntryError(f'شیت گزارش روز {day} موجود نیست؛ برای تاریخ گذشته شیت جدید ساخته نمی‌شود.')
         current = ''
         if sheet:
             cols = layout(sheet)
@@ -332,10 +346,12 @@ def clone_day(book, day, template_path, *, restoring_confirmed=False):
     return sheet
 
 
-def set_description(book, selected, section, description, day, expected, template_path):
+def set_description(book, selected, section, description, day, expected, template_path, *, allow_create=True):
     result = {'date': day, 'sheet': '', 'code': selected['code'], 'name': selected['name'], 'section': section}
     clearing = not description
     sheet = today_sheet(book, day)
+    if sheet is None and not allow_create:
+        raise EntryError(f'شیت گزارش روز {day} موجود نیست؛ برای تاریخ گذشته شیت جدید ساخته نمی‌شود.')
     if sheet is None and clearing:
         return result
     sheet = sheet or clone_day(book, day, template_path)
@@ -407,12 +423,31 @@ def commit(actor, request, *, config=CONFIG, runtime=RUNTIME, day=None, fleet_db
     section, description = request.get('section'), request.get('description')
     if section not in SECTIONS or not isinstance(description, str) or len(description) > 1800 or '\x00' in description or (description and not description.strip()):
         raise EntryError('شرح باید حداکثر ۱۸۰۰ نویسه باشد.')
+    expected = request.get('expected')
+    mode = request.get('write_mode')
+    if not isinstance(expected, str) or mode not in (None, 'replace', 'append'):
+        raise EntryError('اطلاعات پیش‌نمایش معتبر نیست؛ فرم را دوباره باز کنید.')
+    if expected and mode not in ('replace', 'append'):
+        raise EntryError('شرح قبلی موجود است؛ افزودن یا جایگزینی باید صریحاً انتخاب شود.')
+    if mode == 'append':
+        if not description.strip():
+            raise EntryError('متن افزوده‌شده نباید خالی باشد.')
+        description = expected + '\n' + description if expected else description
+    if len(description) > 1800:
+        raise EntryError('مجموع شرح قبلی و متن جدید باید حداکثر ۱۸۰۰ نویسه باشد.')
+    # The existing Sync journal contract stores the complete published cell,
+    # not just the appended fragment. Keep the entered text as separate evidence.
+    journal_request = (dict(request, description=description, entered_description=request['description'])
+                       if mode == 'append' else request)
+    def check_date():
+        selected_date(request.get('date'), day)
     def mutate(book):
         selected = machine(book, request['code'], fleet_db)
         return set_description(book, selected, section, description, request['date'],
-                               request['expected'], settings['template'])
-    return commit_workbook(actor, request, settings, mutate, runtime=runtime, day=day,
-                           authorization_check=lambda: permission(actor, config, section=section, clearing=not description))
+                               expected, settings['template'], allow_create=request['date'] == (day or entry_dates.today()))
+    return commit_workbook(actor, journal_request, settings, mutate, runtime=runtime, day=day,
+                           authorization_check=lambda: permission(actor, config, section=section, clearing=not description),
+                           date_check=check_date)
 
 
 def open_audit(runtime):
@@ -487,7 +522,7 @@ def publish_candidate(source, original, candidate, db, actor, request, result, *
 
 
 def commit_workbook(actor, request, settings, mutate, *, runtime, day=None, command='شرح خرابی', authorization_check=None,
-                    replay_check=None):
+                    replay_check=None, date_check=None):
     """Journal and atomically replace an existing workbook for a confirmed operation."""
     operation = str(request.get('operation', ''))
     if not re.fullmatch(r'[a-f0-9]{32}', operation):
@@ -512,7 +547,9 @@ def commit_workbook(actor, request, settings, mutate, *, runtime, day=None, comm
                         if replay_check:
                             replay_check(db, source, digest, previous)
                         return json.loads(previous['result'])
-                if request.get('date') != (day or jalali_today()):
+                if date_check:
+                    date_check()
+                elif request.get('date') != (day or jalali_today()):
                     raise EntryError(f'روز عوض شده است؛ «{command}» را دوباره برای تاریخ امروز باز کنید.')
                 book = openpyxl.load_workbook(io.BytesIO(original))
                 try:
@@ -522,8 +559,13 @@ def commit_workbook(actor, request, settings, mutate, *, runtime, day=None, comm
                     candidate = output.getvalue()
                 finally:
                     book.close()
+                def before_replace():
+                    if authorization_check:
+                        authorization_check()
+                    if date_check:
+                        date_check()
                 return publish_candidate(source, original, candidate, db, actor, request, result,
-                                         runtime=runtime, authorization_check=authorization_check)
+                                         runtime=runtime, authorization_check=before_replace)
         finally:
             db.close()
 
@@ -532,8 +574,11 @@ def main():
     import sys
     request = json.load(sys.stdin)
     try:
-        if request['action'] == 'preview':
-            result = preview(request['actor'], request['code'], request['section'])
+        if request['action'] == 'dates':
+            permission(request['actor'])
+            result = {'dates': entry_dates.choices()}
+        elif request['action'] == 'preview':
+            result = preview(request['actor'], request['code'], request['section'], date=request.get('date'))
         elif request['action'] == 'commit':
             result = commit(request['actor'], request['request'])
         else:

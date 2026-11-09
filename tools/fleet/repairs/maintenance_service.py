@@ -18,10 +18,11 @@ FIELDS = {'date': ('تاریخ',), 'mechanic': ('نام مکانیک', 'تعمی
 
 
 def permission(actor, config=CONFIG):
-    settings = json.loads(Path(config).read_text(encoding='utf-8'))
-    if not actor or str(actor) not in settings['allowed_users']:
-        raise EntryAuthorizationDenied('اجازهٔ ثبت تعمیرات را ندارید.')
-    return settings
+    from .maintenance_permission import permission as check
+    try:
+        return check(actor, config)
+    except PermissionError as exc:
+        raise EntryAuthorizationDenied(str(exc)) from exc
 
 
 def layout(sheet):

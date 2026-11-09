@@ -80,7 +80,7 @@ class MaintenanceBaleTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(len(self.calls), 2)
 
     async def test_permissions_group_and_other_actor_callback(self):
-        await self.deliver(self.event('تعمیرات', actor='641220453'))
+        await self.deliver(self.event('تعمیرات', actor='1732374823'))
         self.assertFalse(self.handler.sessions)
         await self.deliver(self.event('تعمیرات', actor='654806764'))
         self.assertIn(('654806764', '654806764'), self.handler.sessions)

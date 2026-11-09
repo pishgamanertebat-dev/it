@@ -11,6 +11,7 @@ import time
 import uuid
 
 from tools.bale_ui import Action, InlineKeyboardBuilder, KeyboardLifecycle, StateStore
+from . import entry_dates
 
 ROOT = Path(__file__).resolve().parents[3]
 CONFIG = ROOT / 'settings/repairs_entry.json'
@@ -42,17 +43,30 @@ def menu_permitted(actor):
         return False
 
 
-def keyboard(stage, sections=tuple(LABELS)):
+def keyboard(stage, sections=tuple(LABELS), *, dates=(), existing=False, retry=False, clearing=False):
     def button(name, label):
         return Action(name, label, 'repairs.edit', frozenset({stage}))
     if stage == 'SECTION':
         rows = [(button(s, LABELS[s]),) for s in sections]
+    elif stage == 'DATE':
+        rows = [(button('date_' + day.replace('/', ''), ('امروز — ' if index == 0 else '') + entry_dates.readable(day)),)
+                for index, day in enumerate(dates)]
+        rows.append((button('back', 'بازگشت'),))
     elif stage == 'CONFIRM':
-        rows = [(button('confirm', '✅ تأیید و ذخیره'), button('edit', '✏️ ویرایش متن'))]
+        if existing and not retry:
+            rows = [(button('replace', '✅ جایگزینی و ذخیره'),)]
+            if not clearing:
+                rows.append((button('append', '✅ افزودن به شرح قبلی و ذخیره'),))
+            rows.append((button('edit', '✏️ ویرایش متن'),))
+        else:
+            rows = [(button('confirm', '✅ تأیید و ذخیره'), button('edit', '✏️ ویرایش متن'))]
     elif stage == 'DESCRIPTION':
         rows = [(button('clear', 'پاک‌کردن شرح این بخش'),)] if len(sections) == 2 else []
+        rows.append((button('back', 'بازگشت'),))
     else:
         rows = [(button('sections', 'انتخاب بخش دیگر'),)] if len(sections) == 2 else []
+        if stage == 'CODE':
+            rows.append((button('dates', '📅 انتخاب تاریخ'),))
     rows.append((button('finish', '🚪 خروج'),))
     return InlineKeyboardBuilder('repairs_entry', rows)
 
@@ -81,6 +95,7 @@ class RepairsEntryHandler:
     keyboard = staticmethod(keyboard)
     commands = {'شرح خرابی': 'entry', 'خروج': 'finish', '🚪 خروج': 'finish', 'پایان': 'finish', 'انصراف': 'finish', 'لغو': 'finish',
                 '/cancel': 'finish', 'تایید': 'confirm', 'تأیید': 'confirm', 'ویرایش': 'edit',
+                'بازگشت': 'back',
                 'شرح معایب مکانیکی': 'mechanical', 'شرح معایب آهنگری': 'metalwork', 'شرح معایب اهنگری': 'metalwork'}
     exit_commands = {'حکم کار', 'تعمیرات'}
 
@@ -139,7 +154,15 @@ class RepairsEntryHandler:
         # Maintenance inherits lifecycle only and retains its own keyboard.
         if self.namespace != 'repairs_entry':
             return self.keyboard(stage)
-        return keyboard(stage, self.sections(actor))
+        session = self.sessions.get((str(actor), str(actor)), {})
+        request = session.get('request', {})
+        return keyboard(stage, self.sections(actor), dates=session.get('date_choices', ()),
+                        existing=bool(request.get('expected')), retry=bool(request.get('write_mode')),
+                        clearing=request.get('description') == '')
+
+    @staticmethod
+    def date_prompt(session):
+        return 'تاریخ انتخابی: ' + entry_dates.readable(session['date']) + '\nکد دستگاه را وارد کنید.\nبرای روز دیگر، «انتخاب تاریخ» را بزنید.'
 
     async def reply(self, key, gateway, send, text, *, replace=False):
         session = self.sessions.get(key)
@@ -210,12 +233,13 @@ class RepairsEntryHandler:
             await self.reply(key, gateway, send, 'اجازهٔ ثبت یا تغییر این بخش را ندارید.')
             return
         if command in {'entry', 'sections'}:
+            date = session.get('date') if command == 'sections' and session else entry_dates.today()
             if len(sections) == 1:
-                self.sessions[key] = {'stage': 'CODE', 'section': sections[0], 'expires': self.clock()+1800, 'revision': ''}
+                self.sessions[key] = {'stage': 'CODE', 'section': sections[0], 'date': date, 'expires': self.clock()+1800, 'revision': ''}
                 self.persist()
-                await self.reply(key, gateway, send, 'کد دستگاه را وارد کنید.')
+                await self.reply(key, gateway, send, self.date_prompt(self.sessions[key]))
                 return
-            self.sessions[key] = {'stage': 'SECTION', 'expires': self.clock()+1800, 'revision': ''}
+            self.sessions[key] = {'stage': 'SECTION', 'date': date, 'expires': self.clock()+1800, 'revision': ''}
             self.persist()
             await self.reply(key, gateway, send, 'شرح خرابی را برای کدام بخش ثبت می‌کنید؟\nپس از انتخاب بخش، کد دستگاه را وارد کنید.')
             return
@@ -227,27 +251,56 @@ class RepairsEntryHandler:
         if not session:
             send(gateway, key[1], 'فرم منقضی شده است؛ «شرح خرابی» را دوباره بنویسید.')
             return
+        # Retain a selected date across devices and midnight. Never reinterpret
+        # an old callback as a relative offset from a new operational day.
+        if 'date' not in session:
+            session['date'] = session.get('request', session.get('selection', {})).get('date', entry_dates.today())
+        if command == 'dates' and session['stage'] == 'CODE':
+            result = await self.run({'action': 'dates', 'actor': key[0]})
+            if not result['ok']:
+                await self.reply(key, gateway, send, result['message'])
+                return
+            session.update(stage='DATE', date_choices=result['result']['dates'])
+            self.persist()
+            await self.reply(key, gateway, send, 'تاریخ گزارش را انتخاب کنید؛ امروز و ۷ روز گذشتهٔ تهران:')
+            return
+        if command == 'back' and session['stage'] in {'DATE', 'DESCRIPTION'}:
+            session.update(stage='CODE')
+            session.pop('selection', None)
+            session.pop('request', None)
+            self.persist()
+            await self.reply(key, gateway, send, self.date_prompt(session))
+            return
+        if session['stage'] == 'DATE':
+            day = next((day for day in session.get('date_choices', ()) if command == 'date_' + day.replace('/', '')), None)
+            if day is None:
+                await self.reply(key, gateway, send, 'تاریخ را با یکی از دکمه‌ها انتخاب کنید.')
+                return
+            session.update(stage='CODE', date=day)
+            self.persist()
+            await self.reply(key, gateway, send, self.date_prompt(session), replace=True)
+            return
         if session['stage'] == 'SECTION':
             if command not in LABELS:
                 await self.reply(key, gateway, send, 'شرح معایب مکانیکی یا شرح معایب آهنگری را انتخاب کنید.')
                 return
             session.update(stage='CODE', section=command)
             self.persist()
-            await self.reply(key, gateway, send, LABELS[command] + '\nکد دستگاه را وارد کنید.\nبرای ویرایش، کد همان دستگاه را دوباره وارد کنید.', replace=True)
+            await self.reply(key, gateway, send, LABELS[command] + '\n' + self.date_prompt(session), replace=True)
         elif session['stage'] == 'CODE':
             session['stage'] = 'BUSY'
             self.persist()
-            result = await self.run({'action': 'preview', 'actor': key[0], 'code': text, 'section': session['section']})
+            result = await self.run({'action': 'preview', 'actor': key[0], 'code': text, 'section': session['section'], 'date': session['date']})
             session['stage'] = 'CODE'
             if result['ok']:
                 session['selection'] = result['result']
                 session['stage'] = 'DESCRIPTION'
                 selected = session['selection']
-                message = f"{selected['name']} — {selected['code']}\nتاریخ: {selected['date']}\n{LABELS[session['section']]}\n"
+                message = f"{selected['name']} — {selected['code']}\nتاریخ: {entry_dates.readable(selected['date'])}\n{LABELS[session['section']]}\n"
                 if selected['expected']:
-                    message += 'شرح فعلی:\n' + selected['expected'] + '\n\nمتن کامل جایگزین را وارد کنید.'
+                    message += 'شرح فعلی همین سلول:\n' + selected['expected'] + '\n\nمتن جدید را وارد کنید؛ در تأیید، افزودن یا جایگزینی را انتخاب می‌کنید.'
                 else:
-                    message += 'شرح خرابی را وارد کنید.'
+                    message += 'شرح قبلی همین سلول: خالی\nشرح خرابی را وارد کنید.'
             else:
                 message = result['message']
             self.persist()
@@ -262,15 +315,24 @@ class RepairsEntryHandler:
             session['stage'] = 'CONFIRM'
             self.persist()
             await self.reply(key, gateway, send,
-                f"تأیید ثبت برای {selected['name']} — {selected['code']}\nتاریخ: {selected['date']}\n{LABELS[session['section']]}\n\n"
-                + (description or 'شرح این بخش پاک شود.') + '\n\nاین متن جایگزین شرح همین بخش می‌شود. تأیید می‌کنید؟')
+                f"تأیید ثبت برای {selected['name']} — {selected['code']}\nتاریخ: {entry_dates.readable(selected['date'])}\n{LABELS[session['section']]}\n\n"
+                + 'شرح قبلی همین سلول:\n' + (selected['expected'] or 'خالی') + '\n\nمتن جدید:\n'
+                + (description or 'شرح این بخش پاک شود.')
+                + ('\n\nافزودن، متن قبلی را نگه می‌دارد و متن جدید را در خط بعد می‌آورد. جایگزینی، متن قبلی را با متن جدید عوض می‌کند. روش ذخیره را انتخاب کنید.'
+                   if selected['expected'] and description else '\n\nبرای اعمال این تغییر، ذخیره را تأیید کنید.'))
         elif session['stage'] == 'CONFIRM':
             if command == 'edit':
                 session['stage'] = 'DESCRIPTION'
                 session.pop('request', None)
                 self.persist()
                 await self.reply(key, gateway, send, 'متن کامل اصلاح‌شده را وارد کنید.')
-            elif command == 'confirm':
+            elif command in {'confirm', 'replace', 'append'}:
+                request = session['request']
+                if command in {'replace', 'append'} and not request.get('write_mode'):
+                    request['write_mode'] = command
+                if request['expected'] and not request.get('write_mode'):
+                    await self.reply(key, gateway, send, 'شرح قبلی موجود است؛ «افزودن» یا «جایگزینی» را صریحاً انتخاب کنید.')
+                    return
                 session['stage'] = 'BUSY'
                 self.persist()
                 result = await self.run({'action': 'commit', 'actor': key[0], 'request': session['request']})
@@ -279,7 +341,7 @@ class RepairsEntryHandler:
                     session.update(stage='CODE')
                     session.pop('request', None)
                     session.pop('selection', None)
-                    message = f"✅ شرح خرابی دستگاه {saved['code']} در بخش {LABELS[saved['section']]} برای تاریخ {saved['date']} ثبت شد.\nکد دستگاه بعدی را وارد کنید؛ برای ویرایش نیز کد همان دستگاه را بفرستید."
+                    message = f"✅ شرح خرابی دستگاه {saved['code']} در بخش {LABELS[saved['section']]} برای تاریخ {entry_dates.readable(saved['date'])} ثبت شد.\nکد دستگاه بعدی را وارد کنید؛ برای روز دیگر، «انتخاب تاریخ» را بزنید."
                 else:
                     session['stage'] = 'CONFIRM'
                     message = result['message']

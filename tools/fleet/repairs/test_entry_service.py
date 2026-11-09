@@ -53,7 +53,7 @@ class EntryServiceTests(unittest.TestCase):
 
     def request(self, code='EX332', section='mechanical', text='new fault'):
         selection = preview('641220453', code, section, **self.kw)
-        return dict(selection, description=text, operation=uuid.uuid4().hex)
+        return dict(selection, description=text, write_mode='replace', operation=uuid.uuid4().hex)
 
     def save(self, request, actor='641220453'):
         return commit(actor, request, runtime=self.root/'state', **self.kw)

@@ -19,6 +19,9 @@ class EntryBaleTests(unittest.IsolatedAsyncioTestCase):
         self.calls = []
         self.counter = 0
         self.now = 1000
+        date_patch = patch('tools.fleet.repairs.entry_dates.today', return_value='1405/06/26')
+        date_patch.start()
+        self.addCleanup(date_patch.stop)
         self.store = StateStore(Path(self.temp.name)/'state.json')
         self.handler = self.make_handler()
         self.key = ('641220453', '641220453')
@@ -47,8 +50,11 @@ class EntryBaleTests(unittest.IsolatedAsyncioTestCase):
 
     async def run_worker(self, payload):
         self.calls.append(payload)
+        if payload['action'] == 'dates':
+            from .entry_dates import choices
+            return {'ok': True, 'result': {'dates': choices('1405/06/26')}}
         if payload['action'] == 'preview':
-            return {'ok': True, 'result': {'code': 'HD710', 'name': 'دامپتراک', 'date': '1405/06/26',
+            return {'ok': True, 'result': {'code': 'HD710', 'name': 'دامپتراک', 'date': payload.get('date', '1405/06/26'),
                 'section': payload['section'], 'expected': 'previous description'}}
         return {'ok': True, 'result': payload['request']}
 
@@ -81,7 +87,7 @@ class EntryBaleTests(unittest.IsolatedAsyncioTestCase):
         self.assertIn('previous description', self.messages[-1]['text'])
         await self.deliver(self.event('خرابی موتور'))
         self.assertEqual([p['action'] for p in self.calls], ['preview'])
-        confirm = self.action_event('confirm')
+        confirm = self.action_event('replace')
         await self.deliver(confirm)
         self.assertEqual([p['action'] for p in self.calls], ['preview', 'commit'])
         self.assertEqual(self.calls[-1]['request']['description'], 'خرابی موتور')
@@ -155,6 +161,7 @@ class EntryBaleTests(unittest.IsolatedAsyncioTestCase):
         await self.deliver(self.event('new description'))
         operation = self.handler.sessions[self.key]['request']['operation']
         self.handler.sessions[self.key]['stage'] = 'BUSY'
+        self.handler.sessions[self.key]['request']['write_mode'] = 'replace'
         self.handler.persist()
         self.handler = self.make_handler()
         await self.deliver(self.event('تأیید'))
@@ -163,7 +170,7 @@ class EntryBaleTests(unittest.IsolatedAsyncioTestCase):
     async def test_revoked_permission_and_expiry_prevent_commit(self):
         await self.start_description()
         await self.deliver(self.event('new description'))
-        confirmation = self.action_event('confirm')
+        confirmation = self.action_event('replace')
         self.handler.authorize = lambda actor: False
         await self.deliver(confirmation)
         self.assertEqual(len(self.calls), 1)

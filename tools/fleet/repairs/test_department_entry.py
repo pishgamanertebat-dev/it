@@ -34,7 +34,7 @@ class DepartmentWriterTests(unittest.TestCase):
         self.config.write_text(json.dumps(settings), encoding='utf8')
 
     def request(self, actor, section, text='fault'):
-        return dict(preview(actor, '332', section, **self.kw), description=text, operation=uuid.uuid4().hex)
+        return dict(preview(actor, '332', section, **self.kw), description=text, write_mode='replace', operation=uuid.uuid4().hex)
 
     def save(self, actor, request):
         return commit(actor, request, runtime=self.root/'state', **self.kw)
@@ -114,9 +114,10 @@ class DepartmentUITests(ui_tests.EntryBaleTests):
             await self.deliver(self.event('شرح خرابی', actor=actor))
             self.assertEqual(self.handler.sessions[self.key]['stage'], 'CODE')
             self.assertEqual(self.handler.sessions[self.key]['section'], section)
-            self.assertEqual(self.messages[-1]['text'], 'کد دستگاه را وارد کنید.')
+            self.assertIn('کد دستگاه را وارد کنید.', self.messages[-1]['text'])
+            self.assertIn('۱۴۰۵/۰۶/۲۶', self.messages[-1]['text'])
             labels = [b['text'] for row in self.messages[-1]['reply_markup']['inline_keyboard'] for b in row]
-            self.assertEqual(labels, ['🚪 خروج'])
+            self.assertEqual(labels, ['📅 انتخاب تاریخ', '🚪 خروج'])
             other = 'metalwork' if section == 'mechanical' else 'mechanical'
             await self.deliver(self.action_event(other, actor=actor))
             await self.deliver(self.event('شرح معایب آهنگری' if other == 'metalwork' else 'شرح معایب مکانیکی', actor=actor))
@@ -128,7 +129,7 @@ class DepartmentUITests(ui_tests.EntryBaleTests):
             await self.deliver(self.action_event('edit', actor=actor))
             self.assertEqual(self.handler.sessions[self.key]['section'], section)
             await self.deliver(self.event('edited', actor=actor))
-            confirm = self.action_event('confirm', actor=actor)
+            confirm = self.action_event('replace', actor=actor)
             await self.deliver(confirm)
             self.assertEqual(self.handler.sessions[self.key]['stage'], 'CODE')
             calls = len(self.calls)
