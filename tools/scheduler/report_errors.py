@@ -1,6 +1,9 @@
 """Structured report errors with bounded, public diagnostics; never persist raw exceptions."""
 import json
 import re
+import logging
+from contextlib import contextmanager
+from pathlib import Path
 
 REASONS = {
     'source_unavailable': 'فایل منبع قفل است یا قابل خواندن نیست',
@@ -23,11 +26,46 @@ REASONS = {
     'TransportUnavailable': 'ارتباط با بله پیش از ارسال برقرار نشد',
     'TransportRejected': 'بله فایل ارسالی را نپذیرفت',
     'TransportUncertain': 'نتیجه ارسال از بله تأیید نشد',
-    'PermissionError': 'فایل منبع قفل است یا مجوز خواندن آن در دسترس نیست',
+    'PermissionError': 'دسترسی به فایل در مرحله اجرا انجام نشد؛ جزئیات مرحله و خطای سیستم باید بررسی شود',
     'FileNotFoundError': 'فایل منبع پیدا نشد',
     'OSError': 'خواندن فایل منبع ناموفق بود',
 }
 REPORT_FAILURES = frozenset(k for k in REASONS if k.islower()) - {'transport_unavailable'}
+
+
+def access_diagnostics(exc,stage='task_io',path=None,access=None):
+    """Allowlisted system fields only; never persist exception text or arguments."""
+    result={'stage':getattr(exc,'report_stage',stage)}
+    if result['stage'] not in {'task_io','source','output_dir','temp_directory','snapshot_write',
+                               'export','validation','metadata_write'}:result['stage']='task_io'
+    for key in ('errno','winerror'):
+        value=getattr(exc,key,None)
+        if type(value) is int:result[key]=value
+    access=getattr(exc,'report_access',access)
+    if access in {'read','write'}:result['access']=access
+    actual=getattr(exc,'filename',None)
+    target=actual or getattr(exc,'report_path',path)
+    if isinstance(target,(str,Path)) and len(str(target))<=500 and not any(ord(c)<32 for c in str(target)):
+        try:
+            candidate=Path(target).resolve()
+            root=Path(__file__).resolve().parents[2]
+            if any(candidate.is_relative_to(base.resolve()) for base in
+                   (Path('E:/Function'),root/'runtime',root/'artifacts')):
+                result['path' if actual else 'target_path']=str(candidate)
+        except (OSError,ValueError):pass
+    return result
+
+
+@contextmanager
+def report_io(stage,path=None,access=None):
+    try:yield
+    except OSError as exc:
+        if not hasattr(exc,'report_stage'):exc.report_stage=stage
+        if not hasattr(exc,'report_path') and isinstance(path,(str,Path)):exc.report_path=str(path)
+        if not hasattr(exc,'report_access') and access in {'read','write'}:exc.report_access=access
+        logging.getLogger(__name__).error('Report I/O failure detail=%s',
+            json.dumps(access_diagnostics(exc,stage,path,access),ensure_ascii=False,sort_keys=True))
+        raise
 
 
 class RecordIdentityMismatch(ValueError):

@@ -127,22 +127,27 @@ def build_driver_pdf(date, output_dir, reader=None, *, sections=None, missing_re
         raise ValueError('Invalid driver PDF sections')
     from tempfile import TemporaryDirectory
     from tools.fleet.repairs.report import export_pdf, section_columns
-    from tools.scheduler.report_errors import ReportFailure,classify
+    from tools.scheduler.report_errors import ReportFailure,classify,report_io
     from tools.fleet.repairs.pdf_validation import validate_driver_pdf
     import hashlib,json
     reader=reader or ScopedReader()
-    data=reader.snapshot(SOURCE_NAME) if data is None else data
+    source_root=getattr(reader,'root',None)
+    source_path=Path(source_root)/SOURCE_NAME if isinstance(source_root,(str,Path)) else None
+    with report_io('source',source_path,'read'):
+        data=reader.snapshot(SOURCE_NAME) if data is None else data
     snapshot_hash=hashlib.sha256(data).hexdigest()
     try:report=load_driver(date,reader,data=data)
     except Exception as exc:raise classify(exc,'source') from exc
     if missing_result and all(report['sections'][section]['status']=='date_missing' for section in selected):
         return {'ok':False,'reason':'date_missing','report':report,'documents':[]}
-    out=Path(output_dir).resolve();out.mkdir(parents=True,exist_ok=True)
+    out=Path(output_dir).resolve()
+    with report_io('output_dir',out,'write'):out.mkdir(parents=True,exist_ok=True)
     documents=[];artifacts={};validations={};failures={}
-    with TemporaryDirectory(prefix='driver-excel-',dir=out) as directory:
+    with report_io('temp_directory',out,'write'), TemporaryDirectory(prefix='driver-excel-',dir=out) as directory:
         work=Path(directory);snapshot=work/'source.xlsx'
         # Only this private temporary copy is opened by Excel. Source is never edited.
-        if any(report['sections'][section]['status']=='ready' for section in selected):snapshot.write_bytes(data)
+        if any(report['sections'][section]['status']=='ready' for section in selected):
+            with report_io('snapshot_write',snapshot,'write'):snapshot.write_bytes(data)
         for section in selected:
             path=out/f'driver-{section}-{report["date"].replace("/","-")}.pdf'
             content=report['sections'][section]
@@ -151,17 +156,20 @@ def build_driver_pdf(date, output_dir, reader=None, *, sections=None, missing_re
                 if content['status']=='ready':
                     try:columns=section_columns(snapshot,report['sheet'],section)
                     except Exception as exc:raise classify(exc,'source') from exc
-                    try:export_pdf(snapshot,report['sheet'],path,work,columns)
+                    try:
+                        with report_io('export',path,'write'):export_pdf(snapshot,report['sheet'],path,work,columns)
                     except Exception as exc:raise ReportFailure('pdf_export',stage='export',sheet=report['sheet'],
                         date=report['date'],section=section,sheet_number=report.get('sheet_number')) from exc
                 else:
                     render_pdf_notice(report,section,path)
-                validations[section]=validate_driver_pdf(path,report,section,snapshot_hash)
+                with report_io('validation',path,'read'):
+                    validations[section]=validate_driver_pdf(path,report,section,snapshot_hash)
             except ReportFailure as exc:
                 if not allow_partial:raise
                 failures[section]=exc
                 continue
-            path.with_suffix('.validation.json').write_text(json.dumps(validations[section],ensure_ascii=False,indent=2),encoding='utf-8')
+            with report_io('metadata_write',path.with_suffix('.validation.json'),'write'):
+                path.with_suffix('.validation.json').write_text(json.dumps(validations[section],ensure_ascii=False,indent=2),encoding='utf-8')
             artifacts[section]=str(path)
             documents.append(str(path))
     if not allow_partial and len(documents)!=len(selected):raise ValueError('Missing requested driver PDFs')

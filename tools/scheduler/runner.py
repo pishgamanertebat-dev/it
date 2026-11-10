@@ -469,6 +469,9 @@ def _execute(conn, job, due, now, registry, authorization, replay, previous):
         status, error, process_failed = 'uncertain', 'TransportUncertain', True
     except (TransportUnavailable, TransportRejected, OSError) as exc:
         status, error, process_failed = 'failed', type(exc).__name__, True
+        if isinstance(exc,OSError):
+            from .report_errors import access_diagnostics
+            error_detail=json.dumps(access_diagnostics(exc),ensure_ascii=False,sort_keys=True)
     except Exception as exc:
         # Persist the exception class only: third-party errors can contain secrets.
         status, error, process_failed = 'failed', type(exc).__name__, True
