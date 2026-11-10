@@ -9,7 +9,7 @@ SKIP_MISSED_SLACK_SECONDS = 90
 STALE_RUNNING_SECONDS = 900
 RETRYABLE_SKIP = frozenset({
     'date_missing', 'no_target_date_records', 'source_unavailable', 'store_unavailable'})
-TERMINAL_FAILURE = frozenset({'invalid_source', 'ValueError', 'driver_pdf_content'})
+TERMINAL_FAILURE = frozenset({'invalid_source', 'ValueError', 'driver_pdf_content', 'pdf_validation'})
 RETRYABLE_FAILURE = frozenset({
     'transport_unavailable', 'delivery_failed', 'TimeoutError', 'OSError', 'PermissionError',
     'RuntimeError', 'TransportUnavailable', 'TransportRejected', 'ConnectionError', 'ConnectTimeout'}) | (REPORT_FAILURES - TERMINAL_FAILURE)

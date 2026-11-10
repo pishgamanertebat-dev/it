@@ -149,3 +149,39 @@ high-frequency jobs keep their existing behavior.
 
 Fixture verification:
 `python -m unittest tools.scheduler.test_no_data tools.scheduler.test_misfire`
+## Maintenance publication versions and source state
+
+Maintenance delivery keeps three independent states:
+
+* `source_unavailable` / `source_stale`: infrastructure or an unverified local
+  version. No missing-date claim is made. The existing seven-day technical
+  replay horizon and backoff remain in effect.
+* `waiting_for_data` with `no_target_date_records`: the accepted local journal
+  head was read and the exact mine file was successfully checked within five
+  minutes. The target date genuinely has no activity in that verified version.
+  Its deadline remains exactly the original occurrence plus 36 hours.
+* `ARTIFACT_READY`: a complete exact-date PDF and source workbook are pinned in
+  `runtime/scheduler/maintenance-ready/<date>/`. Content-addressed PDF, workbook,
+  report/layout JSON and manifest record the preparation time and accepted
+  journal version. Delivery validates those retained bytes and current recipient
+  authorization/receipts; it does not reopen the mine or current business file.
+
+Preflight retains a complete target-date artifact. Older layout samples do not
+become the target report. A later Sync outage cannot turn a ready artifact into
+missing data. A later source version does not overwrite the selected publication
+version: corrections require independent review and receipts. Corrupt PDF content
+is terminal (`pdf_validation`); uncertain delivery is never blindly retried.
+
+A new accepted exact-file Sync hash advances `report_source_wakeup` and makes
+eligible maintenance retries due on the next tick. Safety holds and terminal
+36-hour closures remain intact. Deployment backlog migration excludes the full
+36-hour window and technical retries still within their configured horizon.
+
+Explicit historical recovery uses `recovery_delivery` with exact operation,
+recipient, date and hash approval. `report_recovery_operation` and append-only
+`report_recovery_event` supplement the original run and receipts. Only after all
+approved recipients have matching sent operation, report and artifact receipts
+may that specific historical hold become `recovered`. The historical occurrence
+stays suppressed to prevent another send. Management summaries reconcile those
+supplemental receipts without rewriting history.
+

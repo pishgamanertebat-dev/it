@@ -314,7 +314,7 @@ class DeliveryTests(MaintenanceFixture,unittest.TestCase):
             r=maintenance_daily_report(None,{'date':DATE},authorization=self.auth)
         self.assertEqual(r['sent_count'],0);self.sender.document.assert_not_called()
     def test_failure_does_not_mark_all_successful_or_retry(self):
-        self.sender.document.side_effect=[RuntimeError('uncertain'),None];r,b=self.run_delivery();self.assertEqual(r['status'],'failed');self.assertEqual(r['sent_count'],1);self.assertEqual(r['failed_count'],1);self.assertEqual(self.sender.document.call_count,2);self.assertTrue(all(not p.exists() for p in self.outputs))
+        self.sender.document.side_effect=[RuntimeError('uncertain'),'502'];r,b=self.run_delivery();self.assertEqual(r['status'],'failed');self.assertEqual(r['sent_count'],1);self.assertEqual(r['failed_count'],1);self.assertEqual(self.sender.document.call_count,2);self.assertTrue(all(not p.exists() for p in self.outputs))
     def test_zero_records_no_empty_pdf_send(self):
         r,b=self.run_delivery(lambda date,directory:{'status':'skipped','reason':'no_target_date_records','report':dict(self.r,devices=[],devices_matched=0,rows_matched=0)})
         self.assertEqual(r['status'],'waiting_for_data');self.assertEqual(r['reason'],'no_target_date_records');self.assertEqual(r['notice_delivery_state'],'suppressed');self.sender.message.assert_not_called();self.sender.document.assert_not_called()

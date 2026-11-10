@@ -35,6 +35,10 @@ def probe(job,target,directory):
         return {'status':'passed' if result['status']=='ready' else 'no_data', 'sample_date':target}
     if task=='maintenance_daily_report':
         from tools.fleet.maintenance_daily import report as m
+        from tools.fleet.maintenance_daily.prepared import prepare
+        result=prepare(target,directory)
+        if result['status']=='ready':
+            return {'status':'passed','sample_date':target}
         try:
             with m.source_snapshot() as (data,_):
                 report=m.scan(data,target)
@@ -149,7 +153,7 @@ def run_preflights(conn,jobs,now,store,*,checker=None,sender_factory=None,connec
         cachekey=(family,target)
         if cachekey not in cache:
             try:
-                if 'connection' not in cache:
+                if task!='maintenance_daily_report' and 'connection' not in cache:
                     connection_probe();cache['connection']=True
                 runtime=ROOT/'runtime/scheduler';runtime.mkdir(parents=True,exist_ok=True)
                 with tempfile.TemporaryDirectory(prefix='preflight-',dir=runtime) as directory:

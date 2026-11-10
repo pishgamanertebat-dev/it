@@ -22,16 +22,17 @@ class ReviewTests(unittest.TestCase):
 
     def test_hold_old_ready_report_but_deliver_new_independently(self):
         self.execute_at(self.old)
-        hold_backlog(self.conn,[self.job],self.old+timedelta(hours=1),self.store())
+        hold_backlog(self.conn,[self.job],self.old+timedelta(hours=36),self.store())
         before=self.rows()[due_storage_key(self.old)]
-        calls=self.execute_at(self.new,ready={harness.overflow_report_date(self.old),harness.overflow_report_date(self.new)})
-        self.assertEqual(calls,[(harness.overflow_report_date(self.new),self.new.isoformat())])
+        calls=self.execute_at(self.new+timedelta(hours=13),ready={harness.overflow_report_date(self.old),harness.overflow_report_date(self.new)})
+        self.assertIn((harness.overflow_report_date(self.new),self.new.isoformat()),calls)
+        self.assertNotIn((harness.overflow_report_date(self.old),self.old.isoformat()),calls)
         self.assertEqual(self.rows()[due_storage_key(self.old)],before)
         self.assertEqual(self.rows()[due_storage_key(self.new)]['status'],'succeeded')
 
     def test_historical_hold_is_persistent_idempotent_and_not_reclassified_as_missing_expiry(self):
         self.execute_at(self.old);before=self.rows()[due_storage_key(self.old)]
-        now=self.old+timedelta(hours=1)
+        now=self.old+timedelta(hours=36)
         added=hold_backlog(self.conn,[self.job],now,self.store());self.assertEqual(len(added),1)
         row=dict(self.conn.execute('SELECT * FROM report_recovery_hold').fetchone())
         self.assertEqual(json.loads(row['evidence'])['previous_run'],before)
@@ -48,7 +49,19 @@ class ReviewTests(unittest.TestCase):
         self.execute_at(self.old)
         from apscheduler.triggers.cron import CronTrigger
         self.job['trigger']=CronTrigger(hour=14,timezone=harness.TEHRAN,start_date=self.old.replace(hour=0))
-        hold_backlog(self.conn,[self.job],self.old+timedelta(hours=1),self.store())
-        self.assertEqual([r[0] for r in self.conn.execute('SELECT due FROM report_recovery_hold')],[due_storage_key(self.old)])
+        hold_backlog(self.conn,[self.job],self.old+timedelta(hours=36),self.store())
+        self.assertIn(due_storage_key(self.old),[r[0] for r in self.conn.execute('SELECT due FROM report_recovery_hold')])
+
+    def test_38_seconds_after_due_and_entire_36h_window_are_automatic(self):
+        self.execute_at(self.old)
+        for delta in (timedelta(seconds=38),timedelta(hours=35,minutes=59)):
+            self.assertEqual(hold_backlog(self.conn,[self.job],self.old+delta,self.store()),[])
+        self.assertEqual(self.conn.execute('SELECT count(*) FROM report_recovery_hold').fetchone()[0],0)
+
+    def test_technical_failure_keeps_existing_replay_horizon(self):
+        self.execute_at(self.old)
+        with self.conn:self.conn.execute("UPDATE runs SET status='retry_wait',error='source_stale'")
+        hold_backlog(self.conn,[self.job],self.old+timedelta(days=6),self.store())
+        self.assertIsNone(self.conn.execute('SELECT 1 FROM report_recovery_hold WHERE due=?',(due_storage_key(self.old),)).fetchone())
 
 if __name__=='__main__':unittest.main()

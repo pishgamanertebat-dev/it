@@ -6,6 +6,7 @@ from contextlib import contextmanager
 from pathlib import Path
 
 REASONS = {
+    'source_stale': 'تازگی نسخه محلی منبع قابل تأیید نیست؛ منتظر بازیابی Sync',
     'source_unavailable': 'فایل منبع قفل است یا قابل خواندن نیست',
     'source_missing': 'فایل منبع پیدا نشد',
     'source_locked': 'فایل منبع در حال ویرایش یا جایگزینی است و قفل شده است',
@@ -108,7 +109,7 @@ def classify(exc, stage='generation'):
     if isinstance(exc, RecordIdentityMismatch):
         return ReportFailure('source_identity_mismatch', stage='source', **exc.report_location)
     if isinstance(exc, TimeoutError):
-        return ReportFailure('pdf_export', stage='export')
+        return ReportFailure('source_unavailable',stage='source') if stage=='source' else ReportFailure('pdf_export', stage='export')
     if isinstance(exc,FileNotFoundError):return ReportFailure('source_missing',stage='source')
     if isinstance(exc,PermissionError):
         code='source_locked' if getattr(exc,'winerror',None) in {32,33} else 'source_permission'

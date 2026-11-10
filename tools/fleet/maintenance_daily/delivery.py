@@ -1,9 +1,10 @@
 """Capability fan-out for the exact scheduler-supplied day; no model or tools routing."""
 from pathlib import Path
-import logging,tempfile
+import hashlib,logging,tempfile
 from tools.authorization import AuthorizationStore
 from tools.authorization.maintenance import CAPABILITY
-from .report import build,exact_date,source_snapshot,validate_pdf
+from .report import exact_date,validate_pdf
+from .prepared import prepare as build
 from tools.scheduler.report_errors import ReportFailure
 ROOT=Path(__file__).resolve().parents[3]
 logger=logging.getLogger(__name__)
@@ -16,13 +17,17 @@ def validate_params(params):
         v=datetime.fromisoformat(params['occurrence'])
         if v.utcoffset() is None:raise ValueError('Timezone-aware occurrence required')
 
-def verify_source_digest(expected):
-    with source_snapshot() as (_,actual):
-        if actual!=expected:raise ReportFailure('source_changed',stage='source')
+def verify_source_digest(expected, *, artifact):
+    """Check the retained publication version, independently of live mine access."""
+    path=Path(artifact['pdf']);meta=artifact['manifest']
+    if (meta['source_sha256']!=expected
+        or hashlib.sha256((path.parent/(expected+'.xlsx')).read_bytes()).hexdigest()!=expected
+        or hashlib.sha256(path.read_bytes()).hexdigest()!=meta['pdf_sha256']):
+        raise ReportFailure('source_changed',stage='validation')
 
 def deliver(recipient, params, *, authorization=None, on_receipt=None, closed=None):
     from tools.scheduler.tasks import (
-        BaleSender, TransportRejected, TransportUnavailable, closed_sets, note_receipt)
+        BaleSender, TransportRejected, TransportUnavailable, TransportUncertain, closed_sets, note_receipt)
     validate_params(params)
     if not params.get('date'):raise ValueError('Scheduler must provide exact previous-day date')
     expected=exact_date(params['date'])
@@ -57,7 +62,7 @@ def deliver(recipient, params, *, authorization=None, on_receipt=None, closed=No
                                       reason=result['reason'], notify=False)
             if report['date']!=expected or result['status']!='ready':raise ValueError('Unexpected report date/status')
             path=Path(result['pdf'])
-            if path.parent.resolve()!=Path(directory).resolve():raise ValueError('Unexpected output path')
+            if 'manifest' not in result and path.parent.resolve()!=Path(directory).resolve():raise ValueError('Unexpected output path')
             validation=validate_pdf(path,report)
             logger.info('Maintenance pdf_pages=%s pdf_bytes=%s',validation['pages'],validation['bytes'])
             sender=None
@@ -69,13 +74,14 @@ def deliver(recipient, params, *, authorization=None, on_receipt=None, closed=No
                         revoked.append(user);note_receipt(on_receipt,user,'revoked');logger.info('Maintenance recipient=%s send=revoked',user);continue
                     if sender is None:
                         sender=BaleSender();sender.check_connection()
-                    verify_source_digest(report['source_sha256'])
+                    verify_source_digest(report['source_sha256'],artifact=result)
                     current=recipients()
                     if current.status!='ready' or user not in current.recipients:
                         revoked.append(user);note_receipt(on_receipt,user,'revoked');logger.info('Maintenance recipient=%s send=revoked',user);continue
                     note_receipt(on_receipt,user,'sending')
                     try:
                         message_id=sender.document(user,path,'گزارش روزانه تعمیرات ماشین‌آلات\nتاریخ گزارش: '+expected)
+                        if message_id in (None,''):raise TransportUncertain('Bale response has no message ID')
                         sent.append(user);note_receipt(on_receipt,user,'sent',None if message_id in (None,'') else str(message_id))
                         logger.info('Maintenance recipient=%s send=success',user)
                     except (TransportUnavailable,TransportRejected):

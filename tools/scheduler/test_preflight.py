@@ -110,7 +110,7 @@ class PreflightTests(unittest.TestCase):
         real_scan=m.scan
         @contextmanager
         def snapshot():yield data,'fixture'
-        with patch.object(m,'source_snapshot',snapshot),patch.object(m,'scan',side_effect=lambda d,t:real_scan(d,t,layout=layout)),patch.object(m,'render') as render:
+        with patch('tools.fleet.maintenance_daily.prepared.prepare',return_value={'status':'skipped'}),patch.object(m,'source_snapshot',snapshot),patch.object(m,'scan',side_effect=lambda d,t:real_scan(d,t,layout=layout)),patch.object(m,'render') as render:
             result=probe(self.job(task='maintenance_daily_report'),'1405/07/13',self.dir)
         self.assertEqual(result,{'status':'passed','sample_date':'1405/07/12'})
         self.assertEqual(render.call_args.args[0]['date'],'1405/07/12')

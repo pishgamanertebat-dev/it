@@ -72,5 +72,32 @@ class RecoveryTests(unittest.TestCase):
         with self.assertRaises(ValueError):recovery.execute(self.conn,[self.op],self.store,sender_factory=lambda:self.sender)
         self.sender.document.assert_not_called()
 
+    def test_summary_reconciles_independent_receipt_without_rewriting_original(self):
+        from .recovery_review import delivered_recoveries
+        from .delivery_alert import _delivery_summary
+        self.approve()
+        recovery.execute(self.conn,[self.op],self.store,sender_factory=lambda:self.sender)
+        recovered=delivered_recoveries(self.conn,(self.op['original_job'],self.op['original_due']))
+        self.assertEqual(recovered['397185913']['message_id'],'test-message')
+        summary=_delivery_summary(self.conn,dict(id='maintenance_daily_report',task='maintenance_daily_report'),
+            dict(due=self.op['original_due'],status='waiting_for_data',error='date_missing'),('397185913',),self.store)
+        self.assertEqual(summary[0]['status'],'sent')
+        self.assertEqual(summary[0]['recovery_operation_id'],'exact-operation')
+        with self.conn:self.conn.execute("UPDATE office_artifact_receipts SET sha256='wrong'")
+        self.assertEqual(delivered_recoveries(self.conn,(self.op['original_job'],self.op['original_due'])),{})
+
+    def test_scoped_completed_hold_is_recovered_and_original_occurrence_stays_suppressed(self):
+        from .recovery_review import held
+        self.approve()
+        with self.conn:self.conn.execute("INSERT INTO receipts VALUES (?,?,?,'report','pending',NULL,?)",
+            (self.op['original_job'],self.op['original_due'],self.op['recipient_id'],self.op['original_due']))
+        before=[tuple(r) for r in self.conn.execute('SELECT * FROM receipts')]
+        with self.assertRaises(ValueError):recovery.reconcile_holds(self.conn,[self.op],self.approval['approval_ref'])
+        recovery.execute(self.conn,[self.op],self.store,sender_factory=lambda:self.sender)
+        changed=recovery.reconcile_holds(self.conn,[self.op],self.approval['approval_ref'])
+        self.assertEqual(changed[0]['status'],'recovered')
+        self.assertTrue(held(self.conn,(self.op['original_job'],self.op['original_due'])))
+        self.assertEqual([tuple(r) for r in self.conn.execute("SELECT * FROM receipts WHERE schedule_id='maintenance_daily_report'")],before)
+
 
 if __name__=='__main__':unittest.main()

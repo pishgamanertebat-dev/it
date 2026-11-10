@@ -183,3 +183,33 @@ def execute(conn, proposals, store, *, sender_factory=BaleSender):
             sender.close()
     return [dict(conn.execute('SELECT * FROM report_recovery_operation WHERE operation_id=?',
                              (op['operation_id'],)).fetchone()) for op in proposals]
+
+
+def reconcile_holds(conn,proposals,approval_ref):
+    """After installing the recovered-occurrence guard, close only proven scopes.
+
+    The old occurrence stays suppressed; its run/receipts are never rewritten.
+    """
+    from .recovery_review import delivered_recoveries
+    keys={(p['original_job'],p['original_due']) for p in proposals}
+    changed=[]
+    with conn:
+        conn.execute('BEGIN IMMEDIATE')
+        for key in sorted(keys):
+            group=[p for p in proposals if (p['original_job'],p['original_due'])==key]
+            approved={p['recipient_id'] for p in group}
+            expected={r[0] for r in conn.execute("SELECT recipient_id FROM receipts WHERE schedule_id=? AND due=? AND delivery_kind='report' AND status<>'revoked'",key)}
+            delivered=delivered_recoveries(conn,key)
+            if approved!=expected or not all(p['recipient_id'] in delivered
+                and delivered[p['recipient_id']]['operation_id']==p['operation_id']
+                and delivered[p['recipient_id']]['approval_ref']==approval_ref for p in group):
+                raise ValueError('Recovery scope not fully reconciled')
+            hold=conn.execute('SELECT * FROM report_recovery_hold WHERE schedule_id=? AND due=?',key).fetchone()
+            if not hold or hold['status']=='recovered':continue
+            if hold['status']!='held' or hold['reason']!='owner_review_required_for_historical_delivery':
+                raise ValueError('Different safety hold cannot be released')
+            for op in group:event(conn,op,'historical_hold_satisfied',dict(previous_hold=dict(hold),approval_ref=approval_ref,
+                next_action='no further send; original occurrence suppressed by recovered guard'))
+            conn.execute("UPDATE report_recovery_hold SET status='recovered',approval_ref=? WHERE schedule_id=? AND due=?",(approval_ref,*key))
+            changed.append(dict(schedule_id=key[0],due=key[1],status='recovered'))
+    return changed

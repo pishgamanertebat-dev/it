@@ -239,6 +239,37 @@ def _rows_for(conn, schedule_id):
     return found
 
 
+def _wake_after_sync(conn,job,now,*,state_path=None):
+    """A new accepted maintenance version wakes eligible rows on the next tick."""
+    if job['task']!='maintenance_daily_report':return
+    from tools.fleet.maintenance_daily.prepared import SYNC_STATE,confirm_missing_source
+    from .recovery_review import held
+    try:
+        path=state_path or SYNC_STATE
+        state=json.loads(Path(path).read_text('utf8'))
+        digest=state['last_run']['maintenance_guard']['hash']
+        recovery_at=state.get('last_recovery_at') or ''
+        confirm_missing_source(digest,state_path=path,now=now)
+    except Exception:return  # Infrastructure failures retain their normal technical retry.
+    with conn:
+        conn.execute('''CREATE TABLE IF NOT EXISTS report_source_wakeup (
+            schedule_id TEXT PRIMARY KEY,source_sha256 TEXT NOT NULL,observed TEXT NOT NULL,
+            recovery_at TEXT NOT NULL DEFAULT '')''')
+        if 'recovery_at' not in {r[1] for r in conn.execute('PRAGMA table_info(report_source_wakeup)')}:
+            conn.execute("ALTER TABLE report_source_wakeup ADD COLUMN recovery_at TEXT NOT NULL DEFAULT ''")
+        previous=conn.execute('SELECT source_sha256,recovery_at FROM report_source_wakeup WHERE schedule_id=?',(job['id'],)).fetchone()
+        if previous and tuple(previous)==(digest,recovery_at):return
+        for row in conn.execute('''SELECT due,error FROM runs WHERE schedule_id=?
+                AND status IN ('waiting_for_data','retry_wait','failed','skipped')''',(job['id'],)).fetchall():
+            if held(conn,(job['id'],row['due'])):continue
+            if row['error'] not in {'date_missing','no_target_date_records','source_stale','source_unavailable',
+                                    'source_missing','source_locked','source_permission','source_changed'}:continue
+            conn.execute('UPDATE runs SET next_attempt_at=? WHERE schedule_id=? AND due=?',
+                         (due_storage_key(now),job['id'],row['due']))
+        conn.execute('INSERT OR REPLACE INTO report_source_wakeup VALUES (?,?,?,?)',
+                     (job['id'],digest,due_storage_key(now),recovery_at))
+
+
 def _expire_missing_reports(conn, job, now, *, preview=False):
     """Close only missing daily files; keep delivery receipts and failures intact."""
     if job['task'] not in MISSING_EXPIRY_TASKS:
@@ -252,7 +283,7 @@ def _expire_missing_reports(conn, job, now, *, preview=False):
               AND error IN ('date_missing','no_target_date_records')
               AND COALESCE(data_state,'missing')='missing'
               AND NOT EXISTS (SELECT 1 FROM report_recovery_hold AS hold
-                  WHERE hold.schedule_id=runs.schedule_id AND hold.due=runs.due AND hold.status='held')
+                  WHERE hold.schedule_id=runs.schedule_id AND hold.due=runs.due AND hold.status IN ('held','recovered'))
               AND NOT EXISTS (SELECT 1 FROM receipts AS receipt
                   WHERE receipt.schedule_id=runs.schedule_id AND receipt.due=runs.due
                     AND receipt.delivery_kind='report'
@@ -521,7 +552,10 @@ def _execute(conn, job, due, now, registry, authorization, replay, previous):
             conn.execute('''UPDATE runs SET status=?,finished=?,error=?,attempt=?,next_attempt_at=?,
                             data_state=COALESCE(?,data_state),notice_delivery_state=COALESCE(?,notice_delivery_state),error_detail=? WHERE schedule_id=? AND due=?''',
                          (status, finished, error, attempt, next_at,
-                          'missing' if status == 'waiting_for_data' else ('ready' if status == 'succeeded' or error in {'TransportUnavailable','TransportRejected','transport_unavailable','delivery_failed'} else None),
+                          'missing' if status == 'waiting_for_data' else
+                          ('source_stale' if error=='source_stale' else 'source_unavailable' if error in
+                           {'source_missing','source_locked','source_permission','source_unavailable'} else
+                           'ready' if status == 'succeeded' or error in {'TransportUnavailable','TransportRejected','transport_unavailable','delivery_failed'} else None),
                           (result or {}).get('notice_delivery_state') if isinstance(result, dict) else None, error_detail, *key))
         target = overflow_report_date(due) if job['task'] in REPORT_TASKS else ''
         previous_status = (previous or {}).get('status')
@@ -585,6 +619,7 @@ def tick(config=CONFIG, state=STATE, now=None, registry=TASKS, authorization=Non
                 failed = _execute(conn, job, due, now, registry, authorization, False, None) or failed
                 continue
             if job['task'] in MISSING_EXPIRY_TASKS:
+                _wake_after_sync(conn,job,now)
                 _expire_missing_reports(conn, job, now)
             else:
                 with conn:

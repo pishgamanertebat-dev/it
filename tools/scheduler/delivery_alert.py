@@ -367,6 +367,8 @@ def format_recovery(title, target, due_clock, recipients):
 
 
 def _delivery_summary(conn, job, run, expected, store):
+    from .recovery_review import delivered_recoveries
+    recovered=delivered_recoveries(conn,(job['id'],run['due']))
     kind = _required_kind(run) or 'report'
     rows = {row['recipient_id']: row for row in conn.execute(
         'SELECT * FROM receipts WHERE schedule_id=? AND due=? AND delivery_kind=?',
@@ -394,8 +396,13 @@ def _delivery_summary(conn, job, run, expected, store):
                 message_id = None
         if status == 'sent' and not message_id:
             status = 'unconfirmed'
+        recovery=recovered.get(user)
+        if recovery and status not in {'sent','uncertain','sending','revoked'}:
+            status,message_id='sent',recovery['message_id']
         summary.append(dict(recipient=user, label=_label(store, user), kind=kind,
                             status=status, message_id=message_id))
+        if recovery and message_id==recovery['message_id']:
+            summary[-1]['recovery_operation_id']=recovery['operation_id']
     return summary
 
 
