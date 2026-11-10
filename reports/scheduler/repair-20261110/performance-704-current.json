@@ -1,0 +1,138 @@
+{
+  "source_sha256": "d890add01f66c7d62357f47548c0ad7cec3a5995914ee7e8a7f129dbc15258c0",
+  "evidence": [
+    {
+      "date": "1405/08/15",
+      "sheet": "8",
+      "machine": {
+        "code": "704",
+        "name": "دامپتراک کوماتسو 5-875",
+        "source_row": 27
+      },
+      "recorded_count": 51,
+      "total_machines": 52,
+      "missing_codes": [
+        "704"
+      ],
+      "cells": [
+        {
+          "cell": "EN27",
+          "value": "=EU27+ET27+EQ27+EP27",
+          "cached": 0
+        },
+        {
+          "cell": "EO27",
+          "value": "=EP27+EQ27",
+          "cached": 0
+        },
+        {
+          "cell": "EP27",
+          "value": null,
+          "cached": null
+        },
+        {
+          "cell": "EQ27",
+          "value": null,
+          "cached": null
+        },
+        {
+          "cell": "ER27",
+          "value": null,
+          "cached": null
+        },
+        {
+          "cell": "ES27",
+          "value": null,
+          "cached": null
+        },
+        {
+          "cell": "ET27",
+          "value": null,
+          "cached": null
+        },
+        {
+          "cell": "EU27",
+          "value": null,
+          "cached": null
+        },
+        {
+          "cell": "EV27",
+          "value": null,
+          "cached": null
+        },
+        {
+          "cell": "EW27",
+          "value": "=EV27/EO27",
+          "cached": "#DIV/0!"
+        }
+      ]
+    },
+    {
+      "date": "1405/08/16",
+      "sheet": "8",
+      "machine": {
+        "code": "704",
+        "name": "دامپتراک کوماتسو 5-875",
+        "source_row": 27
+      },
+      "recorded_count": 51,
+      "total_machines": 52,
+      "missing_codes": [
+        "704"
+      ],
+      "cells": [
+        {
+          "cell": "EX27",
+          "value": "=FE27+FD27+FA27+EZ27",
+          "cached": 0
+        },
+        {
+          "cell": "EY27",
+          "value": "=EZ27+FA27",
+          "cached": 0
+        },
+        {
+          "cell": "EZ27",
+          "value": null,
+          "cached": null
+        },
+        {
+          "cell": "FA27",
+          "value": null,
+          "cached": null
+        },
+        {
+          "cell": "FB27",
+          "value": null,
+          "cached": null
+        },
+        {
+          "cell": "FC27",
+          "value": null,
+          "cached": null
+        },
+        {
+          "cell": "FD27",
+          "value": null,
+          "cached": null
+        },
+        {
+          "cell": "FE27",
+          "value": null,
+          "cached": null
+        },
+        {
+          "cell": "FF27",
+          "value": null,
+          "cached": null
+        },
+        {
+          "cell": "FG27",
+          "value": null,
+          "cached": null
+        }
+      ]
+    }
+  ],
+  "historical_cause_not_inferred": true
+}

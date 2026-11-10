@@ -1,0 +1,28 @@
+{
+  "recorded_correction_sha256": "3f67e80867f0654b0e69d0d1575e473b51dc56032f6ae4218a30a66e959d8267",
+  "actual_correction_sha256": "3f67e80867f0654b0e69d0d1575e473b51dc56032f6ae4218a30a66e959d8267",
+  "caption": "اصلاحیه فایل driver-metalwork-1405-08-17.pdf\nگزارش شرح معایب آهنگری — تاریخ ۱۴۰۵/۰۸/۱۷\nستون شرح آهنگری در نسخه قبلی نمایش داده نشده بود؛ این اصلاحیه شامل تمام ۲۶ شرح ثبت‌شده است.",
+  "delivery": [
+    {
+      "recipient_id": "397185913",
+      "status": "sent",
+      "message_id": "7347",
+      "sha256": "3f67e80867f0654b0e69d0d1575e473b51dc56032f6ae4218a30a66e959d8267",
+      "original_message_id": "7316"
+    },
+    {
+      "recipient_id": "514458396",
+      "status": "sent",
+      "message_id": "7348",
+      "sha256": "3f67e80867f0654b0e69d0d1575e473b51dc56032f6ae4218a30a66e959d8267",
+      "original_message_id": "7318"
+    }
+  ],
+  "original_messages": {
+    "397185913": "7316",
+    "514458396": "7318"
+  },
+  "actual_original_sha256": "938138680a75d3e76a4c4789777071c06af0555e40f7d7dbe6f94742266caea2",
+  "recorded_original_sha256": "938138680a75d3e76a4c4789777071c06af0555e40f7d7dbe6f94742266caea2",
+  "correction_pages": 3
+}

@@ -1,0 +1,296 @@
+[
+  {
+    "schedule_id": "overflow_daily_test",
+    "target": "1405/08/16",
+    "run": {
+      "schedule_id": "overflow_daily_test",
+      "due": "2026-11-08T04:15:00+00:00",
+      "recipient": "capability:reports.overflow.daily_receive",
+      "task": "overflow",
+      "status": "no_data_final",
+      "started": "2026-11-09T16:02:01+00:00",
+      "finished": "2026-11-09T16:15:02.241329+00:00",
+      "error": "missing_date_expired",
+      "attempt": 142,
+      "next_attempt_at": null,
+      "data_state": "missing",
+      "notice_delivery_state": "sent",
+      "error_detail": null
+    },
+    "required_kind": "notice",
+    "problems": []
+  },
+  {
+    "schedule_id": "driver_daily_office_supervisor",
+    "target": "1405/08/15",
+    "run": {
+      "schedule_id": "driver_daily_office_supervisor",
+      "due": "2026-11-07T05:30:00+00:00",
+      "recipient": "capability:reports.driver_daily.daily_receive",
+      "task": "driver_daily",
+      "status": "no_data_final",
+      "started": "2026-11-08T17:28:02+00:00",
+      "finished": "2026-11-08T17:30:02.095028+00:00",
+      "error": "missing_date_expired",
+      "attempt": 113,
+      "next_attempt_at": null,
+      "data_state": "missing",
+      "notice_delivery_state": "suppressed",
+      "error_detail": null
+    },
+    "required_kind": null,
+    "problems": []
+  },
+  {
+    "schedule_id": "driver_daily_office_supervisor",
+    "target": "1405/08/16",
+    "run": {
+      "schedule_id": "driver_daily_office_supervisor",
+      "due": "2026-11-08T05:30:00+00:00",
+      "recipient": "capability:reports.driver_daily.daily_receive",
+      "task": "driver_daily",
+      "status": "no_data_final",
+      "started": "2026-11-09T17:17:02+00:00",
+      "finished": "2026-11-09T17:30:01.883234+00:00",
+      "error": "missing_date_expired",
+      "attempt": 145,
+      "next_attempt_at": null,
+      "data_state": "missing",
+      "notice_delivery_state": "suppressed",
+      "error_detail": null
+    },
+    "required_kind": null,
+    "problems": []
+  },
+  {
+    "schedule_id": "overflow_daily_mechanical",
+    "target": "1405/08/16",
+    "run": {
+      "schedule_id": "overflow_daily_mechanical",
+      "due": "2026-11-08T04:15:00+00:00",
+      "recipient": "capability:reports.overflow.mechanical_daily_receive",
+      "task": "mechanical_overflow",
+      "status": "no_data_final",
+      "started": "2026-11-09T16:02:01+00:00",
+      "finished": "2026-11-09T16:15:02.241329+00:00",
+      "error": "missing_date_expired",
+      "attempt": 142,
+      "next_attempt_at": null,
+      "data_state": "missing",
+      "notice_delivery_state": "sent",
+      "error_detail": null
+    },
+    "required_kind": "notice",
+    "problems": []
+  },
+  {
+    "schedule_id": "driver_daily_mechanical",
+    "target": "1405/08/15",
+    "run": {
+      "schedule_id": "driver_daily_mechanical",
+      "due": "2026-11-07T05:30:00+00:00",
+      "recipient": "capability:reports.driver_daily.mechanical_daily_receive",
+      "task": "mechanical_driver_daily",
+      "status": "no_data_final",
+      "started": "2026-11-08T17:28:02+00:00",
+      "finished": "2026-11-08T17:30:02.095028+00:00",
+      "error": "missing_date_expired",
+      "attempt": 113,
+      "next_attempt_at": null,
+      "data_state": "missing",
+      "notice_delivery_state": "suppressed",
+      "error_detail": null
+    },
+    "required_kind": null,
+    "problems": []
+  },
+  {
+    "schedule_id": "driver_daily_mechanical",
+    "target": "1405/08/16",
+    "run": {
+      "schedule_id": "driver_daily_mechanical",
+      "due": "2026-11-08T05:30:00+00:00",
+      "recipient": "capability:reports.driver_daily.mechanical_daily_receive",
+      "task": "mechanical_driver_daily",
+      "status": "no_data_final",
+      "started": "2026-11-09T17:17:02+00:00",
+      "finished": "2026-11-09T17:30:01.883234+00:00",
+      "error": "missing_date_expired",
+      "attempt": 145,
+      "next_attempt_at": null,
+      "data_state": "missing",
+      "notice_delivery_state": "suppressed",
+      "error_detail": null
+    },
+    "required_kind": null,
+    "problems": []
+  },
+  {
+    "schedule_id": "driver_daily_metalwork",
+    "target": "1405/08/15",
+    "run": {
+      "schedule_id": "driver_daily_metalwork",
+      "due": "2026-11-07T05:30:00+00:00",
+      "recipient": "capability:reports.driver_daily.metalwork_daily_receive",
+      "task": "metalwork_driver_daily",
+      "status": "waiting_for_data",
+      "started": "2026-11-10T05:44:02+00:00",
+      "finished": "2026-11-10T05:44:04.914111+00:00",
+      "error": "date_missing",
+      "attempt": 256,
+      "next_attempt_at": "2026-11-10T05:59:02+00:00",
+      "data_state": "missing",
+      "notice_delivery_state": "sent",
+      "error_detail": null
+    },
+    "required_kind": "notice",
+    "problems": []
+  },
+  {
+    "schedule_id": "driver_daily_metalwork",
+    "target": "1405/08/16",
+    "run": {
+      "schedule_id": "driver_daily_metalwork",
+      "due": "2026-11-08T05:30:00+00:00",
+      "recipient": "capability:reports.driver_daily.metalwork_daily_receive",
+      "task": "metalwork_driver_daily",
+      "status": "waiting_for_data",
+      "started": "2026-11-10T05:44:02+00:00",
+      "finished": "2026-11-10T05:44:06.360492+00:00",
+      "error": "date_missing",
+      "attempt": 194,
+      "next_attempt_at": "2026-11-10T05:59:02+00:00",
+      "data_state": "missing",
+      "notice_delivery_state": "sent",
+      "error_detail": null
+    },
+    "required_kind": "notice",
+    "problems": []
+  },
+  {
+    "schedule_id": "maintenance_daily_report",
+    "target": "1405/08/16",
+    "run": {
+      "schedule_id": "maintenance_daily_report",
+      "due": "2026-11-08T08:30:00+00:00",
+      "recipient": "capability:reports.maintenance.daily_receive",
+      "task": "maintenance_daily_report",
+      "status": "no_data_final",
+      "started": "2026-11-09T20:24:02+00:00",
+      "finished": "2026-11-09T20:30:02.525838+00:00",
+      "error": "missing_date_expired",
+      "attempt": 146,
+      "next_attempt_at": null,
+      "data_state": "missing",
+      "notice_delivery_state": "suppressed",
+      "error_detail": null
+    },
+    "required_kind": null,
+    "problems": []
+  },
+  {
+    "schedule_id": "maintenance_daily_report",
+    "target": "1405/08/17",
+    "run": {
+      "schedule_id": "maintenance_daily_report",
+      "due": "2026-11-09T08:30:00+00:00",
+      "recipient": "capability:reports.maintenance.daily_receive",
+      "task": "maintenance_daily_report",
+      "status": "waiting_for_data",
+      "started": "2026-11-10T05:36:02+00:00",
+      "finished": "2026-11-10T05:36:04.137172+00:00",
+      "error": "no_target_date_records",
+      "attempt": 87,
+      "next_attempt_at": "2026-11-10T05:51:02+00:00",
+      "data_state": "missing",
+      "notice_delivery_state": "suppressed",
+      "error_detail": null
+    },
+    "required_kind": null,
+    "problems": []
+  },
+  {
+    "schedule_id": "oil_balance_daily_report",
+    "target": "1405/08/16",
+    "run": {
+      "schedule_id": "oil_balance_daily_report",
+      "due": "2026-11-08T11:30:00+00:00",
+      "recipient": "capability:reports.oil_balance.daily_receive",
+      "task": "oil_balance_daily_report",
+      "status": "no_data_final",
+      "started": "2026-11-09T23:26:02+00:00",
+      "finished": "2026-11-09T23:30:01.981550+00:00",
+      "error": "missing_date_expired",
+      "attempt": 146,
+      "next_attempt_at": null,
+      "data_state": "missing",
+      "notice_delivery_state": "suppressed",
+      "error_detail": null
+    },
+    "required_kind": null,
+    "problems": []
+  },
+  {
+    "schedule_id": "oil_balance_daily_report",
+    "target": "1405/08/17",
+    "run": {
+      "schedule_id": "oil_balance_daily_report",
+      "due": "2026-11-09T11:30:00+00:00",
+      "recipient": "capability:reports.oil_balance.daily_receive",
+      "task": "oil_balance_daily_report",
+      "status": "waiting_for_data",
+      "started": "2026-11-10T05:45:02+00:00",
+      "finished": "2026-11-10T05:45:03.308476+00:00",
+      "error": "date_missing",
+      "attempt": 76,
+      "next_attempt_at": "2026-11-10T06:00:02+00:00",
+      "data_state": "missing",
+      "notice_delivery_state": "suppressed",
+      "error_detail": null
+    },
+    "required_kind": null,
+    "problems": []
+  },
+  {
+    "schedule_id": "machinery_performance_daily_report",
+    "target": "1405/08/15",
+    "run": {
+      "schedule_id": "machinery_performance_daily_report",
+      "due": "2026-11-07T11:30:00+00:00",
+      "recipient": "capability:reports.machinery_performance.daily_receive",
+      "task": "machinery_performance_daily_report",
+      "status": "no_data_final",
+      "started": "2026-11-09T11:29:02+00:00",
+      "finished": "2026-11-09T11:44:02.950317+00:00",
+      "error": "superseded_missing_date",
+      "attempt": 160,
+      "next_attempt_at": null,
+      "data_state": "missing",
+      "notice_delivery_state": "suppressed",
+      "error_detail": null
+    },
+    "required_kind": null,
+    "problems": []
+  },
+  {
+    "schedule_id": "machinery_performance_daily_report",
+    "target": "1405/08/16",
+    "run": {
+      "schedule_id": "machinery_performance_daily_report",
+      "due": "2026-11-08T11:30:00+00:00",
+      "recipient": "capability:reports.machinery_performance.daily_receive",
+      "task": "machinery_performance_daily_report",
+      "status": "no_data_final",
+      "started": "2026-11-09T23:25:02+00:00",
+      "finished": "2026-11-09T23:40:02.274626+00:00",
+      "error": "superseded_missing_date",
+      "attempt": 50,
+      "next_attempt_at": null,
+      "data_state": "missing",
+      "notice_delivery_state": "suppressed",
+      "error_detail": null
+    },
+    "required_kind": null,
+    "problems": []
+  }
+]

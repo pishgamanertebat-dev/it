@@ -1,0 +1,1225 @@
+{
+  "sheets": [
+    {
+      "sheet": "1251",
+      "cells": [
+        {
+          "cell": "A14",
+          "old": null,
+          "new": "1405/08/17",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "B14",
+          "old": null,
+          "new": "اکیپ آهنگری",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "C14",
+          "old": null,
+          "new": 1251,
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "D14",
+          "old": null,
+          "new": "جوشکاری و آهنکشی پاکت بیل",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "E14",
+          "old": null,
+          "new": "ورق 50*30-15میل -سیم co2",
+          "kind": "value_or_formula"
+        }
+      ],
+      "structure": {
+        "properties": {
+          "old": {
+            "sheet_properties": "<sheetPr codeName=\"Sheet14\"><tabColor rgb=\"FF00B0F0\" /><outlinePr summaryBelow=\"1\" summaryRight=\"1\" /><pageSetUpPr /></sheetPr>",
+            "sheet_format": "<sheetFormatPr baseColWidth=\"8\" defaultColWidth=\"9.140625\" defaultRowHeight=\"15\" />",
+            "page_margins": "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\" />",
+            "page_setup": "<pageSetup orientation=\"portrait\" verticalDpi=\"0\" />",
+            "print_options": "<printOptions />",
+            "HeaderFooter": "<headerFooter><oddHeader /><oddFooter /><evenHeader /><evenFooter /><firstHeader /><firstFooter /></headerFooter>",
+            "views": "<sheetViews><sheetView rightToLeft=\"1\" zoomScaleNormal=\"100\" workbookViewId=\"0\"><selection activeCell=\"D14\" sqref=\"D14\" /></sheetView></sheetViews>",
+            "protection": "<sheetProtection selectLockedCells=\"0\" selectUnlockedCells=\"0\" sheet=\"0\" objects=\"0\" insertRows=\"1\" insertHyperlinks=\"1\" autoFilter=\"1\" scenarios=\"0\" formatColumns=\"1\" deleteColumns=\"1\" insertColumns=\"1\" pivotTables=\"1\" deleteRows=\"1\" formatCells=\"1\" formatRows=\"1\" sort=\"1\" />"
+          },
+          "new": {
+            "sheet_properties": "<sheetPr codeName=\"Sheet14\"><tabColor rgb=\"FF00B0F0\" /><outlinePr summaryBelow=\"1\" summaryRight=\"1\" /><pageSetUpPr /></sheetPr>",
+            "sheet_format": "<sheetFormatPr baseColWidth=\"8\" defaultColWidth=\"9.140625\" defaultRowHeight=\"15\" />",
+            "page_margins": "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\" />",
+            "page_setup": "<pageSetup orientation=\"portrait\" verticalDpi=\"0\" />",
+            "print_options": "<printOptions />",
+            "HeaderFooter": "<headerFooter><oddHeader /><oddFooter /><evenHeader /><evenFooter /><firstHeader /><firstFooter /></headerFooter>",
+            "views": "<sheetViews><sheetView rightToLeft=\"1\" zoomScaleNormal=\"100\" workbookViewId=\"0\"><selection activeCell=\"E15\" sqref=\"E15\" /></sheetView></sheetViews>",
+            "protection": "<sheetProtection selectLockedCells=\"0\" selectUnlockedCells=\"0\" sheet=\"0\" objects=\"0\" insertRows=\"1\" insertHyperlinks=\"1\" autoFilter=\"1\" scenarios=\"0\" formatColumns=\"1\" deleteColumns=\"1\" insertColumns=\"1\" pivotTables=\"1\" deleteRows=\"1\" formatCells=\"1\" formatRows=\"1\" sort=\"1\" />"
+          }
+        }
+      }
+    },
+    {
+      "sheet": "1253",
+      "cells": [
+        {
+          "cell": "A13",
+          "old": null,
+          "new": "1405/08/17",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "B13",
+          "old": null,
+          "new": "اکیپ آهنگری",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "C13",
+          "old": null,
+          "new": 1253,
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "D13",
+          "old": null,
+          "new": "جا زدن پین زنجیر",
+          "kind": "value_or_formula"
+        }
+      ],
+      "structure": {
+        "properties": {
+          "old": {
+            "sheet_properties": "<sheetPr codeName=\"Sheet51\"><tabColor rgb=\"FF00B0F0\" /><outlinePr summaryBelow=\"1\" summaryRight=\"1\" /><pageSetUpPr /></sheetPr>",
+            "sheet_format": "<sheetFormatPr baseColWidth=\"8\" defaultColWidth=\"9.140625\" defaultRowHeight=\"15\" />",
+            "page_margins": "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\" />",
+            "page_setup": "<pageSetup orientation=\"portrait\" verticalDpi=\"0\" />",
+            "print_options": "<printOptions />",
+            "HeaderFooter": "<headerFooter><oddHeader /><oddFooter /><evenHeader /><evenFooter /><firstHeader /><firstFooter /></headerFooter>",
+            "views": "<sheetViews><sheetView rightToLeft=\"1\" zoomScaleNormal=\"100\" workbookViewId=\"0\"><selection activeCell=\"D13\" sqref=\"D13\" /></sheetView></sheetViews>",
+            "protection": "<sheetProtection selectLockedCells=\"0\" selectUnlockedCells=\"0\" sheet=\"0\" objects=\"0\" insertRows=\"1\" insertHyperlinks=\"1\" autoFilter=\"1\" scenarios=\"0\" formatColumns=\"1\" deleteColumns=\"1\" insertColumns=\"1\" pivotTables=\"1\" deleteRows=\"1\" formatCells=\"1\" formatRows=\"1\" sort=\"1\" />"
+          },
+          "new": {
+            "sheet_properties": "<sheetPr codeName=\"Sheet51\"><tabColor rgb=\"FF00B0F0\" /><outlinePr summaryBelow=\"1\" summaryRight=\"1\" /><pageSetUpPr /></sheetPr>",
+            "sheet_format": "<sheetFormatPr baseColWidth=\"8\" defaultColWidth=\"9.140625\" defaultRowHeight=\"15\" />",
+            "page_margins": "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\" />",
+            "page_setup": "<pageSetup orientation=\"portrait\" verticalDpi=\"0\" />",
+            "print_options": "<printOptions />",
+            "HeaderFooter": "<headerFooter><oddHeader /><oddFooter /><evenHeader /><evenFooter /><firstHeader /><firstFooter /></headerFooter>",
+            "views": "<sheetViews><sheetView rightToLeft=\"1\" zoomScaleNormal=\"100\" workbookViewId=\"0\"><selection activeCell=\"D14\" sqref=\"D14\" /></sheetView></sheetViews>",
+            "protection": "<sheetProtection selectLockedCells=\"0\" selectUnlockedCells=\"0\" sheet=\"0\" objects=\"0\" insertRows=\"1\" insertHyperlinks=\"1\" autoFilter=\"1\" scenarios=\"0\" formatColumns=\"1\" deleteColumns=\"1\" insertColumns=\"1\" pivotTables=\"1\" deleteRows=\"1\" formatCells=\"1\" formatRows=\"1\" sort=\"1\" />"
+          }
+        }
+      }
+    },
+    {
+      "sheet": "1254",
+      "cells": [
+        {
+          "cell": "A34",
+          "old": null,
+          "new": "1405/08/18",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "B34",
+          "old": null,
+          "new": "اکیپ آهنگری",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "C34",
+          "old": null,
+          "new": 1254,
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "D34",
+          "old": null,
+          "new": "تعویض 2 عدد رولیک زنجیر بالا+جوشکاری",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "E34",
+          "old": null,
+          "new": "2عدد رولیک-سیم جوش30*12-10عدد",
+          "kind": "value_or_formula"
+        }
+      ],
+      "structure": {
+        "properties": {
+          "old": {
+            "sheet_properties": "<sheetPr><tabColor rgb=\"FF00B0F0\" /><outlinePr summaryBelow=\"1\" summaryRight=\"1\" /><pageSetUpPr /></sheetPr>",
+            "sheet_format": "<sheetFormatPr baseColWidth=\"8\" defaultColWidth=\"9.140625\" defaultRowHeight=\"15\" />",
+            "page_margins": "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\" />",
+            "page_setup": "<pageSetup orientation=\"portrait\" verticalDpi=\"0\" />",
+            "print_options": "<printOptions />",
+            "HeaderFooter": "<headerFooter><oddHeader /><oddFooter /><evenHeader /><evenFooter /><firstHeader /><firstFooter /></headerFooter>",
+            "views": "<sheetViews><sheetView rightToLeft=\"1\" topLeftCell=\"A22\" zoomScaleNormal=\"100\" workbookViewId=\"0\"><selection activeCell=\"E34\" sqref=\"E34\" /></sheetView></sheetViews>",
+            "protection": "<sheetProtection selectLockedCells=\"0\" selectUnlockedCells=\"0\" sheet=\"0\" objects=\"0\" insertRows=\"1\" insertHyperlinks=\"1\" autoFilter=\"1\" scenarios=\"0\" formatColumns=\"1\" deleteColumns=\"1\" insertColumns=\"1\" pivotTables=\"1\" deleteRows=\"1\" formatCells=\"1\" formatRows=\"1\" sort=\"1\" />"
+          },
+          "new": {
+            "sheet_properties": "<sheetPr><tabColor rgb=\"FF00B0F0\" /><outlinePr summaryBelow=\"1\" summaryRight=\"1\" /><pageSetUpPr /></sheetPr>",
+            "sheet_format": "<sheetFormatPr baseColWidth=\"8\" defaultColWidth=\"9.140625\" defaultRowHeight=\"15\" />",
+            "page_margins": "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\" />",
+            "page_setup": "<pageSetup orientation=\"portrait\" verticalDpi=\"0\" />",
+            "print_options": "<printOptions />",
+            "HeaderFooter": "<headerFooter><oddHeader /><oddFooter /><evenHeader /><evenFooter /><firstHeader /><firstFooter /></headerFooter>",
+            "views": "<sheetViews><sheetView rightToLeft=\"1\" topLeftCell=\"A22\" zoomScaleNormal=\"100\" workbookViewId=\"0\"><selection activeCell=\"D34\" sqref=\"D34\" /></sheetView></sheetViews>",
+            "protection": "<sheetProtection selectLockedCells=\"0\" selectUnlockedCells=\"0\" sheet=\"0\" objects=\"0\" insertRows=\"1\" insertHyperlinks=\"1\" autoFilter=\"1\" scenarios=\"0\" formatColumns=\"1\" deleteColumns=\"1\" insertColumns=\"1\" pivotTables=\"1\" deleteRows=\"1\" formatCells=\"1\" formatRows=\"1\" sort=\"1\" />"
+          }
+        }
+      }
+    },
+    {
+      "sheet": "151",
+      "cells": [
+        {
+          "cell": "A26",
+          "old": null,
+          "new": "1405/08/18",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "B26",
+          "old": null,
+          "new": "اکیپ اهنگری",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "C26",
+          "old": null,
+          "new": 151,
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "D26",
+          "old": null,
+          "new": "جا زدن پین کمان-جوش کاری",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "E26",
+          "old": null,
+          "new": "سیم جوش30*12-نمره3",
+          "kind": "value_or_formula"
+        }
+      ],
+      "structure": {}
+    },
+    {
+      "sheet": "463",
+      "cells": [],
+      "structure": {
+        "properties": {
+          "old": {
+            "sheet_properties": "<sheetPr codeName=\"Sheet31\"><tabColor rgb=\"FFFFFF00\" /><outlinePr summaryBelow=\"1\" summaryRight=\"1\" /><pageSetUpPr /></sheetPr>",
+            "sheet_format": "<sheetFormatPr baseColWidth=\"8\" defaultRowHeight=\"15\" />",
+            "page_margins": "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\" />",
+            "page_setup": "<pageSetup />",
+            "print_options": "<printOptions />",
+            "HeaderFooter": "<headerFooter><oddHeader /><oddFooter /><evenHeader /><evenFooter /><firstHeader /><firstFooter /></headerFooter>",
+            "views": "<sheetViews><sheetView rightToLeft=\"1\" tabSelected=\"1\" workbookViewId=\"0\"><selection activeCell=\"D10\" sqref=\"D10\" /></sheetView></sheetViews>",
+            "protection": "<sheetProtection selectLockedCells=\"0\" selectUnlockedCells=\"0\" sheet=\"0\" objects=\"0\" insertRows=\"1\" insertHyperlinks=\"1\" autoFilter=\"1\" scenarios=\"0\" formatColumns=\"1\" deleteColumns=\"1\" insertColumns=\"1\" pivotTables=\"1\" deleteRows=\"1\" formatCells=\"1\" formatRows=\"1\" sort=\"1\" />"
+          },
+          "new": {
+            "sheet_properties": "<sheetPr codeName=\"Sheet31\"><tabColor rgb=\"FFFFFF00\" /><outlinePr summaryBelow=\"1\" summaryRight=\"1\" /><pageSetUpPr /></sheetPr>",
+            "sheet_format": "<sheetFormatPr baseColWidth=\"8\" defaultRowHeight=\"15\" />",
+            "page_margins": "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\" />",
+            "page_setup": "<pageSetup />",
+            "print_options": "<printOptions />",
+            "HeaderFooter": "<headerFooter><oddHeader /><oddFooter /><evenHeader /><evenFooter /><firstHeader /><firstFooter /></headerFooter>",
+            "views": "<sheetViews><sheetView rightToLeft=\"1\" workbookViewId=\"0\"><selection activeCell=\"D10\" sqref=\"D10\" /></sheetView></sheetViews>",
+            "protection": "<sheetProtection selectLockedCells=\"0\" selectUnlockedCells=\"0\" sheet=\"0\" objects=\"0\" insertRows=\"1\" insertHyperlinks=\"1\" autoFilter=\"1\" scenarios=\"0\" formatColumns=\"1\" deleteColumns=\"1\" insertColumns=\"1\" pivotTables=\"1\" deleteRows=\"1\" formatCells=\"1\" formatRows=\"1\" sort=\"1\" />"
+          }
+        }
+      }
+    },
+    {
+      "sheet": "467",
+      "cells": [
+        {
+          "cell": "A12",
+          "old": null,
+          "new": "1405/08/17",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "B12",
+          "old": null,
+          "new": 467,
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "C12",
+          "old": null,
+          "new": "علیرضا پاراج-امیر خراسانی",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "D12",
+          "old": null,
+          "new": "تنظیم باد لاستیک ها",
+          "kind": "value_or_formula"
+        }
+      ],
+      "structure": {
+        "properties": {
+          "old": {
+            "sheet_properties": "<sheetPr codeName=\"Sheet36\"><tabColor rgb=\"FFFFFF00\" /><outlinePr summaryBelow=\"1\" summaryRight=\"1\" /><pageSetUpPr /></sheetPr>",
+            "sheet_format": "<sheetFormatPr baseColWidth=\"8\" defaultRowHeight=\"15\" />",
+            "page_margins": "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\" />",
+            "page_setup": "<pageSetup />",
+            "print_options": "<printOptions />",
+            "HeaderFooter": "<headerFooter><oddHeader /><oddFooter /><evenHeader /><evenFooter /><firstHeader /><firstFooter /></headerFooter>",
+            "views": "<sheetViews><sheetView rightToLeft=\"1\" workbookViewId=\"0\"><selection activeCell=\"D11\" sqref=\"D11\" /></sheetView></sheetViews>",
+            "protection": "<sheetProtection selectLockedCells=\"0\" selectUnlockedCells=\"0\" sheet=\"0\" objects=\"0\" insertRows=\"1\" insertHyperlinks=\"1\" autoFilter=\"1\" scenarios=\"0\" formatColumns=\"1\" deleteColumns=\"1\" insertColumns=\"1\" pivotTables=\"1\" deleteRows=\"1\" formatCells=\"1\" formatRows=\"1\" sort=\"1\" />"
+          },
+          "new": {
+            "sheet_properties": "<sheetPr codeName=\"Sheet36\"><tabColor rgb=\"FFFFFF00\" /><outlinePr summaryBelow=\"1\" summaryRight=\"1\" /><pageSetUpPr /></sheetPr>",
+            "sheet_format": "<sheetFormatPr baseColWidth=\"8\" defaultRowHeight=\"15\" />",
+            "page_margins": "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\" />",
+            "page_setup": "<pageSetup />",
+            "print_options": "<printOptions />",
+            "HeaderFooter": "<headerFooter><oddHeader /><oddFooter /><evenHeader /><evenFooter /><firstHeader /><firstFooter /></headerFooter>",
+            "views": "<sheetViews><sheetView rightToLeft=\"1\" workbookViewId=\"0\"><selection activeCell=\"D13\" sqref=\"D13\" /></sheetView></sheetViews>",
+            "protection": "<sheetProtection selectLockedCells=\"0\" selectUnlockedCells=\"0\" sheet=\"0\" objects=\"0\" insertRows=\"1\" insertHyperlinks=\"1\" autoFilter=\"1\" scenarios=\"0\" formatColumns=\"1\" deleteColumns=\"1\" insertColumns=\"1\" pivotTables=\"1\" deleteRows=\"1\" formatCells=\"1\" formatRows=\"1\" sort=\"1\" />"
+          }
+        }
+      }
+    },
+    {
+      "sheet": "471",
+      "cells": [
+        {
+          "cell": "A8",
+          "old": null,
+          "new": "1405/08/17",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "B8",
+          "old": null,
+          "new": "اکیپ آهنگری",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "C8",
+          "old": null,
+          "new": 471,
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "D8",
+          "old": null,
+          "new": "مونتاژ و نصب و شیم گیری پاکت لودر",
+          "kind": "value_or_formula"
+        }
+      ],
+      "structure": {
+        "properties": {
+          "old": {
+            "sheet_properties": "<sheetPr codeName=\"Sheet25\"><tabColor rgb=\"FFC00000\" /><outlinePr summaryBelow=\"1\" summaryRight=\"1\" /><pageSetUpPr /></sheetPr>",
+            "sheet_format": "<sheetFormatPr baseColWidth=\"8\" defaultColWidth=\"9.140625\" defaultRowHeight=\"15\" />",
+            "page_margins": "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\" />",
+            "page_setup": "<pageSetup />",
+            "print_options": "<printOptions />",
+            "HeaderFooter": "<headerFooter><oddHeader /><oddFooter /><evenHeader /><evenFooter /><firstHeader /><firstFooter /></headerFooter>",
+            "views": "<sheetViews><sheetView rightToLeft=\"1\" zoomScaleNormal=\"100\" workbookViewId=\"0\"><selection activeCell=\"E8\" sqref=\"E8\" /></sheetView></sheetViews>",
+            "protection": "<sheetProtection selectLockedCells=\"0\" selectUnlockedCells=\"0\" sheet=\"0\" objects=\"0\" insertRows=\"1\" insertHyperlinks=\"1\" autoFilter=\"1\" scenarios=\"0\" formatColumns=\"1\" deleteColumns=\"1\" insertColumns=\"1\" pivotTables=\"1\" deleteRows=\"1\" formatCells=\"1\" formatRows=\"1\" sort=\"1\" />"
+          },
+          "new": {
+            "sheet_properties": "<sheetPr codeName=\"Sheet25\"><tabColor rgb=\"FFC00000\" /><outlinePr summaryBelow=\"1\" summaryRight=\"1\" /><pageSetUpPr /></sheetPr>",
+            "sheet_format": "<sheetFormatPr baseColWidth=\"8\" defaultColWidth=\"9.140625\" defaultRowHeight=\"15\" />",
+            "page_margins": "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\" />",
+            "page_setup": "<pageSetup />",
+            "print_options": "<printOptions />",
+            "HeaderFooter": "<headerFooter><oddHeader /><oddFooter /><evenHeader /><evenFooter /><firstHeader /><firstFooter /></headerFooter>",
+            "views": "<sheetViews><sheetView rightToLeft=\"1\" zoomScaleNormal=\"100\" workbookViewId=\"0\"><selection activeCell=\"D9\" sqref=\"D9\" /></sheetView></sheetViews>",
+            "protection": "<sheetProtection selectLockedCells=\"0\" selectUnlockedCells=\"0\" sheet=\"0\" objects=\"0\" insertRows=\"1\" insertHyperlinks=\"1\" autoFilter=\"1\" scenarios=\"0\" formatColumns=\"1\" deleteColumns=\"1\" insertColumns=\"1\" pivotTables=\"1\" deleteRows=\"1\" formatCells=\"1\" formatRows=\"1\" sort=\"1\" />"
+          }
+        }
+      }
+    },
+    {
+      "sheet": "472",
+      "cells": [
+        {
+          "cell": "A21",
+          "old": null,
+          "new": "1405/08/18",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "B21",
+          "old": null,
+          "new": "اکیپ اهنگری",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "C21",
+          "old": null,
+          "new": 472,
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "D21",
+          "old": null,
+          "new": "مونتاژ و نصب شاسی موتور جهت سوار کردن موتور",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "E21",
+          "old": null,
+          "new": "سیم جوش13*60-نمره3+اهن برش",
+          "kind": "value_or_formula"
+        }
+      ],
+      "structure": {
+        "properties": {
+          "old": {
+            "sheet_properties": "<sheetPr codeName=\"Sheet10\"><tabColor rgb=\"FFC00000\" /><outlinePr summaryBelow=\"1\" summaryRight=\"1\" /><pageSetUpPr /></sheetPr>",
+            "sheet_format": "<sheetFormatPr baseColWidth=\"8\" defaultColWidth=\"9.140625\" defaultRowHeight=\"15\" />",
+            "page_margins": "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\" />",
+            "page_setup": "<pageSetup orientation=\"portrait\" verticalDpi=\"0\" />",
+            "print_options": "<printOptions />",
+            "HeaderFooter": "<headerFooter><oddHeader /><oddFooter /><evenHeader /><evenFooter /><firstHeader /><firstFooter /></headerFooter>",
+            "views": "<sheetViews><sheetView rightToLeft=\"1\" workbookViewId=\"0\"><selection activeCell=\"D21\" sqref=\"D21\" /></sheetView></sheetViews>",
+            "protection": "<sheetProtection selectLockedCells=\"0\" selectUnlockedCells=\"0\" sheet=\"0\" objects=\"0\" insertRows=\"1\" insertHyperlinks=\"1\" autoFilter=\"1\" scenarios=\"0\" formatColumns=\"1\" deleteColumns=\"1\" insertColumns=\"1\" pivotTables=\"1\" deleteRows=\"1\" formatCells=\"1\" formatRows=\"1\" sort=\"1\" />"
+          },
+          "new": {
+            "sheet_properties": "<sheetPr codeName=\"Sheet10\"><tabColor rgb=\"FFC00000\" /><outlinePr summaryBelow=\"1\" summaryRight=\"1\" /><pageSetUpPr /></sheetPr>",
+            "sheet_format": "<sheetFormatPr baseColWidth=\"8\" defaultColWidth=\"9.140625\" defaultRowHeight=\"15\" />",
+            "page_margins": "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\" />",
+            "page_setup": "<pageSetup orientation=\"portrait\" verticalDpi=\"0\" />",
+            "print_options": "<printOptions />",
+            "HeaderFooter": "<headerFooter><oddHeader /><oddFooter /><evenHeader /><evenFooter /><firstHeader /><firstFooter /></headerFooter>",
+            "views": "<sheetViews><sheetView rightToLeft=\"1\" workbookViewId=\"0\"><selection activeCell=\"E21\" sqref=\"E21\" /></sheetView></sheetViews>",
+            "protection": "<sheetProtection selectLockedCells=\"0\" selectUnlockedCells=\"0\" sheet=\"0\" objects=\"0\" insertRows=\"1\" insertHyperlinks=\"1\" autoFilter=\"1\" scenarios=\"0\" formatColumns=\"1\" deleteColumns=\"1\" insertColumns=\"1\" pivotTables=\"1\" deleteRows=\"1\" formatCells=\"1\" formatRows=\"1\" sort=\"1\" />"
+          }
+        }
+      }
+    },
+    {
+      "sheet": "473",
+      "cells": [
+        {
+          "cell": "A32",
+          "old": null,
+          "new": "1405/08/18",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "B32",
+          "old": null,
+          "new": "اکیپ آهنگری",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "C32",
+          "old": null,
+          "new": 473,
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "D32",
+          "old": null,
+          "new": "جوشکاری پین ناحن و جا زدن قفل زنجیر لاستیک",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "E32",
+          "old": null,
+          "new": "سیمco2-یک عدد قفل زنجیر",
+          "kind": "value_or_formula"
+        }
+      ],
+      "structure": {
+        "properties": {
+          "old": {
+            "sheet_properties": "<sheetPr codeName=\"Sheet22\"><tabColor rgb=\"FFC00000\" /><outlinePr summaryBelow=\"1\" summaryRight=\"1\" /><pageSetUpPr /></sheetPr>",
+            "sheet_format": "<sheetFormatPr baseColWidth=\"8\" defaultRowHeight=\"15\" />",
+            "page_margins": "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\" />",
+            "page_setup": "<pageSetup />",
+            "print_options": "<printOptions />",
+            "HeaderFooter": "<headerFooter><oddHeader /><oddFooter /><evenHeader /><evenFooter /><firstHeader /><firstFooter /></headerFooter>",
+            "views": "<sheetViews><sheetView rightToLeft=\"1\" topLeftCell=\"A7\" workbookViewId=\"0\"><selection activeCell=\"D32\" sqref=\"D32\" /></sheetView></sheetViews>",
+            "protection": "<sheetProtection selectLockedCells=\"0\" selectUnlockedCells=\"0\" sheet=\"0\" objects=\"0\" insertRows=\"1\" insertHyperlinks=\"1\" autoFilter=\"1\" scenarios=\"0\" formatColumns=\"1\" deleteColumns=\"1\" insertColumns=\"1\" pivotTables=\"1\" deleteRows=\"1\" formatCells=\"1\" formatRows=\"1\" sort=\"1\" />"
+          },
+          "new": {
+            "sheet_properties": "<sheetPr codeName=\"Sheet22\"><tabColor rgb=\"FFC00000\" /><outlinePr summaryBelow=\"1\" summaryRight=\"1\" /><pageSetUpPr /></sheetPr>",
+            "sheet_format": "<sheetFormatPr baseColWidth=\"8\" defaultRowHeight=\"15\" />",
+            "page_margins": "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\" />",
+            "page_setup": "<pageSetup />",
+            "print_options": "<printOptions />",
+            "HeaderFooter": "<headerFooter><oddHeader /><oddFooter /><evenHeader /><evenFooter /><firstHeader /><firstFooter /></headerFooter>",
+            "views": "<sheetViews><sheetView rightToLeft=\"1\" topLeftCell=\"A7\" workbookViewId=\"0\"><selection activeCell=\"E32\" sqref=\"E32\" /></sheetView></sheetViews>",
+            "protection": "<sheetProtection selectLockedCells=\"0\" selectUnlockedCells=\"0\" sheet=\"0\" objects=\"0\" insertRows=\"1\" insertHyperlinks=\"1\" autoFilter=\"1\" scenarios=\"0\" formatColumns=\"1\" deleteColumns=\"1\" insertColumns=\"1\" pivotTables=\"1\" deleteRows=\"1\" formatCells=\"1\" formatRows=\"1\" sort=\"1\" />"
+          }
+        }
+      }
+    },
+    {
+      "sheet": "601.",
+      "cells": [
+        {
+          "cell": "A20",
+          "old": null,
+          "new": "1405/08/18",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "B20",
+          "old": null,
+          "new": "اکیپ اهنگری",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "C20",
+          "old": null,
+          "new": 601,
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "D20",
+          "old": null,
+          "new": "نصب و مونتاژ دو عددقطع اسبی زنجیر لاستیک",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "E20",
+          "old": null,
+          "new": "قطع اسبی2عدد-4عدد پین چهار",
+          "kind": "value_or_formula"
+        }
+      ],
+      "structure": {
+        "properties": {
+          "old": {
+            "sheet_properties": "<sheetPr codeName=\"Sheet27\"><tabColor rgb=\"FFC00000\" /><outlinePr summaryBelow=\"1\" summaryRight=\"1\" /><pageSetUpPr /></sheetPr>",
+            "sheet_format": "<sheetFormatPr baseColWidth=\"8\" defaultColWidth=\"9.140625\" defaultRowHeight=\"15\" />",
+            "page_margins": "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\" />",
+            "page_setup": "<pageSetup />",
+            "print_options": "<printOptions />",
+            "HeaderFooter": "<headerFooter><oddHeader /><oddFooter /><evenHeader /><evenFooter /><firstHeader /><firstFooter /></headerFooter>",
+            "views": "<sheetViews><sheetView rightToLeft=\"1\" workbookViewId=\"0\"><selection activeCell=\"D20\" sqref=\"D20\" /></sheetView></sheetViews>",
+            "protection": "<sheetProtection selectLockedCells=\"0\" selectUnlockedCells=\"0\" sheet=\"0\" objects=\"0\" insertRows=\"1\" insertHyperlinks=\"1\" autoFilter=\"1\" scenarios=\"0\" formatColumns=\"1\" deleteColumns=\"1\" insertColumns=\"1\" pivotTables=\"1\" deleteRows=\"1\" formatCells=\"1\" formatRows=\"1\" sort=\"1\" />"
+          },
+          "new": {
+            "sheet_properties": "<sheetPr codeName=\"Sheet27\"><tabColor rgb=\"FFC00000\" /><outlinePr summaryBelow=\"1\" summaryRight=\"1\" /><pageSetUpPr /></sheetPr>",
+            "sheet_format": "<sheetFormatPr baseColWidth=\"8\" defaultColWidth=\"9.140625\" defaultRowHeight=\"15\" />",
+            "page_margins": "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\" />",
+            "page_setup": "<pageSetup />",
+            "print_options": "<printOptions />",
+            "HeaderFooter": "<headerFooter><oddHeader /><oddFooter /><evenHeader /><evenFooter /><firstHeader /><firstFooter /></headerFooter>",
+            "views": "<sheetViews><sheetView rightToLeft=\"1\" workbookViewId=\"0\"><selection activeCell=\"E20\" sqref=\"E20\" /></sheetView></sheetViews>",
+            "protection": "<sheetProtection selectLockedCells=\"0\" selectUnlockedCells=\"0\" sheet=\"0\" objects=\"0\" insertRows=\"1\" insertHyperlinks=\"1\" autoFilter=\"1\" scenarios=\"0\" formatColumns=\"1\" deleteColumns=\"1\" insertColumns=\"1\" pivotTables=\"1\" deleteRows=\"1\" formatCells=\"1\" formatRows=\"1\" sort=\"1\" />"
+          }
+        }
+      }
+    },
+    {
+      "sheet": "701",
+      "cells": [
+        {
+          "cell": "A16",
+          "old": null,
+          "new": "1405/08/17",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "B16",
+          "old": null,
+          "new": 701,
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "C16",
+          "old": null,
+          "new": "علیرضا پاراج-امیر خراسانی",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "D16",
+          "old": null,
+          "new": "چرخ عقب بیرونی سمت چپ بسته شد و هنگام سفت کردن دو تا از پیچ ها برید",
+          "kind": "value_or_formula"
+        }
+      ],
+      "structure": {
+        "properties": {
+          "old": {
+            "sheet_properties": "<sheetPr codeName=\"Sheet5\"><tabColor rgb=\"FF92D050\" /><outlinePr summaryBelow=\"1\" summaryRight=\"1\" /><pageSetUpPr /></sheetPr>",
+            "sheet_format": "<sheetFormatPr baseColWidth=\"8\" defaultRowHeight=\"15\" />",
+            "page_margins": "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\" />",
+            "page_setup": "<pageSetup orientation=\"portrait\" />",
+            "print_options": "<printOptions />",
+            "HeaderFooter": "<headerFooter><oddHeader /><oddFooter /><evenHeader /><evenFooter /><firstHeader /><firstFooter /></headerFooter>",
+            "views": "<sheetViews><sheetView rightToLeft=\"1\" zoomScaleNormal=\"100\" workbookViewId=\"0\"><selection activeCell=\"D16\" sqref=\"D16\" /></sheetView></sheetViews>",
+            "protection": "<sheetProtection selectLockedCells=\"0\" selectUnlockedCells=\"0\" sheet=\"0\" objects=\"0\" insertRows=\"1\" insertHyperlinks=\"1\" autoFilter=\"1\" scenarios=\"0\" formatColumns=\"1\" deleteColumns=\"1\" insertColumns=\"1\" pivotTables=\"1\" deleteRows=\"1\" formatCells=\"1\" formatRows=\"1\" sort=\"1\" />"
+          },
+          "new": {
+            "sheet_properties": "<sheetPr codeName=\"Sheet5\"><tabColor rgb=\"FF92D050\" /><outlinePr summaryBelow=\"1\" summaryRight=\"1\" /><pageSetUpPr /></sheetPr>",
+            "sheet_format": "<sheetFormatPr baseColWidth=\"8\" defaultRowHeight=\"15\" />",
+            "page_margins": "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\" />",
+            "page_setup": "<pageSetup orientation=\"portrait\" />",
+            "print_options": "<printOptions />",
+            "HeaderFooter": "<headerFooter><oddHeader /><oddFooter /><evenHeader /><evenFooter /><firstHeader /><firstFooter /></headerFooter>",
+            "views": "<sheetViews><sheetView rightToLeft=\"1\" zoomScaleNormal=\"100\" workbookViewId=\"0\"><selection activeCell=\"D17\" sqref=\"D17\" /></sheetView></sheetViews>",
+            "protection": "<sheetProtection selectLockedCells=\"0\" selectUnlockedCells=\"0\" sheet=\"0\" objects=\"0\" insertRows=\"1\" insertHyperlinks=\"1\" autoFilter=\"1\" scenarios=\"0\" formatColumns=\"1\" deleteColumns=\"1\" insertColumns=\"1\" pivotTables=\"1\" deleteRows=\"1\" formatCells=\"1\" formatRows=\"1\" sort=\"1\" />"
+          }
+        }
+      }
+    },
+    {
+      "sheet": "702",
+      "cells": [
+        {
+          "cell": "A26",
+          "old": null,
+          "new": "1405/08/17",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "A27",
+          "old": null,
+          "new": "1405/08/18",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "B26",
+          "old": null,
+          "new": 702,
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "B27",
+          "old": null,
+          "new": 702,
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "C26",
+          "old": null,
+          "new": "پاراج-خراسانی",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "C27",
+          "old": null,
+          "new": "اکیپ اهنگری",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "D26",
+          "old": null,
+          "new": "تنظیم باد لاستیک ها",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "D27",
+          "old": null,
+          "new": "سوراخ کاری اهن پمپ باد برای مکانیکی",
+          "kind": "value_or_formula"
+        }
+      ],
+      "structure": {
+        "properties": {
+          "old": {
+            "sheet_properties": "<sheetPr codeName=\"Sheet18\"><tabColor rgb=\"FF92D050\" /><outlinePr summaryBelow=\"1\" summaryRight=\"1\" /><pageSetUpPr /></sheetPr>",
+            "sheet_format": "<sheetFormatPr baseColWidth=\"8\" defaultRowHeight=\"15\" />",
+            "page_margins": "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\" />",
+            "page_setup": "<pageSetup />",
+            "print_options": "<printOptions />",
+            "HeaderFooter": "<headerFooter><oddHeader /><oddFooter /><evenHeader /><evenFooter /><firstHeader /><firstFooter /></headerFooter>",
+            "views": "<sheetViews><sheetView rightToLeft=\"1\" workbookViewId=\"0\"><selection activeCell=\"D26\" sqref=\"D26\" /></sheetView></sheetViews>",
+            "protection": "<sheetProtection selectLockedCells=\"0\" selectUnlockedCells=\"0\" sheet=\"0\" objects=\"0\" insertRows=\"1\" insertHyperlinks=\"1\" autoFilter=\"1\" scenarios=\"0\" formatColumns=\"1\" deleteColumns=\"1\" insertColumns=\"1\" pivotTables=\"1\" deleteRows=\"1\" formatCells=\"1\" formatRows=\"1\" sort=\"1\" />"
+          },
+          "new": {
+            "sheet_properties": "<sheetPr codeName=\"Sheet18\"><tabColor rgb=\"FF92D050\" /><outlinePr summaryBelow=\"1\" summaryRight=\"1\" /><pageSetUpPr /></sheetPr>",
+            "sheet_format": "<sheetFormatPr baseColWidth=\"8\" defaultRowHeight=\"15\" />",
+            "page_margins": "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\" />",
+            "page_setup": "<pageSetup />",
+            "print_options": "<printOptions />",
+            "HeaderFooter": "<headerFooter><oddHeader /><oddFooter /><evenHeader /><evenFooter /><firstHeader /><firstFooter /></headerFooter>",
+            "views": "<sheetViews><sheetView rightToLeft=\"1\" workbookViewId=\"0\"><selection activeCell=\"E27\" sqref=\"E27\" /></sheetView></sheetViews>",
+            "protection": "<sheetProtection selectLockedCells=\"0\" selectUnlockedCells=\"0\" sheet=\"0\" objects=\"0\" insertRows=\"1\" insertHyperlinks=\"1\" autoFilter=\"1\" scenarios=\"0\" formatColumns=\"1\" deleteColumns=\"1\" insertColumns=\"1\" pivotTables=\"1\" deleteRows=\"1\" formatCells=\"1\" formatRows=\"1\" sort=\"1\" />"
+          }
+        }
+      }
+    },
+    {
+      "sheet": "704",
+      "cells": [
+        {
+          "cell": "A24",
+          "old": null,
+          "new": "1405/08/17",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "B24",
+          "old": null,
+          "new": 704,
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "C24",
+          "old": null,
+          "new": "اکیپ آهنگری",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "D24",
+          "old": null,
+          "new": "دمونتاژ جک های فرمان جهت تعمیر و تعویض قرقری",
+          "kind": "value_or_formula"
+        }
+      ],
+      "structure": {
+        "properties": {
+          "old": {
+            "sheet_properties": "<sheetPr codeName=\"Sheet28\"><tabColor rgb=\"FF92D050\" /><outlinePr summaryBelow=\"1\" summaryRight=\"1\" /><pageSetUpPr /></sheetPr>",
+            "sheet_format": "<sheetFormatPr baseColWidth=\"8\" defaultRowHeight=\"15\" />",
+            "page_margins": "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\" />",
+            "page_setup": "<pageSetup orientation=\"landscape\" scale=\"57\" />",
+            "print_options": "<printOptions />",
+            "HeaderFooter": "<headerFooter><oddHeader /><oddFooter /><evenHeader /><evenFooter /><firstHeader /><firstFooter /></headerFooter>",
+            "views": "<sheetViews><sheetView rightToLeft=\"1\" view=\"pageBreakPreview\" zoomScaleNormal=\"100\" zoomScaleSheetLayoutView=\"100\" workbookViewId=\"0\"><selection activeCell=\"D24\" sqref=\"D24\" /></sheetView></sheetViews>",
+            "protection": "<sheetProtection selectLockedCells=\"0\" selectUnlockedCells=\"0\" sheet=\"0\" objects=\"0\" insertRows=\"1\" insertHyperlinks=\"1\" autoFilter=\"1\" scenarios=\"0\" formatColumns=\"1\" deleteColumns=\"1\" insertColumns=\"1\" pivotTables=\"1\" deleteRows=\"1\" formatCells=\"1\" formatRows=\"1\" sort=\"1\" />"
+          },
+          "new": {
+            "sheet_properties": "<sheetPr codeName=\"Sheet28\"><tabColor rgb=\"FF92D050\" /><outlinePr summaryBelow=\"1\" summaryRight=\"1\" /><pageSetUpPr /></sheetPr>",
+            "sheet_format": "<sheetFormatPr baseColWidth=\"8\" defaultRowHeight=\"15\" />",
+            "page_margins": "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\" />",
+            "page_setup": "<pageSetup orientation=\"landscape\" scale=\"57\" />",
+            "print_options": "<printOptions />",
+            "HeaderFooter": "<headerFooter><oddHeader /><oddFooter /><evenHeader /><evenFooter /><firstHeader /><firstFooter /></headerFooter>",
+            "views": "<sheetViews><sheetView rightToLeft=\"1\" view=\"pageBreakPreview\" zoomScaleNormal=\"100\" zoomScaleSheetLayoutView=\"100\" workbookViewId=\"0\"><selection activeCell=\"D25\" sqref=\"D25\" /></sheetView></sheetViews>",
+            "protection": "<sheetProtection selectLockedCells=\"0\" selectUnlockedCells=\"0\" sheet=\"0\" objects=\"0\" insertRows=\"1\" insertHyperlinks=\"1\" autoFilter=\"1\" scenarios=\"0\" formatColumns=\"1\" deleteColumns=\"1\" insertColumns=\"1\" pivotTables=\"1\" deleteRows=\"1\" formatCells=\"1\" formatRows=\"1\" sort=\"1\" />"
+          }
+        }
+      }
+    },
+    {
+      "sheet": "706",
+      "cells": [
+        {
+          "cell": "A27",
+          "old": null,
+          "new": "1405/08/17",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "B27",
+          "old": null,
+          "new": "علیرضا پاراج - امیررضا خراسانی",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "C27",
+          "old": null,
+          "new": 706,
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "D27",
+          "old": null,
+          "new": "تنظیم باد لاستیک ها",
+          "kind": "value_or_formula"
+        }
+      ],
+      "structure": {
+        "properties": {
+          "old": {
+            "sheet_properties": "<sheetPr codeName=\"Sheet16\"><tabColor rgb=\"FF92D050\" /><outlinePr summaryBelow=\"1\" summaryRight=\"1\" /><pageSetUpPr /></sheetPr>",
+            "sheet_format": "<sheetFormatPr baseColWidth=\"8\" defaultColWidth=\"9.140625\" defaultRowHeight=\"14.25\" />",
+            "page_margins": "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\" />",
+            "page_setup": "<pageSetup orientation=\"portrait\" verticalDpi=\"0\" />",
+            "print_options": "<printOptions />",
+            "HeaderFooter": "<headerFooter><oddHeader /><oddFooter /><evenHeader /><evenFooter /><firstHeader /><firstFooter /></headerFooter>",
+            "views": "<sheetViews><sheetView showFormulas=\"1\" rightToLeft=\"1\" topLeftCell=\"A10\" zoomScale=\"87\" zoomScaleNormal=\"87\" workbookViewId=\"0\"><selection activeCell=\"D27\" sqref=\"D27\" /></sheetView></sheetViews>",
+            "protection": "<sheetProtection selectLockedCells=\"0\" selectUnlockedCells=\"0\" sheet=\"0\" objects=\"0\" insertRows=\"1\" insertHyperlinks=\"1\" autoFilter=\"1\" scenarios=\"0\" formatColumns=\"1\" deleteColumns=\"1\" insertColumns=\"1\" pivotTables=\"1\" deleteRows=\"1\" formatCells=\"1\" formatRows=\"1\" sort=\"1\" />"
+          },
+          "new": {
+            "sheet_properties": "<sheetPr codeName=\"Sheet16\"><tabColor rgb=\"FF92D050\" /><outlinePr summaryBelow=\"1\" summaryRight=\"1\" /><pageSetUpPr /></sheetPr>",
+            "sheet_format": "<sheetFormatPr baseColWidth=\"8\" defaultColWidth=\"9.140625\" defaultRowHeight=\"14.25\" />",
+            "page_margins": "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\" />",
+            "page_setup": "<pageSetup orientation=\"portrait\" verticalDpi=\"0\" />",
+            "print_options": "<printOptions />",
+            "HeaderFooter": "<headerFooter><oddHeader /><oddFooter /><evenHeader /><evenFooter /><firstHeader /><firstFooter /></headerFooter>",
+            "views": "<sheetViews><sheetView showFormulas=\"1\" rightToLeft=\"1\" topLeftCell=\"A10\" zoomScale=\"87\" zoomScaleNormal=\"87\" workbookViewId=\"0\"><selection activeCell=\"D28\" sqref=\"D28\" /></sheetView></sheetViews>",
+            "protection": "<sheetProtection selectLockedCells=\"0\" selectUnlockedCells=\"0\" sheet=\"0\" objects=\"0\" insertRows=\"1\" insertHyperlinks=\"1\" autoFilter=\"1\" scenarios=\"0\" formatColumns=\"1\" deleteColumns=\"1\" insertColumns=\"1\" pivotTables=\"1\" deleteRows=\"1\" formatCells=\"1\" formatRows=\"1\" sort=\"1\" />"
+          }
+        }
+      }
+    },
+    {
+      "sheet": "709",
+      "cells": [
+        {
+          "cell": "A17",
+          "old": null,
+          "new": "1405/08/17",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "A18",
+          "old": null,
+          "new": "1405/08/17",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "B17",
+          "old": null,
+          "new": "علیرضا پاراج-امیر خراسانی",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "B18",
+          "old": null,
+          "new": "اکیپ آهنگری",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "C17",
+          "old": null,
+          "new": 709,
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "C18",
+          "old": null,
+          "new": 709,
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "D17",
+          "old": null,
+          "new": "تنظیم باد لاستیک ها- چرخ های جلو و عقب بیرونی سمت چپ",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "D18",
+          "old": null,
+          "new": "تنظیم و جوشکاری پایه آینه",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "E18",
+          "old": null,
+          "new": "الکترود 6013-نمره3",
+          "kind": "value_or_formula"
+        }
+      ],
+      "structure": {
+        "properties": {
+          "old": {
+            "sheet_properties": "<sheetPr codeName=\"Sheet40\"><tabColor rgb=\"FF00B050\" /><outlinePr summaryBelow=\"1\" summaryRight=\"1\" /><pageSetUpPr /></sheetPr>",
+            "sheet_format": "<sheetFormatPr baseColWidth=\"8\" defaultColWidth=\"9.140625\" defaultRowHeight=\"15\" />",
+            "page_margins": "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\" />",
+            "page_setup": "<pageSetup />",
+            "print_options": "<printOptions />",
+            "HeaderFooter": "<headerFooter><oddHeader /><oddFooter /><evenHeader /><evenFooter /><firstHeader /><firstFooter /></headerFooter>",
+            "views": "<sheetViews><sheetView rightToLeft=\"1\" workbookViewId=\"0\"><selection activeCell=\"D17\" sqref=\"D17\" /></sheetView></sheetViews>",
+            "protection": "<sheetProtection selectLockedCells=\"0\" selectUnlockedCells=\"0\" sheet=\"0\" objects=\"0\" insertRows=\"1\" insertHyperlinks=\"1\" autoFilter=\"1\" scenarios=\"0\" formatColumns=\"1\" deleteColumns=\"1\" insertColumns=\"1\" pivotTables=\"1\" deleteRows=\"1\" formatCells=\"1\" formatRows=\"1\" sort=\"1\" />"
+          },
+          "new": {
+            "sheet_properties": "<sheetPr codeName=\"Sheet40\"><tabColor rgb=\"FF00B050\" /><outlinePr summaryBelow=\"1\" summaryRight=\"1\" /><pageSetUpPr /></sheetPr>",
+            "sheet_format": "<sheetFormatPr baseColWidth=\"8\" defaultColWidth=\"9.140625\" defaultRowHeight=\"15\" />",
+            "page_margins": "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\" />",
+            "page_setup": "<pageSetup />",
+            "print_options": "<printOptions />",
+            "HeaderFooter": "<headerFooter><oddHeader /><oddFooter /><evenHeader /><evenFooter /><firstHeader /><firstFooter /></headerFooter>",
+            "views": "<sheetViews><sheetView rightToLeft=\"1\" workbookViewId=\"0\"><selection activeCell=\"E19\" sqref=\"E19\" /></sheetView></sheetViews>",
+            "protection": "<sheetProtection selectLockedCells=\"0\" selectUnlockedCells=\"0\" sheet=\"0\" objects=\"0\" insertRows=\"1\" insertHyperlinks=\"1\" autoFilter=\"1\" scenarios=\"0\" formatColumns=\"1\" deleteColumns=\"1\" insertColumns=\"1\" pivotTables=\"1\" deleteRows=\"1\" formatCells=\"1\" formatRows=\"1\" sort=\"1\" />"
+          }
+        }
+      }
+    },
+    {
+      "sheet": "710",
+      "cells": [
+        {
+          "cell": "A24",
+          "old": null,
+          "new": "1405/08/18",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "B24",
+          "old": null,
+          "new": "اکیپ آهنگری",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "C24",
+          "old": null,
+          "new": 710,
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "D24",
+          "old": null,
+          "new": "جوشکاری و برش کاری و سنگ کاری پلی زیر شاسی",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "E24",
+          "old": null,
+          "new": "سیم Co2-سیم جوش 4عدد13*60-صحفه سنگ",
+          "kind": "value_or_formula"
+        }
+      ],
+      "structure": {
+        "properties": {
+          "old": {
+            "sheet_properties": "<sheetPr codeName=\"Sheet41\"><tabColor rgb=\"FF00B050\" /><outlinePr summaryBelow=\"1\" summaryRight=\"1\" /><pageSetUpPr /></sheetPr>",
+            "sheet_format": "<sheetFormatPr baseColWidth=\"8\" defaultColWidth=\"9.140625\" defaultRowHeight=\"15\" />",
+            "page_margins": "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\" />",
+            "page_setup": "<pageSetup />",
+            "print_options": "<printOptions />",
+            "HeaderFooter": "<headerFooter><oddHeader /><oddFooter /><evenHeader /><evenFooter /><firstHeader /><firstFooter /></headerFooter>",
+            "views": "<sheetViews><sheetView rightToLeft=\"1\" topLeftCell=\"A13\" workbookViewId=\"0\"><selection activeCell=\"D23\" sqref=\"D23\" /></sheetView></sheetViews>",
+            "protection": "<sheetProtection selectLockedCells=\"0\" selectUnlockedCells=\"0\" sheet=\"0\" objects=\"0\" insertRows=\"1\" insertHyperlinks=\"1\" autoFilter=\"1\" scenarios=\"0\" formatColumns=\"1\" deleteColumns=\"1\" insertColumns=\"1\" pivotTables=\"1\" deleteRows=\"1\" formatCells=\"1\" formatRows=\"1\" sort=\"1\" />"
+          },
+          "new": {
+            "sheet_properties": "<sheetPr codeName=\"Sheet41\"><tabColor rgb=\"FF00B050\" /><outlinePr summaryBelow=\"1\" summaryRight=\"1\" /><pageSetUpPr /></sheetPr>",
+            "sheet_format": "<sheetFormatPr baseColWidth=\"8\" defaultColWidth=\"9.140625\" defaultRowHeight=\"15\" />",
+            "page_margins": "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\" />",
+            "page_setup": "<pageSetup />",
+            "print_options": "<printOptions />",
+            "HeaderFooter": "<headerFooter><oddHeader /><oddFooter /><evenHeader /><evenFooter /><firstHeader /><firstFooter /></headerFooter>",
+            "views": "<sheetViews><sheetView rightToLeft=\"1\" topLeftCell=\"A13\" workbookViewId=\"0\"><selection activeCell=\"E24\" sqref=\"E24\" /></sheetView></sheetViews>",
+            "protection": "<sheetProtection selectLockedCells=\"0\" selectUnlockedCells=\"0\" sheet=\"0\" objects=\"0\" insertRows=\"1\" insertHyperlinks=\"1\" autoFilter=\"1\" scenarios=\"0\" formatColumns=\"1\" deleteColumns=\"1\" insertColumns=\"1\" pivotTables=\"1\" deleteRows=\"1\" formatCells=\"1\" formatRows=\"1\" sort=\"1\" />"
+          }
+        }
+      }
+    },
+    {
+      "sheet": "715",
+      "cells": [
+        {
+          "cell": "A28",
+          "old": null,
+          "new": "1405/08/17",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "B28",
+          "old": null,
+          "new": 715,
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "C28",
+          "old": null,
+          "new": "علیرضا پاراج-امیر خراسانی",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "D28",
+          "old": null,
+          "new": "چرخ عقب داخلی سمت چپ تنظیم باد شد و نیاز به تعویض اورینگ دارد ",
+          "kind": "value_or_formula"
+        }
+      ],
+      "structure": {
+        "properties": {
+          "old": {
+            "sheet_properties": "<sheetPr codeName=\"Sheet45\"><tabColor rgb=\"FF00B050\" /><outlinePr summaryBelow=\"1\" summaryRight=\"1\" /><pageSetUpPr /></sheetPr>",
+            "sheet_format": "<sheetFormatPr baseColWidth=\"8\" defaultColWidth=\"9.140625\" defaultRowHeight=\"15\" />",
+            "page_margins": "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\" />",
+            "page_setup": "<pageSetup orientation=\"portrait\" verticalDpi=\"0\" />",
+            "print_options": "<printOptions />",
+            "HeaderFooter": "<headerFooter><oddHeader /><oddFooter /><evenHeader /><evenFooter /><firstHeader /><firstFooter /></headerFooter>",
+            "views": "<sheetViews><sheetView rightToLeft=\"1\" zoomScaleNormal=\"100\" workbookViewId=\"0\"><selection activeCell=\"D28\" sqref=\"D28\" /></sheetView></sheetViews>",
+            "protection": "<sheetProtection selectLockedCells=\"0\" selectUnlockedCells=\"0\" sheet=\"0\" objects=\"0\" insertRows=\"1\" insertHyperlinks=\"1\" autoFilter=\"1\" scenarios=\"0\" formatColumns=\"1\" deleteColumns=\"1\" insertColumns=\"1\" pivotTables=\"1\" deleteRows=\"1\" formatCells=\"1\" formatRows=\"1\" sort=\"1\" />"
+          },
+          "new": {
+            "sheet_properties": "<sheetPr codeName=\"Sheet45\"><tabColor rgb=\"FF00B050\" /><outlinePr summaryBelow=\"1\" summaryRight=\"1\" /><pageSetUpPr /></sheetPr>",
+            "sheet_format": "<sheetFormatPr baseColWidth=\"8\" defaultColWidth=\"9.140625\" defaultRowHeight=\"15\" />",
+            "page_margins": "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\" />",
+            "page_setup": "<pageSetup orientation=\"portrait\" verticalDpi=\"0\" />",
+            "print_options": "<printOptions />",
+            "HeaderFooter": "<headerFooter><oddHeader /><oddFooter /><evenHeader /><evenFooter /><firstHeader /><firstFooter /></headerFooter>",
+            "views": "<sheetViews><sheetView rightToLeft=\"1\" zoomScaleNormal=\"100\" workbookViewId=\"0\"><selection activeCell=\"D29\" sqref=\"D29\" /></sheetView></sheetViews>",
+            "protection": "<sheetProtection selectLockedCells=\"0\" selectUnlockedCells=\"0\" sheet=\"0\" objects=\"0\" insertRows=\"1\" insertHyperlinks=\"1\" autoFilter=\"1\" scenarios=\"0\" formatColumns=\"1\" deleteColumns=\"1\" insertColumns=\"1\" pivotTables=\"1\" deleteRows=\"1\" formatCells=\"1\" formatRows=\"1\" sort=\"1\" />"
+          }
+        }
+      }
+    },
+    {
+      "sheet": "720",
+      "cells": [
+        {
+          "cell": "A16",
+          "old": null,
+          "new": "1405/08/17",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "B16",
+          "old": null,
+          "new": 720,
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "C16",
+          "old": null,
+          "new": "اکیپ آهنگری",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "D16",
+          "old": null,
+          "new": "جوشکاری پلی های زیر تاج و جوشکاری اگزوز",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "E16",
+          "old": null,
+          "new": "سیم جوش 6013-نمره3- سیم جوش 1230 نمره 3",
+          "kind": "value_or_formula"
+        }
+      ],
+      "structure": {
+        "properties": {
+          "old": {
+            "sheet_properties": "<sheetPr><tabColor rgb=\"FF00B050\" /><outlinePr summaryBelow=\"1\" summaryRight=\"1\" /><pageSetUpPr /></sheetPr>",
+            "sheet_format": "<sheetFormatPr baseColWidth=\"8\" defaultColWidth=\"9.140625\" defaultRowHeight=\"15\" />",
+            "page_margins": "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\" />",
+            "page_setup": "<pageSetup orientation=\"portrait\" verticalDpi=\"0\" />",
+            "print_options": "<printOptions />",
+            "HeaderFooter": "<headerFooter><oddHeader /><oddFooter /><evenHeader /><evenFooter /><firstHeader /><firstFooter /></headerFooter>",
+            "views": "<sheetViews><sheetView rightToLeft=\"1\" zoomScaleNormal=\"100\" workbookViewId=\"0\"><selection activeCell=\"D16\" sqref=\"D16\" /></sheetView></sheetViews>",
+            "protection": "<sheetProtection selectLockedCells=\"0\" selectUnlockedCells=\"0\" sheet=\"0\" objects=\"0\" insertRows=\"1\" insertHyperlinks=\"1\" autoFilter=\"1\" scenarios=\"0\" formatColumns=\"1\" deleteColumns=\"1\" insertColumns=\"1\" pivotTables=\"1\" deleteRows=\"1\" formatCells=\"1\" formatRows=\"1\" sort=\"1\" />"
+          },
+          "new": {
+            "sheet_properties": "<sheetPr><tabColor rgb=\"FF00B050\" /><outlinePr summaryBelow=\"1\" summaryRight=\"1\" /><pageSetUpPr /></sheetPr>",
+            "sheet_format": "<sheetFormatPr baseColWidth=\"8\" defaultColWidth=\"9.140625\" defaultRowHeight=\"15\" />",
+            "page_margins": "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\" />",
+            "page_setup": "<pageSetup orientation=\"portrait\" verticalDpi=\"0\" />",
+            "print_options": "<printOptions />",
+            "HeaderFooter": "<headerFooter><oddHeader /><oddFooter /><evenHeader /><evenFooter /><firstHeader /><firstFooter /></headerFooter>",
+            "views": "<sheetViews><sheetView rightToLeft=\"1\" zoomScaleNormal=\"100\" workbookViewId=\"0\"><selection activeCell=\"E17\" sqref=\"E17\" /></sheetView></sheetViews>",
+            "protection": "<sheetProtection selectLockedCells=\"0\" selectUnlockedCells=\"0\" sheet=\"0\" objects=\"0\" insertRows=\"1\" insertHyperlinks=\"1\" autoFilter=\"1\" scenarios=\"0\" formatColumns=\"1\" deleteColumns=\"1\" insertColumns=\"1\" pivotTables=\"1\" deleteRows=\"1\" formatCells=\"1\" formatRows=\"1\" sort=\"1\" />"
+          }
+        }
+      }
+    },
+    {
+      "sheet": "721",
+      "cells": [
+        {
+          "cell": "A12",
+          "old": null,
+          "new": "1405/08/17",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "A13",
+          "old": null,
+          "new": "1405/08/18",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "B12",
+          "old": null,
+          "new": 721,
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "B13",
+          "old": null,
+          "new": 721,
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "C12",
+          "old": null,
+          "new": "اکیپ اهنگری",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "C13",
+          "old": null,
+          "new": "اکیپ اهنگری",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "D12",
+          "old": null,
+          "new": "مونتاژ و نصب ورق های بدنه و جوشکاری ",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "D13",
+          "old": null,
+          "new": "جوشکاری و برش کاری ورق های دامپ(بدنه)+مونتاژ و نصب",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "E12",
+          "old": null,
+          "new": "ورق 100*90 -10عدد و سیم co2",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "E13",
+          "old": null,
+          "new": "سیمCo2-هوا-گاز-ورق100*90-10عدد",
+          "kind": "value_or_formula"
+        }
+      ],
+      "structure": {
+        "properties": {
+          "old": {
+            "sheet_properties": "<sheetPr><tabColor rgb=\"FF00B050\" /><outlinePr summaryBelow=\"1\" summaryRight=\"1\" /><pageSetUpPr /></sheetPr>",
+            "sheet_format": "<sheetFormatPr baseColWidth=\"8\" defaultColWidth=\"9.140625\" defaultRowHeight=\"15\" />",
+            "page_margins": "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\" />",
+            "page_setup": "<pageSetup orientation=\"portrait\" verticalDpi=\"0\" />",
+            "print_options": "<printOptions />",
+            "HeaderFooter": "<headerFooter><oddHeader /><oddFooter /><evenHeader /><evenFooter /><firstHeader /><firstFooter /></headerFooter>",
+            "views": "<sheetViews><sheetView rightToLeft=\"1\" zoomScaleNormal=\"100\" workbookViewId=\"0\"><selection activeCell=\"E12\" sqref=\"E12\" /></sheetView></sheetViews>",
+            "protection": "<sheetProtection selectLockedCells=\"0\" selectUnlockedCells=\"0\" sheet=\"0\" objects=\"0\" insertRows=\"1\" insertHyperlinks=\"1\" autoFilter=\"1\" scenarios=\"0\" formatColumns=\"1\" deleteColumns=\"1\" insertColumns=\"1\" pivotTables=\"1\" deleteRows=\"1\" formatCells=\"1\" formatRows=\"1\" sort=\"1\" />"
+          },
+          "new": {
+            "sheet_properties": "<sheetPr><tabColor rgb=\"FF00B050\" /><outlinePr summaryBelow=\"1\" summaryRight=\"1\" /><pageSetUpPr /></sheetPr>",
+            "sheet_format": "<sheetFormatPr baseColWidth=\"8\" defaultColWidth=\"9.140625\" defaultRowHeight=\"15\" />",
+            "page_margins": "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\" />",
+            "page_setup": "<pageSetup orientation=\"portrait\" verticalDpi=\"0\" />",
+            "print_options": "<printOptions />",
+            "HeaderFooter": "<headerFooter><oddHeader /><oddFooter /><evenHeader /><evenFooter /><firstHeader /><firstFooter /></headerFooter>",
+            "views": "<sheetViews><sheetView rightToLeft=\"1\" zoomScaleNormal=\"100\" workbookViewId=\"0\"><selection activeCell=\"E14\" sqref=\"E14\" /></sheetView></sheetViews>",
+            "protection": "<sheetProtection selectLockedCells=\"0\" selectUnlockedCells=\"0\" sheet=\"0\" objects=\"0\" insertRows=\"1\" insertHyperlinks=\"1\" autoFilter=\"1\" scenarios=\"0\" formatColumns=\"1\" deleteColumns=\"1\" insertColumns=\"1\" pivotTables=\"1\" deleteRows=\"1\" formatCells=\"1\" formatRows=\"1\" sort=\"1\" />"
+          }
+        }
+      }
+    },
+    {
+      "sheet": "متفرقه",
+      "cells": [
+        {
+          "cell": "A184",
+          "old": null,
+          "new": "1405/08/17",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "A185",
+          "old": null,
+          "new": "1405/08/17",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "A186",
+          "old": null,
+          "new": "1405/08/18",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "B184",
+          "old": null,
+          "new": "آهنگری",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "B185",
+          "old": null,
+          "new": "آهنگری",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "B186",
+          "old": null,
+          "new": "آهنگری",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "C184",
+          "old": null,
+          "new": "اکیپ آهنگری",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "C185",
+          "old": null,
+          "new": "اکیپ آهنگری",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "C186",
+          "old": null,
+          "new": "اکیپ آهنگری",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "D184",
+          "old": null,
+          "new": "جوشکاری لوله آب و روغن برای مکانیک ها",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "D185",
+          "old": null,
+          "new": "جوشکاری لوله برای دستگاه هواکش",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "D186",
+          "old": null,
+          "new": "جوش کاری لوله جهت مکانیکی لوله اب+لوله هیدرولیک",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "E184",
+          "old": null,
+          "new": "سیم co2",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "E185",
+          "old": null,
+          "new": "سیم زر جوش 2 عدد",
+          "kind": "value_or_formula"
+        },
+        {
+          "cell": "E186",
+          "old": null,
+          "new": "سیم Co2+سیم زرد",
+          "kind": "value_or_formula"
+        }
+      ],
+      "structure": {
+        "properties": {
+          "old": {
+            "sheet_properties": "<sheetPr><tabColor rgb=\"FF7030A0\" /><outlinePr summaryBelow=\"1\" summaryRight=\"1\" /><pageSetUpPr /></sheetPr>",
+            "sheet_format": "<sheetFormatPr baseColWidth=\"8\" defaultColWidth=\"9.140625\" defaultRowHeight=\"15\" />",
+            "page_margins": "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\" />",
+            "page_setup": "<pageSetup orientation=\"portrait\" verticalDpi=\"0\" />",
+            "print_options": "<printOptions />",
+            "HeaderFooter": "<headerFooter><oddHeader /><oddFooter /><evenHeader /><evenFooter /><firstHeader /><firstFooter /></headerFooter>",
+            "views": "<sheetViews><sheetView rightToLeft=\"1\" topLeftCell=\"A156\" zoomScaleNormal=\"100\" workbookViewId=\"0\"><selection activeCell=\"D184\" sqref=\"D184\" /></sheetView></sheetViews>",
+            "protection": "<sheetProtection selectLockedCells=\"0\" selectUnlockedCells=\"0\" sheet=\"0\" objects=\"0\" insertRows=\"1\" insertHyperlinks=\"1\" autoFilter=\"1\" scenarios=\"0\" formatColumns=\"1\" deleteColumns=\"1\" insertColumns=\"1\" pivotTables=\"1\" deleteRows=\"1\" formatCells=\"1\" formatRows=\"1\" sort=\"1\" />"
+          },
+          "new": {
+            "sheet_properties": "<sheetPr><tabColor rgb=\"FF7030A0\" /><outlinePr summaryBelow=\"1\" summaryRight=\"1\" /><pageSetUpPr /></sheetPr>",
+            "sheet_format": "<sheetFormatPr baseColWidth=\"8\" defaultColWidth=\"9.140625\" defaultRowHeight=\"15\" />",
+            "page_margins": "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\" />",
+            "page_setup": "<pageSetup orientation=\"portrait\" verticalDpi=\"0\" />",
+            "print_options": "<printOptions />",
+            "HeaderFooter": "<headerFooter><oddHeader /><oddFooter /><evenHeader /><evenFooter /><firstHeader /><firstFooter /></headerFooter>",
+            "views": "<sheetViews><sheetView rightToLeft=\"1\" tabSelected=\"1\" topLeftCell=\"A158\" zoomScaleNormal=\"100\" workbookViewId=\"0\"><selection activeCell=\"E186\" sqref=\"E186\" /></sheetView></sheetViews>",
+            "protection": "<sheetProtection selectLockedCells=\"0\" selectUnlockedCells=\"0\" sheet=\"0\" objects=\"0\" insertRows=\"1\" insertHyperlinks=\"1\" autoFilter=\"1\" scenarios=\"0\" formatColumns=\"1\" deleteColumns=\"1\" insertColumns=\"1\" pivotTables=\"1\" deleteRows=\"1\" formatCells=\"1\" formatRows=\"1\" sort=\"1\" />"
+          }
+        }
+      }
+    }
+  ],
+  "guard": "MAINTENANCE_SYNC_STRUCTURE_CONFLICT: sheet=متفرقه field=properties",
+  "sheetnames_equal": true,
+  "workbook_security_equal": true,
+  "calculation_equal": true,
+  "defined_names_equal": true
+}

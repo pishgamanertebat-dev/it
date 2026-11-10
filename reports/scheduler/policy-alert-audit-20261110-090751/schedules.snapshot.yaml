@@ -1,0 +1,160 @@
+# Reloaded automatically each tick. Overflow resolves its organizational role at runtime.
+version: 1
+timezone: Asia/Tehran
+misfire_grace_seconds: 900
+preflight:
+  enabled: true
+  hours: [6, 7, 8, 11, 14]
+mechanical_reminders:
+  enabled: true
+  hours: [8, 15]
+maintenance_reminders:
+  enabled: true
+  hours: [11, 15]
+  recipients: ["1732374823", "654806764", "387679249"]
+schedules:
+  - id: overflow_daily_test
+    enabled: true
+    task: overflow
+    recipient_capability: reports.overflow.daily_receive
+    timezone: Asia/Tehran
+    misfire:
+      policy: replay
+      horizon_days: 7
+    trigger:
+      type: cron
+      hour: 7
+      minute: 45
+    params: {}
+  - id: repairs_daily
+    enabled: false
+    task: repairs
+    recipient: "654806764"
+    trigger:
+      type: cron
+      hour: 9
+      minute: 0
+    params:
+      section: mechanical
+  - id: metalwork_daily
+    enabled: false
+    task: repairs
+    recipient: "455740857"
+    trigger:
+      type: cron
+      hour: 9
+      minute: 0
+    params:
+      section: metalwork
+  - id: driver_daily_office_supervisor
+    enabled: true
+    task: driver_daily
+    recipient_capability: reports.driver_daily.daily_receive
+    timezone: Asia/Tehran
+    misfire:
+      policy: replay
+      horizon_days: 7
+    trigger:
+      type: cron
+      hour: 9
+      minute: 0
+    params: {}
+
+  - id: overflow_daily_mechanical
+    enabled: true
+    task: mechanical_overflow
+    recipient_capability: reports.overflow.mechanical_daily_receive
+    timezone: Asia/Tehran
+    misfire:
+      policy: replay
+      horizon_days: 7
+    trigger:
+      type: cron
+      hour: 7
+      minute: 45
+    params: {}
+  - id: driver_daily_mechanical
+    enabled: true
+    task: mechanical_driver_daily
+    recipient_capability: reports.driver_daily.mechanical_daily_receive
+    timezone: Asia/Tehran
+    misfire:
+      policy: replay
+      horizon_days: 7
+    trigger:
+      type: cron
+      hour: 9
+      minute: 0
+    params: {}
+
+  - id: driver_daily_metalwork
+    enabled: true
+    task: metalwork_driver_daily
+    recipient_capability: reports.driver_daily.metalwork_daily_receive
+    timezone: Asia/Tehran
+    misfire:
+      policy: replay
+      horizon_days: 7
+    trigger:
+      type: cron
+      hour: 9
+      minute: 0
+    params: {}
+
+  - id: maintenance_daily_report
+    enabled: true
+    task: maintenance_daily_report
+    recipient_capability: reports.maintenance.daily_receive
+    timezone: Asia/Tehran
+    misfire:
+      policy: replay
+      horizon_days: 7
+    trigger:
+      type: cron
+      hour: 12
+      minute: 0
+    params: {}
+
+
+  - id: oil_balance_daily_report
+    enabled: true
+    task: oil_balance_daily_report
+    recipient_capability: reports.oil_balance.daily_receive
+    timezone: Asia/Tehran
+    misfire:
+      policy: replay
+      horizon_days: 7
+    trigger:
+      type: cron
+      hour: 15
+      minute: 0
+      start_date: "2026-11-03T00:00:00+03:30"
+    params: {}
+
+  - id: machinery_performance_daily_report
+    enabled: true
+    task: machinery_performance_daily_report
+    recipient_capability: reports.machinery_performance.daily_receive
+    timezone: Asia/Tehran
+    misfire:
+      policy: replay
+      horizon_days: 7
+    trigger:
+      type: cron
+      hour: 15
+      minute: 0
+      start_date: "2026-11-03T00:00:00+03:30"
+    params: {}
+
+external_misfire:
+  - id: 3ccb658aed3c
+    name: mine-file-sync
+    policy: latest_only
+
+oil_balance_reminders:
+  enabled: true
+  hours: [11, 16]
+
+machinery_performance_reminders:
+  enabled: true
+  hours: [14, 17]

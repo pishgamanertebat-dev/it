@@ -1,0 +1,64 @@
+{
+  "result": {
+    "status": "imported",
+    "mine_hash": "78fe91effe2d463a679167c583b11cf94649a9916c983133f6294de18adc3ae0",
+    "changed_sheets": [
+      "متفرقه",
+      "1251",
+      "1253",
+      "1254",
+      "471",
+      "472",
+      "473",
+      "601.",
+      "151",
+      "701",
+      "702",
+      "704",
+      "706",
+      "709",
+      "710",
+      "715",
+      "720",
+      "721",
+      "467"
+    ],
+    "protected_operations": [],
+    "baseline": "9bc7f95d8da84602982b101b6d85e64b",
+    "no_publish": true
+  },
+  "calls": [
+    {
+      "candidate_sha256": "78fe91effe2d463a679167c583b11cf94649a9916c983133f6294de18adc3ae0",
+      "result": {
+        "status": "imported",
+        "mine_hash": "78fe91effe2d463a679167c583b11cf94649a9916c983133f6294de18adc3ae0",
+        "changed_sheets": [
+          "متفرقه",
+          "1251",
+          "1253",
+          "1254",
+          "471",
+          "472",
+          "473",
+          "601.",
+          "151",
+          "701",
+          "702",
+          "704",
+          "706",
+          "709",
+          "710",
+          "715",
+          "720",
+          "721",
+          "467"
+        ],
+        "protected_operations": [],
+        "baseline": "9bc7f95d8da84602982b101b6d85e64b"
+      }
+    }
+  ],
+  "journal_unchanged": true,
+  "operational_workbook_unchanged": true
+}

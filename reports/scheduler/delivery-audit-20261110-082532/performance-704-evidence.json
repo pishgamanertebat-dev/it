@@ -1,0 +1,104 @@
+{
+  "source_sha256": "d890add01f66c7d62357f47548c0ad7cec3a5995914ee7e8a7f129dbc15258c0",
+  "rows": [
+    {
+      "sheet": "8",
+      "source_row": 27,
+      "machine_code": 704,
+      "machine_name": "دامپتراک کوماتسو 5-875",
+      "date": "1405/08/15",
+      "readiness_cells": [
+        {
+          "coordinate": "EP27",
+          "label": "کارکرد روز",
+          "value": null,
+          "data_type": "n"
+        },
+        {
+          "coordinate": "EQ27",
+          "label": "کارکرد شب",
+          "value": null,
+          "data_type": "n"
+        },
+        {
+          "coordinate": "ET27",
+          "label": "آماده بکار",
+          "value": null,
+          "data_type": "n"
+        },
+        {
+          "coordinate": "EU27",
+          "label": "تحت تعمیر",
+          "value": null,
+          "data_type": "n"
+        }
+      ]
+    },
+    {
+      "sheet": "8",
+      "source_row": 27,
+      "machine_code": 704,
+      "machine_name": "دامپتراک کوماتسو 5-875",
+      "date": "1405/08/16",
+      "readiness_cells": [
+        {
+          "coordinate": "EZ27",
+          "label": "کارکرد روز",
+          "value": null,
+          "data_type": "n"
+        },
+        {
+          "coordinate": "FA27",
+          "label": "کارکرد شب",
+          "value": null,
+          "data_type": "n"
+        },
+        {
+          "coordinate": "FD27",
+          "label": "آماده بکار",
+          "value": null,
+          "data_type": "n"
+        },
+        {
+          "coordinate": "FE27",
+          "label": "تحت تعمیر",
+          "value": null,
+          "data_type": "n"
+        }
+      ]
+    },
+    {
+      "sheet": "8",
+      "source_row": 27,
+      "machine_code": 704,
+      "machine_name": "دامپتراک کوماتسو 5-875",
+      "date": "1405/08/17",
+      "readiness_cells": [
+        {
+          "coordinate": "FJ27",
+          "label": "کارکرد روز",
+          "value": null,
+          "data_type": "n"
+        },
+        {
+          "coordinate": "FK27",
+          "label": "کارکرد شب",
+          "value": null,
+          "data_type": "n"
+        },
+        {
+          "coordinate": "FN27",
+          "label": "آماده بکار",
+          "value": null,
+          "data_type": "n"
+        },
+        {
+          "coordinate": "FO27",
+          "label": "تحت تعمیر",
+          "value": 11,
+          "data_type": "n"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "already_running": false,
+  "spawned": 16808,
+  "prior_worker_verified_absent": true,
+  "identity": {
+    "protocol": 1,
+    "kind": "hermes-gateway",
+    "pid": 11464,
+    "start_time": 179429994514,
+    "hermes_home": "C:\\Users\\win-10\\AppData\\Local\\hermes",
+    "profile": "default",
+    "supervisor": "external",
+    "code_sha": "e7208cd01179d21494b7f46478cd7db85481ed90",
+    "code_version": "0.21.4",
+    "served_profiles": [
+      "default",
+      "admin",
+      "maintenance",
+      "net"
+    ]
+  },
+  "status": {
+    "pid": 11464,
+    "kind": "hermes-gateway",
+    "argv": [
+      "C:\\Users\\win-10\\AppData\\Local\\hermes\\hermes-agent\\hermes_cli\\main.py",
+      "gateway",
+      "run",
+      "--external-supervisor"
+    ],
+    "start_time": 179429994514,
+    "hermes_home": "C:\\Users\\win-10\\AppData\\Local\\hermes",
+    "gateway_state": "running",
+    "exit_reason": null,
+    "restart_requested": false,
+    "active_agents": 1,
+    "platforms": {
+      "telegram": {
+        "state": "connected",
+        "error_code": null,
+        "error_message": null,
+        "updated_at": "2026-11-10T02:24:49.930915+00:00",
+        "writer_pid": 50236,
+        "writer_start_time": 179421027176,
+        "needs_attention": false,
+        "retrying_since": null
+      },
+      "bale": {
+        "state": "connected",
+        "error_code": null,
+        "error_message": null,
+        "updated_at": "2026-11-09T18:48:32.427456+00:00",
+        "writer_pid": 50236,
+        "writer_start_time": 179421027176,
+        "needs_attention": false,
+        "retrying_since": null
+      }
+    },
+    "updated_at": "2026-11-10T08:39:15.051787+00:00",
+    "code_sha": "e7208cd01179d21494b7f46478cd7db85481ed90",
+    "code_version": "0.21.4",
+    "multiplex_standalone_reason": null,
+    "session_store": {
+      "status": "ok"
+    },
+    "served_profiles": [
+      "default",
+      "admin",
+      "maintenance",
+      "net"
+    ],
+    "active_work": null,
+    "protocol": 1,
+    "answered_at": 1794299970.1031003,
+    "answering_pid": 11464
+  },
+  "verified_at": "2026-11-10T08:39:30.103100+00:00"
+}

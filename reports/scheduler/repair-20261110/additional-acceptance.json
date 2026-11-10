@@ -1,0 +1,10 @@
+{
+  "tested_commit": "ef5c6ce",
+  "focused_delivery_tests": 46,
+  "focused_summary_and_receipt_tests": 10,
+  "failures": 0,
+  "errors": 0,
+  "real_test_messages": 0,
+  "control_tested_commit": "c48b5cb",
+  "control_and_runner_tests": 18
+}

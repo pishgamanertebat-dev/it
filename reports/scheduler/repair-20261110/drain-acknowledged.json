@@ -1,0 +1,10 @@
+{
+  "bootstrap_commit": "a1849f0fbfc998855e4e88ed9fd7452f7ce792e6",
+  "ack": {
+    "pid": 52512,
+    "state": "drained",
+    "token": "2bbbf6aa9f9d46149770e66c53f33036",
+    "updated": "2026-11-10T08:30:35.422858+00:00"
+  },
+  "task_acl_unchanged": true
+}

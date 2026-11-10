@@ -1,0 +1,1683 @@
+{
+  "captured_at_tehran": "2026-11-10T08:25:32.466372+03:30",
+  "occurrence_counts": {
+    "ارسال تأییدشده": 12,
+    "ارسال نشده": 14,
+    "موعد نرسیده": 6
+  },
+  "recipient_counts": {
+    "ارسال تأییدشده": 22,
+    "ارسال نشده": 24,
+    "موعد نرسیده": 10
+  },
+  "occurrences": [
+    {
+      "sid": "overflow_daily_test",
+      "title": "سرریز ـ دفتر",
+      "source": "سرریز روزانه.xlsx",
+      "day": "1405/08/16",
+      "target": "1405/08/15",
+      "due": "2026-11-07T04:15:00+00:00",
+      "due_local": "1405/08/16 07:45:00",
+      "status": "ارسال تأییدشده",
+      "run": {
+        "schedule_id": "overflow_daily_test",
+        "due": "2026-11-07T04:15:00+00:00",
+        "recipient": "capability:reports.overflow.daily_receive",
+        "task": "overflow",
+        "status": "succeeded",
+        "started": "2026-11-07T04:33:02+00:00",
+        "finished": "2026-11-07T04:33:11.887125+00:00",
+        "error": null,
+        "attempt": 5,
+        "next_attempt_at": null,
+        "data_state": "ready",
+        "notice_delivery_state": "sent",
+        "error_detail": null
+      },
+      "details": [
+        {
+          "name": "امامی",
+          "uid": "397185913",
+          "status": "ارسال تأییدشده",
+          "message_ids": "7248, 7249",
+          "sent_at": "1405/08/16 08:03:09",
+          "receipt_state": "sent",
+          "artifact_count": 2
+        },
+        {
+          "name": "هوشمند پاکدل",
+          "uid": "514458396",
+          "status": "ارسال تأییدشده",
+          "message_ids": "7250, 7251",
+          "sent_at": "1405/08/16 08:03:11",
+          "receipt_state": "sent",
+          "artifact_count": 2
+        }
+      ],
+      "reason": "ارسال نهایی تأیید شد؛ ابتدا date_missing و پس از آماده شدن داده در ۰۸:۰۳ ارسال شد."
+    },
+    {
+      "sid": "overflow_daily_mechanical",
+      "title": "سرریز ـ مکانیکی",
+      "source": "سرریز روزانه.xlsx",
+      "day": "1405/08/16",
+      "target": "1405/08/15",
+      "due": "2026-11-07T04:15:00+00:00",
+      "due_local": "1405/08/16 07:45:00",
+      "status": "ارسال تأییدشده",
+      "run": {
+        "schedule_id": "overflow_daily_mechanical",
+        "due": "2026-11-07T04:15:00+00:00",
+        "recipient": "capability:reports.overflow.mechanical_daily_receive",
+        "task": "mechanical_overflow",
+        "status": "succeeded",
+        "started": "2026-11-07T04:33:02+00:00",
+        "finished": "2026-11-07T04:33:18.837434+00:00",
+        "error": null,
+        "attempt": 5,
+        "next_attempt_at": null,
+        "data_state": "ready",
+        "notice_delivery_state": "sent",
+        "error_detail": null
+      },
+      "details": [
+        {
+          "name": "محسن کرمعلی",
+          "uid": "1732374823",
+          "status": "ارسال تأییدشده",
+          "message_ids": "7252,7253",
+          "sent_at": "1405/08/16 08:03:17",
+          "receipt_state": "sent",
+          "artifact_count": 0
+        },
+        {
+          "name": "سعید شایسته",
+          "uid": "654806764",
+          "status": "ارسال تأییدشده",
+          "message_ids": "7254,7255",
+          "sent_at": "1405/08/16 08:03:18",
+          "receipt_state": "sent",
+          "artifact_count": 0
+        }
+      ],
+      "reason": "ارسال نهایی تأیید شد؛ ابتدا date_missing و پس از آماده شدن داده در ۰۸:۰۳ ارسال شد."
+    },
+    {
+      "sid": "driver_daily_office_supervisor",
+      "title": "معایب رانندگان ـ دفتر؛ مکانیکی و آهنگری",
+      "source": "گزارش روزانه رانندگان2.xlsx",
+      "day": "1405/08/16",
+      "target": "1405/08/15",
+      "due": "2026-11-07T05:30:00+00:00",
+      "due_local": "1405/08/16 09:00:00",
+      "status": "ارسال نشده",
+      "run": {
+        "schedule_id": "driver_daily_office_supervisor",
+        "due": "2026-11-07T05:30:00+00:00",
+        "recipient": "capability:reports.driver_daily.daily_receive",
+        "task": "driver_daily",
+        "status": "no_data_final",
+        "started": "2026-11-08T17:28:02+00:00",
+        "finished": "2026-11-08T17:30:02.095028+00:00",
+        "error": "missing_date_expired",
+        "attempt": 113,
+        "next_attempt_at": null,
+        "data_state": "missing",
+        "notice_delivery_state": "suppressed",
+        "error_detail": null
+      },
+      "details": [
+        {
+          "name": "امامی",
+          "uid": "397185913",
+          "status": "ارسال نشده",
+          "message_ids": "",
+          "sent_at": "",
+          "receipt_state": "pending",
+          "artifact_count": 0
+        },
+        {
+          "name": "هوشمند پاکدل",
+          "uid": "514458396",
+          "status": "ارسال نشده",
+          "message_ids": "",
+          "sent_at": "",
+          "receipt_state": "pending",
+          "artifact_count": 0
+        }
+      ],
+      "reason": "در فایل محلی رانندگان، شیت با تاریخ هدف شناسایی نشد؛ در بررسی فعلی نیز تاریخ‌های ۱۵ و ۱۶ آبان موجود نیستند. پس از ۳۶ ساعت از موعد اصلی، این نوبت با missing_date_expired بسته شد؛ ارسال خودکار آن ادامه ندارد."
+    },
+    {
+      "sid": "driver_daily_mechanical",
+      "title": "معایب رانندگان ـ مکانیکی",
+      "source": "گزارش روزانه رانندگان2.xlsx",
+      "day": "1405/08/16",
+      "target": "1405/08/15",
+      "due": "2026-11-07T05:30:00+00:00",
+      "due_local": "1405/08/16 09:00:00",
+      "status": "ارسال نشده",
+      "run": {
+        "schedule_id": "driver_daily_mechanical",
+        "due": "2026-11-07T05:30:00+00:00",
+        "recipient": "capability:reports.driver_daily.mechanical_daily_receive",
+        "task": "mechanical_driver_daily",
+        "status": "no_data_final",
+        "started": "2026-11-08T17:28:02+00:00",
+        "finished": "2026-11-08T17:30:02.095028+00:00",
+        "error": "missing_date_expired",
+        "attempt": 113,
+        "next_attempt_at": null,
+        "data_state": "missing",
+        "notice_delivery_state": "suppressed",
+        "error_detail": null
+      },
+      "details": [
+        {
+          "name": "محسن کرمعلی",
+          "uid": "1732374823",
+          "status": "ارسال نشده",
+          "message_ids": "",
+          "sent_at": "",
+          "receipt_state": "pending",
+          "artifact_count": 0
+        },
+        {
+          "name": "سعید شایسته",
+          "uid": "654806764",
+          "status": "ارسال نشده",
+          "message_ids": "",
+          "sent_at": "",
+          "receipt_state": "pending",
+          "artifact_count": 0
+        }
+      ],
+      "reason": "در فایل محلی رانندگان، شیت با تاریخ هدف شناسایی نشد؛ در بررسی فعلی نیز تاریخ‌های ۱۵ و ۱۶ آبان موجود نیستند. پس از ۳۶ ساعت از موعد اصلی، این نوبت با missing_date_expired بسته شد؛ ارسال خودکار آن ادامه ندارد."
+    },
+    {
+      "sid": "driver_daily_metalwork",
+      "title": "معایب رانندگان ـ آهنگری",
+      "source": "گزارش روزانه رانندگان2.xlsx",
+      "day": "1405/08/16",
+      "target": "1405/08/15",
+      "due": "2026-11-07T05:30:00+00:00",
+      "due_local": "1405/08/16 09:00:00",
+      "status": "ارسال نشده",
+      "run": {
+        "schedule_id": "driver_daily_metalwork",
+        "due": "2026-11-07T05:30:00+00:00",
+        "recipient": "capability:reports.driver_daily.metalwork_daily_receive",
+        "task": "metalwork_driver_daily",
+        "status": "waiting_for_data",
+        "started": "2026-11-10T04:55:02+00:00",
+        "finished": "2026-11-10T04:55:04.894745+00:00",
+        "error": "date_missing",
+        "attempt": 253,
+        "next_attempt_at": "2026-11-10T05:10:02+00:00",
+        "data_state": "missing",
+        "notice_delivery_state": "sent",
+        "error_detail": null
+      },
+      "details": [
+        {
+          "name": "صادق صادقیان",
+          "uid": "387679249",
+          "status": "ارسال نشده",
+          "message_ids": "",
+          "sent_at": "",
+          "receipt_state": "pending",
+          "artifact_count": 0
+        }
+      ],
+      "reason": "در فایل محلی رانندگان، شیت با تاریخ هدف شناسایی نشد؛ در بررسی فعلی نیز تاریخ‌های ۱۵ و ۱۶ آبان موجود نیستند. این نوبت هنوز در صف انتظار داده است."
+    },
+    {
+      "sid": "maintenance_daily_report",
+      "title": "تعمیرات روزانه ماشین‌آلات",
+      "source": "تعمیرات 1405.xlsx",
+      "day": "1405/08/16",
+      "target": "1405/08/15",
+      "due": "2026-11-07T08:30:00+00:00",
+      "due_local": "1405/08/16 12:00:00",
+      "status": "ارسال تأییدشده",
+      "run": {
+        "schedule_id": "maintenance_daily_report",
+        "due": "2026-11-07T08:30:00+00:00",
+        "recipient": "capability:reports.maintenance.daily_receive",
+        "task": "maintenance_daily_report",
+        "status": "succeeded",
+        "started": "2026-11-07T08:30:02+00:00",
+        "finished": "2026-11-07T08:30:15.603407+00:00",
+        "error": null,
+        "attempt": 1,
+        "next_attempt_at": null,
+        "data_state": "ready",
+        "notice_delivery_state": null,
+        "error_detail": null
+      },
+      "details": [
+        {
+          "name": "امامی",
+          "uid": "397185913",
+          "status": "ارسال تأییدشده",
+          "message_ids": "7262",
+          "sent_at": "1405/08/16 12:00:14",
+          "receipt_state": "sent",
+          "artifact_count": 0
+        },
+        {
+          "name": "هوشمند پاکدل",
+          "uid": "514458396",
+          "status": "ارسال تأییدشده",
+          "message_ids": "7263",
+          "sent_at": "1405/08/16 12:00:15",
+          "receipt_state": "sent",
+          "artifact_count": 0
+        }
+      ],
+      "reason": "رسید فایل گزارش تأیید شد."
+    },
+    {
+      "sid": "oil_balance_daily_report",
+      "title": "موازنه روغن",
+      "source": "موازنه روغن مصرفی.xlsx",
+      "day": "1405/08/16",
+      "target": "1405/08/15",
+      "due": "2026-11-07T11:30:00+00:00",
+      "due_local": "1405/08/16 15:00:00",
+      "status": "ارسال تأییدشده",
+      "run": {
+        "schedule_id": "oil_balance_daily_report",
+        "due": "2026-11-07T11:30:00+00:00",
+        "recipient": "capability:reports.oil_balance.daily_receive",
+        "task": "oil_balance_daily_report",
+        "status": "succeeded",
+        "started": "2026-11-07T11:30:01+00:00",
+        "finished": "2026-11-07T11:30:12.131574+00:00",
+        "error": null,
+        "attempt": 1,
+        "next_attempt_at": null,
+        "data_state": "ready",
+        "notice_delivery_state": null,
+        "error_detail": null
+      },
+      "details": [
+        {
+          "name": "امامی",
+          "uid": "397185913",
+          "status": "ارسال تأییدشده",
+          "message_ids": "7267",
+          "sent_at": "1405/08/16 15:00:12",
+          "receipt_state": "sent",
+          "artifact_count": 0
+        }
+      ],
+      "reason": "رسید فایل گزارش تأیید شد."
+    },
+    {
+      "sid": "machinery_performance_daily_report",
+      "title": "عملکرد ماشین‌آلات",
+      "source": "عملکرد ماشین آلات.xlsx",
+      "day": "1405/08/16",
+      "target": "1405/08/15",
+      "due": "2026-11-07T11:30:00+00:00",
+      "due_local": "1405/08/16 15:00:00",
+      "status": "ارسال نشده",
+      "run": {
+        "schedule_id": "machinery_performance_daily_report",
+        "due": "2026-11-07T11:30:00+00:00",
+        "recipient": "capability:reports.machinery_performance.daily_receive",
+        "task": "machinery_performance_daily_report",
+        "status": "no_data_final",
+        "started": "2026-11-09T11:29:02+00:00",
+        "finished": "2026-11-09T11:44:02.950317+00:00",
+        "error": "superseded_missing_date",
+        "attempt": 160,
+        "next_attempt_at": null,
+        "data_state": "missing",
+        "notice_delivery_state": "suppressed",
+        "error_detail": null
+      },
+      "details": [
+        {
+          "name": "امامی",
+          "uid": "397185913",
+          "status": "ارسال نشده",
+          "message_ids": "",
+          "sent_at": "",
+          "receipt_state": "pending",
+          "artifact_count": 0
+        },
+        {
+          "name": "حمید هدایتی",
+          "uid": "641220453",
+          "status": "ارسال نشده",
+          "message_ids": "",
+          "sent_at": "",
+          "receipt_state": "pending",
+          "artifact_count": 0
+        }
+      ],
+      "reason": "داده روز هدف کامل نبود. در بررسی فعلی، ۵۱ دستگاه آماده‌اند و فقط ۷۰۴ ناقص است؛ شیت 8، ردیف 27. این جزئیات مربوط به فایل فعلی است؛ لاگ تاریخی فقط date_missing را نگه داشته است. پس از ۳۶ ساعت و آماده شدن روز جدیدتر، با superseded_missing_date کنار گذاشته شد؛ ارسال خودکار این نوبت ادامه ندارد."
+    },
+    {
+      "sid": "overflow_daily_test",
+      "title": "سرریز ـ دفتر",
+      "source": "سرریز روزانه.xlsx",
+      "day": "1405/08/17",
+      "target": "1405/08/16",
+      "due": "2026-11-08T04:15:00+00:00",
+      "due_local": "1405/08/17 07:45:00",
+      "status": "ارسال نشده",
+      "run": {
+        "schedule_id": "overflow_daily_test",
+        "due": "2026-11-08T04:15:00+00:00",
+        "recipient": "capability:reports.overflow.daily_receive",
+        "task": "overflow",
+        "status": "no_data_final",
+        "started": "2026-11-09T16:02:01+00:00",
+        "finished": "2026-11-09T16:15:02.241329+00:00",
+        "error": "missing_date_expired",
+        "attempt": 142,
+        "next_attempt_at": null,
+        "data_state": "missing",
+        "notice_delivery_state": "sent",
+        "error_detail": null
+      },
+      "details": [
+        {
+          "name": "امامی",
+          "uid": "397185913",
+          "status": "ارسال نشده",
+          "message_ids": "",
+          "sent_at": "",
+          "receipt_state": "pending",
+          "artifact_count": 0
+        },
+        {
+          "name": "هوشمند پاکدل",
+          "uid": "514458396",
+          "status": "ارسال نشده",
+          "message_ids": "",
+          "sent_at": "",
+          "receipt_state": "pending",
+          "artifact_count": 0
+        }
+      ],
+      "reason": "گزارش تاریخ هدف در فایل سرریز موجود نبود؛ بررسی فعلی هم date_missing را تأیید کرد. پس از ۳۶ ساعت از موعد اصلی، این نوبت با missing_date_expired بسته شد؛ ارسال خودکار آن ادامه ندارد."
+    },
+    {
+      "sid": "overflow_daily_mechanical",
+      "title": "سرریز ـ مکانیکی",
+      "source": "سرریز روزانه.xlsx",
+      "day": "1405/08/17",
+      "target": "1405/08/16",
+      "due": "2026-11-08T04:15:00+00:00",
+      "due_local": "1405/08/17 07:45:00",
+      "status": "ارسال نشده",
+      "run": {
+        "schedule_id": "overflow_daily_mechanical",
+        "due": "2026-11-08T04:15:00+00:00",
+        "recipient": "capability:reports.overflow.mechanical_daily_receive",
+        "task": "mechanical_overflow",
+        "status": "no_data_final",
+        "started": "2026-11-09T16:02:01+00:00",
+        "finished": "2026-11-09T16:15:02.241329+00:00",
+        "error": "missing_date_expired",
+        "attempt": 142,
+        "next_attempt_at": null,
+        "data_state": "missing",
+        "notice_delivery_state": "sent",
+        "error_detail": null
+      },
+      "details": [
+        {
+          "name": "محسن کرمعلی",
+          "uid": "1732374823",
+          "status": "ارسال نشده",
+          "message_ids": "",
+          "sent_at": "",
+          "receipt_state": "pending",
+          "artifact_count": 0
+        },
+        {
+          "name": "سعید شایسته",
+          "uid": "654806764",
+          "status": "ارسال نشده",
+          "message_ids": "",
+          "sent_at": "",
+          "receipt_state": "pending",
+          "artifact_count": 0
+        }
+      ],
+      "reason": "گزارش تاریخ هدف در فایل سرریز موجود نبود؛ بررسی فعلی هم date_missing را تأیید کرد. پس از ۳۶ ساعت از موعد اصلی، این نوبت با missing_date_expired بسته شد؛ ارسال خودکار آن ادامه ندارد."
+    },
+    {
+      "sid": "driver_daily_office_supervisor",
+      "title": "معایب رانندگان ـ دفتر؛ مکانیکی و آهنگری",
+      "source": "گزارش روزانه رانندگان2.xlsx",
+      "day": "1405/08/17",
+      "target": "1405/08/16",
+      "due": "2026-11-08T05:30:00+00:00",
+      "due_local": "1405/08/17 09:00:00",
+      "status": "ارسال نشده",
+      "run": {
+        "schedule_id": "driver_daily_office_supervisor",
+        "due": "2026-11-08T05:30:00+00:00",
+        "recipient": "capability:reports.driver_daily.daily_receive",
+        "task": "driver_daily",
+        "status": "no_data_final",
+        "started": "2026-11-09T17:17:02+00:00",
+        "finished": "2026-11-09T17:30:01.883234+00:00",
+        "error": "missing_date_expired",
+        "attempt": 145,
+        "next_attempt_at": null,
+        "data_state": "missing",
+        "notice_delivery_state": "suppressed",
+        "error_detail": null
+      },
+      "details": [
+        {
+          "name": "امامی",
+          "uid": "397185913",
+          "status": "ارسال نشده",
+          "message_ids": "",
+          "sent_at": "",
+          "receipt_state": "pending",
+          "artifact_count": 0
+        },
+        {
+          "name": "هوشمند پاکدل",
+          "uid": "514458396",
+          "status": "ارسال نشده",
+          "message_ids": "",
+          "sent_at": "",
+          "receipt_state": "pending",
+          "artifact_count": 0
+        }
+      ],
+      "reason": "در فایل محلی رانندگان، شیت با تاریخ هدف شناسایی نشد؛ در بررسی فعلی نیز تاریخ‌های ۱۵ و ۱۶ آبان موجود نیستند. پس از ۳۶ ساعت از موعد اصلی، این نوبت با missing_date_expired بسته شد؛ ارسال خودکار آن ادامه ندارد."
+    },
+    {
+      "sid": "driver_daily_mechanical",
+      "title": "معایب رانندگان ـ مکانیکی",
+      "source": "گزارش روزانه رانندگان2.xlsx",
+      "day": "1405/08/17",
+      "target": "1405/08/16",
+      "due": "2026-11-08T05:30:00+00:00",
+      "due_local": "1405/08/17 09:00:00",
+      "status": "ارسال نشده",
+      "run": {
+        "schedule_id": "driver_daily_mechanical",
+        "due": "2026-11-08T05:30:00+00:00",
+        "recipient": "capability:reports.driver_daily.mechanical_daily_receive",
+        "task": "mechanical_driver_daily",
+        "status": "no_data_final",
+        "started": "2026-11-09T17:17:02+00:00",
+        "finished": "2026-11-09T17:30:01.883234+00:00",
+        "error": "missing_date_expired",
+        "attempt": 145,
+        "next_attempt_at": null,
+        "data_state": "missing",
+        "notice_delivery_state": "suppressed",
+        "error_detail": null
+      },
+      "details": [
+        {
+          "name": "محسن کرمعلی",
+          "uid": "1732374823",
+          "status": "ارسال نشده",
+          "message_ids": "",
+          "sent_at": "",
+          "receipt_state": "pending",
+          "artifact_count": 0
+        },
+        {
+          "name": "سعید شایسته",
+          "uid": "654806764",
+          "status": "ارسال نشده",
+          "message_ids": "",
+          "sent_at": "",
+          "receipt_state": "pending",
+          "artifact_count": 0
+        }
+      ],
+      "reason": "در فایل محلی رانندگان، شیت با تاریخ هدف شناسایی نشد؛ در بررسی فعلی نیز تاریخ‌های ۱۵ و ۱۶ آبان موجود نیستند. پس از ۳۶ ساعت از موعد اصلی، این نوبت با missing_date_expired بسته شد؛ ارسال خودکار آن ادامه ندارد."
+    },
+    {
+      "sid": "driver_daily_metalwork",
+      "title": "معایب رانندگان ـ آهنگری",
+      "source": "گزارش روزانه رانندگان2.xlsx",
+      "day": "1405/08/17",
+      "target": "1405/08/16",
+      "due": "2026-11-08T05:30:00+00:00",
+      "due_local": "1405/08/17 09:00:00",
+      "status": "ارسال نشده",
+      "run": {
+        "schedule_id": "driver_daily_metalwork",
+        "due": "2026-11-08T05:30:00+00:00",
+        "recipient": "capability:reports.driver_daily.metalwork_daily_receive",
+        "task": "metalwork_driver_daily",
+        "status": "waiting_for_data",
+        "started": "2026-11-10T04:55:02+00:00",
+        "finished": "2026-11-10T04:55:06.991016+00:00",
+        "error": "date_missing",
+        "attempt": 191,
+        "next_attempt_at": "2026-11-10T05:10:02+00:00",
+        "data_state": "missing",
+        "notice_delivery_state": "sent",
+        "error_detail": null
+      },
+      "details": [
+        {
+          "name": "صادق صادقیان",
+          "uid": "387679249",
+          "status": "ارسال نشده",
+          "message_ids": "",
+          "sent_at": "",
+          "receipt_state": "pending",
+          "artifact_count": 0
+        }
+      ],
+      "reason": "در فایل محلی رانندگان، شیت با تاریخ هدف شناسایی نشد؛ در بررسی فعلی نیز تاریخ‌های ۱۵ و ۱۶ آبان موجود نیستند. این نوبت هنوز در صف انتظار داده است."
+    },
+    {
+      "sid": "maintenance_daily_report",
+      "title": "تعمیرات روزانه ماشین‌آلات",
+      "source": "تعمیرات 1405.xlsx",
+      "day": "1405/08/17",
+      "target": "1405/08/16",
+      "due": "2026-11-08T08:30:00+00:00",
+      "due_local": "1405/08/17 12:00:00",
+      "status": "ارسال نشده",
+      "run": {
+        "schedule_id": "maintenance_daily_report",
+        "due": "2026-11-08T08:30:00+00:00",
+        "recipient": "capability:reports.maintenance.daily_receive",
+        "task": "maintenance_daily_report",
+        "status": "no_data_final",
+        "started": "2026-11-09T20:24:02+00:00",
+        "finished": "2026-11-09T20:30:02.525838+00:00",
+        "error": "missing_date_expired",
+        "attempt": 146,
+        "next_attempt_at": null,
+        "data_state": "missing",
+        "notice_delivery_state": "suppressed",
+        "error_detail": null
+      },
+      "details": [
+        {
+          "name": "امامی",
+          "uid": "397185913",
+          "status": "ارسال نشده",
+          "message_ids": "",
+          "sent_at": "",
+          "receipt_state": "pending",
+          "artifact_count": 0
+        },
+        {
+          "name": "هوشمند پاکدل",
+          "uid": "514458396",
+          "status": "ارسال نشده",
+          "message_ids": "",
+          "sent_at": "",
+          "receipt_state": "pending",
+          "artifact_count": 0
+        }
+      ],
+      "reason": "هیچ رکورد تعمیراتی برای تاریخ هدف در فایل محلی پیدا نشد؛ آخرین تاریخ محلی ۱۵ آبان است. همگام‌سازی به‌علت تعارض ساختار شیت متفرقه متوقف است؛ وضعیت ثبت در فایل معدن از این بررسی معلوم نیست. پس از ۳۶ ساعت از موعد اصلی، این نوبت با missing_date_expired بسته شد؛ ارسال خودکار آن ادامه ندارد."
+    },
+    {
+      "sid": "oil_balance_daily_report",
+      "title": "موازنه روغن",
+      "source": "موازنه روغن مصرفی.xlsx",
+      "day": "1405/08/17",
+      "target": "1405/08/16",
+      "due": "2026-11-08T11:30:00+00:00",
+      "due_local": "1405/08/17 15:00:00",
+      "status": "ارسال نشده",
+      "run": {
+        "schedule_id": "oil_balance_daily_report",
+        "due": "2026-11-08T11:30:00+00:00",
+        "recipient": "capability:reports.oil_balance.daily_receive",
+        "task": "oil_balance_daily_report",
+        "status": "no_data_final",
+        "started": "2026-11-09T23:26:02+00:00",
+        "finished": "2026-11-09T23:30:01.981550+00:00",
+        "error": "missing_date_expired",
+        "attempt": 146,
+        "next_attempt_at": null,
+        "data_state": "missing",
+        "notice_delivery_state": "suppressed",
+        "error_detail": null
+      },
+      "details": [
+        {
+          "name": "امامی",
+          "uid": "397185913",
+          "status": "ارسال نشده",
+          "message_ids": "",
+          "sent_at": "",
+          "receipt_state": "pending",
+          "artifact_count": 0
+        }
+      ],
+      "reason": "برای تاریخ هدف ردیفی در موازنه روغن پیدا نشد؛ بررسی فعلی: صفر ردیف برای ۱۶ و ۱۷ آبان، با وجود داده روز ۱۸ آبان. پس از ۳۶ ساعت از موعد اصلی، این نوبت با missing_date_expired بسته شد؛ ارسال خودکار آن ادامه ندارد."
+    },
+    {
+      "sid": "machinery_performance_daily_report",
+      "title": "عملکرد ماشین‌آلات",
+      "source": "عملکرد ماشین آلات.xlsx",
+      "day": "1405/08/17",
+      "target": "1405/08/16",
+      "due": "2026-11-08T11:30:00+00:00",
+      "due_local": "1405/08/17 15:00:00",
+      "status": "ارسال نشده",
+      "run": {
+        "schedule_id": "machinery_performance_daily_report",
+        "due": "2026-11-08T11:30:00+00:00",
+        "recipient": "capability:reports.machinery_performance.daily_receive",
+        "task": "machinery_performance_daily_report",
+        "status": "no_data_final",
+        "started": "2026-11-09T23:25:02+00:00",
+        "finished": "2026-11-09T23:40:02.274626+00:00",
+        "error": "superseded_missing_date",
+        "attempt": 50,
+        "next_attempt_at": null,
+        "data_state": "missing",
+        "notice_delivery_state": "suppressed",
+        "error_detail": null
+      },
+      "details": [
+        {
+          "name": "امامی",
+          "uid": "397185913",
+          "status": "ارسال نشده",
+          "message_ids": "",
+          "sent_at": "",
+          "receipt_state": "pending",
+          "artifact_count": 0
+        },
+        {
+          "name": "حمید هدایتی",
+          "uid": "641220453",
+          "status": "ارسال نشده",
+          "message_ids": "",
+          "sent_at": "",
+          "receipt_state": "pending",
+          "artifact_count": 0
+        }
+      ],
+      "reason": "داده روز هدف کامل نبود. در بررسی فعلی، ۵۱ دستگاه آماده‌اند و فقط ۷۰۴ ناقص است؛ شیت 8، ردیف 27. این جزئیات مربوط به فایل فعلی است؛ لاگ تاریخی فقط date_missing را نگه داشته است. پس از ۳۶ ساعت و آماده شدن روز جدیدتر، با superseded_missing_date کنار گذاشته شد؛ ارسال خودکار این نوبت ادامه ندارد."
+    },
+    {
+      "sid": "overflow_daily_test",
+      "title": "سرریز ـ دفتر",
+      "source": "سرریز روزانه.xlsx",
+      "day": "1405/08/18",
+      "target": "1405/08/17",
+      "due": "2026-11-09T04:15:00+00:00",
+      "due_local": "1405/08/18 07:45:00",
+      "status": "ارسال تأییدشده",
+      "run": {
+        "schedule_id": "overflow_daily_test",
+        "due": "2026-11-09T04:15:00+00:00",
+        "recipient": "capability:reports.overflow.daily_receive",
+        "task": "overflow",
+        "status": "succeeded",
+        "started": "2026-11-09T04:49:02+00:00",
+        "finished": "2026-11-09T04:49:14.856876+00:00",
+        "error": null,
+        "attempt": 6,
+        "next_attempt_at": null,
+        "data_state": "ready",
+        "notice_delivery_state": null,
+        "error_detail": null
+      },
+      "details": [
+        {
+          "name": "امامی",
+          "uid": "397185913",
+          "status": "ارسال تأییدشده",
+          "message_ids": "7309",
+          "sent_at": "1405/08/18 08:19:13",
+          "receipt_state": "sent",
+          "artifact_count": 1
+        },
+        {
+          "name": "هوشمند پاکدل",
+          "uid": "514458396",
+          "status": "ارسال تأییدشده",
+          "message_ids": "7310",
+          "sent_at": "1405/08/18 08:19:14",
+          "receipt_state": "sent",
+          "artifact_count": 1
+        }
+      ],
+      "reason": "ارسال نهایی تأیید شد؛ خطای ارتباط بله برطرف شد و در ۰۸:۱۹ ارسال شد."
+    },
+    {
+      "sid": "overflow_daily_mechanical",
+      "title": "سرریز ـ مکانیکی",
+      "source": "سرریز روزانه.xlsx",
+      "day": "1405/08/18",
+      "target": "1405/08/17",
+      "due": "2026-11-09T04:15:00+00:00",
+      "due_local": "1405/08/18 07:45:00",
+      "status": "ارسال تأییدشده",
+      "run": {
+        "schedule_id": "overflow_daily_mechanical",
+        "due": "2026-11-09T04:15:00+00:00",
+        "recipient": "capability:reports.overflow.mechanical_daily_receive",
+        "task": "mechanical_overflow",
+        "status": "succeeded",
+        "started": "2026-11-09T04:49:02+00:00",
+        "finished": "2026-11-09T04:49:28.005264+00:00",
+        "error": null,
+        "attempt": 6,
+        "next_attempt_at": null,
+        "data_state": "ready",
+        "notice_delivery_state": null,
+        "error_detail": null
+      },
+      "details": [
+        {
+          "name": "محسن کرمعلی",
+          "uid": "1732374823",
+          "status": "ارسال تأییدشده",
+          "message_ids": "7311",
+          "sent_at": "1405/08/18 08:19:27",
+          "receipt_state": "sent",
+          "artifact_count": 0
+        },
+        {
+          "name": "سعید شایسته",
+          "uid": "654806764",
+          "status": "ارسال تأییدشده",
+          "message_ids": "7312",
+          "sent_at": "1405/08/18 08:19:27",
+          "receipt_state": "sent",
+          "artifact_count": 0
+        }
+      ],
+      "reason": "ارسال نهایی تأیید شد؛ خطای ارتباط بله برطرف شد و در ۰۸:۱۹ ارسال شد."
+    },
+    {
+      "sid": "driver_daily_office_supervisor",
+      "title": "معایب رانندگان ـ دفتر؛ مکانیکی و آهنگری",
+      "source": "گزارش روزانه رانندگان2.xlsx",
+      "day": "1405/08/18",
+      "target": "1405/08/17",
+      "due": "2026-11-09T05:30:00+00:00",
+      "due_local": "1405/08/18 09:00:00",
+      "status": "ارسال تأییدشده",
+      "run": {
+        "schedule_id": "driver_daily_office_supervisor",
+        "due": "2026-11-09T05:30:00+00:00",
+        "recipient": "capability:reports.driver_daily.daily_receive",
+        "task": "driver_daily",
+        "status": "succeeded",
+        "started": "2026-11-09T05:30:02+00:00",
+        "finished": "2026-11-09T05:32:14.837416+00:00",
+        "error": null,
+        "attempt": 1,
+        "next_attempt_at": null,
+        "data_state": "ready",
+        "notice_delivery_state": null,
+        "error_detail": null
+      },
+      "details": [
+        {
+          "name": "امامی",
+          "uid": "397185913",
+          "status": "ارسال تأییدشده",
+          "message_ids": "7315, 7316",
+          "sent_at": "1405/08/18 09:02:12",
+          "receipt_state": "sent",
+          "artifact_count": 2
+        },
+        {
+          "name": "هوشمند پاکدل",
+          "uid": "514458396",
+          "status": "ارسال تأییدشده",
+          "message_ids": "7317, 7318",
+          "sent_at": "1405/08/18 09:02:14",
+          "receipt_state": "sent",
+          "artifact_count": 2
+        }
+      ],
+      "reason": "رسید فایل گزارش تأیید شد."
+    },
+    {
+      "sid": "driver_daily_mechanical",
+      "title": "معایب رانندگان ـ مکانیکی",
+      "source": "گزارش روزانه رانندگان2.xlsx",
+      "day": "1405/08/18",
+      "target": "1405/08/17",
+      "due": "2026-11-09T05:30:00+00:00",
+      "due_local": "1405/08/18 09:00:00",
+      "status": "ارسال تأییدشده",
+      "run": {
+        "schedule_id": "driver_daily_mechanical",
+        "due": "2026-11-09T05:30:00+00:00",
+        "recipient": "capability:reports.driver_daily.mechanical_daily_receive",
+        "task": "mechanical_driver_daily",
+        "status": "succeeded",
+        "started": "2026-11-09T05:30:02+00:00",
+        "finished": "2026-11-09T05:34:37.400802+00:00",
+        "error": null,
+        "attempt": 1,
+        "next_attempt_at": null,
+        "data_state": "ready",
+        "notice_delivery_state": null,
+        "error_detail": null
+      },
+      "details": [
+        {
+          "name": "محسن کرمعلی",
+          "uid": "1732374823",
+          "status": "ارسال تأییدشده",
+          "message_ids": "7319",
+          "sent_at": "1405/08/18 09:04:36",
+          "receipt_state": "sent",
+          "artifact_count": 0
+        },
+        {
+          "name": "سعید شایسته",
+          "uid": "654806764",
+          "status": "ارسال تأییدشده",
+          "message_ids": "7320",
+          "sent_at": "1405/08/18 09:04:37",
+          "receipt_state": "sent",
+          "artifact_count": 0
+        }
+      ],
+      "reason": "رسید فایل گزارش تأیید شد."
+    },
+    {
+      "sid": "driver_daily_metalwork",
+      "title": "معایب رانندگان ـ آهنگری",
+      "source": "گزارش روزانه رانندگان2.xlsx",
+      "day": "1405/08/18",
+      "target": "1405/08/17",
+      "due": "2026-11-09T05:30:00+00:00",
+      "due_local": "1405/08/18 09:00:00",
+      "status": "ارسال تأییدشده",
+      "run": {
+        "schedule_id": "driver_daily_metalwork",
+        "due": "2026-11-09T05:30:00+00:00",
+        "recipient": "capability:reports.driver_daily.metalwork_daily_receive",
+        "task": "metalwork_driver_daily",
+        "status": "succeeded",
+        "started": "2026-11-09T05:30:02+00:00",
+        "finished": "2026-11-09T05:35:48.549638+00:00",
+        "error": null,
+        "attempt": 1,
+        "next_attempt_at": null,
+        "data_state": "ready",
+        "notice_delivery_state": null,
+        "error_detail": null
+      },
+      "details": [
+        {
+          "name": "صادق صادقیان",
+          "uid": "387679249",
+          "status": "ارسال تأییدشده",
+          "message_ids": "7321",
+          "sent_at": "1405/08/18 09:05:48",
+          "receipt_state": "sent",
+          "artifact_count": 0
+        }
+      ],
+      "reason": "رسید فایل گزارش تأیید شد."
+    },
+    {
+      "sid": "maintenance_daily_report",
+      "title": "تعمیرات روزانه ماشین‌آلات",
+      "source": "تعمیرات 1405.xlsx",
+      "day": "1405/08/18",
+      "target": "1405/08/17",
+      "due": "2026-11-09T08:30:00+00:00",
+      "due_local": "1405/08/18 12:00:00",
+      "status": "ارسال نشده",
+      "run": {
+        "schedule_id": "maintenance_daily_report",
+        "due": "2026-11-09T08:30:00+00:00",
+        "recipient": "capability:reports.maintenance.daily_receive",
+        "task": "maintenance_daily_report",
+        "status": "waiting_for_data",
+        "started": "2026-11-10T04:51:02+00:00",
+        "finished": "2026-11-10T04:51:03.814497+00:00",
+        "error": "no_target_date_records",
+        "attempt": 84,
+        "next_attempt_at": "2026-11-10T05:06:02+00:00",
+        "data_state": "missing",
+        "notice_delivery_state": "suppressed",
+        "error_detail": null
+      },
+      "details": [
+        {
+          "name": "امامی",
+          "uid": "397185913",
+          "status": "ارسال نشده",
+          "message_ids": "",
+          "sent_at": "",
+          "receipt_state": "pending",
+          "artifact_count": 0
+        },
+        {
+          "name": "هوشمند پاکدل",
+          "uid": "514458396",
+          "status": "ارسال نشده",
+          "message_ids": "",
+          "sent_at": "",
+          "receipt_state": "pending",
+          "artifact_count": 0
+        }
+      ],
+      "reason": "هیچ رکورد تعمیراتی برای تاریخ هدف در فایل محلی پیدا نشد؛ آخرین تاریخ محلی ۱۵ آبان است. همگام‌سازی به‌علت تعارض ساختار شیت متفرقه متوقف است؛ وضعیت ثبت در فایل معدن از این بررسی معلوم نیست. این نوبت هنوز در صف انتظار داده است."
+    },
+    {
+      "sid": "oil_balance_daily_report",
+      "title": "موازنه روغن",
+      "source": "موازنه روغن مصرفی.xlsx",
+      "day": "1405/08/18",
+      "target": "1405/08/17",
+      "due": "2026-11-09T11:30:00+00:00",
+      "due_local": "1405/08/18 15:00:00",
+      "status": "ارسال نشده",
+      "run": {
+        "schedule_id": "oil_balance_daily_report",
+        "due": "2026-11-09T11:30:00+00:00",
+        "recipient": "capability:reports.oil_balance.daily_receive",
+        "task": "oil_balance_daily_report",
+        "status": "waiting_for_data",
+        "started": "2026-11-10T04:45:02+00:00",
+        "finished": "2026-11-10T04:45:02.709512+00:00",
+        "error": "date_missing",
+        "attempt": 72,
+        "next_attempt_at": "2026-11-10T05:00:02+00:00",
+        "data_state": "missing",
+        "notice_delivery_state": "suppressed",
+        "error_detail": null
+      },
+      "details": [
+        {
+          "name": "امامی",
+          "uid": "397185913",
+          "status": "ارسال نشده",
+          "message_ids": "",
+          "sent_at": "",
+          "receipt_state": "pending",
+          "artifact_count": 0
+        }
+      ],
+      "reason": "برای تاریخ هدف ردیفی در موازنه روغن پیدا نشد؛ بررسی فعلی: صفر ردیف برای ۱۶ و ۱۷ آبان، با وجود داده روز ۱۸ آبان. این نوبت هنوز در صف انتظار داده است."
+    },
+    {
+      "sid": "machinery_performance_daily_report",
+      "title": "عملکرد ماشین‌آلات",
+      "source": "عملکرد ماشین آلات.xlsx",
+      "day": "1405/08/18",
+      "target": "1405/08/17",
+      "due": "2026-11-09T11:30:00+00:00",
+      "due_local": "1405/08/18 15:00:00",
+      "status": "ارسال تأییدشده",
+      "run": {
+        "schedule_id": "machinery_performance_daily_report",
+        "due": "2026-11-09T11:30:00+00:00",
+        "recipient": "capability:reports.machinery_performance.daily_receive",
+        "task": "machinery_performance_daily_report",
+        "status": "succeeded",
+        "started": "2026-11-09T23:40:02+00:00",
+        "finished": "2026-11-09T23:40:18.745684+00:00",
+        "error": null,
+        "attempt": 1,
+        "next_attempt_at": null,
+        "data_state": "ready",
+        "notice_delivery_state": null,
+        "error_detail": null
+      },
+      "details": [
+        {
+          "name": "امامی",
+          "uid": "397185913",
+          "status": "ارسال تأییدشده",
+          "message_ids": "7356",
+          "sent_at": "1405/08/19 03:10:17",
+          "receipt_state": "sent",
+          "artifact_count": 0
+        },
+        {
+          "name": "حمید هدایتی",
+          "uid": "641220453",
+          "status": "ارسال تأییدشده",
+          "message_ids": "7357",
+          "sent_at": "1405/08/19 03:10:18",
+          "receipt_state": "sent",
+          "artifact_count": 0
+        }
+      ],
+      "reason": "ارسال در ۱۹ آبان ۰۳:۱۰؛ صف FIFO منتظر روزهای قدیمی ناقص بود؛ ابتدا آن روزها کنار گذاشته شدند."
+    },
+    {
+      "sid": "overflow_daily_test",
+      "title": "سرریز ـ دفتر",
+      "source": "سرریز روزانه.xlsx",
+      "day": "1405/08/19",
+      "target": "1405/08/18",
+      "due": "2026-11-10T04:15:00+00:00",
+      "due_local": "1405/08/19 07:45:00",
+      "status": "ارسال تأییدشده",
+      "run": {
+        "schedule_id": "overflow_daily_test",
+        "due": "2026-11-10T04:15:00+00:00",
+        "recipient": "capability:reports.overflow.daily_receive",
+        "task": "overflow",
+        "status": "succeeded",
+        "started": "2026-11-10T04:15:02+00:00",
+        "finished": "2026-11-10T04:15:10.953731+00:00",
+        "error": null,
+        "attempt": 1,
+        "next_attempt_at": null,
+        "data_state": "ready",
+        "notice_delivery_state": null,
+        "error_detail": null
+      },
+      "details": [
+        {
+          "name": "امامی",
+          "uid": "397185913",
+          "status": "ارسال تأییدشده",
+          "message_ids": "7358",
+          "sent_at": "1405/08/19 07:45:09",
+          "receipt_state": "sent",
+          "artifact_count": 1
+        },
+        {
+          "name": "هوشمند پاکدل",
+          "uid": "514458396",
+          "status": "ارسال تأییدشده",
+          "message_ids": "7359",
+          "sent_at": "1405/08/19 07:45:10",
+          "receipt_state": "sent",
+          "artifact_count": 1
+        }
+      ],
+      "reason": "رسید فایل گزارش تأیید شد."
+    },
+    {
+      "sid": "overflow_daily_mechanical",
+      "title": "سرریز ـ مکانیکی",
+      "source": "سرریز روزانه.xlsx",
+      "day": "1405/08/19",
+      "target": "1405/08/18",
+      "due": "2026-11-10T04:15:00+00:00",
+      "due_local": "1405/08/19 07:45:00",
+      "status": "ارسال تأییدشده",
+      "run": {
+        "schedule_id": "overflow_daily_mechanical",
+        "due": "2026-11-10T04:15:00+00:00",
+        "recipient": "capability:reports.overflow.mechanical_daily_receive",
+        "task": "mechanical_overflow",
+        "status": "succeeded",
+        "started": "2026-11-10T04:15:02+00:00",
+        "finished": "2026-11-10T04:15:17.713591+00:00",
+        "error": null,
+        "attempt": 1,
+        "next_attempt_at": null,
+        "data_state": "ready",
+        "notice_delivery_state": null,
+        "error_detail": null
+      },
+      "details": [
+        {
+          "name": "محسن کرمعلی",
+          "uid": "1732374823",
+          "status": "ارسال تأییدشده",
+          "message_ids": "7360",
+          "sent_at": "1405/08/19 07:45:16",
+          "receipt_state": "sent",
+          "artifact_count": 0
+        },
+        {
+          "name": "سعید شایسته",
+          "uid": "654806764",
+          "status": "ارسال تأییدشده",
+          "message_ids": "7361",
+          "sent_at": "1405/08/19 07:45:17",
+          "receipt_state": "sent",
+          "artifact_count": 0
+        }
+      ],
+      "reason": "رسید فایل گزارش تأیید شد."
+    },
+    {
+      "sid": "driver_daily_office_supervisor",
+      "title": "معایب رانندگان ـ دفتر؛ مکانیکی و آهنگری",
+      "source": "گزارش روزانه رانندگان2.xlsx",
+      "day": "1405/08/19",
+      "target": "1405/08/18",
+      "due": "2026-11-10T05:30:00+00:00",
+      "due_local": "1405/08/19 09:00:00",
+      "status": "موعد نرسیده",
+      "run": null,
+      "details": [
+        {
+          "name": "امامی",
+          "uid": "397185913",
+          "status": "موعد نرسیده",
+          "message_ids": "",
+          "sent_at": "",
+          "receipt_state": "",
+          "artifact_count": 0
+        },
+        {
+          "name": "هوشمند پاکدل",
+          "uid": "514458396",
+          "status": "موعد نرسیده",
+          "message_ids": "",
+          "sent_at": "",
+          "receipt_state": "",
+          "artifact_count": 0
+        }
+      ],
+      "reason": "موعد نرسیده؛ وجود داده منبع بررسی شده است و به‌تنهایی تضمین ارسال بعدی نیست."
+    },
+    {
+      "sid": "driver_daily_mechanical",
+      "title": "معایب رانندگان ـ مکانیکی",
+      "source": "گزارش روزانه رانندگان2.xlsx",
+      "day": "1405/08/19",
+      "target": "1405/08/18",
+      "due": "2026-11-10T05:30:00+00:00",
+      "due_local": "1405/08/19 09:00:00",
+      "status": "موعد نرسیده",
+      "run": null,
+      "details": [
+        {
+          "name": "محسن کرمعلی",
+          "uid": "1732374823",
+          "status": "موعد نرسیده",
+          "message_ids": "",
+          "sent_at": "",
+          "receipt_state": "",
+          "artifact_count": 0
+        },
+        {
+          "name": "سعید شایسته",
+          "uid": "654806764",
+          "status": "موعد نرسیده",
+          "message_ids": "",
+          "sent_at": "",
+          "receipt_state": "",
+          "artifact_count": 0
+        }
+      ],
+      "reason": "موعد نرسیده؛ وجود داده منبع بررسی شده است و به‌تنهایی تضمین ارسال بعدی نیست."
+    },
+    {
+      "sid": "driver_daily_metalwork",
+      "title": "معایب رانندگان ـ آهنگری",
+      "source": "گزارش روزانه رانندگان2.xlsx",
+      "day": "1405/08/19",
+      "target": "1405/08/18",
+      "due": "2026-11-10T05:30:00+00:00",
+      "due_local": "1405/08/19 09:00:00",
+      "status": "موعد نرسیده",
+      "run": null,
+      "details": [
+        {
+          "name": "صادق صادقیان",
+          "uid": "387679249",
+          "status": "موعد نرسیده",
+          "message_ids": "",
+          "sent_at": "",
+          "receipt_state": "",
+          "artifact_count": 0
+        }
+      ],
+      "reason": "موعد نرسیده؛ وجود داده منبع بررسی شده است و به‌تنهایی تضمین ارسال بعدی نیست."
+    },
+    {
+      "sid": "maintenance_daily_report",
+      "title": "تعمیرات روزانه ماشین‌آلات",
+      "source": "تعمیرات 1405.xlsx",
+      "day": "1405/08/19",
+      "target": "1405/08/18",
+      "due": "2026-11-10T08:30:00+00:00",
+      "due_local": "1405/08/19 12:00:00",
+      "status": "موعد نرسیده",
+      "run": null,
+      "details": [
+        {
+          "name": "امامی",
+          "uid": "397185913",
+          "status": "موعد نرسیده",
+          "message_ids": "",
+          "sent_at": "",
+          "receipt_state": "",
+          "artifact_count": 0
+        },
+        {
+          "name": "هوشمند پاکدل",
+          "uid": "514458396",
+          "status": "موعد نرسیده",
+          "message_ids": "",
+          "sent_at": "",
+          "receipt_state": "",
+          "artifact_count": 0
+        }
+      ],
+      "reason": "موعد نرسیده؛ در بررسی فعلی، داده این تاریخ در فایل محلی نیست؛ همگام‌سازی تعمیرات تعارض ساختار دارد."
+    },
+    {
+      "sid": "oil_balance_daily_report",
+      "title": "موازنه روغن",
+      "source": "موازنه روغن مصرفی.xlsx",
+      "day": "1405/08/19",
+      "target": "1405/08/18",
+      "due": "2026-11-10T11:30:00+00:00",
+      "due_local": "1405/08/19 15:00:00",
+      "status": "موعد نرسیده",
+      "run": null,
+      "details": [
+        {
+          "name": "امامی",
+          "uid": "397185913",
+          "status": "موعد نرسیده",
+          "message_ids": "",
+          "sent_at": "",
+          "receipt_state": "",
+          "artifact_count": 0
+        }
+      ],
+      "reason": "موعد نرسیده؛ وجود داده منبع بررسی شده است و به‌تنهایی تضمین ارسال بعدی نیست."
+    },
+    {
+      "sid": "machinery_performance_daily_report",
+      "title": "عملکرد ماشین‌آلات",
+      "source": "عملکرد ماشین آلات.xlsx",
+      "day": "1405/08/19",
+      "target": "1405/08/18",
+      "due": "2026-11-10T11:30:00+00:00",
+      "due_local": "1405/08/19 15:00:00",
+      "status": "موعد نرسیده",
+      "run": null,
+      "details": [
+        {
+          "name": "امامی",
+          "uid": "397185913",
+          "status": "موعد نرسیده",
+          "message_ids": "",
+          "sent_at": "",
+          "receipt_state": "",
+          "artifact_count": 0
+        },
+        {
+          "name": "حمید هدایتی",
+          "uid": "641220453",
+          "status": "موعد نرسیده",
+          "message_ids": "",
+          "sent_at": "",
+          "receipt_state": "",
+          "artifact_count": 0
+        }
+      ],
+      "reason": "موعد نرسیده؛ در بررسی فعلی، اطلاعات روز ۱۸ آبان هنوز برای دستگاه‌ها ثبت نشده است."
+    }
+  ],
+  "annex_1405_08_15": [
+    {
+      "sid": "overflow_daily_test",
+      "title": "سرریز ـ دفتر",
+      "source": "سرریز روزانه.xlsx",
+      "day": "1405/08/15",
+      "target": "1405/08/14",
+      "due": "2026-11-06T04:15:00+00:00",
+      "due_local": "1405/08/15 07:45:00",
+      "status": "ارسال تأییدشده",
+      "run": {
+        "schedule_id": "overflow_daily_test",
+        "due": "2026-11-06T04:15:00+00:00",
+        "recipient": "capability:reports.overflow.daily_receive",
+        "task": "overflow",
+        "status": "succeeded",
+        "started": "2026-11-06T04:15:02+00:00",
+        "finished": "2026-11-06T04:15:09.524881+00:00",
+        "error": null,
+        "attempt": 1,
+        "next_attempt_at": null,
+        "data_state": "ready",
+        "notice_delivery_state": null,
+        "error_detail": null
+      },
+      "details": [
+        {
+          "name": "امامی",
+          "uid": "397185913",
+          "status": "ارسال تأییدشده",
+          "message_ids": "7194, 7195",
+          "sent_at": "1405/08/15 07:45:08",
+          "receipt_state": "sent",
+          "artifact_count": 2
+        },
+        {
+          "name": "هوشمند پاکدل",
+          "uid": "514458396",
+          "status": "ارسال تأییدشده",
+          "message_ids": "7196, 7197",
+          "sent_at": "1405/08/15 07:45:09",
+          "receipt_state": "sent",
+          "artifact_count": 2
+        }
+      ],
+      "reason": "رسید فایل گزارش تأیید شد."
+    },
+    {
+      "sid": "overflow_daily_mechanical",
+      "title": "سرریز ـ مکانیکی",
+      "source": "سرریز روزانه.xlsx",
+      "day": "1405/08/15",
+      "target": "1405/08/14",
+      "due": "2026-11-06T04:15:00+00:00",
+      "due_local": "1405/08/15 07:45:00",
+      "status": "ارسال تأییدشده",
+      "run": {
+        "schedule_id": "overflow_daily_mechanical",
+        "due": "2026-11-06T04:15:00+00:00",
+        "recipient": "capability:reports.overflow.mechanical_daily_receive",
+        "task": "mechanical_overflow",
+        "status": "succeeded",
+        "started": "2026-11-06T04:15:02+00:00",
+        "finished": "2026-11-06T04:15:16.014284+00:00",
+        "error": null,
+        "attempt": 1,
+        "next_attempt_at": null,
+        "data_state": "ready",
+        "notice_delivery_state": null,
+        "error_detail": null
+      },
+      "details": [
+        {
+          "name": "محسن کرمعلی",
+          "uid": "1732374823",
+          "status": "ارسال تأییدشده",
+          "message_ids": "7198,7199",
+          "sent_at": "1405/08/15 07:45:14",
+          "receipt_state": "sent",
+          "artifact_count": 0
+        },
+        {
+          "name": "سعید شایسته",
+          "uid": "654806764",
+          "status": "ارسال تأییدشده",
+          "message_ids": "7200,7201",
+          "sent_at": "1405/08/15 07:45:15",
+          "receipt_state": "sent",
+          "artifact_count": 0
+        }
+      ],
+      "reason": "رسید فایل گزارش تأیید شد."
+    },
+    {
+      "sid": "driver_daily_office_supervisor",
+      "title": "معایب رانندگان ـ دفتر؛ مکانیکی و آهنگری",
+      "source": "گزارش روزانه رانندگان2.xlsx",
+      "day": "1405/08/15",
+      "target": "1405/08/14",
+      "due": "2026-11-06T05:30:00+00:00",
+      "due_local": "1405/08/15 09:00:00",
+      "status": "ارسال تأییدشده",
+      "run": {
+        "schedule_id": "driver_daily_office_supervisor",
+        "due": "2026-11-06T05:30:00+00:00",
+        "recipient": "capability:reports.driver_daily.daily_receive",
+        "task": "driver_daily",
+        "status": "succeeded",
+        "started": "2026-11-06T05:30:01+00:00",
+        "finished": "2026-11-06T05:32:49.151414+00:00",
+        "error": null,
+        "attempt": 1,
+        "next_attempt_at": null,
+        "data_state": "ready",
+        "notice_delivery_state": null,
+        "error_detail": null
+      },
+      "details": [
+        {
+          "name": "امامی",
+          "uid": "397185913",
+          "status": "ارسال تأییدشده",
+          "message_ids": "7202, 7203",
+          "sent_at": "1405/08/15 09:02:48",
+          "receipt_state": "sent",
+          "artifact_count": 2
+        },
+        {
+          "name": "هوشمند پاکدل",
+          "uid": "514458396",
+          "status": "ارسال تأییدشده",
+          "message_ids": "7204, 7205",
+          "sent_at": "1405/08/15 09:02:49",
+          "receipt_state": "sent",
+          "artifact_count": 2
+        }
+      ],
+      "reason": "رسید فایل گزارش تأیید شد."
+    },
+    {
+      "sid": "driver_daily_mechanical",
+      "title": "معایب رانندگان ـ مکانیکی",
+      "source": "گزارش روزانه رانندگان2.xlsx",
+      "day": "1405/08/15",
+      "target": "1405/08/14",
+      "due": "2026-11-06T05:30:00+00:00",
+      "due_local": "1405/08/15 09:00:00",
+      "status": "ارسال تأییدشده",
+      "run": {
+        "schedule_id": "driver_daily_mechanical",
+        "due": "2026-11-06T05:30:00+00:00",
+        "recipient": "capability:reports.driver_daily.mechanical_daily_receive",
+        "task": "mechanical_driver_daily",
+        "status": "succeeded",
+        "started": "2026-11-06T05:30:01+00:00",
+        "finished": "2026-11-06T05:33:54.101663+00:00",
+        "error": null,
+        "attempt": 1,
+        "next_attempt_at": null,
+        "data_state": "ready",
+        "notice_delivery_state": null,
+        "error_detail": null
+      },
+      "details": [
+        {
+          "name": "محسن کرمعلی",
+          "uid": "1732374823",
+          "status": "ارسال تأییدشده",
+          "message_ids": "7206",
+          "sent_at": "1405/08/15 09:03:53",
+          "receipt_state": "sent",
+          "artifact_count": 0
+        },
+        {
+          "name": "سعید شایسته",
+          "uid": "654806764",
+          "status": "ارسال تأییدشده",
+          "message_ids": "7207",
+          "sent_at": "1405/08/15 09:03:54",
+          "receipt_state": "sent",
+          "artifact_count": 0
+        }
+      ],
+      "reason": "رسید فایل گزارش تأیید شد."
+    },
+    {
+      "sid": "driver_daily_metalwork",
+      "title": "معایب رانندگان ـ آهنگری",
+      "source": "گزارش روزانه رانندگان2.xlsx",
+      "day": "1405/08/15",
+      "target": "1405/08/14",
+      "due": "2026-11-06T05:30:00+00:00",
+      "due_local": "1405/08/15 09:00:00",
+      "status": "ارسال تأییدشده",
+      "run": {
+        "schedule_id": "driver_daily_metalwork",
+        "due": "2026-11-06T05:30:00+00:00",
+        "recipient": "capability:reports.driver_daily.metalwork_daily_receive",
+        "task": "metalwork_driver_daily",
+        "status": "succeeded",
+        "started": "2026-11-06T05:30:01+00:00",
+        "finished": "2026-11-06T05:35:00.405067+00:00",
+        "error": null,
+        "attempt": 1,
+        "next_attempt_at": null,
+        "data_state": "ready",
+        "notice_delivery_state": null,
+        "error_detail": null
+      },
+      "details": [
+        {
+          "name": "صادق صادقیان",
+          "uid": "387679249",
+          "status": "ارسال تأییدشده",
+          "message_ids": "7208",
+          "sent_at": "1405/08/15 09:05:00",
+          "receipt_state": "sent",
+          "artifact_count": 0
+        }
+      ],
+      "reason": "رسید فایل گزارش تأیید شد."
+    },
+    {
+      "sid": "maintenance_daily_report",
+      "title": "تعمیرات روزانه ماشین‌آلات",
+      "source": "تعمیرات 1405.xlsx",
+      "day": "1405/08/15",
+      "target": "1405/08/14",
+      "due": "2026-11-06T08:30:00+00:00",
+      "due_local": "1405/08/15 12:00:00",
+      "status": "ارسال تأییدشده",
+      "run": {
+        "schedule_id": "maintenance_daily_report",
+        "due": "2026-11-06T08:30:00+00:00",
+        "recipient": "capability:reports.maintenance.daily_receive",
+        "task": "maintenance_daily_report",
+        "status": "succeeded",
+        "started": "2026-11-06T10:25:08+00:00",
+        "finished": "2026-11-06T10:25:30.767023+00:00",
+        "error": null,
+        "attempt": 1,
+        "next_attempt_at": null,
+        "data_state": "ready",
+        "notice_delivery_state": null,
+        "error_detail": null
+      },
+      "details": [
+        {
+          "name": "امامی",
+          "uid": "397185913",
+          "status": "ارسال تأییدشده",
+          "message_ids": "7217",
+          "sent_at": "1405/08/15 13:55:28",
+          "receipt_state": "sent",
+          "artifact_count": 0
+        },
+        {
+          "name": "هوشمند پاکدل",
+          "uid": "514458396",
+          "status": "ارسال تأییدشده",
+          "message_ids": "7218",
+          "sent_at": "1405/08/15 13:55:30",
+          "receipt_state": "sent",
+          "artifact_count": 0
+        }
+      ],
+      "reason": "رسید فایل گزارش تأیید شد."
+    },
+    {
+      "sid": "oil_balance_daily_report",
+      "title": "موازنه روغن",
+      "source": "موازنه روغن مصرفی.xlsx",
+      "day": "1405/08/15",
+      "target": "1405/08/14",
+      "due": "2026-11-06T11:30:00+00:00",
+      "due_local": "1405/08/15 15:00:00",
+      "status": "ارسال تأییدشده",
+      "run": {
+        "schedule_id": "oil_balance_daily_report",
+        "due": "2026-11-06T11:30:00+00:00",
+        "recipient": "capability:reports.oil_balance.daily_receive",
+        "task": "oil_balance_daily_report",
+        "status": "succeeded",
+        "started": "2026-11-06T11:30:02+00:00",
+        "finished": "2026-11-06T11:30:07.474171+00:00",
+        "error": null,
+        "attempt": 1,
+        "next_attempt_at": null,
+        "data_state": "ready",
+        "notice_delivery_state": null,
+        "error_detail": null
+      },
+      "details": [
+        {
+          "name": "امامی",
+          "uid": "397185913",
+          "status": "ارسال تأییدشده",
+          "message_ids": "7225",
+          "sent_at": "1405/08/15 15:00:07",
+          "receipt_state": "sent",
+          "artifact_count": 0
+        }
+      ],
+      "reason": "رسید فایل گزارش تأیید شد."
+    },
+    {
+      "sid": "machinery_performance_daily_report",
+      "title": "عملکرد ماشین‌آلات",
+      "source": "عملکرد ماشین آلات.xlsx",
+      "day": "1405/08/15",
+      "target": "1405/08/14",
+      "due": "2026-11-06T11:30:00+00:00",
+      "due_local": "1405/08/15 15:00:00",
+      "status": "ارسال تأییدشده",
+      "run": {
+        "schedule_id": "machinery_performance_daily_report",
+        "due": "2026-11-06T11:30:00+00:00",
+        "recipient": "capability:reports.machinery_performance.daily_receive",
+        "task": "machinery_performance_daily_report",
+        "status": "succeeded",
+        "started": "2026-11-06T11:30:02+00:00",
+        "finished": "2026-11-06T11:30:19.433580+00:00",
+        "error": null,
+        "attempt": 1,
+        "next_attempt_at": null,
+        "data_state": "ready",
+        "notice_delivery_state": null,
+        "error_detail": null
+      },
+      "details": [
+        {
+          "name": "امامی",
+          "uid": "397185913",
+          "status": "ارسال تأییدشده",
+          "message_ids": "7226",
+          "sent_at": "1405/08/15 15:00:18",
+          "receipt_state": "sent",
+          "artifact_count": 0
+        },
+        {
+          "name": "حمید هدایتی",
+          "uid": "641220453",
+          "status": "ارسال تأییدشده",
+          "message_ids": "7227",
+          "sent_at": "1405/08/15 15:00:19",
+          "receipt_state": "sent",
+          "artifact_count": 0
+        }
+      ],
+      "reason": "رسید فایل گزارش تأیید شد."
+    }
+  ]
+}

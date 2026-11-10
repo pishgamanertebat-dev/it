@@ -1,0 +1,52 @@
+[
+  {
+    "date": "1405/08/17",
+    "job": "maintenance_daily_report",
+    "recipients": [
+      "397185913",
+      "514458396"
+    ],
+    "source_snapshot": "E:\\KomatsoAI\\reports\\scheduler\\repair-20261110\\sources\\maintenance_mine-78fe91effe2d463a679167c583b11cf94649a9916c983133f6294de18adc3ae0.xlsx",
+    "source_sha256": "78fe91effe2d463a679167c583b11cf94649a9916c983133f6294de18adc3ae0",
+    "pdf": "E:\\KomatsoAI\\artifacts\\scheduler-recovery-20261110\\maintenance-1405-08-17-recovery-preview.pdf",
+    "pdf_sha256": "61b92d5dcef76b55ed0a2b7990b832149ca52ddca0e594ccbce6a52c639fe9de",
+    "validation": {
+      "pages": 3,
+      "bytes": 180996,
+      "searchable": true,
+      "vector": true,
+      "devices": 12,
+      "rows": 13,
+      "date": "1405/08/17",
+      "pdf_sha256": "61b92d5dcef76b55ed0a2b7990b832149ca52ddca0e594ccbce6a52c639fe9de"
+    },
+    "rows": 13,
+    "requires_owner_approval": true,
+    "transport_calls": 0
+  },
+  {
+    "date": "1405/08/18",
+    "job": "maintenance_daily_report",
+    "recipients": [
+      "397185913",
+      "514458396"
+    ],
+    "source_snapshot": "E:\\KomatsoAI\\reports\\scheduler\\repair-20261110\\sources\\maintenance_mine-78fe91effe2d463a679167c583b11cf94649a9916c983133f6294de18adc3ae0.xlsx",
+    "source_sha256": "78fe91effe2d463a679167c583b11cf94649a9916c983133f6294de18adc3ae0",
+    "pdf": "E:\\KomatsoAI\\artifacts\\scheduler-recovery-20261110\\maintenance-1405-08-18-recovery-preview.pdf",
+    "pdf_sha256": "9e53446078f1a84ea4db50179ed6acc1b80fa0f4a5d5a7272d49eae660f77fbb",
+    "validation": {
+      "pages": 2,
+      "bytes": 151884,
+      "searchable": true,
+      "vector": true,
+      "devices": 8,
+      "rows": 8,
+      "date": "1405/08/18",
+      "pdf_sha256": "9e53446078f1a84ea4db50179ed6acc1b80fa0f4a5d5a7272d49eae660f77fbb"
+    },
+    "rows": 8,
+    "requires_owner_approval": true,
+    "transport_calls": 0
+  }
+]

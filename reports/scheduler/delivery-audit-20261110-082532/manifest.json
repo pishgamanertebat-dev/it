@@ -1,0 +1,50 @@
+{
+  "build_audit.py": {
+    "bytes": 28220,
+    "sha256": "2b5ba2ece60078790a8fc50540d5e4771bb0c655ca863702bdd47ef59828a3c8"
+  },
+  "current-source-check.json": {
+    "bytes": 21740,
+    "sha256": "61accbd68b7a42f561cdddda03480d13747a97644893f01c1f204720b4c3fff6"
+  },
+  "delivery-audit-fa.xlsx": {
+    "bytes": 33531,
+    "sha256": "fdc254b7e1ceb11ada806bebb1858b4e83387c7b0a48d4b64285b32c689b3ff4"
+  },
+  "evidence.json": {
+    "bytes": 103506,
+    "sha256": "614d99f85ea12e47465baac501fa1198a920d0af309d52da5ae31167d212c2a6"
+  },
+  "ledger-snapshot.sqlite3": {
+    "bytes": 450560,
+    "sha256": "c401b9baf08e248d1a9a7a9c3e81d1407d86a488ec9df3eb172f58b67ffe411b"
+  },
+  "manual-correction-evidence.json": {
+    "bytes": 1200,
+    "sha256": "6fac7b7d98c8f9e784b0c7856b9a0831ec0d5823dcbcaba3827e1bcec39782c7"
+  },
+  "performance-704-evidence.json": {
+    "bytes": 2585,
+    "sha256": "889b75a940f2ace9c4039b33be187c4f8ed026dbd07c4a4523541b9b105e6db4"
+  },
+  "report-fa.md": {
+    "bytes": 21228,
+    "sha256": "6cb555601f7c1f749360dd390153b64d35eacf34b2cf06721bcd5160d003fa99"
+  },
+  "scheduler-window.log": {
+    "bytes": 2981512,
+    "sha256": "676b942c3cd1a415bb26ed58b88ad3dab6505ddb809d2402ba340d77ad23b47b"
+  },
+  "schedules.snapshot.yaml": {
+    "bytes": 3675,
+    "sha256": "078a363678ecd96ffeb8a543f1411f68c4f4e2e577c54ba8de1c5b565d93475b"
+  },
+  "summary.json": {
+    "bytes": 63464,
+    "sha256": "911fc00ffc7c3ed4359f037c481713c269a70b60e3668684cf09c29768810eea"
+  },
+  "sync-status.snapshot.json": {
+    "bytes": 2538,
+    "sha256": "03d3fdfbae9ca9ab72f4013a62de02ebf09c8545d940563c4f81713c70d654f9"
+  }
+}

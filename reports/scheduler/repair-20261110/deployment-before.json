@@ -1,0 +1,173 @@
+{
+  "initial_commit": "28142e9c69b5f3b9f074c470be64e45eeae08baa",
+  "target": "c48b5cb",
+  "task": {
+    "TaskName": "KomatsoAI Schedules",
+    "State": 3,
+    "Enabled": true
+  },
+  "files": {
+    "integrations/hermes/function_domain/driver_report.py": {
+      "action": "M",
+      "before": "445fc2ad7ea3ad8c16108676b7f8822a0853e9d0f3ce2af97e8a510c5f4577be",
+      "backup": "E:\\KomatsoAI\\reports\\scheduler\\repair-20261110\\activation-backup-083027\\integrations\\hermes\\function_domain\\driver_report.py"
+    },
+    "settings/schedules.yaml": {
+      "action": "M",
+      "before": "078a363678ecd96ffeb8a543f1411f68c4f4e2e577c54ba8de1c5b565d93475b",
+      "backup": "E:\\KomatsoAI\\reports\\scheduler\\repair-20261110\\activation-backup-083027\\settings\\schedules.yaml"
+    },
+    "tools/admin/test_driver_pdf.py": {
+      "action": "M",
+      "before": "15d595f4b3ecda1f7ccfdaf59b8f60294092bd47444a2d315f88a06a60bf5a62",
+      "backup": "E:\\KomatsoAI\\reports\\scheduler\\repair-20261110\\activation-backup-083027\\tools\\admin\\test_driver_pdf.py"
+    },
+    "tools/fleet/machinery_performance/queue.py": {
+      "action": "D",
+      "before": "6f70f988ecfbfe075a189dc08ab7cb4a320b8fa31f577e801cdfd8179f036c00",
+      "backup": "E:\\KomatsoAI\\reports\\scheduler\\repair-20261110\\activation-backup-083027\\tools\\fleet\\machinery_performance\\queue.py"
+    },
+    "tools/fleet/repairs/maintenance_baseline.py": {
+      "action": "M",
+      "before": "d403686e2dcacd5111986f698888b7c0d3f3ec25ce5b48093a1680b106da255a",
+      "backup": "E:\\KomatsoAI\\reports\\scheduler\\repair-20261110\\activation-backup-083027\\tools\\fleet\\repairs\\maintenance_baseline.py"
+    },
+    "tools/fleet/repairs/report.py": {
+      "action": "M",
+      "before": "84ceb18cc4c5bf2cb17a0797ca651507189f0ea7ca5891b3cc85be8b56689a8c",
+      "backup": "E:\\KomatsoAI\\reports\\scheduler\\repair-20261110\\activation-backup-083027\\tools\\fleet\\repairs\\report.py"
+    },
+    "tools/fleet/repairs/test_maintenance_baseline.py": {
+      "action": "M",
+      "before": "17cb2ac353f8c55e6134a9e38090c8ff12883100dda0859218dc1e5abee8b6a9",
+      "backup": "E:\\KomatsoAI\\reports\\scheduler\\repair-20261110\\activation-backup-083027\\tools\\fleet\\repairs\\test_maintenance_baseline.py"
+    },
+    "tools/fleet/repairs/test_report.py": {
+      "action": "M",
+      "before": "42444440ce6dd66b68dfa8bd4394c08093516139e6c6309531a5bc89962dd67c",
+      "backup": "E:\\KomatsoAI\\reports\\scheduler\\repair-20261110\\activation-backup-083027\\tools\\fleet\\repairs\\test_report.py"
+    },
+    "tools/scheduler/README.md": {
+      "action": "M",
+      "before": "52d387503e0ac3c9f1cb712bf921aa12c0a8b0a8cd5d8690cf6bd161cc61b63d",
+      "backup": "E:\\KomatsoAI\\reports\\scheduler\\repair-20261110\\activation-backup-083027\\tools\\scheduler\\README.md"
+    },
+    "tools/scheduler/control.py": {
+      "action": "A",
+      "before": null
+    },
+    "tools/scheduler/daily_summary.py": {
+      "action": "A",
+      "before": null
+    },
+    "tools/scheduler/delivery_alert.py": {
+      "action": "M",
+      "before": "73da39794ec7e5758b3c8be0ddba46ed3efce9c85dabce4c1e643a2edced632b",
+      "backup": "E:\\KomatsoAI\\reports\\scheduler\\repair-20261110\\activation-backup-083027\\tools\\scheduler\\delivery_alert.py"
+    },
+    "tools/scheduler/office_receipts.py": {
+      "action": "M",
+      "before": "f902ae6b33e81db5df006be85944c02f841211754c8147294233d4ed132ce9cf",
+      "backup": "E:\\KomatsoAI\\reports\\scheduler\\repair-20261110\\activation-backup-083027\\tools\\scheduler\\office_receipts.py"
+    },
+    "tools/scheduler/prepare_excel_service.ps1": {
+      "action": "D",
+      "before": "255c2c1ef06fe108ebc8c88b830460222762f1aa42d91e5533c7c1f69babece3",
+      "backup": "E:\\KomatsoAI\\reports\\scheduler\\repair-20261110\\activation-backup-083027\\tools\\scheduler\\prepare_excel_service.ps1"
+    },
+    "tools/scheduler/probe_repairs.ps1": {
+      "action": "D",
+      "before": "2d0058d49ce82851de44ef0507a1f51cfd325d4ffb5742bd91b84a62ab504f75",
+      "backup": "E:\\KomatsoAI\\reports\\scheduler\\repair-20261110\\activation-backup-083027\\tools\\scheduler\\probe_repairs.ps1"
+    },
+    "tools/scheduler/recovery_review.py": {
+      "action": "A",
+      "before": null
+    },
+    "tools/scheduler/report_errors.py": {
+      "action": "M",
+      "before": "354b22dc2093b73ef623972a136ed3f9195893c3080d5ed0aea0293a7129f376",
+      "backup": "E:\\KomatsoAI\\reports\\scheduler\\repair-20261110\\activation-backup-083027\\tools\\scheduler\\report_errors.py"
+    },
+    "tools/scheduler/runner.py": {
+      "action": "M",
+      "before": "cfbf60e0fb7d0e25d4e70ce894e690f21c740106e1b959a170674172650543ce",
+      "backup": "E:\\KomatsoAI\\reports\\scheduler\\repair-20261110\\activation-backup-083027\\tools\\scheduler\\runner.py"
+    },
+    "tools/scheduler/source_notice_alert.py": {
+      "action": "M",
+      "before": "6d17c4e56008fd24950a3dd01ddaf65c0dc2cc59701408c536b325fac29c5546",
+      "backup": "E:\\KomatsoAI\\reports\\scheduler\\repair-20261110\\activation-backup-083027\\tools\\scheduler\\source_notice_alert.py"
+    },
+    "tools/scheduler/tasks.py": {
+      "action": "M",
+      "before": "d2e0126f83febf8019f0373d69f1d47c2fd9473156fc2b55e07a1c159dd6f22e",
+      "backup": "E:\\KomatsoAI\\reports\\scheduler\\repair-20261110\\activation-backup-083027\\tools\\scheduler\\tasks.py"
+    },
+    "tools/scheduler/test_access_diagnostics.py": {
+      "action": "A",
+      "before": null
+    },
+    "tools/scheduler/test_control.py": {
+      "action": "A",
+      "before": null
+    },
+    "tools/scheduler/test_daily_summary.py": {
+      "action": "A",
+      "before": null
+    },
+    "tools/scheduler/test_delivery_alert.py": {
+      "action": "M",
+      "before": "5d24560f9c22aa78e8f004b80527034b3e01836e8e4d49e534100249e81827fd",
+      "backup": "E:\\KomatsoAI\\reports\\scheduler\\repair-20261110\\activation-backup-083027\\tools\\scheduler\\test_delivery_alert.py"
+    },
+    "tools/scheduler/test_machinery_performance.py": {
+      "action": "M",
+      "before": "345d1c1c1784c237aa2ff836757c5aa6d3f7755b609c7c6b163feeaf1288df00",
+      "backup": "E:\\KomatsoAI\\reports\\scheduler\\repair-20261110\\activation-backup-083027\\tools\\scheduler\\test_machinery_performance.py"
+    },
+    "tools/scheduler/test_misfire.py": {
+      "action": "M",
+      "before": "65e5ce563cb176cedd64651efecfc8a0b90ce298449f5d7e5d27a1b7f26b42ca",
+      "backup": "E:\\KomatsoAI\\reports\\scheduler\\repair-20261110\\activation-backup-083027\\tools\\scheduler\\test_misfire.py"
+    },
+    "tools/scheduler/test_no_data.py": {
+      "action": "M",
+      "before": "85f8f490ae97b01cabbb386352ebfa73d0970f141ec3722d6d8231bb1ceae434",
+      "backup": "E:\\KomatsoAI\\reports\\scheduler\\repair-20261110\\activation-backup-083027\\tools\\scheduler\\test_no_data.py"
+    },
+    "tools/scheduler/test_office_delivery.py": {
+      "action": "M",
+      "before": "6165da59e676c98179e2c5d994eb9f81abe47975054edde0c8c07f43c0dd0484",
+      "backup": "E:\\KomatsoAI\\reports\\scheduler\\repair-20261110\\activation-backup-083027\\tools\\scheduler\\test_office_delivery.py"
+    },
+    "tools/scheduler/test_receipt_immutability.py": {
+      "action": "A",
+      "before": null
+    },
+    "tools/scheduler/test_recovery_review.py": {
+      "action": "A",
+      "before": null
+    },
+    "tools/scheduler/test_report_errors.py": {
+      "action": "M",
+      "before": "c4e3be1353d36764589820992948a8c3fbb950b9ff74747a5d7bef726c821f0f",
+      "backup": "E:\\KomatsoAI\\reports\\scheduler\\repair-20261110\\activation-backup-083027\\tools\\scheduler\\test_report_errors.py"
+    },
+    "tools/scheduler/test_runner.py": {
+      "action": "M",
+      "before": "0510613e84f651f5126cae0c7b073ec6fa200b5e820b4a163848b149b23dcc62",
+      "backup": "E:\\KomatsoAI\\reports\\scheduler\\repair-20261110\\activation-backup-083027\\tools\\scheduler\\test_runner.py"
+    },
+    "tools/scheduler/test_source_notice_alert.py": {
+      "action": "M",
+      "before": "c84c6950324aea21800ffddd8bd2eee4245a461d134d224d4ea0f47ea8be6ca4",
+      "backup": "E:\\KomatsoAI\\reports\\scheduler\\repair-20261110\\activation-backup-083027\\tools\\scheduler\\test_source_notice_alert.py"
+    },
+    "tools/scheduler/verify_repairs_service.ps1": {
+      "action": "D",
+      "before": "bec86f0ea95de765233682b166866a41129ea80fa5e7660f2fef9b69902714f6",
+      "backup": "E:\\KomatsoAI\\reports\\scheduler\\repair-20261110\\activation-backup-083027\\tools\\scheduler\\verify_repairs_service.ps1"
+    }
+  }
+}
