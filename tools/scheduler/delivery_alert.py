@@ -673,6 +673,9 @@ def _expected(job, store):
 
 
 def _process_run(conn, job, run, store, operators, now, sender_factory):
+    from .owner_history import closed_by_owner
+    if closed_by_owner(run['due']):
+        return
     expected = occurrence_recipients(conn,job,run,store,now)
     if expected is None:
         return

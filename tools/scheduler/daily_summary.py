@@ -8,6 +8,7 @@ from .delivery_alert import (TEHRAN, STALE_CLAIM_SECONDS, _default_sender, _iso,
     _parse, _operators, _expected, _delivery_summary, _problems, _target, _title,
     _label, _message_id, occurrence_recipients)
 from .misfire import _occurrences, due_storage_key
+from .owner_history import closed_by_owner
 
 
 def ensure_schema(conn):
@@ -56,9 +57,11 @@ def snapshot(conn, jobs, now, store):
             if complete and not open_corrections:
                 if _parse(run['due'])>=floor:counts['complete']+=1
                 continue
-            problems=_problems(conn,job,run,expected or (),store)
+            owner_closed=closed_by_owner(run['due'])
+            problems=[] if owner_closed else _problems(conn,job,run,expected or (),store)
             hold=conn.execute("SELECT * FROM report_recovery_hold WHERE schedule_id=? AND due=? AND status='held'",(job['id'],run['due'])).fetchone()
-            if any(r['status'] in {'uncertain','sending'} for r in receipts) or run['status']=='uncertain':state='uncertain'
+            if owner_closed:state='closed'
+            elif any(r['status'] in {'uncertain','sending'} for r in receipts) or run['status']=='uncertain':state='uncertain'
             elif run['status']=='no_data_final':state='closed'
             elif hold or open_corrections:state='review'
             elif run['status'] in {'succeeded','not_recorded'}:state='unverified'
@@ -71,6 +74,7 @@ def snapshot(conn, jobs, now, store):
                 state=state,error=run.get('error'),error_detail=run.get('error_detail'),
                 recipients=undelivered,problems=problems,corrections=corrections,
                 resolver_available=expected is not None))
+            if owner_closed:details[-1]['owner_closed']=True
             details[-1]['recovery_hold']=dict(hold) if hold else None
     return dict(captured_at=_iso(now),counts=counts,unresolved=details,correction_status=correction_status,
                 completed_window_days=7,unresolved_history='all')
@@ -89,7 +93,10 @@ def format_messages(data):
         due=_parse(r['original_due']).astimezone(TEHRAN).strftime('%Y-%m-%d %H:%M')
         last=_parse(r['last_attempt']).astimezone(TEHRAN).strftime('%Y-%m-%d %H:%M') if r['last_attempt'] else 'ثبت نشده'
         names='، '.join(x['label'] for x in r['recipients']) or ('گیرنده تاریخی در رسیدها ثبت نشده؛ بررسی تاریخچه لازم است' if not r['corrections'] else 'اصلاحیه')
-        if r.get('recovery_hold'):
+        if r.get('owner_closed'):
+            reason='بسته / خارج از پیگیری مالک؛ سابقه قبلی: '+str(r['error'] or 'رسید کامل نیست')
+            action='اقدام فوری ندارد؛ سوابق محفوظ است؛ بازگشایی فقط با تصمیم مستقل مالک'
+        elif r.get('recovery_hold'):
             reason='توقف مستقل نوبت تاریخی برای تصمیم مالک؛ علت قبلی: '+str(r['error'] or 'رسید کامل نیست')
             action='بررسی منبع و رسید؛ ارسال فقط پس از تأیید مستقل مالک'
         elif not r['recipients'] and any(c['status'] not in {'sent','resolved'} for c in r['corrections']):

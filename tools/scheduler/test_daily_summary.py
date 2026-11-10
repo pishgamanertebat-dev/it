@@ -1,5 +1,5 @@
 """Ledger snapshots and fake management transport; no operational Excel access."""
-from datetime import timedelta
+from datetime import datetime,timedelta,timezone
 import json
 import unittest
 from .runner import connect
@@ -101,5 +101,27 @@ class SummaryTests(unittest.TestCase):
         c.close();self.scan();sent=len(self.sent);self.assertGreater(sent,1)
         self.assertTrue(all(len(t)<3500 for _,t in self.sent));self.scan(451)
         self.assertEqual(len(self.sent),sent)
+
+    def test_owner_closed_15_16_preserves_history_and_never_alerts_704(self):
+        from .delivery_alert import scan_delivery_exceptions
+        self.missing();c=connect(self.state);ensure_schema(c)
+        self.addCleanup(c.close)
+        now=datetime(2026,11,10,11,0,tzinfo=timezone.utc)
+        for due in ('2026-11-07T11:30:00+00:00','2026-11-08T11:30:00+00:00'):
+            with c:
+                c.execute("UPDATE runs SET due=?,status='failed',error='incomplete_704'",(due,))
+                c.execute('UPDATE receipts SET due=?',(due,))
+            before={name:[tuple(r) for r in c.execute('SELECT * FROM '+name)] for name in ('runs','receipts','office_artifact_receipts','report_recovery_hold')}
+            data=snapshot(c,[self.job()],now,self.store)
+            self.assertEqual(data['counts']['closed'],1);self.assertEqual(data['counts']['error'],0)
+            self.assertIn('بسته / خارج از پیگیری مالک','\n'.join(format_messages(data)))
+            scan_delivery_exceptions(c,[self.job()],now,self.store,sender_factory=self.sender)
+            self.assertEqual(self.sent,[])
+            self.assertEqual(before,{name:[tuple(r) for r in c.execute('SELECT * FROM '+name)] for name in before})
+        with c:
+            c.execute("UPDATE runs SET due='2026-11-09T11:30:00+00:00'")
+            c.execute("UPDATE receipts SET due='2026-11-09T11:30:00+00:00'")
+        data=snapshot(c,[self.job()],now,self.store)
+        self.assertEqual(data['counts']['error'],1)
 
 if __name__=='__main__':unittest.main()
