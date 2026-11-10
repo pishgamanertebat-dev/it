@@ -677,7 +677,8 @@ def main():
     handler = RotatingFileHandler(logs / 'scheduler.log', maxBytes=2_000_000, backupCount=3, encoding='utf-8')
     logging.basicConfig(level=logging.INFO, handlers=[handler], format='%(asctime)s %(levelname)s %(message)s')
     try:
-        return tick(args.config, args.state)
+        from .control import scheduled_tick
+        return scheduled_tick(lambda: tick(args.config,args.state),args.state)
     except Exception as exc:
         logger.error('Scheduler tick failed: %s', type(exc).__name__)
         return 1
