@@ -63,6 +63,7 @@ def refresh(d, actor, *, config, day=None, fleet_db=entry.FLEET_DB):
                 continue
             try:
                 selected=entry.preview(actor,item['code'],p['section'],config=config,day=current,date=p['date'],fleet_db=fleet_db,_book=book)
+                entry.require_target_row(book, selected['code'], p['date'])
                 code=selected['code']; group=groups.setdefault(code,dict(selected, indices=[],description=''))
                 group['indices'].append(i)
                 group['description'] += ('\n' if group['description'] else '')+item['description']
@@ -156,7 +157,8 @@ def commit(actor,chat,identifier,*,config=entry.CONFIG,runtime=entry.RUNTIME,day
         if d['results'].get(op,{}).get('status')=='succeeded':continue
         request={k:group[k] for k in ('code','name','date','section','expected','description','write_mode','operation')}
         try:
-            result=entry.commit(actor,request,config=config,runtime=runtime,day=day,fleet_db=fleet_db,approval_check=check)
+            result=entry.commit(actor,request,config=config,runtime=runtime,day=day,fleet_db=fleet_db,
+                                approval_check=check,require_existing_row=True)
             d['results'][op]=dict(status='succeeded',result=result)
         except Exception as exc:
             # Never assert absence of a write after a lost return or a prepared journal.

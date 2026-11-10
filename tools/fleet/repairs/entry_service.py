@@ -416,7 +416,15 @@ def set_description(book, selected, section, description, day, expected, templat
     return result
 
 
-def commit(actor, request, *, config=CONFIG, runtime=RUNTIME, day=None, fleet_db=FLEET_DB, approval_check=None):
+def require_target_row(book, code, date):
+    """AI drafts cannot authorize adding a sheet or machine row."""
+    sheet = today_sheet(book, date)
+    if sheet is None or find_row(sheet, code, layout(sheet)) is None:
+        raise EntryError(f'ردیف دستگاه {code} در شیت {date} موجود نیست؛ تغییر ساختار فایل نیازمند تأیید مستقل مالک است.')
+
+
+def commit(actor, request, *, config=CONFIG, runtime=RUNTIME, day=None, fleet_db=FLEET_DB, approval_check=None,
+           require_existing_row=False):
     settings = permission(actor, config, section=request.get('section'), clearing=not request.get('description'))
     operation = str(request.get('operation', ''))
     if not re.fullmatch(r'[a-f0-9]{32}', operation):
@@ -448,6 +456,8 @@ def commit(actor, request, *, config=CONFIG, runtime=RUNTIME, day=None, fleet_db
             approval_check()
     def mutate(book):
         selected = machine(book, request['code'], fleet_db)
+        if require_existing_row:
+            require_target_row(book, selected['code'], request['date'])
         return set_description(book, selected, section, description, request['date'],
                                expected, settings['template'], allow_create=request['date'] == (day or entry_dates.today()))
     return commit_workbook(actor, journal_request, settings, mutate, runtime=runtime, day=day,

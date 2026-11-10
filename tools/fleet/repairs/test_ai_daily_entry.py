@@ -34,6 +34,12 @@ class DraftTests(unittest.TestCase):
 
     def setUp(self):
         fixtures.EntryServiceTests.setUp(self)
+        # AI uses existing target rows. Manual fixtures retain their own new-day contract.
+        book=openpyxl.load_workbook(self.source)
+        sheet=book.worksheets[0];sheet['C1']='تاریخ: 1405/06/26'
+        for row in (3,4):
+            sheet.cell(row,4,None).value=None;sheet.cell(row,5,None).value=None
+        book.save(self.source);book.close()
         self.state=self.root/'state';self.store=DraftStore(self.state)
         self.kw=dict(self.kw,runtime=self.state)
         self.sample=extracted([('710','تعویض واترپمپ','710 تعویض واترپمپ')])
@@ -72,7 +78,7 @@ class DraftTests(unittest.TestCase):
         d=self.confirm(d,'WRITE_CONFIRM','confirm_write',2);saved=self.save(d)
         self.assertEqual(saved['status'],'DONE')
         book=openpyxl.load_workbook(self.source)
-        self.assertEqual(book.worksheets[0]['D3'].value,'تعویض واترپمپ');book.close()
+        self.assertEqual(book.worksheets[0]['D4'].value,'تعویض واترپمپ');book.close()
         with closing(entry.open_audit(self.state)) as db:
             self.assertEqual(db.execute("SELECT status FROM edits").fetchone()[0],'succeeded')
             self.assertEqual(db.execute("SELECT COUNT(*) FROM entry_draft_events WHERE event='callback'").fetchone()[0],2)

@@ -4,9 +4,17 @@ import logging
 from tools.bale_ui import Action, InlineKeyboardBuilder, StateStore
 from .entry_bale import RepairsEntryHandler, ROOT, LABELS, normalized, permitted, worker
 from .entry_draft_store import DraftStore, ACTORS
-from .entry_extract import extract, intent
+from .entry_extract import extract, intent_decision
 
 log = logging.getLogger(__name__)
+HANDLER_VERSION = 'daily-ai-20261110.1'
+
+
+def trace_route(text, reason=None):
+    decision, evidence = intent_decision(text)
+    log.info('Daily draft route handler=%s intent=%s reason=%s',
+             HANDLER_VERSION, decision, reason or evidence)
+    return decision
 
 
 class DailyAIHandler(RepairsEntryHandler):
@@ -129,6 +137,8 @@ class DailyAIHandler(RepairsEntryHandler):
             try:
                 extraction=await self.extractor(s['raw'],key[0])
             except Exception as exc:
+                log.warning('Daily draft stopped handler=%s reason=extraction_failed error=%s',
+                            HANDLER_VERSION, type(exc).__name__)
                 raise ValueError('مدل نتوانست پیش‌نویس معتبر آماده کند؛ هیچ اجازهٔ ثبت ایجاد نشده است. فرم دستی «شرح خرابی» در دسترس است.') from exc
             d=await self.invoke(key,'ai_create',extraction=extraction)
             s['draft']=d['id'];s.pop('raw',None);self.persist()
@@ -191,11 +201,14 @@ class DailyAIHandler(RepairsEntryHandler):
         source=event.source
         if str(getattr(source.platform,'value',source.platform)).lower()!='bale' or source.chat_type!='dm':return None
         actor,chat=str(source.user_id),str(source.chat_id);key=(actor,chat)
-        if actor!=chat or not self.authorize(actor):return None
+        if actor!=chat or not self.authorize(actor):
+            trace_route(event.text, 'actor_not_authorized')
+            return None
         text=event.text or '';clean=normalized(text);raw=getattr(event,'raw_message',None) or {}
         callback=isinstance(raw,dict) and raw.get('bale_inline_callback') is True
         if callback and not str(raw.get('data','')).startswith('ik:daily_ai:'):return None
         s=self.sessions.get(key)
+        decision = trace_route(text, 'callback' if callback else ('manual_form_open' if not allow_start else None))
         command=''
         if key in self.busy:
             if callback or clean in ('ادامه پیش نویس','توقف پیش نویس'):
@@ -211,6 +224,8 @@ class DailyAIHandler(RepairsEntryHandler):
                 elif s.get('expires',0)<self.clock():raise ValueError('پیشنهاد منقضی شده است.')
                 s['revision']='';self.persist()
             except (ValueError,PermissionError) as exc:
+                log.info('Daily draft stopped handler=%s reason=stale_callback error=%s',
+                         HANDLER_VERSION, type(exc).__name__)
                 send(gateway,chat,str(exc));return {'action':'skip','reason':'daily-ai-stale'}
         elif clean=='ادامه پیش نویس':
             if not s:self.sessions[key]=s=dict(stage='PAUSED',expires=self.clock()+1800,revision='')
@@ -218,19 +233,20 @@ class DailyAIHandler(RepairsEntryHandler):
         elif clean=='توقف پیش نویس' and s:command='pause'
         elif s and s['stage']=='INPUT' and str(getattr(event,'reply_to_message_id',''))==s.get('message_id'):
             command='input'
-        elif allow_start and intent(text)=='explicit' and s and s.get('draft'):
+        elif allow_start and decision=='explicit' and s and s.get('draft'):
             send(gateway,chat,'پیش‌نویس باز دارید؛ ابتدا آن را تکمیل یا لغو کنید. متن پیام تازه در آن مصرف نمی‌شود.')
             command='resume'
-        elif allow_start and intent(text)!='none' and not (s and s.get('draft')):
+        elif allow_start and decision!='none' and not (s and s.get('draft')):
             self.sessions[key]=s=dict(stage='OFFER',raw=text,expires=self.clock()+1800,revision='')
-            command='build' if intent(text)=='explicit' else 'offer'
+            command='build' if decision=='explicit' else 'offer'
         else:return None
         async def execute():
             try:
                 if command=='offer':await self.reply(key,gateway,send,'این پیام می‌تواند گزارش روزانه باشد. در صورت تمایل پیش‌نویس ثبت بسازید.')
                 else:await self.advance_ai(key,command,text,gateway,send)
             except Exception as exc:
-                log.warning('Daily draft stopped: %s',type(exc).__name__)
+                log.warning('Daily draft stopped handler=%s reason=workflow_failed action=%s error=%s',
+                            HANDLER_VERSION, command, type(exc).__name__)
                 s=self.sessions.get(key)
                 if s:s.update(stage='PAUSED',revision='');self.persist()
                 send(gateway,chat,'گردش پیش‌نویس متوقف شد: '+str(exc)+'\nبرای بازیابی «ادامه پیش‌نویس»؛ فرم دستی با «شرح خرابی» در دسترس است.')

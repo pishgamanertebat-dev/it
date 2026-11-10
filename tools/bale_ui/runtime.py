@@ -127,6 +127,9 @@ def dispatch(event, gateway, *, send, bale_approved=False):
         import time
         current_order = work_order.pending.get(('bale', actor, chat))
         order_open = bool(current_order and current_order.expires > time.time() and current_order.stage != 'RESULT')
+        if daily_ai is not None and order_open:
+            from tools.fleet.repairs.entry_ai_bale import trace_route
+            trace_route(event.text, 'work_order_open')
         if daily_ai is not None and not order_open and clean not in {'شرح خرابی', 'تعمیرات', 'حکم کار', 'انصراف', 'لغو', '/cancel'} and not clean.startswith('/'):
             # Existing forms retain commands and callbacks. AI never consumes
             # their plain text as another code/description without user choice.
