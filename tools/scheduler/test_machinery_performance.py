@@ -1,4 +1,4 @@
-"""Missing-day FIFO, recipient isolation, late delivery and authorization, no live sends."""
+"""Independent missing-day delivery, recipient isolation, late delivery and authorization, no live sends."""
 from contextlib import closing
 from datetime import datetime,timedelta
 from pathlib import Path
@@ -12,11 +12,11 @@ import yaml
 from tools.authorization.machinery_performance import CAPABILITY,REMINDER_CAPABILITY,REPORT_USERS,REMINDER_USER,READ,migrate
 from tools.authorization.store import RecipientSetResolution,MECHANICAL_STAFF
 from tools.authorization.test_authorization import Fixture
-from tools.fleet.machinery_performance import queue,delivery
+from tools.fleet.machinery_performance import delivery
 from tools.scheduler.completion_reminder import run_reminders
 from tools.scheduler.delivery_alert import _operators
 from tools.scheduler.misfire import due_storage_key
-from tools.scheduler.runner import connect,load_config,tick
+from tools.scheduler.runner import connect,load_config,tick,plan_replay
 from tools.scheduler.tasks import TransportUnavailable,overflow_report_date
 
 TEHRAN=ZoneInfo('Asia/Tehran')
@@ -50,68 +50,90 @@ class Harness:
     def rows(self):
         return {r['due']:dict(r) for r in self.conn.execute('SELECT * FROM runs')}
 
-    def plan(self,now,ready=()):
-        return queue.plan(self.conn,self.job,now,self.rows(),checker=lambda target:target in ready)
+    def plan(self,now):
+        return [datetime.fromisoformat(p['ledger_due']).astimezone(TEHRAN)
+                for p in plan_replay(self.config,self.state,now)]
+
+    def execute_at(self,now,ready=(),uncertain=(),failed=()):
+        store=Mock();store.resolve_active_recipients.return_value=RecipientSetResolution('ready',REPORT_USERS)
+        store.identity_label.side_effect=lambda u:u
+        calls=[]
+        def execute(recipient,params,**kwargs):
+            target=params['date'];calls.append((target,params['occurrence']))
+            if target not in ready:
+                return dict(status='waiting_for_data',reason='date_missing',notice_delivery_state='suppressed')
+            for user in REPORT_USERS:
+                if user in kwargs['closed']['sent'] or user in kwargs['closed']['uncertain']:continue
+                state='uncertain' if user in uncertain else 'failed' if user in failed else 'sent'
+                kwargs['on_receipt'](user,state,'synthetic-'+target+'-'+user if state=='sent' else None)
+            return dict(status='failed' if failed else 'uncertain' if uncertain else 'succeeded',reason='delivery_failed')
+        from tools.scheduler.tasks import TASKS
+        registry=dict(TASKS);registry[TASK]=(delivery.validate_params,execute)
+        with patch('tools.scheduler.runner._delivery_notifier'),patch('tools.scheduler.preflight.run_preflights'),patch('tools.scheduler.completion_reminder.run_reminders'):
+            tick(self.config,self.state,now,registry,store)
+        return calls
 
 
 class QueueTests(Harness,unittest.TestCase):
-    def test_waits_until_full_36_hours_even_when_newer_ready(self):
-        self.seed()
-        self.assertEqual(self.plan(self.old+timedelta(hours=35,minutes=59),[overflow_report_date(self.new)]),[self.old])
-        self.assertEqual(self.rows()[due_storage_key(self.old)]['status'],'waiting_for_data')
+    def test_new_ready_date_delivered_at_own_due_while_old_missing(self):
+        self.execute_at(self.old)
+        self.execute_at(self.new,ready={overflow_report_date(self.new)})
+        rows=self.rows()
+        self.assertEqual(rows[due_storage_key(self.old)]['status'],'waiting_for_data')
+        self.assertEqual(rows[due_storage_key(self.new)]['status'],'succeeded')
+        self.assertEqual(self.plan(self.new+timedelta(minutes=16)),[self.old])
 
-    def test_missing_old_is_retired_at_36_hours_only_with_newer_ready(self):
-        self.seed()
-        self.assertEqual(self.plan(self.old+timedelta(hours=36),[overflow_report_date(self.new)]),[self.new])
+    def test_old_completes_independently_before_36h_without_changing_new(self):
+        self.execute_at(self.old)
+        self.execute_at(self.new,ready={overflow_report_date(self.new)})
+        before=self.rows()[due_storage_key(self.new)]
+        calls=self.execute_at(self.old+timedelta(hours=35),ready={overflow_report_date(self.old)})
+        self.assertEqual(calls,[(overflow_report_date(self.old),self.old.isoformat())])
+        self.assertEqual(self.rows()[due_storage_key(self.new)],before)
+        self.assertEqual(self.rows()[due_storage_key(self.old)]['status'],'succeeded')
+
+    def test_expiry_without_newer_ready_day_is_audited_and_never_reopens(self):
+        self.execute_at(self.old)
+        self.execute_at(self.old+timedelta(hours=36))
         row=self.rows()[due_storage_key(self.old)]
-        self.assertEqual((row['status'],row['error']),('no_data_final','superseded_missing_date'))
+        self.assertEqual((row['status'],row['error']),('no_data_final','missing_date_expired'))
+        audit=dict(self.conn.execute('SELECT * FROM missing_data_closures').fetchone())
+        self.assertEqual(audit['due'],due_storage_key(self.old))
+        self.assertEqual(audit['deadline'],due_storage_key(self.old+timedelta(hours=36)))
+        self.assertIn('waiting_for_data',audit['previous_run'])
+        self.assertNotIn(overflow_report_date(self.old),[x[0] for x in self.execute_at(self.old+timedelta(hours=37),ready={overflow_report_date(self.old)})])
+        self.assertEqual(self.rows()[due_storage_key(self.old)],row)
 
-    def test_no_newer_complete_day_keeps_old_after_seven_days(self):
-        self.seed()
-        self.assertEqual(self.plan(self.old+timedelta(days=10)),[self.old])
-        self.assertEqual(self.rows()[due_storage_key(self.old)]['status'],'waiting_for_data')
+    def test_delivery_backoff_does_not_block_new_day(self):
+        self.seed(status='retry_wait',error='delivery_failed')
+        with self.conn:self.conn.execute('UPDATE runs SET next_attempt_at=?',(due_storage_key(self.new+timedelta(minutes=5)),))
+        self.assertEqual(self.plan(self.new),[self.new])
+        self.execute_at(self.new,ready={overflow_report_date(self.new)})
+        self.assertEqual(self.rows()[due_storage_key(self.new)]['status'],'succeeded')
 
-    def test_late_old_day_is_delivered_first(self):
-        self.seed()
-        self.assertEqual(self.plan(self.old+timedelta(hours=40),[overflow_report_date(self.old),overflow_report_date(self.new)]),[self.old])
-
-    def test_sent_or_uncertain_recipient_never_discarded(self):
-        for status in ('sent','sending','uncertain'):
-            with self.subTest(status=status):
-                self.conn.execute('DELETE FROM runs');self.conn.execute('DELETE FROM receipts');self.conn.commit();self.seed()
-                with self.conn:
-                    self.conn.execute('INSERT INTO receipts VALUES (?,?,?,?,?,?,?)',(TASK,due_storage_key(self.old),REPORT_USERS[0],'report',status,'test-mid',due_storage_key(self.old)))
-                self.assertEqual(self.plan(self.old+timedelta(hours=36),[overflow_report_date(self.new)]),[self.old])
-
-    def test_source_error_cannot_supersede_missing_day(self):
-        self.seed()
-        with patch.object(queue,'Readiness',return_value=Mock(side_effect=RuntimeError('locked'))):
-            self.assertEqual(queue.plan(self.conn,self.job,self.old+timedelta(hours=36),self.rows()),[self.old])
-        self.assertEqual(self.rows()[due_storage_key(self.old)]['status'],'waiting_for_data')
+    def test_technical_replay_still_works_on_sixth_day_with_original_date(self):
+        self.seed(status='retry_wait',error='PermissionError')
+        now=self.old+timedelta(days=6)
+        self.assertIn(self.old,self.plan(now))
+        calls=self.execute_at(now,ready={overflow_report_date(self.old)})
+        self.assertIn((overflow_report_date(self.old),self.old.isoformat()),calls)
+        self.assertEqual(self.rows()[due_storage_key(self.old)]['status'],'succeeded')
 
     def test_initial_activation_does_not_dump_historical_reports(self):
         self.assertEqual(self.plan(self.new+timedelta(hours=4)),[self.new])
 
-    def test_fifo_does_not_advance_around_delivery_backoff(self):
-        self.seed(status='retry_wait',error='delivery_failed')
-        now=self.old+timedelta(hours=36)
-        with self.conn:self.conn.execute('UPDATE runs SET next_attempt_at=?',(due_storage_key(now+timedelta(minutes=5)),))
-        self.assertEqual(self.plan(now,[overflow_report_date(self.new)]),[])
+    def test_partial_and_uncertain_receipts_survive_retry_and_do_not_block_new(self):
+        self.execute_at(self.old,ready={overflow_report_date(self.old)},uncertain={REPORT_USERS[0]},failed={REPORT_USERS[1]})
+        saved=list(self.conn.execute('SELECT * FROM receipts WHERE recipient_id=?',(REPORT_USERS[0],)))[0]
+        self.execute_at(self.new,ready={overflow_report_date(self.old),overflow_report_date(self.new)})
+        self.assertEqual(tuple(self.conn.execute('SELECT * FROM receipts WHERE recipient_id=? AND due=?',(REPORT_USERS[0],due_storage_key(self.old))).fetchone()),tuple(saved))
+        self.assertEqual(self.rows()[due_storage_key(self.old)]['status'],'uncertain')
+        self.assertEqual(self.rows()[due_storage_key(self.new)]['status'],'succeeded')
 
-    def test_tick_sends_late_exact_target_and_reuses_receipts(self):
-        store=Mock();store.resolve_active_recipients.return_value=RecipientSetResolution('ready',REPORT_USERS)
-        store.identity_label.side_effect=lambda u:u
-        def execute(recipient,params,**kwargs):
-            self.assertEqual(params['date'],overflow_report_date(self.old))
-            self.assertEqual(params['occurrence'],self.old.isoformat())
-            for u in REPORT_USERS:kwargs['on_receipt'](u,'sent','synthetic-'+u)
-            return {'status':'succeeded'}
-        from tools.scheduler.tasks import TASKS
-        registry=dict(TASKS);registry[TASK]=(delivery.validate_params,execute)
-        with patch.object(queue,'Readiness',return_value=lambda target:True):
-            tick(self.config,self.state,self.old+timedelta(hours=4),registry,store)
-            tick(self.config,self.state,self.old+timedelta(hours=5),registry,store)
-        self.assertEqual(len(list(self.conn.execute('SELECT * FROM receipts'))),2)
+    def test_same_occurrence_receipts_reused_on_repeated_tick(self):
+        self.execute_at(self.old,ready={overflow_report_date(self.old)})
+        self.assertEqual(self.execute_at(self.old+timedelta(hours=1),ready={overflow_report_date(self.old)}),[])
+        self.assertEqual(self.conn.execute('SELECT COUNT(*) FROM receipts').fetchone()[0],2)
 
 
 class ReminderTests(Harness,unittest.TestCase):

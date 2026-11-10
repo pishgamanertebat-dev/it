@@ -31,11 +31,11 @@ CONFIG = ROOT / 'settings/schedules.yaml'
 STATE = ROOT / 'runtime/scheduler/runs.sqlite3'
 logger = logging.getLogger(__name__)
 REPORT_TASKS = {'overflow', 'driver_daily', *MULTI_RECIPIENT_TASKS}
-# Daily files sent to the office/mechanical recipients. Other report queues retain
-# their own policies (in particular the performance report's readiness-based FIFO).
+# Missing exact-day data expires independently of the technical replay horizon.
 MISSING_EXPIRY_TASKS = frozenset({
     'overflow', 'driver_daily', 'mechanical_overflow', 'mechanical_driver_daily',
-    'maintenance_daily_report', 'oil_balance_daily_report'})
+    'metalwork_driver_daily', 'maintenance_daily_report', 'oil_balance_daily_report',
+    'machinery_performance_daily_report'})
 MISSING_EXPIRY = timedelta(hours=36)
 
 
@@ -220,6 +220,10 @@ def connect(path):
                 SELECT schedule_id,due,recipient_id,'report',status,message_id,updated FROM receipts_legacy""")
             conn.execute('DROP TABLE receipts_legacy')
     office_receipts.create_schema(conn)
+    conn.execute('''CREATE TABLE IF NOT EXISTS missing_data_closures (
+        schedule_id TEXT NOT NULL, due TEXT NOT NULL, deadline TEXT NOT NULL,
+        closed_at TEXT NOT NULL, policy TEXT NOT NULL, previous_run TEXT NOT NULL,
+        PRIMARY KEY(schedule_id,due))''')
     conn.commit()
     return conn
 
@@ -254,6 +258,14 @@ def _expire_missing_reports(conn, job, now, *, preview=False):
                     AND artifact.status IN ('sent','sending','uncertain'))''',
             (job['id'], due_storage_key(now-MISSING_EXPIRY)))}
         if not preview:
+            for due in sorted(expired):
+                before = dict(conn.execute('SELECT * FROM runs WHERE schedule_id=? AND due=?',
+                                           (job['id'], due)).fetchone())
+                conn.execute('''INSERT OR IGNORE INTO missing_data_closures
+                    VALUES (?,?,?,?,?,?)''', (job['id'], due,
+                    due_storage_key(datetime.fromisoformat(due) + MISSING_EXPIRY),
+                    now.astimezone(timezone.utc).isoformat(), 'independent-36h-v1',
+                    json.dumps(before, sort_keys=True)))
             conn.executemany('''UPDATE runs SET status='no_data_final',next_attempt_at=NULL,
                 finished=?,error='missing_date_expired' WHERE schedule_id=? AND due=?''',
                 [(now.astimezone(timezone.utc).isoformat(), job['id'], due) for due in expired])
@@ -552,17 +564,6 @@ def tick(config=CONFIG, state=STATE, now=None, registry=TASKS, authorization=Non
                 if due is None or not _claim_once(conn, job, due):
                     continue
                 failed = _execute(conn, job, due, now, registry, authorization, False, None) or failed
-                continue
-            rows = _rows_for(conn, job['id'])
-            if job['task'] == 'machinery_performance_daily_report':
-                from tools.fleet.machinery_performance.queue import plan
-                dues = plan(conn, job, now, rows)
-                rows = _rows_for(conn, job['id'])
-                for due in dues:
-                    row = rows.get(due_storage_key(due))
-                    if not _claim_replay(conn, job, due, row, now):
-                        continue
-                    failed = _execute(conn, job, due, now, registry, authorization, True, row) or failed
                 continue
             if job['task'] in MISSING_EXPIRY_TASKS:
                 _expire_missing_reports(conn, job, now)

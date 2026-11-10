@@ -185,9 +185,10 @@ class ExpiryProtectionTests(unittest.TestCase):
 
     def row(self):return dict(self.conn.execute('SELECT * FROM runs').fetchone())
 
-    def test_all_six_target_report_types_expire_without_newer_ready_data(self):
+    def test_all_eight_report_types_expire_without_newer_ready_data(self):
         self.assertEqual(MISSING_EXPIRY_TASKS,{'overflow','driver_daily','mechanical_overflow',
-            'mechanical_driver_daily','maintenance_daily_report','oil_balance_daily_report'})
+            'mechanical_driver_daily','metalwork_driver_daily','maintenance_daily_report',
+            'oil_balance_daily_report','machinery_performance_daily_report'})
         for task in MISSING_EXPIRY_TASKS:
             for reason in ('date_missing','no_target_date_records'):
                 with self.subTest(task=task,reason=reason):
@@ -235,8 +236,23 @@ class ExpiryProtectionTests(unittest.TestCase):
                 self.assertEqual(_expire_missing_reports(self.conn,self.job,self.now),{self.due})
                 self.assertEqual([tuple(r) for r in self.conn.execute('SELECT * FROM receipts')],before)
 
+    def test_historical_metalwork_expiry_records_old_state_and_preserves_identity(self):
+        import json
+        self.job['task']='metalwork_driver_daily'
+        self.seed(notice_delivery_state='sent')
+        before=self.row()
+        self.assertEqual(_expire_missing_reports(self.conn,self.job,self.now-timedelta(seconds=1)),set())
+        self.assertEqual(_expire_missing_reports(self.conn,self.job,self.now),{self.due})
+        audit=dict(self.conn.execute('SELECT * FROM missing_data_closures').fetchone())
+        self.assertEqual(json.loads(audit['previous_run']),before)
+        self.assertEqual(audit['due'],self.due)
+        closed=self.row()
+        self.assertEqual(_expire_missing_reports(self.conn,self.job,self.now+timedelta(days=7)),set())
+        self.assertEqual(self.row(),closed)
+        self.assertEqual(self.conn.execute('SELECT COUNT(*) FROM missing_data_closures').fetchone()[0],1)
+
     def test_other_report_queues_and_external_jobs_are_unchanged(self):
-        for task in ('metalwork_driver_daily','machinery_performance_daily_report','repairs','sync'):
+        for task in ('repairs','sync'):
             with self.subTest(task=task):
                 self.job['task']=task;before=self.row()
                 self.assertEqual(_expire_missing_reports(self.conn,self.job,self.now),set())
