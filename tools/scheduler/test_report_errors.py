@@ -41,14 +41,20 @@ class OperatorDiagnosticTests(unittest.TestCase):
     add_receipt=harness.AlertTests.add_receipt
     sender=harness.AlertTests.sender
 
-    def test_new_generation_error_is_immediate_precise_and_deduplicated(self):
+    def test_new_generation_error_has_15_minute_grace_and_precise_deduplicated_alert(self):
+        from datetime import timedelta
         from .runner import connect
         from .delivery_alert import scan_delivery_exceptions
         self.arm();self.add_run('retry_wait','pdf_layout',data_state='missing')
         self.add_receipt('A','report','pending');self.add_receipt('B','report','pending')
         c=connect(self.state)
+        self.addCleanup(c.close)
         with c:c.execute('UPDATE runs SET error_detail=?',(ReportFailure('pdf_layout',stage='layout',sheet='461',row=11,column=3).serialized(),))
         for _ in range(2):scan_delivery_exceptions(c,[self.job()],self.moment,self.store,sender_factory=self.sender)
+        self.assertEqual(self.sent,[])
+        scan_delivery_exceptions(c,[self.job()],self.moment+timedelta(minutes=14),self.store,sender_factory=self.sender)
+        self.assertEqual(self.sent,[])
+        for _ in range(2):scan_delivery_exceptions(c,[self.job()],self.moment+timedelta(minutes=15),self.store,sender_factory=self.sender)
         self.assertEqual(len(self.sent),1)
         text=self.sent[0][1]
         for part in ['تولید گزارش کامل نشد','شیت 461','ردیف 11','ستون 3','تلاش مجدد ادامه دارد']:

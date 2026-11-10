@@ -226,7 +226,7 @@ def _problems(conn, job, run, expected, store):
             event='recovery_review'
         found.append({
             'recipient': user, 'kind': kind, 'klass': klass,
-            'event': event, 'error_code': error,
+            'event': event, 'error_code': error if re.fullmatch(r'[A-Za-z0-9_]{0,80}',error) else 'unknown_error',
             'recovery_hold': bool(hold),
             'maintenance_report': job.get('task') == 'maintenance_daily_report',
             'generation_failed': (job.get('task') == 'maintenance_daily_report' and kind == 'report'
