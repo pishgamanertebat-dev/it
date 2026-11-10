@@ -5,7 +5,7 @@ verbatim. Concurrent branches merge only on disjoint worksheets, after proving
 both the Writer UUID/hash chain and unchanged historical cells/worksheet layout.
 """
 from contextlib import closing, contextmanager
-from copy import copy
+from copy import copy, deepcopy
 from datetime import datetime, timezone
 import hashlib
 import io
@@ -187,6 +187,22 @@ def cell_state(cell):
              cell.hyperlink.display) if cell.hyperlink else None)
 
 
+def view_state(views):
+    """Ignore only observed cursor/scroll/tab selection saved by ordinary Excel use.
+
+    Keep panes, zoom, RTL, grid visibility, view count and every other property
+    in the structural guard. This does not normalize cells, styles or printing.
+    """
+    value=deepcopy(views)
+    for view in value.sheetView:
+        view.tabSelected=None
+        view.topLeftCell=None
+        for selection in view.selection:
+            selection.activeCell=None
+            selection.sqref=None
+    return xml(value)
+
+
 def sheet_state(sheet):
     return dict(cells={c.coordinate: cell_state(c) for c in sheet._cells.values()
                        if c.value is not None or c.has_style or c.comment or c.hyperlink},
@@ -194,7 +210,7 @@ def sheet_state(sheet):
                       for r, d in sheet.row_dimensions.items()},
                 columns={c: xml(d) for c, d in sheet.column_dimensions.items()},
                 merges=sorted(map(str, sheet.merged_cells.ranges)),
-                properties={name: xml(getattr(sheet, name)) for name in (
+                properties={name: view_state(sheet.views) if name=='views' else xml(getattr(sheet, name)) for name in (
                     'sheet_properties', 'sheet_format', 'page_margins', 'page_setup',
                     'print_options', 'HeaderFooter', 'views', 'protection')
                     if hasattr(sheet, name)},

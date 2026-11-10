@@ -81,6 +81,36 @@ class MaintenanceBaselineTests(unittest.TestCase):
         self.assertEqual(self.sync()['status'], 'unchanged')
         self.assertEqual(self.edits(), rows)
 
+    def test_append_with_only_observed_cursor_scroll_and_tab_selection_imports_exact_bytes(self):
+        self.setup_baseline();self.change_mine()
+        book=openpyxl.load_workbook(self.mine)
+        view=book['851'].sheet_view
+        view.tabSelected=True;view.topLeftCell='A8'
+        view.selection[0].activeCell='E9';view.selection[0].sqref='E9'
+        book.save(self.mine);book.close()
+        incoming=self.mine.read_bytes()
+        self.assertEqual(self.sync()['status'],'imported')
+        self.assertEqual(self.source.read_bytes(),incoming)
+        before=self.edits();self.assertEqual(self.sync()['status'],'unchanged')
+        self.assertEqual(self.edits(),before)
+
+    def test_cursor_change_cannot_hide_historical_cell_or_print_or_real_view_changes(self):
+        self.setup_baseline();original=self.mine.read_bytes()
+        mutations=(lambda s:setattr(s['D3'],'value','changed history'),
+                   lambda s:setattr(s,'freeze_panes','B3'),
+                   lambda s:setattr(s.sheet_view,'zoomScale',85),
+                   lambda s:setattr(s.sheet_view,'rightToLeft',not s.sheet_view.rightToLeft),
+                   lambda s:setattr(s.sheet_view,'showGridLines',False),
+                   lambda s:setattr(s.page_setup,'orientation','landscape'),
+                   lambda s:setattr(s,'print_area','A1:A2'))
+        for mutate in mutations:
+            with self.subTest(mutate=mutate):
+                self.mine.write_bytes(original);book=openpyxl.load_workbook(self.mine)
+                s=book['710'];s.sheet_view.topLeftCell='A20';s.sheet_view.selection[0].activeCell='E30'
+                mutate(s);book.save(self.mine);book.close()
+                with self.assertRaises(MaintenanceSyncBlocked):self.sync()
+                self.assertEqual(self.source.read_bytes(),original)
+
     def test_new_bale_uuid_protected_and_retry_never_appends(self):
         self.setup_baseline()
         request = self.request()
