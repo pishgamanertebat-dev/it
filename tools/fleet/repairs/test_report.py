@@ -7,8 +7,8 @@ from unittest.mock import patch
 import openpyxl
 
 from tools.fleet.report_caption import report_caption, jalali_today
-from tools.scheduler.tasks import repairs, BaleSender, validate_repairs
-from .report import ROOT, latest_sheet, section_columns, build_report
+from tools.scheduler.tasks import BaleSender
+from .report import ROOT, latest_sheet, section_columns
 
 
 class RepairsTests(unittest.TestCase):
@@ -69,21 +69,6 @@ class RepairsTests(unittest.TestCase):
         self.assertIn('آخرین روز ثبت‌شده: 1405/06/17', caption)
         self.assertIn('⚠️', caption)
 
-    def test_scheduled_repairs_sends_pdf_with_caption(self):
-        def build(directory, source, *, section):
-            self.assertEqual(section, 'mechanical')
-            pdf = Path(directory) / 'report.pdf'
-            pdf.write_bytes(b'%PDF-test')
-            return dict(pdf=str(pdf), caption='latest-day-warning')
-        with patch('tools.fleet.repairs.report.build_report', side_effect=build), patch('tools.scheduler.tasks.BaleSender') as sender:
-            repairs('654806764', {})
-            args = sender.return_value.document.call_args.args
-            self.assertEqual(args[0], '654806764')
-            self.assertEqual(args[2], 'latest-day-warning')
-            self.assertEqual(Path(args[1]).suffix, '.pdf')
-            sender.return_value.close.assert_called_once()
-            self.assertFalse(Path(args[1]).exists())
-
     def test_section_columns_follow_headers_when_reordered(self):
         book = openpyxl.Workbook()
         sheet = book.active
@@ -100,35 +85,7 @@ class RepairsTests(unittest.TestCase):
             section_columns(self.source, 'report', 'metalwork')
         for value in ['all', '', None]:
             with self.assertRaises(ValueError):
-                validate_repairs({'section': value})
-
-    def test_build_selects_columns_and_preserves_source_bytes(self):
-        book = openpyxl.Workbook()
-        sheet = book.active
-        sheet.append(['گزارش', '1405/06/17'])
-        sheet.append(['ردیف', 'نوع دستگاه', 'کد جدید', 'شرح معایب مکانیکی', 'شرح معایب آهنگری'])
-        sheet.append([1, 'لودر', 'WA601', 'mechanical-only', 'metalwork-only'])
-        book.save(self.source)
-        book.close()
-        original = self.source.read_bytes()
-        def native(source,sheet,output,directory,columns):
-            from .test_pdf_validation import make_pdf
-            from integrations.hermes.function_domain.driver_report import load_driver
-            expected=load_driver('1405/06/17',data=Path(source).read_bytes())
-            make_pdf(output,expected,'metalwork' if columns[-1]==5 else 'mechanical')
-        for section, columns in [('mechanical', [1, 2, 3, 4]), ('metalwork', [1, 2, 3, 5])]:
-            with patch('tools.fleet.repairs.report.export_pdf',side_effect=native) as exporter:
-                result = build_report(Path(self.temp.name) / section, self.source, section=section)
-            self.assertEqual(exporter.call_args.args[-1], columns)
-            self.assertIn(section, Path(result['pdf']).name)
-            self.assertEqual(result['section'], section)
-            self.assertEqual(self.source.read_bytes(), original)
-
-    def test_metalwork_schedule_passes_section_and_recipient(self):
-        with patch('tools.fleet.repairs.report.build_report', return_value={'pdf': 'test.pdf', 'caption': 'metalwork'}) as build, patch('tools.scheduler.tasks.BaleSender') as sender:
-            repairs('455740857', {'section': 'metalwork'})
-            self.assertEqual(build.call_args.kwargs, {'section': 'metalwork'})
-            sender.return_value.document.assert_called_once_with('455740857', 'test.pdf', 'metalwork')
+                section_columns(self.source,'report',value)
 
     def test_document_transport_multipart_and_redaction(self):
         pdf = Path(self.temp.name) / 'report.pdf'

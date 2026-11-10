@@ -1,19 +1,15 @@
 from __future__ import annotations
 
-import argparse
 import json
 import os
 from pathlib import Path
 import re
-import shutil
 import subprocess
-import tempfile
 
 import fitz
 import openpyxl
 
 from tools.fleet.overflow.report import normalize, validate_date
-from tools.fleet.report_caption import report_caption
 
 ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_SOURCE = Path(r'E:\Function\گزارش روزانه رانندگان2.xlsx')
@@ -123,51 +119,3 @@ def export_pdf(source, sheet, output, work_dir, columns):
     with fitz.open(output) as pdf:
         if pdf.page_count < 1 or not any(page.get_text().strip() for page in pdf):
             raise RuntimeError('Excel produced an empty PDF')
-
-
-def build_report(output_dir, source=None, *, section='mechanical'):
-    if section not in SECTIONS:
-        raise ValueError('Unknown repairs section')
-    source = Path(source or os.environ.get('FLEET_REPAIRS_SOURCE', DEFAULT_SOURCE)).resolve(strict=True)
-    output_dir = Path(output_dir).resolve()
-    output_dir.mkdir(parents=True, exist_ok=True)
-    # Byte-for-byte snapshot: preserve all Excel formatting, drawings and print
-    # settings. Selection and export see exactly the same saved workbook.
-    with tempfile.TemporaryDirectory(prefix='excel-', dir=output_dir) as directory:
-        snapshot = Path(directory) / 'source.xlsx'
-        before = source.stat()
-        shutil.copyfile(source, snapshot)
-        after = source.stat()
-        if (before.st_size, before.st_mtime_ns) != (after.st_size, after.st_mtime_ns):
-            raise RuntimeError('Workbook changed while copying; retry on a stable source')
-        report = latest_sheet(snapshot)
-        columns = section_columns(snapshot, report['sheet'], section)
-        output = output_dir / f"repairs-{section}-{report['date'].replace('/', '-')}.pdf"
-        if output.exists():
-            raise FileExistsError('Repairs PDF output already exists')
-        from integrations.hermes.function_domain.driver_report import load_driver, render_pdf_notice
-        from .pdf_validation import validate_driver_pdf
-        import hashlib
-        data = snapshot.read_bytes()
-        expected = load_driver(report['date'], data=data)
-        if expected['sections'][section]['status'] == 'ready':
-            export_pdf(snapshot, report['sheet'], output, directory, columns)
-        else:
-            render_pdf_notice(expected, section, output)
-        validation = validate_driver_pdf(output, expected, section, hashlib.sha256(data).hexdigest())
-    title = 'گزارش روزانه تعمیرات مکانیکی' if section == 'mechanical' else 'گزارش روزانه آهنگری'
-    return {**report, 'section': section, 'pdf': str(output), 'validation': validation,
-            'caption': report_caption(title, report['date'], latest=True)}
-
-
-def main():
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--source', type=Path)
-    parser.add_argument('--output-dir', required=True, type=Path)
-    parser.add_argument('--section', choices=SECTIONS, default='mechanical')
-    args = parser.parse_args()
-    print(json.dumps(build_report(args.output_dir, args.source, section=args.section), ensure_ascii=False))
-
-
-if __name__ == '__main__':
-    main()

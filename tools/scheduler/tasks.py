@@ -255,28 +255,6 @@ def overflow(recipient, params, *, authorization=None, on_receipt=None, closed=N
             sender.close()
 
 
-def validate_repairs(params):
-    if set(params) - {'source', 'section'}:
-        raise ValueError('repairs only accepts params.source and params.section')
-    if params.get('section', 'mechanical') not in {'mechanical', 'metalwork'}:
-        raise ValueError('repairs section must be mechanical or metalwork')
-    if 'source' in params and (not isinstance(params['source'], str) or not Path(params['source']).is_absolute()):
-        raise ValueError('repairs source must be an absolute workbook path')
-
-
-def repairs(recipient, params):
-    from tools.fleet.repairs.report import build_report as build_repairs
-    runtime = ROOT / 'runtime/scheduler'
-    runtime.mkdir(parents=True, exist_ok=True)
-    with tempfile.TemporaryDirectory(prefix='repairs-', dir=runtime) as directory:
-        report = build_repairs(directory, params.get('source'), section=params.get('section', 'mechanical'))
-        sender = BaleSender()
-        try:
-            sender.document(recipient, report['pdf'], report['caption'])
-        finally:
-            sender.close()
-
-
 def driver_daily(recipient, params, *, authorization=None, on_receipt=None, closed=None, on_artifact_receipt=None):
     if str(recipient).startswith('capability:'):
         from .office_delivery import deliver
@@ -535,7 +513,7 @@ def metalwork_driver_daily(recipient, params, *, authorization=None, on_receipt=
     return _fanout_result(sent, revoked, failed, uncertain, retryable)
 
 
-TASKS = {'overflow': (validate_overflow, overflow), 'repairs': (validate_repairs, repairs),
+TASKS = {'overflow': (validate_overflow, overflow), 
          'driver_daily': (validate_overflow, driver_daily),
          'mechanical_overflow':(validate_overflow,mechanical_overflow),
          'mechanical_driver_daily':(validate_overflow,mechanical_driver_daily),

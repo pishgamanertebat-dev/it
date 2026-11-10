@@ -179,7 +179,7 @@ class OfficeDeliveryTests(Fixture, unittest.TestCase):
         migrate(self.auth,self.directory/'backups',assignments=(('202',OFFICE_ROLE),('202',COPY_ROLE)))
         self.assertEqual(events,self.sql("SELECT COUNT(*) FROM auth_events"))
         jobs=load_config()[2]
-        self.assertEqual({j['id'] for j in jobs if not j.get('enabled',True)},{'repairs_daily','metalwork_daily'})
+        self.assertEqual({j['id'] for j in jobs if not j.get('enabled',True)},set())
         self.assertEqual(sum(j['task']=='maintenance_daily_report' for j in jobs),1)
         self.assertEqual(self.sql("SELECT role FROM auth_role_profiles WHERE role IN (?,?)",(OFFICE_ROLE,COPY_ROLE)),[])
 

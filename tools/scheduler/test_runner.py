@@ -26,8 +26,8 @@ class SchedulerTests(unittest.TestCase):
         self.path = Path(self.temp.name) / 'schedules.yaml'
         self.state = Path(self.temp.name) / 'state.sqlite3'
         self.sent = []
-        self.registry = {'repairs': (lambda p: None, lambda r, p: self.sent.append(r))}
-        self.job = dict(id='daily', task='repairs', recipient='101',
+        self.registry = {'fixture_task': (lambda p: None, lambda r, p: self.sent.append(r))}
+        self.job = dict(id='daily', task='fixture_task', recipient='101',
                         trigger=dict(type='cron', hour=9, minute=0))
         self.write([self.job])
 
@@ -100,7 +100,7 @@ class SchedulerTests(unittest.TestCase):
             if recipient == '101':
                 raise RuntimeError('private-url-secret')
             self.sent.append(recipient)
-        self.registry['repairs'] = (lambda p: None, send)
+        self.registry['fixture_task'] = (lambda p: None, send)
         self.write([self.job, dict(self.job, id='second', recipient='123')])
         self.assertEqual(self.run_tick(), 1)
         self.run_tick(NOW + timedelta(minutes=1))

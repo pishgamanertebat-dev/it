@@ -58,7 +58,7 @@ class CatchUpTests(unittest.TestCase):
 
     def registry(self):
         return {'overflow': (lambda p: None, self.handler), 'driver_daily': (lambda p: None, self.handler),
-                'repairs': (lambda p: None, self.handler)}
+                'fixture_task': (lambda p: None, self.handler)}
 
     def tick_at(self, moment):
         return tick(self.path, self.state, moment, self.registry(), self.auth)
@@ -374,7 +374,7 @@ class CatchUpTests(unittest.TestCase):
             with self.subTest(policy=policy):
                 self.calls.clear()
                 state = Path(self.temp.name) / f'{policy}.sqlite3'
-                self.write([dict(id='sync', task='repairs', recipient='101', misfire=dict(policy=policy),
+                self.write([dict(id='sync', task='fixture_task', recipient='101', misfire=dict(policy=policy),
                                  trigger=dict(type='cron', hour='*', minute='*/2'))])
                 tick(self.path, state, now, self.registry(), None)
                 self.assertEqual(len(self.calls), 1)
@@ -387,7 +387,7 @@ class CatchUpTests(unittest.TestCase):
                 self.assertNotEqual(dues[0], due_storage_key(start))
 
     def test_replay_on_two_minute_schedule_is_refused(self):
-        self.write([dict(id='sync', task='repairs', recipient='101',
+        self.write([dict(id='sync', task='fixture_task', recipient='101',
                          misfire=dict(policy='replay', horizon_days=1),
                          trigger=dict(type='cron', hour='*', minute='*'))])
         with self.assertLogs('tools.scheduler.runner', level='ERROR') as logs:
@@ -441,10 +441,8 @@ class ProductionScheduleTests(unittest.TestCase):
             self.assertEqual(jobs[name]['misfire'], {'policy': 'replay', 'horizon_days': 7})
             self.assertTrue(jobs[name]['enabled'])
             self.assertEqual(jobs[name]['params'], {})
-        self.assertFalse(jobs['repairs_daily']['enabled'])
-        self.assertFalse(jobs['metalwork_daily']['enabled'])
-        self.assertNotIn('misfire', jobs['repairs_daily'])
-        self.assertNotIn('misfire', jobs['metalwork_daily'])
+        self.assertNotIn('repairs_daily',jobs)
+        self.assertNotIn('metalwork_daily',jobs)
         self.assertEqual(jobs['overflow_daily_test']['recipient_capability'], 'reports.overflow.daily_receive')
         self.assertEqual(jobs['driver_daily_office_supervisor']['recipient_capability'], 'reports.driver_daily.daily_receive')
         self.assertEqual(jobs['overflow_daily_mechanical']['recipient_capability'],

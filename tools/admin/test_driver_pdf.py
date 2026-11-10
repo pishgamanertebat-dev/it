@@ -69,7 +69,7 @@ class DriverPDFTests(AdminFixture,unittest.TestCase):
         import yaml
         config=yaml.safe_load(Path('settings/schedules.yaml').read_text(encoding='utf-8'))
         jobs={job['id']:job for job in config['schedules']}
-        for name in ('repairs_daily','metalwork_daily'):self.assertFalse(jobs[name]['enabled'])
+        for name in ('repairs_daily','metalwork_daily'):self.assertNotIn(name,jobs)
         self.assertEqual(config['preflight'],{'enabled':True,'hours':[8,11]})
         for name,hour,cap in [('overflow_daily_test',12,'reports.overflow.daily_receive'),('driver_daily_office_supervisor',9,'reports.driver_daily.daily_receive')]:
             self.assertTrue(jobs[name]['enabled']);self.assertEqual(jobs[name]['trigger']['hour'],hour)
