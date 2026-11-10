@@ -381,7 +381,7 @@ def _delivery_summary(conn, job, run, expected, store):
         parts = artifacts.get(user, ())
         required = ({'mechanical','metalwork'} if job.get('task')=='driver_daily'
                     and 'recipient_capability' in job else None)
-        if parts or required:
+        if status!='revoked' and (parts or required):
             if (parts and (not required or {p['artifact_id'] for p in parts}==required)
                     and all(part['status'] == 'sent' and part['message_id'] for part in parts)):
                 status = 'sent'
@@ -486,7 +486,8 @@ def _mark(conn, case, kind, user, status, message_id, error, now):
     with conn:
         conn.execute('''UPDATE delivery_alert_receipt
             SET status=?, message_id=?, error=?, updated=?
-            WHERE schedule_id=? AND due=? AND episode=? AND alert_kind=? AND operator_id=?''',
+            WHERE schedule_id=? AND due=? AND episode=? AND alert_kind=? AND operator_id=?
+              AND status NOT IN ('sent','uncertain')''',
             (status, message_id, error, _iso(now), case['schedule_id'], case['due'],
              case['episode'], kind, user))
 

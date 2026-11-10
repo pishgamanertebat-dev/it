@@ -21,8 +21,9 @@ def save(c, key, user, artifact, status, message_id=None, digest=None):
             ON CONFLICT(schedule_id,due,recipient_id,artifact_id) DO UPDATE SET
             status=CASE WHEN office_artifact_receipts.status IN ('sent','uncertain')
                    THEN office_artifact_receipts.status ELSE excluded.status END,
-            message_id=COALESCE(excluded.message_id,office_artifact_receipts.message_id),
-            sha256=COALESCE(excluded.sha256,office_artifact_receipts.sha256),updated=excluded.updated""",
+            message_id=CASE WHEN office_artifact_receipts.status IN ('sent','uncertain') THEN office_artifact_receipts.message_id ELSE COALESCE(excluded.message_id,office_artifact_receipts.message_id) END,
+            sha256=CASE WHEN office_artifact_receipts.status IN ('sent','uncertain') THEN office_artifact_receipts.sha256 ELSE COALESCE(excluded.sha256,office_artifact_receipts.sha256) END,
+            updated=CASE WHEN office_artifact_receipts.status IN ('sent','uncertain') THEN office_artifact_receipts.updated ELSE excluded.updated END""",
             (*key, str(user), artifact, status, message_id, digest, datetime.now(timezone.utc).isoformat()))
 
 

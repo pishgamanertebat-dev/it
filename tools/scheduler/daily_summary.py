@@ -90,6 +90,9 @@ def format_messages(data):
         if r.get('recovery_hold'):
             reason='توقف مستقل نوبت تاریخی برای تصمیم مالک؛ علت قبلی: '+str(r['error'] or 'رسید کامل نیست')
             action='بررسی منبع و رسید؛ ارسال فقط پس از تأیید مستقل مالک'
+        elif not r['recipients'] and any(c['status'] not in {'sent','resolved'} for c in r['corrections']):
+            reason='رسید ارسال اولیه موجود است؛ صحت محتوای نسخه اولیه یا نیاز به اصلاحیه هنوز تعیین تکلیف نشده است'
+            action='بررسی فایل دریافت‌شده و تصمیم مالک درباره اصلاحیه'
         elif r['state']=='waiting':reason='داده همان تاریخ کامل نیست';action='تکمیل منبع تا مهلت ۳۶ ساعت'
         elif r['state']=='closed':reason='بسته بدون ارسال؛ '+str(r['error'] or 'علت ثبت نشده');action='بررسی بازیابی و تأیید مالک؛ بازگشایی خودکار ندارد'
         elif r['state']=='uncertain':reason='نتیجه ارسال نامطمئن';action='بررسی رسید؛ ارسال مجدد خودکار ممنوع'

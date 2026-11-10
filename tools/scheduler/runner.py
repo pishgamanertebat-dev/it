@@ -306,8 +306,9 @@ def _save_receipt(conn, key, recipient_id, status, message_id, delivery_kind="re
                 WHEN receipts.status='sent' THEN 'sent'
                 WHEN receipts.status='uncertain' THEN 'uncertain'
                 ELSE excluded.status END,
-              message_id=COALESCE(excluded.message_id, receipts.message_id),
-              updated=excluded.updated''',
+              message_id=CASE WHEN receipts.status IN ('sent','uncertain') THEN receipts.message_id
+                  ELSE COALESCE(excluded.message_id, receipts.message_id) END,
+              updated=CASE WHEN receipts.status IN ('sent','uncertain') THEN receipts.updated ELSE excluded.updated END''',
             (*key, str(recipient_id), delivery_kind, status, message_id, updated))
 
 
