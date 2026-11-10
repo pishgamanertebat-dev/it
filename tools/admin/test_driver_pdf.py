@@ -70,9 +70,10 @@ class DriverPDFTests(AdminFixture,unittest.TestCase):
         config=yaml.safe_load(Path('settings/schedules.yaml').read_text(encoding='utf-8'))
         jobs={job['id']:job for job in config['schedules']}
         for name in ('repairs_daily','metalwork_daily'):self.assertNotIn(name,jobs)
-        self.assertEqual(config['preflight'],{'enabled':True,'hours':[8,11]})
-        for name,hour,cap in [('overflow_daily_test',12,'reports.overflow.daily_receive'),('driver_daily_office_supervisor',9,'reports.driver_daily.daily_receive')]:
+        self.assertEqual(config['preflight'],{'enabled':True,'hours':[6,7,8,11,14]})
+        for name,hour,minute,cap in [('overflow_daily_test',7,45,'reports.overflow.daily_receive'),('driver_daily_office_supervisor',9,0,'reports.driver_daily.daily_receive')]:
             self.assertTrue(jobs[name]['enabled']);self.assertEqual(jobs[name]['trigger']['hour'],hour)
+            self.assertEqual(jobs[name]['trigger']['minute'],minute)
             self.assertEqual(jobs[name]['recipient_capability'],cap)
             self.assertEqual(jobs[name]['timezone'],'Asia/Tehran')
             self.assertNotIn('recipient',jobs[name])
