@@ -407,6 +407,7 @@ def _execute(conn, job, due, now, registry, authorization, replay, previous):
     logger.info('Starting %s due=%s recipient=%s', *key, job['recipient'])
     status, error, process_failed, result = 'succeeded', None, False, None
     error_detail = None
+    occurrence_authorization = authorization
     try:
         recipient = job['recipient']
         params = dict(job['params'])
@@ -436,7 +437,14 @@ def _execute(conn, job, due, now, registry, authorization, replay, previous):
                     and store.resolve_active_recipients(OFFICE_TASKS[job['task']]).status == 'store_unavailable'):
                 raise TransportUnavailable('Office authorization temporarily unavailable')
             current = set(current_recipients(job['task'], store))
-            for user in current:
+            original = {str(row[0]) for row in conn.execute(
+                'SELECT DISTINCT recipient_id FROM receipts WHERE schedule_id=? AND due=?',key)}
+            original = original or current
+            capability = OFFICE_TASKS.get(job['task']) or MULTI_RECIPIENT_TASKS.get(job['task'])
+            if capability and ('recipient_capability' in job or job['task'] in MULTI_RECIPIENT_TASKS):
+                from .occurrence_authorization import OccurrenceAuthorization
+                occurrence_authorization=OccurrenceAuthorization(store,capability,original)
+            for user in current & original:
                 if conn.execute("SELECT 1 FROM receipts WHERE schedule_id=? AND due=? AND recipient_id=? AND delivery_kind='report'", (*key, user)).fetchone() is None:
                     _save_receipt(conn, key, user, 'pending', None)
             for old in conn.execute("SELECT recipient_id FROM receipts WHERE schedule_id=? AND due=? AND delivery_kind='report' AND status IN ('failed','pending')", key).fetchall():
@@ -450,7 +458,7 @@ def _execute(conn, job, due, now, registry, authorization, replay, previous):
                 if job['task'] in OFFICE_TASKS and 'recipient_capability' in job:
                     kwargs['on_artifact_receipt'] = lambda user, artifact, state, mid=None, digest=None: office_receipts.save(conn, key, user, artifact, state, mid, digest)
                 if job['task'] in REPORT_TASKS:
-                    kwargs['authorization'] = authorization if authorization is not None else AuthorizationStore()
+                    kwargs['authorization'] = occurrence_authorization if occurrence_authorization is not None else AuthorizationStore()
                 result = registry[job['task']][1](recipient, params, **kwargs)
             elif job['task'] in MULTI_RECIPIENT_TASKS:
                 result = registry[job['task']][1](

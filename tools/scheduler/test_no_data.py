@@ -67,6 +67,11 @@ class NoDataTests(unittest.TestCase):
     def test_revoked_before_later_report_never_sent(self):
         self.run_at();self.users.remove('B');self.present=True;self.run_at(61)
         self.assertEqual([x[1] for x in self.delivery if x[0]=='report'],['A'])
+    def test_new_subscriber_is_only_added_to_new_day_not_historical_retry(self):
+        self.run_at();self.users.append('C');self.present=True;self.run_at(61)
+        self.assertEqual([x[1] for x in self.delivery if x[0]=='report'],['A','B'])
+        self.ready_dates.add('1405/07/15');self.run_at(24*3600)
+        self.assertEqual([x[1] for x in self.delivery if x[0]=='report'],['A','B','A','B','C'])
     def test_no_valid_date_truthful_notice(self):
         self.latest=None;self.run_at()
         self.assertNotIn('1405/07/12',self.delivery[0][2]);self.assertIn('تاریخ معتبر دیگری',self.delivery[0][2])

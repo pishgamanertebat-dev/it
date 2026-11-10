@@ -21,7 +21,7 @@ def hold_backlog(conn,jobs,now,store):
     Existing terminal/missing policy is evaluated before calling this function.
     Ordinary future occurrences are never added here by the scheduler tick.
     """
-    from .delivery_alert import _delivery_summary,_expected
+    from .delivery_alert import _delivery_summary,occurrence_recipients
     from .misfire import due_storage_key,_occurrences
     ensure_schema(conn)
     added=[]
@@ -36,11 +36,11 @@ def hold_backlog(conn,jobs,now,store):
             for due in dues:
                 key=by_day.get(due.date(),due_storage_key(due))
                 rows.setdefault(key,dict(schedule_id=job['id'],due=key,status='not_recorded',error='occurrence_not_recorded'))
-            expected=_expected(job,store)
-            if expected is None:raise ValueError('Backlog recipients unavailable')
             for due,run in rows.items():
                 original=datetime.fromisoformat(due)
                 if original>now:continue
+                expected=occurrence_recipients(conn,job,run,store,now)
+                if expected is None:raise ValueError('Backlog recipients unavailable')
                 receipts=_delivery_summary(conn,job,run,expected,store)
                 if expected and set(expected)<={r['recipient'] for r in receipts if r['status'] in {'sent','revoked'}}:continue
                 evidence=json.dumps(dict(previous_run=run,delivery=receipts),sort_keys=True,ensure_ascii=False)

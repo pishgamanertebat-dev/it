@@ -6,7 +6,7 @@ import sqlite3
 
 from .delivery_alert import (TEHRAN, STALE_CLAIM_SECONDS, _default_sender, _iso,
     _parse, _operators, _expected, _delivery_summary, _problems, _target, _title,
-    _label, _message_id)
+    _label, _message_id, occurrence_recipients)
 from .misfire import _occurrences, due_storage_key
 
 
@@ -33,7 +33,6 @@ def snapshot(conn, jobs, now, store):
     floor=now-timedelta(days=7)
     for job in jobs:
         if not job.get('enabled',True):continue
-        expected=_expected(job,store)
         runs={r['due']:dict(r) for r in conn.execute('SELECT * FROM runs WHERE schedule_id=?',(job['id'],))}
         for h in conn.execute("SELECT * FROM report_recovery_hold WHERE schedule_id=? AND status='held'",(job['id'],)):
             runs.setdefault(h['due'],dict(schedule_id=job['id'],due=h['due'],status='not_recorded',error='occurrence_not_recorded',started=None,finished=None))
@@ -47,6 +46,7 @@ def snapshot(conn, jobs, now, store):
                     runs.setdefault(key,dict(schedule_id=job['id'],due=key,status='not_recorded',error='occurrence_not_recorded',started=None,finished=None))
         for run in sorted(runs.values(),key=lambda r:r['due']):
             if _parse(run['due'])>now:continue
+            expected=occurrence_recipients(conn,job,run,store,now)
             receipts=_delivery_summary(conn,job,run,expected or (),store)
             corrections=[dict(r) for r in conn.execute('SELECT * FROM report_correction_review WHERE schedule_id=? AND due=?', (job['id'],run['due']))]
             open_corrections=[r for r in corrections if r['status'] not in {'sent','resolved'}]
@@ -86,7 +86,7 @@ def format_messages(data):
     for r in data['unresolved']:
         due=_parse(r['original_due']).astimezone(TEHRAN).strftime('%Y-%m-%d %H:%M')
         last=_parse(r['last_attempt']).astimezone(TEHRAN).strftime('%Y-%m-%d %H:%M') if r['last_attempt'] else 'ثبت نشده'
-        names='، '.join(x['label'] for x in r['recipients']) or ('مجوز گیرنده قابل بررسی نیست' if not r['resolver_available'] else 'اصلاحیه')
+        names='، '.join(x['label'] for x in r['recipients']) or ('گیرنده تاریخی در رسیدها ثبت نشده؛ بررسی تاریخچه لازم است' if not r['corrections'] else 'اصلاحیه')
         if r.get('recovery_hold'):
             reason='توقف مستقل نوبت تاریخی برای تصمیم مالک؛ علت قبلی: '+str(r['error'] or 'رسید کامل نیست')
             action='بررسی منبع و رسید؛ ارسال فقط پس از تأیید مستقل مالک'

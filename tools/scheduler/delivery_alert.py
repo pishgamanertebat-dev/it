@@ -228,6 +228,7 @@ def _problems(conn, job, run, expected, store):
             'recipient': user, 'kind': kind, 'klass': klass,
             'event': event, 'error_code': error if re.fullmatch(r'[A-Za-z0-9_]{0,80}',error) else 'unknown_error',
             'recovery_hold': bool(hold),
+            'receipt_unverified': run['status']=='succeeded',
             'maintenance_report': job.get('task') == 'maintenance_daily_report',
             'generation_failed': (job.get('task') == 'maintenance_daily_report' and kind == 'report'
                 and run['error'] in {'ValueError', 'invalid_source'} and _column(run, 'data_state') != 'ready'),
@@ -308,6 +309,8 @@ def format_exception(title, target, due_clock, problems):
         if item.get('event') == 'recovery_review':
             state='ارسال خودکار این نوبت تاریخی متوقف است'
             reason='بازیابی فقط پس از بررسی منبع، رسید و تأیید مالک؛ موعد اصلی و تاریخ داده محفوظ است'
+            if item.get('receipt_unverified'):
+                reason='موفقیت اجرا ثبت شده، اما رسید گزارش کافی نیست؛ نبود ارسال اثبات نشده و بازفرستادن نیازمند بررسی مستقل است'
         elif item.get('event') == 'missing_expired':
             state = 'مهلت ۳۶ ساعت از موعد اصلی پایان یافت؛ ارسال خودکار بسته است'
             reason = 'داده همان تاریخ تکمیل نشد؛ بازیابی فقط پس از بررسی و تأیید مالک'
@@ -380,7 +383,7 @@ def _delivery_summary(conn, job, run, expected, store):
         message_id = row['message_id'] if row else None
         parts = artifacts.get(user, ())
         required = ({'mechanical','metalwork'} if job.get('task')=='driver_daily'
-                    and 'recipient_capability' in job else None)
+                    and 'recipient_capability' in job and not str(_column(run,'recipient') or '').startswith('role:') else None)
         if status!='revoked' and (parts or required):
             if (parts and (not required or {p['artifact_id'] for p in parts}==required)
                     and all(part['status'] == 'sent' and part['message_id'] for part in parts)):
@@ -670,7 +673,7 @@ def _expected(job, store):
 
 
 def _process_run(conn, job, run, store, operators, now, sender_factory):
-    expected = _expected(job, store)
+    expected = occurrence_recipients(conn,job,run,store,now)
     if expected is None:
         return
     problems = _problems(conn, job, run, expected, store)
@@ -704,6 +707,22 @@ def _process_run(conn, job, run, store, operators, now, sender_factory):
         return
     _recover(conn, job, run, operators, now, sender_factory, recipients,
              case_schedule_id='preflight_' + job['id'])
+
+
+def occurrence_recipients(conn,job,run,store,now):
+    """Historical subscriptions come from that occurrence, never today's holders."""
+    rows=list(conn.execute('''SELECT DISTINCT recipient_id FROM receipts
+        WHERE schedule_id=? AND due=?''',(job['id'],run['due'])))
+    rows+=list(conn.execute('''SELECT DISTINCT recipient_id FROM office_artifact_receipts
+        WHERE schedule_id=? AND due=?''',(job['id'],run['due'])))
+    if rows:return tuple(sorted({str(r['recipient_id']) for r in rows}))
+    original=str(_column(run,'recipient') or '')
+    if re.fullmatch(r'[1-9][0-9]*',original):return (original,)
+    if _parse(run['due']).astimezone(TEHRAN).date()==now.astimezone(TEHRAN).date():
+        return _expected(job,store)
+    # A legacy role/capability without any per-user evidence requires a history
+    # review. Do not invent people from the current membership.
+    return ()
 
 
 def _adopt_source_notice(conn,job,run,problems,operators,now):
