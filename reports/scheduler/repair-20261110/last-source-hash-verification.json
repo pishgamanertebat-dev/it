@@ -1,0 +1,31 @@
+{
+  "drivers": {
+    "sha256": "d062a9ce21b0e5133180f9264020f5f72d3b008316f808d8a713a702bc29cd05",
+    "unchanged_from_audited_snapshot": true,
+    "verified_at": "2026-11-10T09:10:31.892405+00:00"
+  },
+  "overflow": {
+    "sha256": "999b33cf7bfebe36df9abeaefc19749cabddc812af10b5c4083627863ad99057",
+    "unchanged_from_audited_snapshot": true,
+    "verified_at": "2026-11-10T09:10:31.923648+00:00"
+  },
+  "maintenance_local": {
+    "sha256": "78fe91effe2d463a679167c583b11cf94649a9916c983133f6294de18adc3ae0",
+    "unchanged_from_audited_snapshot": true,
+    "verified_at": "2026-11-10T09:10:31.939179+00:00"
+  },
+  "oil": {
+    "sha256": "ba5bfc88a4d75d1b19fdf0410dfef7e1c040c2b0432059f99a99a458b0413902",
+    "unchanged_from_audited_snapshot": true,
+    "verified_at": "2026-11-10T09:10:31.954888+00:00"
+  },
+  "performance": {
+    "sha256": "d890add01f66c7d62357f47548c0ad7cec3a5995914ee7e8a7f129dbc15258c0",
+    "unchanged_from_audited_snapshot": true,
+    "verified_at": "2026-11-10T09:10:32.017404+00:00"
+  },
+  "metalwork_correction": {
+    "current_17_content_matches_correction_snapshot": true,
+    "pdf_hash_unchanged": true
+  }
+}

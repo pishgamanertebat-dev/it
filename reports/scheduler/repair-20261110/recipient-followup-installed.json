@@ -1,0 +1,11 @@
+{
+  "initial_commit": "256f798ce7baca5d6791f1de640f0aae66fb3172",
+  "source_commit": "cd4df5bbd3caadf2903a5fc0a9995e9efbb52229",
+  "installed_commit": "660b3ce71724bd131c3808df284797e895e865da",
+  "backup": "E:\\KomatsoAI\\reports\\scheduler\\repair-20261110\\recipient-followup-backup-083815",
+  "receiver_alert_tests": 46,
+  "recipient_and_office_tests": 18,
+  "failures": 0,
+  "actual_report_sends": 0,
+  "installed_at": "2026-11-10T08:38:19.323047+00:00"
+}

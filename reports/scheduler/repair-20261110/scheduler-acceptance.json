@@ -1,0 +1,11 @@
+{
+  "passed": true,
+  "tests_run": 244,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "real_http_calls": 0,
+  "blocked_attempts": 0,
+  "failed_ids": [],
+  "error_ids": []
+}

@@ -1,0 +1,65 @@
+{
+  "checked_at": "2026-11-10T09:12:38.611060+00:00",
+  "report_rows": 70,
+  "occurrences": 40,
+  "ready_operations": 4,
+  "old_report_sends": 0,
+  "old_correction_sends": 0,
+  "drain_released": true,
+  "live_integrity": "ok",
+  "staged_code_tree_equal": true,
+  "historical_pdf_receipts": {
+    "7316": {
+      "schedule_id": "driver_daily_office_supervisor",
+      "due": "2026-11-09T05:30:00+00:00",
+      "recipient_id": "397185913",
+      "artifact_id": "metalwork",
+      "status": "sent",
+      "message_id": "7316",
+      "sha256": "938138680a75d3e76a4c4789777071c06af0555e40f7d7dbe6f94742266caea2",
+      "updated": "2026-11-09T05:32:12.456555+00:00"
+    },
+    "7318": {
+      "schedule_id": "driver_daily_office_supervisor",
+      "due": "2026-11-09T05:30:00+00:00",
+      "recipient_id": "514458396",
+      "artifact_id": "metalwork",
+      "status": "sent",
+      "message_id": "7318",
+      "sha256": "938138680a75d3e76a4c4789777071c06af0555e40f7d7dbe6f94742266caea2",
+      "updated": "2026-11-09T05:32:14.763699+00:00"
+    },
+    "7347": {
+      "schedule_id": "manual-driver-metalwork-correction-1405-08-17-3f67e80867f0",
+      "due": "2026-11-09T13:13:27.957863+00:00",
+      "recipient_id": "397185913",
+      "artifact_id": "metalwork-correction",
+      "status": "sent",
+      "message_id": "7347",
+      "sha256": "3f67e80867f0654b0e69d0d1575e473b51dc56032f6ae4218a30a66e959d8267",
+      "updated": "2026-11-09T13:15:59.598897+00:00"
+    },
+    "7348": {
+      "schedule_id": "manual-driver-metalwork-correction-1405-08-17-3f67e80867f0",
+      "due": "2026-11-09T13:13:27.957863+00:00",
+      "recipient_id": "514458396",
+      "artifact_id": "metalwork-correction",
+      "status": "sent",
+      "message_id": "7348",
+      "sha256": "3f67e80867f0654b0e69d0d1575e473b51dc56032f6ae4218a30a66e959d8267",
+      "updated": "2026-11-09T13:16:09.616937+00:00"
+    }
+  },
+  "all_existing_receipts_preserved": {
+    "receipts": {
+      "previous_rows": 451,
+      "unchanged": true
+    },
+    "office_artifact_receipts": {
+      "previous_rows": 232,
+      "unchanged": true
+    }
+  },
+  "permission_grants_unchanged": true,
+  "workbook_validation": "structural; interactive Office not run"
+}

@@ -1,0 +1,28 @@
+{
+  "captured_at": "2026-11-10T09:12:33.517647+00:00",
+  "occurrence_counts": {
+    "sent": 15,
+    "closed": 12,
+    "review": 3
+  },
+  "future_occurrences": 10,
+  "recipient_counts": {
+    "sent": 27,
+    "closed": 21,
+    "review": 5,
+    "future": 17
+  },
+  "ready_operations": 4,
+  "receipt_preservation": {
+    "receipts": {
+      "previous_rows": 451,
+      "unchanged": true
+    },
+    "office_artifact_receipts": {
+      "previous_rows": 232,
+      "unchanged": true
+    }
+  },
+  "permission_grants_unchanged": true,
+  "manager_sent_receipts": 38
+}
