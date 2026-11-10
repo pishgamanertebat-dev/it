@@ -48,13 +48,13 @@ class Directory:
 
 
 class AlertTests(unittest.TestCase):
-    def test_suppressed_driver_notice_is_not_a_failed_delivery(self):
+    def test_suppressed_driver_notice_still_requires_report_delivery(self):
         from .delivery_alert import _required_kind
         run = dict(status='waiting_for_data', error='date_missing', data_state='missing',
                    notice_delivery_state='suppressed')
-        self.assertIsNone(_required_kind(run))
+        self.assertEqual(_required_kind(run),'report')
         run['status'] = 'no_data_final'
-        self.assertIsNone(_required_kind(run))
+        self.assertEqual(_required_kind(run),'report')
         run.update(status='retry_wait', error='TransportUnavailable', data_state='ready')
         self.assertEqual(_required_kind(run), 'report')
 
@@ -121,10 +121,8 @@ class AlertTests(unittest.TestCase):
     def scan(self, moment):
         conn = connect(self.state)
         try:
-            # These cases isolate transport failures; source notices have their own suite.
-            with patch('tools.scheduler.source_notice_alert.scan_source_notices'):
-                scan_delivery_exceptions(
-                    conn, [self.job()], moment, self.store, sender_factory=self.sender)
+            scan_delivery_exceptions(
+                conn, [self.job()], moment, self.store, sender_factory=self.sender)
         finally:
             conn.close()
 
@@ -379,13 +377,13 @@ class AlertTests(unittest.TestCase):
                              (JOB_ID, self.due, 'A', artifact, status, mid, None, self.due))
         conn.close()
         self.scan(self.after(1))
-        self.assertEqual(len(self.sent), 1)
+        self.assertFalse(any(text.startswith('✅') for _,text in self.sent))
         conn = connect(self.state)
         with conn:
             conn.execute("UPDATE office_artifact_receipts SET status='sent',message_id='12' WHERE artifact_id='metalwork'")
         conn.close()
         self.scan(self.after(2))
-        self.assertEqual(len(self.sent), 2)
+        self.assertTrue(self.sent[-1][1].startswith('✅'))
         self.assertIn('شناسه پیام: 11,12', self.sent[-1][1])
 
     def test_preflight_recovery_notification_retries_without_resending_report(self):
@@ -432,31 +430,32 @@ class AlertTests(unittest.TestCase):
         self.scan(self.after(15))
         self.set_receipt('B', 'sent', '22', kind='notice')
         self.scan(self.after(16))
-        self.assertEqual(len(self.sent), 2)
-        self.assertIn('خود گزارش ارسال نشده است', self.sent[-1][1])
+        self.assertEqual(len(self.sent), 1)
+        self.assertFalse(self.sent[-1][1].startswith('✅'))
         self.assertNotIn('ارسال گزارش تأیید شد', self.sent[-1][1])
 
-    def test_waiting_for_data_with_notice_sent_does_not_alert_the_operator(self):
+    def test_waiting_for_data_with_notice_sent_still_alerts_the_operator(self):
         self.arm()
         self.add_run('waiting_for_data', 'date_missing', data_state='missing', notice='sent')
         self.add_receipt('A', 'notice', 'sent', '1')
         self.add_receipt('B', 'notice', 'sent', '2')
         self.scan(self.moment)
         self.scan(self.after(40))
-        self.assertEqual(self.sent, [])
+        self.assertEqual(len(self.sent),1)
+        self.assertIn('در انتظار تکمیل داده',self.sent[0][1])
 
-    def test_source_lock_and_unattempted_missing_data_are_not_delivery_failures(self):
+    def test_source_access_failure_and_missing_data_both_alert_after_grace(self):
         self.arm()
         self.add_run('retry_wait', 'PermissionError')
         self.scan(self.moment)
         self.scan(self.after(40))
-        self.assertEqual(self.sent, [])
+        self.assertEqual(len(self.sent),1)
         self.add_run('waiting_for_data', 'date_missing', data_state='missing', due=due_storage_key(self.after(24 * 60)))
         self.scan(self.after(24 * 60))
         self.scan(self.after(24 * 60 + 40))
-        self.assertEqual(self.sent, [])
+        self.assertEqual(len(self.sent),2)
 
-    def test_waiting_for_data_notice_failure_alerts_only_that_recipient(self):
+    def test_waiting_for_data_alerts_every_undelivered_report_recipient(self):
         self.arm()
         self.add_run('waiting_for_data', 'date_missing', data_state='missing', notice='retry_wait')
         self.add_receipt('A', 'notice', 'sent', '1')
@@ -467,9 +466,9 @@ class AlertTests(unittest.TestCase):
         self.assertEqual(len(self.sent), 1)
         text = self.sent[0][1]
         self.assertIn('گیرنده ب', text)
-        self.assertNotIn('گیرنده الف', text)
-        self.assertIn('اعلان نبود اطلاعات به گیرنده نرسید', text)
-        self.assertIn('تلاش مجدد ادامه دارد', text)
+        self.assertIn('گیرنده الف', text)
+        self.assertIn('داده تاریخ گزارش', text)
+        self.assertIn('در انتظار تکمیل', text)
 
     def test_no_data_final_failed_notice_alerts_without_claiming_retry(self):
         self.arm()
@@ -480,7 +479,7 @@ class AlertTests(unittest.TestCase):
         self.assertEqual(len(self.sent), 1)
         self.assertIn('بررسی دستی لازم است', self.sent[0][1])
         self.assertNotIn('تلاش مجدد ادامه دارد', self.sent[0][1])
-        self.assertNotIn('گیرنده الف', self.sent[0][1])
+        self.assertIn('گیرنده الف', self.sent[0][1])
 
     def test_uncertain_report_alerts_immediately_and_does_not_resend(self):
         self.arm()
@@ -660,7 +659,7 @@ class AlertTests(unittest.TestCase):
                       side_effect=lambda *args, **kwargs: order.append('scan')):
             with self.assertLogs('tools.scheduler.runner', level='INFO') as logs:
                 tick(path, self.state, self.moment, {'overflow': (lambda params: None, handler)}, auth)
-        self.assertEqual(order, ['activate', 'run', 'scan'])
+        self.assertEqual(order, ['activate', 'scan', 'run', 'scan'])
         self.assertIn('recipient_name=امامی', '\n'.join(logs.output))
 
 

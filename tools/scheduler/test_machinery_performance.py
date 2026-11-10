@@ -155,10 +155,11 @@ class ReminderTests(Harness,unittest.TestCase):
                           checker=lambda target,s=state:{'status':s},sender_factory=lambda:sender)
         self.assertEqual(sender.message.call_count,1)
 
-    def test_technical_alerts_are_also_only_for_hedayati(self):
-        store=Mock();store.resolve_active_recipients.return_value=RecipientSetResolution('ready',(*REPORT_USERS,'999'))
-        self.assertEqual(_operators(store,self.job),(REMINDER_USER,))
-        store.resolve_active_recipients.assert_called_once_with(REMINDER_CAPABILITY)
+    def test_technical_alerts_reach_manager_and_hedayati_without_read_grants(self):
+        from tools.authorization.delivery_alert import CAPABILITY as MANAGER_CAPABILITY
+        store=Mock();store.resolve_active_recipients.side_effect=lambda cap: RecipientSetResolution('ready',('455740857',) if cap==MANAGER_CAPABILITY else (REMINDER_USER,))
+        self.assertEqual(_operators(store,self.job),('455740857',REMINDER_USER))
+        self.assertEqual({c.args[0] for c in store.resolve_active_recipients.call_args_list},{MANAGER_CAPABILITY,REMINDER_CAPABILITY})
 
 
 class DeliveryTests(unittest.TestCase):

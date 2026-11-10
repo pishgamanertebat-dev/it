@@ -544,6 +544,7 @@ def tick(config=CONFIG, state=STATE, now=None, registry=TASKS, authorization=Non
     conn = connect(state)
     try:
         _delivery_notifier(conn, jobs, now, authorization, activate=True)
+        _delivery_notifier(conn, jobs, now, authorization, scan=True)
         try:
             from .completion_reminder import run_reminders
             run_reminders(conn, jobs, now, authorization if authorization is not None else AuthorizationStore())

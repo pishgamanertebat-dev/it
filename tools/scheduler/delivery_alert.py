@@ -143,17 +143,8 @@ def _column(row, name):
 def _required_kind(run):
     status = run['status'] or ''
     error = run['error'] or ''
-    if status in {'running', 'skipped'}:
-        return None
-    if error in REPORT_FAILURES:
-        return 'report'
-    missing = (status in {'waiting_for_data', 'no_data_final'}
-               or _column(run, 'data_state') == 'missing' or error in MISSING_ERRORS)
-    if missing and status != 'succeeded' and error not in TRANSPORT_ERRORS and _column(run, 'data_state') != 'ready':
-        if _column(run, 'notice_delivery_state') == 'suppressed':
-            return None
-        return 'notice'
-    if status in {'succeeded', 'uncertain', 'partial', 'retry_wait', 'failed'}:
+    if status in {'succeeded', 'uncertain', 'partial', 'retry_wait', 'failed',
+                  'waiting_for_data', 'no_data_final', 'skipped', 'running'}:
         return 'report'
     return None
 
@@ -169,36 +160,6 @@ def _historical(conn, schedule_id, due, recipient, kind, receipt_exists):
         'SELECT status FROM notifier_baseline_run WHERE schedule_id=? AND due=?',
         (schedule_id, due)).fetchone()
     return row is not None and row['status'] in PROBLEM_RUN
-
-
-def _classify(run, kind, status, any_receipt):
-    """Return failed, uncertain, or None when this is not a delivery problem."""
-    if status in {'sent', 'revoked'}:
-        return None
-    if status in {'uncertain', 'sending'}:
-        return 'uncertain'
-    if status in {'failed', 'pending'}:
-        return 'failed'
-    if status != 'missing':
-        return None
-    notice_state = _column(run, 'notice_delivery_state')
-    if kind == 'notice':
-        if notice_state == 'uncertain':
-            return 'uncertain'
-        if notice_state in {'retry_wait', 'failed'} or any_receipt or run['status'] == 'no_data_final':
-            return 'failed'
-        return None
-    if run['status'] == 'succeeded':
-        return None
-    if run['status'] == 'uncertain':
-        return 'uncertain'
-    if run['status'] == 'partial':
-        return 'failed'
-    if run['status'] in {'retry_wait', 'failed'} and (run['error'] or '') in TRANSPORT_ERRORS:
-        return 'failed'
-    if any_receipt and run['status'] in {'retry_wait', 'failed'}:
-        return 'failed'
-    return None
 
 
 def _title(job):
@@ -233,10 +194,8 @@ def _problems(conn, job, run, expected, store):
     kind = _required_kind(run)
     if kind is None:
         return []
-    rows = list(conn.execute(
-        'SELECT recipient_id,delivery_kind,status FROM receipts WHERE schedule_id=? AND due=?',
-        (job['id'], run['due'])))
-    by_user = {row['recipient_id']: row for row in rows if row['delivery_kind'] == kind}
+    rows = _delivery_summary(conn, job, run, expected, store)
+    by_user = {row['recipient']: row for row in rows}
     found = []
     for user in expected:
         user = str(user)
@@ -244,11 +203,27 @@ def _problems(conn, job, run, expected, store):
         status = row['status'] if row else 'missing'
         if _historical(conn, job['id'], run['due'], user, kind, row is not None):
             continue
-        klass = _classify(run, kind, status, bool(by_user))
-        if klass is None:
+        if status in {'sent','revoked'}:
             continue
+        klass = 'uncertain' if status in {'uncertain','sending'} or run['status']=='uncertain' else 'failed'
+        error = run['error'] or ''
+        if klass == 'uncertain':
+            event = 'uncertain'
+        elif run['status']=='no_data_final':
+            event = 'missing_expired' if error in MISSING_ERRORS | {'missing_date_expired','superseded_missing_date'} else 'closed_without_delivery'
+        elif error in MISSING_ERRORS:
+            event = 'missing_waiting'
+        elif error.startswith('pdf_') or error=='driver_pdf_content':
+            event = 'pdf_invalid'
+        elif error in TRANSPORT_ERRORS:
+            event = 'partial_delivery' if run['status']=='partial' else 'bale_failure'
+        elif run['status']=='partial':
+            event = 'partial_delivery'
+        else:
+            event = 'generation_failure' if error else 'receipt_unconfirmed'
         found.append({
             'recipient': user, 'kind': kind, 'klass': klass,
+            'event': event, 'error_code': error,
             'maintenance_report': job.get('task') == 'maintenance_daily_report',
             'generation_failed': (job.get('task') == 'maintenance_daily_report' and kind == 'report'
                 and run['error'] in {'ValueError', 'invalid_source'} and _column(run, 'data_state') != 'ready'),
@@ -262,7 +237,7 @@ def _problems(conn, job, run, expected, store):
 
 
 def _sync_watches(conn, schedule_id, due, waiting, now):
-    keys = {(item['recipient'], item['kind']) for item in waiting}
+    keys = {(item['recipient'], _watch_kind(item)) for item in waiting}
     existing = list(conn.execute(
         '''SELECT recipient_id,delivery_kind,first_seen FROM delivery_failure_watch
            WHERE schedule_id=? AND due=?''', (schedule_id, due)))
@@ -277,7 +252,7 @@ def _sync_watches(conn, schedule_id, due, waiting, now):
                 schedule_id,due,recipient_id,delivery_kind,first_seen)
                 VALUES (?,?,?,?,?)
                 ON CONFLICT(schedule_id,due,recipient_id,delivery_kind) DO NOTHING''',
-                (schedule_id, due, item['recipient'], item['kind'], _iso(now)))
+                (schedule_id, due, item['recipient'], _watch_kind(item), _iso(now)))
     saved = {}
     for row in conn.execute(
             '''SELECT recipient_id,delivery_kind,first_seen FROM delivery_failure_watch
@@ -286,14 +261,17 @@ def _sync_watches(conn, schedule_id, due, waiting, now):
     return saved
 
 
+def _watch_kind(item):
+    return '|'.join((item['kind'],item.get('event',''),item.get('error_code','')))
+
+
 def _split(problems, run, watches, now):
     actionable, watching = [], []
     for item in problems:
-        if (item['klass'] == 'uncertain' or run['status'] == 'no_data_final'
-                or item.get('failure_code') in REPORT_FAILURES):
+        if item['klass'] == 'uncertain' or run['status'] == 'no_data_final':
             actionable.append(item)
             continue
-        seen = watches.get((item['recipient'], item['kind']))
+        seen = watches.get((item['recipient'], _watch_kind(item)))
         if seen and _utc(now) >= _parse(seen) + GRACE:
             actionable.append(item)
         else:
@@ -304,7 +282,12 @@ def _split(problems, run, watches, now):
 def format_exception(title, target, due_clock, problems):
     kinds = {item['kind'] for item in problems}
     klasses = {item['klass'] for item in problems}
-    if klasses == {'uncertain'} and kinds == {'notice'}:
+    events = {item.get('event') for item in problems}
+    if events <= {'missing_expired','closed_without_delivery'}:
+        header = '⚠️ نوبت گزارش بدون ارسال بسته شد'
+    elif events == {'missing_waiting'}:
+        header = '⚠️ گزارش در انتظار تکمیل داده است'
+    elif klasses == {'uncertain'} and kinds == {'notice'}:
         header = '⚠️ وضعیت ارسال اعلان گزارش نامشخص است'
     elif klasses == {'uncertain'}:
         header = '⚠️ وضعیت ارسال گزارش نامشخص است'
@@ -316,12 +299,23 @@ def format_exception(title, target, due_clock, problems):
         header = '⚠️ ارسال گزارش کامل نشد'
     lines = [header, '', f'گزارش: {title}', f'تاریخ گزارش: {target}', f'موعد: {due_clock}']
     for item in problems:
-        if item['klass'] == 'uncertain':
+        if item.get('event') == 'missing_expired':
+            state = 'مهلت ۳۶ ساعت از موعد اصلی پایان یافت؛ ارسال خودکار بسته است'
+            reason = 'داده همان تاریخ تکمیل نشد؛ بازیابی فقط پس از بررسی و تأیید مالک'
+        elif item.get('event') == 'closed_without_delivery':
+            state = 'بررسی دستی لازم است'
+            reason = 'نوبت بدون رسید تأییدشده بسته شده است'
+        elif item.get('event') == 'missing_waiting':
+            state = 'در انتظار تکمیل تا ۳۶ ساعت از موعد اصلی'
+            reason = 'داده تاریخ گزارش موجود یا کامل نیست؛ مسئول منبع باید همان تاریخ را تکمیل کند'
+        elif item['klass'] == 'uncertain':
             state = UNCERTAIN_SENTENCE
             reason = ('بررسی رسید ارسال؛ ' if item.get('maintenance_report') else '')+'نتیجه ارسال از بله تأیید نشد'
         elif item.get('failure_code'):
             state = 'تلاش مجدد ادامه دارد' if item['retrying'] else 'بررسی دستی لازم است'
             reason = public_reason(item['failure_code'],item.get('failure_detail'))
+            if item.get('event') == 'pdf_invalid':
+                reason += '؛ اصلاحیه احتمالی نیازمند بررسی و تأیید مالک است'
         elif item.get('generation_failed'):
             state = 'بررسی دستی لازم است'
             reason = 'خطای تولید گزارش'
@@ -376,11 +370,16 @@ def _delivery_summary(conn, job, run, expected, store):
         status = row['status'] if row else 'missing'
         message_id = row['message_id'] if row else None
         parts = artifacts.get(user, ())
-        if status == 'sent' and parts:
-            if all(part['status'] == 'sent' and part['message_id'] for part in parts):
+        required = ({'mechanical','metalwork'} if job.get('task')=='driver_daily'
+                    and 'recipient_capability' in job else None)
+        if parts or required:
+            if (parts and (not required or {p['artifact_id'] for p in parts}==required)
+                    and all(part['status'] == 'sent' and part['message_id'] for part in parts)):
+                status = 'sent'
                 message_id = ','.join(part['message_id'] for part in parts)
             else:
-                status, message_id = 'unconfirmed', None
+                status = 'uncertain' if any(p['status'] in {'sending','uncertain'} for p in parts) else 'unconfirmed'
+                message_id = None
         if status == 'sent' and not message_id:
             status = 'unconfirmed'
         summary.append(dict(recipient=user, label=_label(store, user), kind=kind,
@@ -390,28 +389,28 @@ def _delivery_summary(conn, job, run, expected, store):
 
 def _fingerprint(problems):
     return '\n'.join(sorted(f"{item['recipient']}|{item['kind']}|{item['klass']}"
+        + f"|{item.get('event','')}|{item.get('error_code','')}"
         + (f"|{item['failure_code']}|{item.get('failure_detail') or ''}" if item.get('failure_code') else '')
         for item in problems))
 
 
 def _operators(store, job=None):
     try:
-        capability = DELIVERY_FAILURE_RECEIVE
-        if job and job.get('task') == 'machinery_performance_daily_report':
-            from tools.authorization.machinery_performance import REMINDER_CAPABILITY
-            capability = REMINDER_CAPABILITY
-        resolution = store.resolve_active_recipients(capability)
+        resolution = store.resolve_active_recipients(DELIVERY_FAILURE_RECEIVE)
     except Exception:
         logger.error('Delivery alert recipient resolution failed')
         return ()
-    if type(resolution) is not RecipientSetResolution or resolution.status != 'ready':
-        return ()
     found = []
-    for user in resolution.recipients:
-        if job and job.get('task') == 'machinery_performance_daily_report' and user != '641220453':
-            continue
+    users=resolution.recipients if type(resolution) is RecipientSetResolution and resolution.status=='ready' else ()
+    for user in users:
         if isinstance(user, str) and re.fullmatch(r'[1-9][0-9]*', user) and user not in found:
             found.append(user)
+    if job and job.get('task') == 'machinery_performance_daily_report':
+        from tools.authorization.machinery_performance import REMINDER_CAPABILITY, REMINDER_USER
+        try:reminder = store.resolve_active_recipients(REMINDER_CAPABILITY)
+        except Exception:reminder = None
+        if type(reminder) is RecipientSetResolution and reminder.status=='ready' and REMINDER_USER in reminder.recipients and REMINDER_USER not in found:
+            found.append(REMINDER_USER)
     return tuple(found)
 
 
@@ -439,7 +438,7 @@ def _all_sent(conn, case, kind, operators):
 def _exception_reached(conn, case):
     return conn.execute(
         '''SELECT 1 FROM delivery_alert_receipt
-           WHERE schedule_id=? AND due=? AND episode=? AND alert_kind='exception' AND status='sent'
+           WHERE schedule_id=? AND due=? AND episode=? AND alert_kind='exception' AND status='sent' AND message_id IS NOT NULL
            LIMIT 1''',
         (case['schedule_id'], case['due'], case['episode'])).fetchone() is not None
 
@@ -448,17 +447,22 @@ def _claim(conn, case, kind, operators, now):
     claimed = []
     stamp = _iso(now)
     with conn:
+        conn.execute('BEGIN IMMEDIATE')
         for user in operators:
             row = conn.execute(
                 '''SELECT status,updated FROM delivery_alert_receipt
                    WHERE schedule_id=? AND due=? AND episode=? AND alert_kind=? AND operator_id=?''',
                 (case['schedule_id'], case['due'], case['episode'], kind, user)).fetchone()
-            if row and row['status'] == 'sent':
+            if row and row['status'] in {'sent','uncertain'}:
                 continue
             if row and row['status'] == 'sending':
                 age = (_utc(now) - _parse(row['updated'])).total_seconds()
                 if age < STALE_CLAIM_SECONDS:
                     continue
+                conn.execute('''UPDATE delivery_alert_receipt SET status='uncertain',error='InterruptedSend',updated=?
+                    WHERE schedule_id=? AND due=? AND episode=? AND alert_kind=? AND operator_id=?''',
+                    (stamp,case['schedule_id'],case['due'],case['episode'],kind,user))
+                continue
             conn.execute('''INSERT INTO delivery_alert_receipt(
                 schedule_id,due,episode,alert_kind,operator_id,status,message_id,error,updated)
                 VALUES (?,?,?,?,?,'sending',NULL,NULL,?)
@@ -499,6 +503,7 @@ def _default_sender():
 
 
 def _dispatch(conn, case, kind, text, operators, now, sender_factory):
+    from .tasks import TransportUnavailable, TransportRejected
     if not operators:
         if (kind == 'exception' and case['exception_status'] != 'failed') or (
                 kind == 'recovery' and case['recovery_status'] not in {'failed', 'sent', 'closed'}):
@@ -517,12 +522,15 @@ def _dispatch(conn, case, kind, text, operators, now, sender_factory):
             for user in claimed:
                 try:
                     message_id = sender.message(user, text)
-                except Exception as exc:
+                except (TransportUnavailable,TransportRejected) as exc:
                     _mark(conn, case, kind, user, 'failed', None, type(exc).__name__, now)
                     logger.error('delivery alert send failed schedule=%s due=%s kind=%s error=%s',
                                  case['schedule_id'], case['due'], kind, type(exc).__name__)
+                except Exception as exc:
+                    _mark(conn, case, kind, user, 'uncertain', None, type(exc).__name__, now)
                 else:
-                    _mark(conn, case, kind, user, 'sent', _message_id(message_id), None, now)
+                    mid = _message_id(message_id)
+                    _mark(conn, case, kind, user, 'sent' if mid else 'uncertain', mid, None, now)
     except Exception as exc:
         for user in claimed:
             _mark(conn, case, kind, user, 'failed', None, type(exc).__name__, now)
@@ -572,22 +580,12 @@ def _insert_case(conn, schedule_id, due, fingerprint, text, now):
 def _raise_exception(conn, job, run, problems, operators, now, sender_factory):
     fingerprint = _fingerprint(problems)
     text = format_exception(_title(job), _target(run['due']), _clock(run['due']), problems)
-    case = _open_case(conn, job['id'], run['due'])
-    if case is not None and case['fingerprint'] == fingerprint:
+    case = conn.execute('''SELECT * FROM delivery_alert_case WHERE schedule_id=? AND due=?
+        AND fingerprint=? AND recovery_status NOT IN ('sent','closed') ORDER BY episode DESC LIMIT 1''',
+        (job['id'],run['due'],fingerprint)).fetchone()
+    if case is not None:
         if not _all_sent(conn, case, 'exception', operators):
             _dispatch(conn, case, 'exception', case['exception_text'], operators, now, sender_factory)
-        return
-    if case is not None and not _exception_reached(conn, case):
-        with conn:
-            conn.execute('''UPDATE delivery_alert_case
-                SET fingerprint=?, exception_text=?, updated=?
-                WHERE schedule_id=? AND due=? AND episode=?''',
-                (fingerprint, text, _iso(now), case['schedule_id'], case['due'], case['episode']))
-            conn.execute('''DELETE FROM delivery_alert_receipt
-                WHERE schedule_id=? AND due=? AND episode=? AND alert_kind='exception' AND status!='sent' ''',
-                (case['schedule_id'], case['due'], case['episode']))
-        case = _reload(conn, case['schedule_id'], case['due'], case['episode'])
-        _dispatch(conn, case, 'exception', text, operators, now, sender_factory)
         return
     case = _insert_case(conn, job['id'], run['due'], fingerprint, text, now)
     _dispatch(conn, case, 'exception', text, operators, now, sender_factory)
@@ -623,6 +621,14 @@ def _recover(conn, job, run, operators, now, sender_factory, recipients, *, case
         _close_undelivered(conn, schedule_id, due, now)
         return
     case = _reload(conn, schedule_id, due, sent['episode'])
+    reached = {r[0] for r in conn.execute('''SELECT DISTINCT receipt.operator_id FROM delivery_alert_receipt AS receipt
+        JOIN delivery_alert_case AS c USING(schedule_id,due,episode)
+        WHERE receipt.schedule_id=? AND receipt.due=? AND receipt.alert_kind='exception'
+          AND receipt.status='sent' AND receipt.message_id IS NOT NULL
+          AND c.recovery_status NOT IN ('sent','closed')''',(schedule_id,due))}
+    operators = tuple(user for user in operators if user in reached)
+    if not operators:
+        return
     text = case['recovery_text'] or format_recovery(_title(job), _target(due), _clock(due), recipients)
     if not case['recovery_text']:
         with conn:
@@ -658,6 +664,7 @@ def _process_run(conn, job, run, store, operators, now, sender_factory):
     if expected is None:
         return
     problems = _problems(conn, job, run, expected, store)
+    _adopt_source_notice(conn, job, run, problems, operators, now)
     waiting = [item for item in problems
                if item['klass'] != 'uncertain' and run['status'] != 'no_data_final']
     watches = _sync_watches(conn, job['id'], run['due'], waiting, now)
@@ -689,6 +696,29 @@ def _process_run(conn, job, run, store, operators, now, sender_factory):
              case_schedule_id='preflight_' + job['id'])
 
 
+def _adopt_source_notice(conn,job,run,problems,operators,now):
+    """Keep proof of the former missing-data alerts; never send them twice."""
+    if not problems or any(p.get('event')!='missing_waiting' for p in problems):return
+    fingerprint=_fingerprint(problems)
+    if conn.execute('SELECT 1 FROM delivery_alert_case WHERE schedule_id=? AND due=? AND fingerprint=?',
+                    (job['id'],run['due'],fingerprint)).fetchone():return
+    old={}
+    for operator in operators:
+        rows=[conn.execute('''SELECT * FROM source_notice_alert_receipt
+            WHERE schedule_id=? AND due=? AND recipient_id=? AND operator_id=?''',
+            (job['id'],run['due'],p['recipient'],operator)).fetchone() for p in problems]
+        if rows and all(r and r['status'] in {'sent','uncertain','sending'} for r in rows):
+            state='sent' if all(r['status']=='sent' and r['message_id'] for r in rows) else 'uncertain'
+            old[operator]=(state,','.join(r['message_id'] for r in rows if r['message_id']) or None)
+    if not old:return
+    case=_insert_case(conn,job['id'],run['due'],fingerprint,
+        format_exception(_title(job),_target(run['due']),_clock(run['due']),problems),now)
+    with conn:
+        for operator,(state,mid) in old.items():
+            conn.execute('INSERT INTO delivery_alert_receipt VALUES (?,?,?,?,?,?,?,?,?)',
+                (job['id'],run['due'],case['episode'],'exception',operator,state,mid,'AdoptedSourceNotice',_iso(now)))
+
+
 def scan_delivery_exceptions(conn, jobs, now, authorization=None, *, sender_factory=None):
     """Alert current operators about new unresolved deliveries. Never raises for transport."""
     conn.row_factory = sqlite3.Row
@@ -702,8 +732,8 @@ def scan_delivery_exceptions(conn, jobs, now, authorization=None, *, sender_fact
     store = AuthorizationStore() if authorization is None else authorization
     operators = _operators(store)
     factory = sender_factory or _default_sender
-    from .source_notice_alert import scan_source_notices
-    scan_source_notices(conn, selected, now, store, sender_factory=factory)
+    # Recipient notices have their own receipts. Manager alerts follow the report
+    # obligation directly; the old source-notice outbox remains historical evidence.
     for job in selected:
         try:
             runs = list(conn.execute('SELECT * FROM runs WHERE schedule_id=?', (job['id'],)))
@@ -711,3 +741,5 @@ def scan_delivery_exceptions(conn, jobs, now, authorization=None, *, sender_fact
                 _process_run(conn, job, run, store, _operators(store, job) if job['task']=='machinery_performance_daily_report' else operators, now, factory)
         except Exception as exc:
             logger.error('Delivery exception scan failed schedule=%s error=%s', job.get('id'), type(exc).__name__)
+    from .daily_summary import scan_daily_summary
+    scan_daily_summary(conn, selected, now, store, sender_factory=factory)
