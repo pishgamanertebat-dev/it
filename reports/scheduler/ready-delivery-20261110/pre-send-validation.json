@@ -1,0 +1,42 @@
+{
+  "d6f8f4f75bd65e5eacecf08e4772d919": {
+    "pages": 3,
+    "bytes": 180996,
+    "searchable": true,
+    "vector": true,
+    "devices": 12,
+    "rows": 13,
+    "date": "1405/08/17",
+    "pdf_sha256": "61b92d5dcef76b55ed0a2b7990b832149ca52ddca0e594ccbce6a52c639fe9de"
+  },
+  "38b37b4e949e5eb7b906280ea54e4487": {
+    "pages": 3,
+    "bytes": 180996,
+    "searchable": true,
+    "vector": true,
+    "devices": 12,
+    "rows": 13,
+    "date": "1405/08/17",
+    "pdf_sha256": "61b92d5dcef76b55ed0a2b7990b832149ca52ddca0e594ccbce6a52c639fe9de"
+  },
+  "77ef651b80bb56c68216267e119d96fa": {
+    "pages": 2,
+    "bytes": 151884,
+    "searchable": true,
+    "vector": true,
+    "devices": 8,
+    "rows": 8,
+    "date": "1405/08/18",
+    "pdf_sha256": "9e53446078f1a84ea4db50179ed6acc1b80fa0f4a5d5a7272d49eae660f77fbb"
+  },
+  "d24c5f7fe66b5f14aa533aca0805ee1b": {
+    "pages": 2,
+    "bytes": 151884,
+    "searchable": true,
+    "vector": true,
+    "devices": 8,
+    "rows": 8,
+    "date": "1405/08/18",
+    "pdf_sha256": "9e53446078f1a84ea4db50179ed6acc1b80fa0f4a5d5a7272d49eae660f77fbb"
+  }
+}

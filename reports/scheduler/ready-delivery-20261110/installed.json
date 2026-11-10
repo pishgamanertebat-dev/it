@@ -1,0 +1,89 @@
+{
+  "installed_at": "2026-11-10T12:13:46.525383+00:00",
+  "backup": "E:\\KomatsoAI\\reports\\scheduler\\ready-delivery-20261110\\activation-backup-b197c5ae",
+  "files": {
+    "tools/fleet/maintenance_daily/prepared.py": "796a32b65e75b71787ab2a72f28f5cdf589a5639dd6ed10aa2973ac6821974ac",
+    "tools/scheduler/report_errors.py": "267eedaf93e8abf7ed152c46cfb23e7af7d868b4127e70a51b186fba8098f0c1",
+    "tools/scheduler/misfire.py": "9a394a141219c97eaf262d4631733dc0ac97cadaa371f3efd63204289ce124da",
+    "tools/scheduler/recovery_review.py": "9846b66aa34cc1af88f349ed5ba393849f9cb3572a3d32c97401a345d2c8a39d",
+    "tools/scheduler/recovery_delivery.py": "2600f77a81dc55f5dbba09fb6fce1020be5ed8b0c3e19ef735e3aa537aed47e1",
+    "tools/fleet/maintenance_daily/delivery.py": "be92b6696de9d2b3ff74cb3383452d273e0fb3e564a898a9d5931e1c0675920e",
+    "tools/scheduler/preflight.py": "9c82925acf27db72bef6b5bc6e9e2714305aedf97703b27109341485012a4923",
+    "tools/scheduler/delivery_alert.py": "6347ada9a1f1a796b413e33ea8b0c7ab86beebcfad0ed534f7e315a6c70d6722",
+    "tools/scheduler/runner.py": "ef2f59cca64181141d8a1ac5042f4cc4f54df5e30fbace319d08132288297630",
+    "tools/scheduler/test_preflight.py": "c323ec0eec59c7359d9358d094bf1c22baa7845e019658b68966746e3c499258",
+    "tools/scheduler/test_recovery_delivery.py": "f86030a593e61f5730dfd7d914a5741d53ea52a91f3fcf7624dfb2ceb5fb7878",
+    "tools/scheduler/test_recovery_review.py": "0cbca3d3ffe59d4e5a35b5afe4a68425cb6b4ec4282a4450bb36bb035795345c",
+    "tools/scheduler/test_source_wakeup.py": "90fcaa4d33871eed030f360d029d8d6c8e6a1b159f5c7632c0d6e9edbb14ac11",
+    "tools/fleet/maintenance_daily/test_prepared.py": "b002350ddc1f6a2ce58f8093fc21b7a8a2fee8a96d22c530005675f70ca44348",
+    "tools/fleet/maintenance_daily/test_report.py": "f905cd696da0c47561bd5d9c4b4c8b114c46a083b703a0bfea9dcdde3ac4c0e6",
+    "tools/scheduler/README.md": "38fb173976ee95729eb076364fb4694f181514048e5c87a0bbe22c01abcc889d"
+  },
+  "code_commit": "4fe1b835af9f241d7c3dbe8c422c0d15da9cfa45",
+  "scheduler_check": "Timezone: Asia/Tehran; now: 2026-11-10T15:43:44.306077+03:30; catch-up: 900s\noverflow_daily_test task=overflow recipient=capability:reports.overflow.daily_receive next=2026-11-11 07:45:00+03:30 misfire=replay\ndriver_daily_office_supervisor task=driver_daily recipient=capability:reports.driver_daily.daily_receive next=2026-11-11 09:00:00+03:30 misfire=replay\noverflow_daily_mechanical task=mechanical_overflow recipient=capability:reports.overflow.mechanical_daily_receive next=2026-11-11 07:45:00+03:30 misfire=replay\ndriver_daily_mechanical task=mechanical_driver_daily recipient=capability:reports.driver_daily.mechanical_daily_receive next=2026-11-11 09:00:00+03:30 misfire=replay\ndriver_daily_metalwork task=metalwork_driver_daily recipient=capability:reports.driver_daily.metalwork_daily_receive next=2026-11-11 09:00:00+03:30 misfire=replay\nmaintenance_daily_report task=maintenance_daily_report recipient=capability:reports.maintenance.daily_receive next=2026-11-11 12:00:00+03:30 misfire=replay\noil_balance_daily_report task=oil_balance_daily_report recipient=capability:reports.oil_balance.daily_receive next=2026-11-11 15:00:00+03:30 misfire=replay\nmachinery_performance_daily_report task=machinery_performance_daily_report recipient=capability:reports.machinery_performance.daily_receive next=2026-11-11 15:00:00+03:30 misfire=replay\n",
+  "recovery": {
+    "holds": [
+      {
+        "schedule_id": "maintenance_daily_report",
+        "due": "2026-11-09T08:30:00+00:00",
+        "status": "recovered"
+      },
+      {
+        "schedule_id": "maintenance_daily_report",
+        "due": "2026-11-10T08:30:00+00:00",
+        "status": "recovered"
+      }
+    ],
+    "summaries": [
+      {
+        "due": "2026-11-09T08:30:00+00:00",
+        "recipients": [
+          {
+            "recipient": "397185913",
+            "label": "امامی",
+            "kind": "report",
+            "status": "sent",
+            "message_id": "7417",
+            "recovery_operation_id": "d6f8f4f75bd65e5eacecf08e4772d919"
+          },
+          {
+            "recipient": "514458396",
+            "label": "هوشمند پاکدل",
+            "kind": "report",
+            "status": "sent",
+            "message_id": "7418",
+            "recovery_operation_id": "38b37b4e949e5eb7b906280ea54e4487"
+          }
+        ]
+      },
+      {
+        "due": "2026-11-10T08:30:00+00:00",
+        "recipients": [
+          {
+            "recipient": "397185913",
+            "label": "امامی",
+            "kind": "report",
+            "status": "sent",
+            "message_id": "7419",
+            "recovery_operation_id": "77ef651b80bb56c68216267e119d96fa"
+          },
+          {
+            "recipient": "514458396",
+            "label": "هوشمند پاکدل",
+            "kind": "report",
+            "status": "sent",
+            "message_id": "7420",
+            "recovery_operation_id": "d24c5f7fe66b5f14aa533aca0805ee1b"
+          }
+        ]
+      }
+    ],
+    "transport_calls": 0
+  },
+  "integrity": "ok",
+  "historical_runs_and_receipts_unchanged": true,
+  "unrelated_holds_unchanged": true,
+  "gateway_restart": false,
+  "workbook_writes": false,
+  "transport_calls": 0
+}

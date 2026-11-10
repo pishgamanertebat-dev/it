@@ -1,0 +1,63 @@
+{
+  "operations": [
+    {
+      "operation_id": "d6f8f4f75bd65e5eacecf08e4772d919",
+      "original_schedule": "maintenance_daily_report",
+      "original_due": "2026-11-09T08:30:00+00:00",
+      "target_date": "1405/08/17",
+      "recipient_id": "397185913",
+      "sha256": "61b92d5dcef76b55ed0a2b7990b832149ca52ddca0e594ccbce6a52c639fe9de",
+      "source_sha256": "78fe91effe2d463a679167c583b11cf94649a9916c983133f6294de18adc3ae0",
+      "receipt_schedule": "manual-maintenance-recovery-1405-08-17-61b92d5dcef7",
+      "approval_ref": "owner-explicit-four-maintenance-deliveries-20261110",
+      "status": "sent",
+      "message_id": "7417",
+      "updated": "2026-11-10T11:46:53.470707+00:00"
+    },
+    {
+      "operation_id": "38b37b4e949e5eb7b906280ea54e4487",
+      "original_schedule": "maintenance_daily_report",
+      "original_due": "2026-11-09T08:30:00+00:00",
+      "target_date": "1405/08/17",
+      "recipient_id": "514458396",
+      "sha256": "61b92d5dcef76b55ed0a2b7990b832149ca52ddca0e594ccbce6a52c639fe9de",
+      "source_sha256": "78fe91effe2d463a679167c583b11cf94649a9916c983133f6294de18adc3ae0",
+      "receipt_schedule": "manual-maintenance-recovery-1405-08-17-61b92d5dcef7",
+      "approval_ref": "owner-explicit-four-maintenance-deliveries-20261110",
+      "status": "sent",
+      "message_id": "7418",
+      "updated": "2026-11-10T11:46:55.595405+00:00"
+    },
+    {
+      "operation_id": "77ef651b80bb56c68216267e119d96fa",
+      "original_schedule": "maintenance_daily_report",
+      "original_due": "2026-11-10T08:30:00+00:00",
+      "target_date": "1405/08/18",
+      "recipient_id": "397185913",
+      "sha256": "9e53446078f1a84ea4db50179ed6acc1b80fa0f4a5d5a7272d49eae660f77fbb",
+      "source_sha256": "78fe91effe2d463a679167c583b11cf94649a9916c983133f6294de18adc3ae0",
+      "receipt_schedule": "manual-maintenance-recovery-1405-08-18-9e53446078f1",
+      "approval_ref": "owner-explicit-four-maintenance-deliveries-20261110",
+      "status": "sent",
+      "message_id": "7419",
+      "updated": "2026-11-10T11:46:56.511878+00:00"
+    },
+    {
+      "operation_id": "d24c5f7fe66b5f14aa533aca0805ee1b",
+      "original_schedule": "maintenance_daily_report",
+      "original_due": "2026-11-10T08:30:00+00:00",
+      "target_date": "1405/08/18",
+      "recipient_id": "514458396",
+      "sha256": "9e53446078f1a84ea4db50179ed6acc1b80fa0f4a5d5a7272d49eae660f77fbb",
+      "source_sha256": "78fe91effe2d463a679167c583b11cf94649a9916c983133f6294de18adc3ae0",
+      "receipt_schedule": "manual-maintenance-recovery-1405-08-18-9e53446078f1",
+      "approval_ref": "owner-explicit-four-maintenance-deliveries-20261110",
+      "status": "sent",
+      "message_id": "7420",
+      "updated": "2026-11-10T11:46:57.506418+00:00"
+    }
+  ],
+  "historical_rows_preserved": true,
+  "integrity": "ok",
+  "completed": "2026-11-10T11:46:57.550942+00:00"
+}

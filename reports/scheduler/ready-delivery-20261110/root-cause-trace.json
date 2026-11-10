@@ -1,0 +1,497 @@
+{
+  "source_snapshots": {
+    "maintenance_local": {
+      "sha256": "841da662ce91f2973cef091a922a7caa74ee82c62502a9c2aae8f1c1e6e20e13",
+      "captured": "2026-11-10T07:57:44.277605+00:00",
+      "snapshot": "E:\\KomatsoAI\\reports\\scheduler\\repair-20261110\\sources\\maintenance_local-841da662ce91f2973cef091a922a7caa74ee82c62502a9c2aae8f1c1e6e20e13.xlsx",
+      "dates": [
+        {
+          "date": "1405/08/17",
+          "rows": 0,
+          "devices": 0,
+          "error": null
+        },
+        {
+          "date": "1405/08/18",
+          "rows": 0,
+          "devices": 0,
+          "error": null
+        }
+      ]
+    },
+    "maintenance_mine": {
+      "sha256": "78fe91effe2d463a679167c583b11cf94649a9916c983133f6294de18adc3ae0",
+      "captured": "2026-11-10T07:58:37.567592+00:00",
+      "snapshot": "E:\\KomatsoAI\\reports\\scheduler\\repair-20261110\\sources\\maintenance_mine-78fe91effe2d463a679167c583b11cf94649a9916c983133f6294de18adc3ae0.xlsx",
+      "dates": [
+        {
+          "date": "1405/08/17",
+          "rows": 13,
+          "devices": 12,
+          "error": null
+        },
+        {
+          "date": "1405/08/18",
+          "rows": 8,
+          "devices": 8,
+          "error": null
+        }
+      ]
+    }
+  },
+  "sync_journal_transitions": [
+    {
+      "rowid": 2,
+      "operation": "95283601b5814785ab9734e46b86240b",
+      "fingerprint": "e9f9513830187ec67b85e2e848b2a36b408141493e0d7c72fe591072ffdd5514",
+      "actor": "mine-file-sync",
+      "source": "E:\\Function\\تعمیرات 1405.xlsx",
+      "request": "{\"_kind\": \"maintenance_mine_sync\", \"operation\": \"95283601b5814785ab9734e46b86240b\"}",
+      "before_hash": "841da662ce91f2973cef091a922a7caa74ee82c62502a9c2aae8f1c1e6e20e13",
+      "after_hash": "78fe91effe2d463a679167c583b11cf94649a9916c983133f6294de18adc3ae0",
+      "backup": "E:\\KomatsoAI\\runtime\\maintenance-entry\\backups\\841da662ce91f2973cef091a922a7caa74ee82c62502a9c2aae8f1c1e6e20e13.xlsx",
+      "status": "succeeded",
+      "result": "{\"status\": \"imported\", \"mine_hash\": \"78fe91effe2d463a679167c583b11cf94649a9916c983133f6294de18adc3ae0\", \"changed_sheets\": [\"متفرقه\", \"1251\", \"1253\", \"1254\", \"471\", \"472\", \"473\", \"601.\", \"151\", \"701\", \"702\", \"704\", \"706\", \"709\", \"710\", \"715\", \"720\", \"721\", \"467\"], \"protected_operations\": [], \"baseline\": \"9bc7f95d8da84602982b101b6d85e64b\"}",
+      "created": "2026-11-10T08:40:19.753574+00:00"
+    }
+  ],
+  "hold_trace": [
+    {
+      "schedule_id": "maintenance_daily_report",
+      "due": "2026-11-09T08:30:00+00:00",
+      "created": "2026-11-10T08:30:38.568593+00:00",
+      "seconds_after_due": 86438.568593,
+      "data_deadline": "2026-11-10T20:30:00+00:00",
+      "previous_run": {
+        "attempt": 98,
+        "data_state": "missing",
+        "due": "2026-11-09T08:30:00+00:00",
+        "error": "no_target_date_records",
+        "error_detail": null,
+        "finished": "2026-11-10T08:22:06.651503+00:00",
+        "next_attempt_at": "2026-11-10T08:37:04+00:00",
+        "notice_delivery_state": "suppressed",
+        "recipient": "capability:reports.maintenance.daily_receive",
+        "schedule_id": "maintenance_daily_report",
+        "started": "2026-11-10T08:22:04+00:00",
+        "status": "waiting_for_data",
+        "task": "maintenance_daily_report"
+      },
+      "current_run": {
+        "schedule_id": "maintenance_daily_report",
+        "due": "2026-11-09T08:30:00+00:00",
+        "recipient": "capability:reports.maintenance.daily_receive",
+        "task": "maintenance_daily_report",
+        "status": "waiting_for_data",
+        "started": "2026-11-10T08:22:04+00:00",
+        "finished": "2026-11-10T08:22:06.651503+00:00",
+        "error": "no_target_date_records",
+        "attempt": 98,
+        "next_attempt_at": "2026-11-10T08:37:04+00:00",
+        "data_state": "missing",
+        "notice_delivery_state": "suppressed",
+        "error_detail": null
+      }
+    },
+    {
+      "schedule_id": "maintenance_daily_report",
+      "due": "2026-11-10T08:30:00+00:00",
+      "created": "2026-11-10T08:30:38.568593+00:00",
+      "seconds_after_due": 38.568593,
+      "data_deadline": "2026-11-11T20:30:00+00:00",
+      "previous_run": {
+        "attempt": 1,
+        "data_state": "missing",
+        "due": "2026-11-10T08:30:00+00:00",
+        "error": "no_target_date_records",
+        "error_detail": null,
+        "finished": "2026-11-10T08:30:04.120515+00:00",
+        "next_attempt_at": "2026-11-10T08:31:02+00:00",
+        "notice_delivery_state": "suppressed",
+        "recipient": "capability:reports.maintenance.daily_receive",
+        "schedule_id": "maintenance_daily_report",
+        "started": "2026-11-10T08:30:02+00:00",
+        "status": "waiting_for_data",
+        "task": "maintenance_daily_report"
+      },
+      "current_run": {
+        "schedule_id": "maintenance_daily_report",
+        "due": "2026-11-10T08:30:00+00:00",
+        "recipient": "capability:reports.maintenance.daily_receive",
+        "task": "maintenance_daily_report",
+        "status": "waiting_for_data",
+        "started": "2026-11-10T08:30:02+00:00",
+        "finished": "2026-11-10T08:30:04.120515+00:00",
+        "error": "no_target_date_records",
+        "attempt": 1,
+        "next_attempt_at": "2026-11-10T08:31:02+00:00",
+        "data_state": "missing",
+        "notice_delivery_state": "suppressed",
+        "error_detail": null
+      }
+    }
+  ],
+  "installation_transition": {
+    "expired": {
+      "overflow_daily_test": [],
+      "driver_daily_office_supervisor": [],
+      "overflow_daily_mechanical": [],
+      "driver_daily_mechanical": [],
+      "driver_daily_metalwork": [
+        "2026-11-07T05:30:00+00:00",
+        "2026-11-08T05:30:00+00:00"
+      ],
+      "maintenance_daily_report": [],
+      "oil_balance_daily_report": [],
+      "machinery_performance_daily_report": []
+    },
+    "holds": [
+      {
+        "schedule_id": "overflow_daily_test",
+        "due": "2026-09-16T05:30:00+00:00"
+      },
+      {
+        "schedule_id": "overflow_daily_test",
+        "due": "2026-09-17T05:30:00+00:00"
+      },
+      {
+        "schedule_id": "overflow_daily_test",
+        "due": "2026-09-18T05:30:00+00:00"
+      },
+      {
+        "schedule_id": "overflow_daily_test",
+        "due": "2026-09-19T05:30:00+00:00"
+      },
+      {
+        "schedule_id": "overflow_daily_test",
+        "due": "2026-09-20T05:30:00+00:00"
+      },
+      {
+        "schedule_id": "overflow_daily_test",
+        "due": "2026-09-21T05:30:00+00:00"
+      },
+      {
+        "schedule_id": "overflow_daily_test",
+        "due": "2026-09-23T05:30:00+00:00"
+      },
+      {
+        "schedule_id": "overflow_daily_test",
+        "due": "2026-09-24T05:30:00+00:00"
+      },
+      {
+        "schedule_id": "overflow_daily_test",
+        "due": "2026-09-25T05:30:00+00:00"
+      },
+      {
+        "schedule_id": "overflow_daily_test",
+        "due": "2026-09-26T05:30:00+00:00"
+      },
+      {
+        "schedule_id": "overflow_daily_test",
+        "due": "2026-09-27T05:30:00+00:00"
+      },
+      {
+        "schedule_id": "overflow_daily_test",
+        "due": "2026-09-28T05:30:00+00:00"
+      },
+      {
+        "schedule_id": "overflow_daily_test",
+        "due": "2026-09-29T05:30:00+00:00"
+      },
+      {
+        "schedule_id": "overflow_daily_test",
+        "due": "2026-09-30T05:30:00+00:00"
+      },
+      {
+        "schedule_id": "overflow_daily_test",
+        "due": "2026-10-01T05:30:00+00:00"
+      },
+      {
+        "schedule_id": "overflow_daily_test",
+        "due": "2026-10-03T05:30:00+00:00"
+      },
+      {
+        "schedule_id": "overflow_daily_test",
+        "due": "2026-10-04T05:30:00+00:00"
+      },
+      {
+        "schedule_id": "overflow_daily_test",
+        "due": "2026-10-05T05:30:00+00:00"
+      },
+      {
+        "schedule_id": "overflow_daily_test",
+        "due": "2026-10-06T05:30:00+00:00"
+      },
+      {
+        "schedule_id": "overflow_daily_test",
+        "due": "2026-10-07T05:30:00+00:00"
+      },
+      {
+        "schedule_id": "overflow_daily_test",
+        "due": "2026-10-08T05:30:00+00:00"
+      },
+      {
+        "schedule_id": "overflow_daily_test",
+        "due": "2026-11-05T04:15:00+00:00"
+      },
+      {
+        "schedule_id": "overflow_daily_test",
+        "due": "2026-11-08T04:15:00+00:00"
+      },
+      {
+        "schedule_id": "driver_daily_office_supervisor",
+        "due": "2026-10-05T06:30:00+00:00"
+      },
+      {
+        "schedule_id": "driver_daily_office_supervisor",
+        "due": "2026-10-06T06:30:00+00:00"
+      },
+      {
+        "schedule_id": "driver_daily_office_supervisor",
+        "due": "2026-10-07T06:30:00+00:00"
+      },
+      {
+        "schedule_id": "driver_daily_office_supervisor",
+        "due": "2026-10-08T06:30:00+00:00"
+      },
+      {
+        "schedule_id": "driver_daily_office_supervisor",
+        "due": "2026-10-30T05:30:00+00:00"
+      },
+      {
+        "schedule_id": "driver_daily_office_supervisor",
+        "due": "2026-11-07T05:30:00+00:00"
+      },
+      {
+        "schedule_id": "driver_daily_office_supervisor",
+        "due": "2026-11-08T05:30:00+00:00"
+      },
+      {
+        "schedule_id": "overflow_daily_mechanical",
+        "due": "2026-10-06T05:30:00+00:00"
+      },
+      {
+        "schedule_id": "overflow_daily_mechanical",
+        "due": "2026-11-08T04:15:00+00:00"
+      },
+      {
+        "schedule_id": "driver_daily_mechanical",
+        "due": "2026-10-06T06:30:00+00:00"
+      },
+      {
+        "schedule_id": "driver_daily_mechanical",
+        "due": "2026-10-07T06:30:00+00:00"
+      },
+      {
+        "schedule_id": "driver_daily_mechanical",
+        "due": "2026-10-30T05:30:00+00:00"
+      },
+      {
+        "schedule_id": "driver_daily_mechanical",
+        "due": "2026-11-07T05:30:00+00:00"
+      },
+      {
+        "schedule_id": "driver_daily_mechanical",
+        "due": "2026-11-08T05:30:00+00:00"
+      },
+      {
+        "schedule_id": "driver_daily_metalwork",
+        "due": "2026-10-30T05:30:00+00:00"
+      },
+      {
+        "schedule_id": "driver_daily_metalwork",
+        "due": "2026-11-07T05:30:00+00:00"
+      },
+      {
+        "schedule_id": "driver_daily_metalwork",
+        "due": "2026-11-08T05:30:00+00:00"
+      },
+      {
+        "schedule_id": "maintenance_daily_report",
+        "due": "2026-11-08T08:30:00+00:00"
+      },
+      {
+        "schedule_id": "maintenance_daily_report",
+        "due": "2026-11-09T08:30:00+00:00"
+      },
+      {
+        "schedule_id": "maintenance_daily_report",
+        "due": "2026-11-10T08:30:00+00:00"
+      },
+      {
+        "schedule_id": "oil_balance_daily_report",
+        "due": "2026-11-08T11:30:00+00:00"
+      },
+      {
+        "schedule_id": "oil_balance_daily_report",
+        "due": "2026-11-09T11:30:00+00:00"
+      },
+      {
+        "schedule_id": "machinery_performance_daily_report",
+        "due": "2026-11-07T11:30:00+00:00"
+      },
+      {
+        "schedule_id": "machinery_performance_daily_report",
+        "due": "2026-11-08T11:30:00+00:00"
+      }
+    ],
+    "report_receipts_unchanged": true,
+    "recorded_at": "2026-11-10T08:30:38.568593+00:00"
+  },
+  "installation_drain": {
+    "token": "2bbbf6aa9f9d46149770e66c53f33036",
+    "completed": "2026-11-10T08:30:59.947633+00:00",
+    "task_trigger_unchanged": true
+  },
+  "first_successful_sync": {
+    "health_status": "success",
+    "sync_healthy": true,
+    "last_attempt_at": "2026-11-10T08:39:52.864965+00:00",
+    "last_success_at": "2026-11-10T08:40:25.111583+00:00",
+    "last_run": {
+      "status": "success",
+      "scanned": 38,
+      "copied": 0,
+      "updated": 2,
+      "skipped": 36,
+      "skipped_locked": 0,
+      "skipped_unstable": 0,
+      "ignored": 1,
+      "errors": 0,
+      "collisions": 0,
+      "collision_files": 0,
+      "phase": "copy",
+      "source_enumerated": true,
+      "maintenance_guard": {
+        "status": "imported",
+        "mine_hash": "78fe91effe2d463a679167c583b11cf94649a9916c983133f6294de18adc3ae0",
+        "changed_sheets": [
+          "متفرقه",
+          "1251",
+          "1253",
+          "1254",
+          "471",
+          "472",
+          "473",
+          "601.",
+          "151",
+          "701",
+          "702",
+          "704",
+          "706",
+          "709",
+          "710",
+          "715",
+          "720",
+          "721",
+          "467"
+        ],
+        "protected_operations": [],
+        "baseline": "9bc7f95d8da84602982b101b6d85e64b"
+      },
+      "worker_lifecycle": {
+        "attempt_id": "fc5cff4e167f432b88ccb80c6456a09d",
+        "attempt_started_at": "2026-11-10T08:39:52.928404+00:00",
+        "worker_pid": 41980,
+        "creation_identity": "134387735929453923",
+        "termination_confirmed": true,
+        "kill_requested": false,
+        "kill_result": "not_requested",
+        "bounded_wait_result": "signaled_and_reaped",
+        "bounded_wait_seconds": 5,
+        "timeout_reason": null,
+        "worker_exit_outcome": "normal_exit",
+        "report_path": "C:\\Users\\win-10\\AppData\\Local\\hermes\\state\\mine-sync-run-5ass76o8.json",
+        "event": "attempt_end",
+        "updated_at": "2026-11-10T08:40:25.095582+00:00",
+        "worker_started_at": "2026-11-10T08:39:52.969167+00:00",
+        "worker_creation_time_at": "2026-11-10T08:39:52.945393+00:00",
+        "worker_exit_code": 0,
+        "attempt_finished_at": "2026-11-10T08:40:25.094595+00:00",
+        "elapsed_seconds": 32.172
+      },
+      "started_at": "2026-11-10T08:39:52.864965+00:00",
+      "finished_at": "2026-11-10T08:40:25.111583+00:00",
+      "duration_seconds": 32.266,
+      "dry_run": false,
+      "source": "\\\\192.168.20.251\\share\\",
+      "destination": "E:\\Function",
+      "attempted": true,
+      "sync_healthy": true,
+      "next_attempt_at": null
+    },
+    "worker_lifecycle": {
+      "attempt_id": "fc5cff4e167f432b88ccb80c6456a09d",
+      "attempt_started_at": "2026-11-10T08:39:52.928404+00:00",
+      "worker_pid": 41980,
+      "creation_identity": "134387735929453923",
+      "termination_confirmed": true,
+      "kill_requested": false,
+      "kill_result": "not_requested",
+      "bounded_wait_result": "signaled_and_reaped",
+      "bounded_wait_seconds": 5,
+      "timeout_reason": null,
+      "worker_exit_outcome": "normal_exit",
+      "report_path": "C:\\Users\\win-10\\AppData\\Local\\hermes\\state\\mine-sync-run-5ass76o8.json",
+      "event": "attempt_end",
+      "updated_at": "2026-11-10T08:40:25.095582+00:00",
+      "worker_started_at": "2026-11-10T08:39:52.969167+00:00",
+      "worker_creation_time_at": "2026-11-10T08:39:52.945393+00:00",
+      "worker_exit_code": 0,
+      "attempt_finished_at": "2026-11-10T08:40:25.094595+00:00",
+      "elapsed_seconds": 32.172
+    }
+  },
+  "scheduler_logs": [
+    "2026-11-10 00:12:04,006 INFO Maintenance workbook_sha256=841da662ce91f2973cef091a922a7caa74ee82c62502a9c2aae8f1c1e6e20e13 sheets_scanned=63 devices_matched=0 rows_matched=0",
+    "2026-11-10 00:28:02,954 INFO Maintenance workbook_sha256=841da662ce91f2973cef091a922a7caa74ee82c62502a9c2aae8f1c1e6e20e13 sheets_scanned=63 devices_matched=0 rows_matched=0",
+    "2026-11-10 00:43:03,190 INFO Maintenance workbook_sha256=841da662ce91f2973cef091a922a7caa74ee82c62502a9c2aae8f1c1e6e20e13 sheets_scanned=63 devices_matched=0 rows_matched=0",
+    "2026-11-10 00:58:03,250 INFO Maintenance workbook_sha256=841da662ce91f2973cef091a922a7caa74ee82c62502a9c2aae8f1c1e6e20e13 sheets_scanned=63 devices_matched=0 rows_matched=0",
+    "2026-11-10 01:13:03,618 INFO Maintenance workbook_sha256=841da662ce91f2973cef091a922a7caa74ee82c62502a9c2aae8f1c1e6e20e13 sheets_scanned=63 devices_matched=0 rows_matched=0",
+    "2026-11-10 01:28:03,665 INFO Maintenance workbook_sha256=841da662ce91f2973cef091a922a7caa74ee82c62502a9c2aae8f1c1e6e20e13 sheets_scanned=63 devices_matched=0 rows_matched=0",
+    "2026-11-10 01:43:03,984 INFO Maintenance workbook_sha256=841da662ce91f2973cef091a922a7caa74ee82c62502a9c2aae8f1c1e6e20e13 sheets_scanned=63 devices_matched=0 rows_matched=0",
+    "2026-11-10 01:58:03,756 INFO Maintenance workbook_sha256=841da662ce91f2973cef091a922a7caa74ee82c62502a9c2aae8f1c1e6e20e13 sheets_scanned=63 devices_matched=0 rows_matched=0",
+    "2026-11-10 02:14:02,968 INFO Maintenance workbook_sha256=841da662ce91f2973cef091a922a7caa74ee82c62502a9c2aae8f1c1e6e20e13 sheets_scanned=63 devices_matched=0 rows_matched=0",
+    "2026-11-10 02:29:03,255 INFO Maintenance workbook_sha256=841da662ce91f2973cef091a922a7caa74ee82c62502a9c2aae8f1c1e6e20e13 sheets_scanned=63 devices_matched=0 rows_matched=0",
+    "2026-11-10 02:44:03,211 INFO Maintenance workbook_sha256=841da662ce91f2973cef091a922a7caa74ee82c62502a9c2aae8f1c1e6e20e13 sheets_scanned=63 devices_matched=0 rows_matched=0",
+    "2026-11-10 02:59:03,527 INFO Maintenance workbook_sha256=841da662ce91f2973cef091a922a7caa74ee82c62502a9c2aae8f1c1e6e20e13 sheets_scanned=63 devices_matched=0 rows_matched=0",
+    "2026-11-10 03:14:03,595 INFO Maintenance workbook_sha256=841da662ce91f2973cef091a922a7caa74ee82c62502a9c2aae8f1c1e6e20e13 sheets_scanned=63 devices_matched=0 rows_matched=0",
+    "2026-11-10 03:29:03,938 INFO Maintenance workbook_sha256=841da662ce91f2973cef091a922a7caa74ee82c62502a9c2aae8f1c1e6e20e13 sheets_scanned=63 devices_matched=0 rows_matched=0",
+    "2026-11-10 03:44:03,955 INFO Maintenance workbook_sha256=841da662ce91f2973cef091a922a7caa74ee82c62502a9c2aae8f1c1e6e20e13 sheets_scanned=63 devices_matched=0 rows_matched=0",
+    "2026-11-10 03:59:03,822 INFO Maintenance workbook_sha256=841da662ce91f2973cef091a922a7caa74ee82c62502a9c2aae8f1c1e6e20e13 sheets_scanned=63 devices_matched=0 rows_matched=0",
+    "2026-11-10 04:15:02,949 INFO Maintenance workbook_sha256=841da662ce91f2973cef091a922a7caa74ee82c62502a9c2aae8f1c1e6e20e13 sheets_scanned=63 devices_matched=0 rows_matched=0",
+    "2026-11-10 04:30:03,449 INFO Maintenance workbook_sha256=841da662ce91f2973cef091a922a7caa74ee82c62502a9c2aae8f1c1e6e20e13 sheets_scanned=63 devices_matched=0 rows_matched=0",
+    "2026-11-10 04:45:03,353 INFO Maintenance workbook_sha256=841da662ce91f2973cef091a922a7caa74ee82c62502a9c2aae8f1c1e6e20e13 sheets_scanned=63 devices_matched=0 rows_matched=0",
+    "2026-11-10 05:00:03,527 INFO Maintenance workbook_sha256=841da662ce91f2973cef091a922a7caa74ee82c62502a9c2aae8f1c1e6e20e13 sheets_scanned=63 devices_matched=0 rows_matched=0",
+    "2026-11-10 05:15:03,293 INFO Maintenance workbook_sha256=841da662ce91f2973cef091a922a7caa74ee82c62502a9c2aae8f1c1e6e20e13 sheets_scanned=63 devices_matched=0 rows_matched=0",
+    "2026-11-10 05:30:03,573 INFO Maintenance workbook_sha256=841da662ce91f2973cef091a922a7caa74ee82c62502a9c2aae8f1c1e6e20e13 sheets_scanned=63 devices_matched=0 rows_matched=0",
+    "2026-11-10 05:45:04,033 INFO Maintenance workbook_sha256=841da662ce91f2973cef091a922a7caa74ee82c62502a9c2aae8f1c1e6e20e13 sheets_scanned=63 devices_matched=0 rows_matched=0",
+    "2026-11-10 06:00:04,066 INFO Maintenance workbook_sha256=841da662ce91f2973cef091a922a7caa74ee82c62502a9c2aae8f1c1e6e20e13 sheets_scanned=63 devices_matched=0 rows_matched=0",
+    "2026-11-10 06:15:03,589 INFO Maintenance workbook_sha256=841da662ce91f2973cef091a922a7caa74ee82c62502a9c2aae8f1c1e6e20e13 sheets_scanned=63 devices_matched=0 rows_matched=0",
+    "2026-11-10 06:30:03,337 INFO Maintenance workbook_sha256=841da662ce91f2973cef091a922a7caa74ee82c62502a9c2aae8f1c1e6e20e13 sheets_scanned=63 devices_matched=0 rows_matched=0",
+    "2026-11-10 06:45:10,273 INFO Maintenance workbook_sha256=841da662ce91f2973cef091a922a7caa74ee82c62502a9c2aae8f1c1e6e20e13 sheets_scanned=63 devices_matched=0 rows_matched=0",
+    "2026-11-10 07:00:03,682 INFO Maintenance workbook_sha256=841da662ce91f2973cef091a922a7caa74ee82c62502a9c2aae8f1c1e6e20e13 sheets_scanned=63 devices_matched=0 rows_matched=0",
+    "2026-11-10 07:15:03,771 INFO Maintenance workbook_sha256=841da662ce91f2973cef091a922a7caa74ee82c62502a9c2aae8f1c1e6e20e13 sheets_scanned=63 devices_matched=0 rows_matched=0",
+    "2026-11-10 07:30:03,681 INFO Maintenance workbook_sha256=841da662ce91f2973cef091a922a7caa74ee82c62502a9c2aae8f1c1e6e20e13 sheets_scanned=63 devices_matched=0 rows_matched=0",
+    "2026-11-10 07:45:18,883 INFO Maintenance workbook_sha256=841da662ce91f2973cef091a922a7caa74ee82c62502a9c2aae8f1c1e6e20e13 sheets_scanned=63 devices_matched=0 rows_matched=0",
+    "2026-11-10 08:06:03,140 INFO Maintenance workbook_sha256=841da662ce91f2973cef091a922a7caa74ee82c62502a9c2aae8f1c1e6e20e13 sheets_scanned=63 devices_matched=0 rows_matched=0",
+    "2026-11-10 08:21:03,808 INFO Maintenance workbook_sha256=841da662ce91f2973cef091a922a7caa74ee82c62502a9c2aae8f1c1e6e20e13 sheets_scanned=63 devices_matched=0 rows_matched=0",
+    "2026-11-10 08:36:03,980 INFO Maintenance workbook_sha256=841da662ce91f2973cef091a922a7caa74ee82c62502a9c2aae8f1c1e6e20e13 sheets_scanned=63 devices_matched=0 rows_matched=0",
+    "2026-11-10 08:51:03,996 INFO Maintenance workbook_sha256=841da662ce91f2973cef091a922a7caa74ee82c62502a9c2aae8f1c1e6e20e13 sheets_scanned=63 devices_matched=0 rows_matched=0",
+    "2026-11-10 09:06:04,137 INFO Maintenance workbook_sha256=841da662ce91f2973cef091a922a7caa74ee82c62502a9c2aae8f1c1e6e20e13 sheets_scanned=63 devices_matched=0 rows_matched=0",
+    "2026-11-10 09:21:03,933 INFO Maintenance workbook_sha256=841da662ce91f2973cef091a922a7caa74ee82c62502a9c2aae8f1c1e6e20e13 sheets_scanned=63 devices_matched=0 rows_matched=0",
+    "2026-11-10 09:36:04,293 INFO Maintenance workbook_sha256=841da662ce91f2973cef091a922a7caa74ee82c62502a9c2aae8f1c1e6e20e13 sheets_scanned=63 devices_matched=0 rows_matched=0",
+    "2026-11-10 09:52:03,214 INFO Maintenance workbook_sha256=841da662ce91f2973cef091a922a7caa74ee82c62502a9c2aae8f1c1e6e20e13 sheets_scanned=63 devices_matched=0 rows_matched=0",
+    "2026-11-10 10:07:03,969 INFO Maintenance workbook_sha256=841da662ce91f2973cef091a922a7caa74ee82c62502a9c2aae8f1c1e6e20e13 sheets_scanned=63 devices_matched=0 rows_matched=0",
+    "2026-11-10 10:22:03,777 INFO Maintenance workbook_sha256=841da662ce91f2973cef091a922a7caa74ee82c62502a9c2aae8f1c1e6e20e13 sheets_scanned=63 devices_matched=0 rows_matched=0",
+    "2026-11-10 10:37:03,976 INFO Maintenance workbook_sha256=841da662ce91f2973cef091a922a7caa74ee82c62502a9c2aae8f1c1e6e20e13 sheets_scanned=63 devices_matched=0 rows_matched=0",
+    "2026-11-10 10:52:03,731 INFO Maintenance workbook_sha256=841da662ce91f2973cef091a922a7caa74ee82c62502a9c2aae8f1c1e6e20e13 sheets_scanned=63 devices_matched=0 rows_matched=0",
+    "2026-11-10 11:07:04,261 INFO Maintenance workbook_sha256=841da662ce91f2973cef091a922a7caa74ee82c62502a9c2aae8f1c1e6e20e13 sheets_scanned=63 devices_matched=0 rows_matched=0",
+    "2026-11-10 11:22:04,246 INFO Maintenance workbook_sha256=841da662ce91f2973cef091a922a7caa74ee82c62502a9c2aae8f1c1e6e20e13 sheets_scanned=63 devices_matched=0 rows_matched=0",
+    "2026-11-10 11:37:04,595 INFO Maintenance workbook_sha256=841da662ce91f2973cef091a922a7caa74ee82c62502a9c2aae8f1c1e6e20e13 sheets_scanned=63 devices_matched=0 rows_matched=0",
+    "2026-11-10 11:52:06,644 INFO Maintenance workbook_sha256=841da662ce91f2973cef091a922a7caa74ee82c62502a9c2aae8f1c1e6e20e13 sheets_scanned=63 devices_matched=0 rows_matched=0",
+    "2026-11-10 12:00:04,115 INFO Maintenance workbook_sha256=841da662ce91f2973cef091a922a7caa74ee82c62502a9c2aae8f1c1e6e20e13 sheets_scanned=63 devices_matched=0 rows_matched=0"
+  ],
+  "creation_callsite": "reports/scheduler/repair-20261110/install_staged.py:125 -> tools/scheduler/recovery_review.py:hold_backlog",
+  "blocking_callsite": "tools/scheduler/runner.py:_claim_replay -> held -> return False before _execute"
+}

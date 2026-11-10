@@ -1,0 +1,42 @@
+{
+  "passed": false,
+  "tests_run": 353,
+  "failures": 2,
+  "errors": 0,
+  "skipped": 0,
+  "external_attempts": [],
+  "modules": [
+    "tools.scheduler.test_recovery_delivery",
+    "tools.scheduler.test_recovery_review",
+    "tools.scheduler.test_source_wakeup",
+    "tools.scheduler.test_runner",
+    "tools.scheduler.test_misfire",
+    "tools.scheduler.test_no_data",
+    "tools.scheduler.test_preflight",
+    "tools.scheduler.test_delivery_alert",
+    "tools.scheduler.test_daily_summary",
+    "tools.scheduler.test_receipt_immutability",
+    "tools.scheduler.test_occurrence_recipients",
+    "tools.scheduler.test_maintenance_reminder",
+    "tools.scheduler.test_source_notice_alert",
+    "tools.fleet.maintenance_daily.test_prepared",
+    "tools.fleet.maintenance_daily.test_report",
+    "tools.fleet.repairs.test_manual_forms_offline",
+    "tools.fleet.repairs.test_ai_daily_manual",
+    "tools.fleet.repairs.test_ai_daily_entry",
+    "tools.fleet.repairs.test_intent_regression",
+    "tools.fleet.repairs.test_maintenance_baseline",
+    "tools.fleet.repairs.test_maintenance_sync",
+    "tools.fleet.work_orders.dev.test_minimal_lifecycle",
+    "tools.fleet.work_orders.dev.test_restart_recovery"
+  ],
+  "excluded_native_tests": [
+    "tools.fleet.work_orders.dev.test_minimal_lifecycle.NativeMinimalTests.test_native_sent_correction_uses_reviewed_bytes_and_preserves_sent_original"
+  ],
+  "native_status": "Separate native Office test stalled before an exporter child appeared; isolated test process stopped. Not a software regression pass.",
+  "failed_ids": [
+    "tools.fleet.work_orders.dev.test_minimal_lifecycle.MinimalLifecycleTests.test_historical_af_proposal_and_source_dates_are_not_operational_order_dates",
+    "tools.fleet.work_orders.dev.test_minimal_lifecycle.MinimalLifecycleTests.test_main_entry_exits_every_idle_form_and_no_extra_entry_actions_exist"
+  ],
+  "error_ids": []
+}

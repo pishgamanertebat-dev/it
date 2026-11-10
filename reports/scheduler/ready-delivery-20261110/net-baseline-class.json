@@ -1,0 +1,9 @@
+{
+  "tests": 27,
+  "failed_ids": [
+    "tools.fleet.work_orders.dev.test_minimal_lifecycle.MinimalLifecycleTests.test_historical_af_proposal_and_source_dates_are_not_operational_order_dates",
+    "tools.fleet.work_orders.dev.test_minimal_lifecycle.MinimalLifecycleTests.test_main_entry_exits_every_idle_form_and_no_extra_entry_actions_exist"
+  ],
+  "errors": [],
+  "external_attempts": []
+}

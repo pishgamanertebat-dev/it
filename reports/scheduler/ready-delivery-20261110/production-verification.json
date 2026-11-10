@@ -1,0 +1,278 @@
+{
+  "verified_at": "2026-11-10T12:14:29.364026+00:00",
+  "installed_code_matches": true,
+  "original_records_preserved": {
+    "runs": true,
+    "receipts": true,
+    "office_artifact_receipts": true
+  },
+  "operations": [
+    {
+      "operation_id": "d6f8f4f75bd65e5eacecf08e4772d919",
+      "original_schedule": "maintenance_daily_report",
+      "original_due": "2026-11-09T08:30:00+00:00",
+      "target_date": "1405/08/17",
+      "recipient_id": "397185913",
+      "sha256": "61b92d5dcef76b55ed0a2b7990b832149ca52ddca0e594ccbce6a52c639fe9de",
+      "source_sha256": "78fe91effe2d463a679167c583b11cf94649a9916c983133f6294de18adc3ae0",
+      "receipt_schedule": "manual-maintenance-recovery-1405-08-17-61b92d5dcef7",
+      "approval_ref": "owner-explicit-four-maintenance-deliveries-20261110",
+      "status": "sent",
+      "message_id": "7417",
+      "updated": "2026-11-10T11:46:53.470707+00:00"
+    },
+    {
+      "operation_id": "38b37b4e949e5eb7b906280ea54e4487",
+      "original_schedule": "maintenance_daily_report",
+      "original_due": "2026-11-09T08:30:00+00:00",
+      "target_date": "1405/08/17",
+      "recipient_id": "514458396",
+      "sha256": "61b92d5dcef76b55ed0a2b7990b832149ca52ddca0e594ccbce6a52c639fe9de",
+      "source_sha256": "78fe91effe2d463a679167c583b11cf94649a9916c983133f6294de18adc3ae0",
+      "receipt_schedule": "manual-maintenance-recovery-1405-08-17-61b92d5dcef7",
+      "approval_ref": "owner-explicit-four-maintenance-deliveries-20261110",
+      "status": "sent",
+      "message_id": "7418",
+      "updated": "2026-11-10T11:46:55.595405+00:00"
+    },
+    {
+      "operation_id": "77ef651b80bb56c68216267e119d96fa",
+      "original_schedule": "maintenance_daily_report",
+      "original_due": "2026-11-10T08:30:00+00:00",
+      "target_date": "1405/08/18",
+      "recipient_id": "397185913",
+      "sha256": "9e53446078f1a84ea4db50179ed6acc1b80fa0f4a5d5a7272d49eae660f77fbb",
+      "source_sha256": "78fe91effe2d463a679167c583b11cf94649a9916c983133f6294de18adc3ae0",
+      "receipt_schedule": "manual-maintenance-recovery-1405-08-18-9e53446078f1",
+      "approval_ref": "owner-explicit-four-maintenance-deliveries-20261110",
+      "status": "sent",
+      "message_id": "7419",
+      "updated": "2026-11-10T11:46:56.511878+00:00"
+    },
+    {
+      "operation_id": "d24c5f7fe66b5f14aa533aca0805ee1b",
+      "original_schedule": "maintenance_daily_report",
+      "original_due": "2026-11-10T08:30:00+00:00",
+      "target_date": "1405/08/18",
+      "recipient_id": "514458396",
+      "sha256": "9e53446078f1a84ea4db50179ed6acc1b80fa0f4a5d5a7272d49eae660f77fbb",
+      "source_sha256": "78fe91effe2d463a679167c583b11cf94649a9916c983133f6294de18adc3ae0",
+      "receipt_schedule": "manual-maintenance-recovery-1405-08-18-9e53446078f1",
+      "approval_ref": "owner-explicit-four-maintenance-deliveries-20261110",
+      "status": "sent",
+      "message_id": "7420",
+      "updated": "2026-11-10T11:46:57.506418+00:00"
+    }
+  ],
+  "holds": [
+    {
+      "schedule_id": "maintenance_daily_report",
+      "due": "2026-11-09T08:30:00+00:00",
+      "status": "recovered",
+      "reason": "owner_review_required_for_historical_delivery",
+      "created": "2026-11-10T08:30:38.568593+00:00",
+      "deadline": "2026-11-10T20:30:00+00:00",
+      "evidence": "{\"delivery\": [{\"kind\": \"report\", \"label\": \"امامی\", \"message_id\": null, \"recipient\": \"397185913\", \"status\": \"pending\"}, {\"kind\": \"report\", \"label\": \"هوشمند پاکدل\", \"message_id\": null, \"recipient\": \"514458396\", \"status\": \"pending\"}], \"previous_run\": {\"attempt\": 98, \"data_state\": \"missing\", \"due\": \"2026-11-09T08:30:00+00:00\", \"error\": \"no_target_date_records\", \"error_detail\": null, \"finished\": \"2026-11-10T08:22:06.651503+00:00\", \"next_attempt_at\": \"2026-11-10T08:37:04+00:00\", \"notice_delivery_state\": \"suppressed\", \"recipient\": \"capability:reports.maintenance.daily_receive\", \"schedule_id\": \"maintenance_daily_report\", \"started\": \"2026-11-10T08:22:04+00:00\", \"status\": \"waiting_for_data\", \"task\": \"maintenance_daily_report\"}}",
+      "approval_ref": "owner-explicit-four-maintenance-deliveries-20261110"
+    },
+    {
+      "schedule_id": "maintenance_daily_report",
+      "due": "2026-11-10T08:30:00+00:00",
+      "status": "recovered",
+      "reason": "owner_review_required_for_historical_delivery",
+      "created": "2026-11-10T08:30:38.568593+00:00",
+      "deadline": "2026-11-11T20:30:00+00:00",
+      "evidence": "{\"delivery\": [{\"kind\": \"report\", \"label\": \"امامی\", \"message_id\": null, \"recipient\": \"397185913\", \"status\": \"pending\"}, {\"kind\": \"report\", \"label\": \"هوشمند پاکدل\", \"message_id\": null, \"recipient\": \"514458396\", \"status\": \"pending\"}], \"previous_run\": {\"attempt\": 1, \"data_state\": \"missing\", \"due\": \"2026-11-10T08:30:00+00:00\", \"error\": \"no_target_date_records\", \"error_detail\": null, \"finished\": \"2026-11-10T08:30:04.120515+00:00\", \"next_attempt_at\": \"2026-11-10T08:31:02+00:00\", \"notice_delivery_state\": \"suppressed\", \"recipient\": \"capability:reports.maintenance.daily_receive\", \"schedule_id\": \"maintenance_daily_report\", \"started\": \"2026-11-10T08:30:02+00:00\", \"status\": \"waiting_for_data\", \"task\": \"maintenance_daily_report\"}}",
+      "approval_ref": "owner-explicit-four-maintenance-deliveries-20261110"
+    }
+  ],
+  "original_occurrences_suppressed": {
+    "2026-11-09T08:30:00+00:00": true,
+    "2026-11-10T08:30:00+00:00": true
+  },
+  "recovery_events": [
+    {
+      "id": 1,
+      "operation_id": "d6f8f4f75bd65e5eacecf08e4772d919",
+      "created": "2026-11-10T11:45:41.039149+00:00",
+      "event": "owner_authorized",
+      "evidence": "{\"approval\": {\"approval_ref\": \"owner-explicit-four-maintenance-deliveries-20261110\", \"excluded_dates\": [\"1405/08/15\", \"1405/08/16\"], \"operations\": [{\"operation_id\": \"d6f8f4f75bd65e5eacecf08e4772d919\", \"recipient_id\": \"397185913\", \"sha256\": \"61b92d5dcef76b55ed0a2b7990b832149ca52ddca0e594ccbce6a52c639fe9de\", \"target_date\": \"1405/08/17\"}, {\"operation_id\": \"38b37b4e949e5eb7b906280ea54e4487\", \"recipient_id\": \"514458396\", \"sha256\": \"61b92d5dcef76b55ed0a2b7990b832149ca52ddca0e594ccbce6a52c639fe9de\", \"target_date\": \"1405/08/17\"}, {\"operation_id\": \"77ef651b80bb56c68216267e119d96fa\", \"recipient_id\": \"397185913\", \"sha256\": \"9e53446078f1a84ea4db50179ed6acc1b80fa0f4a5d5a7272d49eae660f77fbb\", \"target_date\": \"1405/08/18\"}, {\"operation_id\": \"d24c5f7fe66b5f14aa533aca0805ee1b\", \"recipient_id\": \"514458396\", \"sha256\": \"9e53446078f1a84ea4db50179ed6acc1b80fa0f4a5d5a7272d49eae660f77fbb\", \"target_date\": \"1405/08/18\"}], \"owner_instruction\": \"اجازه اجرای ارسال واقعی همین چهار عملیات، مشروط به کنترل‌های ضروری صحت فایل، هویت گیرنده و جلوگیری از ارسال تکراری، داده شده است.\", \"plan_sha256\": \"e391798b01cb8063dc0ff09a11cd0f811d90f89ed7afa5ae1168a0a7284992d6\", \"recorded_at\": \"2026-11-10T11:44:19.347503+00:00\"}, \"recipient_name\": \"امامی\", \"validation\": {\"bytes\": 180996, \"date\": \"1405/08/17\", \"devices\": 12, \"pages\": 3, \"pdf_sha256\": \"61b92d5dcef76b55ed0a2b7990b832149ca52ddca0e594ccbce6a52c639fe9de\", \"rows\": 13, \"searchable\": true, \"vector\": true}}"
+    },
+    {
+      "id": 2,
+      "operation_id": "d6f8f4f75bd65e5eacecf08e4772d919",
+      "created": "2026-11-10T11:45:41.040149+00:00",
+      "event": "historical_hold_released_for_operation",
+      "evidence": "{\"approval_ref\": null, \"created\": \"2026-11-10T08:30:38.568593+00:00\", \"deadline\": \"2026-11-10T20:30:00+00:00\", \"due\": \"2026-11-09T08:30:00+00:00\", \"evidence\": \"{\\\"delivery\\\": [{\\\"kind\\\": \\\"report\\\", \\\"label\\\": \\\"امامی\\\", \\\"message_id\\\": null, \\\"recipient\\\": \\\"397185913\\\", \\\"status\\\": \\\"pending\\\"}, {\\\"kind\\\": \\\"report\\\", \\\"label\\\": \\\"هوشمند پاکدل\\\", \\\"message_id\\\": null, \\\"recipient\\\": \\\"514458396\\\", \\\"status\\\": \\\"pending\\\"}], \\\"previous_run\\\": {\\\"attempt\\\": 98, \\\"data_state\\\": \\\"missing\\\", \\\"due\\\": \\\"2026-11-09T08:30:00+00:00\\\", \\\"error\\\": \\\"no_target_date_records\\\", \\\"error_detail\\\": null, \\\"finished\\\": \\\"2026-11-10T08:22:06.651503+00:00\\\", \\\"next_attempt_at\\\": \\\"2026-11-10T08:37:04+00:00\\\", \\\"notice_delivery_state\\\": \\\"suppressed\\\", \\\"recipient\\\": \\\"capability:reports.maintenance.daily_receive\\\", \\\"schedule_id\\\": \\\"maintenance_daily_report\\\", \\\"started\\\": \\\"2026-11-10T08:22:04+00:00\\\", \\\"status\\\": \\\"waiting_for_data\\\", \\\"task\\\": \\\"maintenance_daily_report\\\"}}\", \"reason\": \"owner_review_required_for_historical_delivery\", \"schedule_id\": \"maintenance_daily_report\", \"status\": \"held\"}"
+    },
+    {
+      "id": 3,
+      "operation_id": "38b37b4e949e5eb7b906280ea54e4487",
+      "created": "2026-11-10T11:45:41.041149+00:00",
+      "event": "owner_authorized",
+      "evidence": "{\"approval\": {\"approval_ref\": \"owner-explicit-four-maintenance-deliveries-20261110\", \"excluded_dates\": [\"1405/08/15\", \"1405/08/16\"], \"operations\": [{\"operation_id\": \"d6f8f4f75bd65e5eacecf08e4772d919\", \"recipient_id\": \"397185913\", \"sha256\": \"61b92d5dcef76b55ed0a2b7990b832149ca52ddca0e594ccbce6a52c639fe9de\", \"target_date\": \"1405/08/17\"}, {\"operation_id\": \"38b37b4e949e5eb7b906280ea54e4487\", \"recipient_id\": \"514458396\", \"sha256\": \"61b92d5dcef76b55ed0a2b7990b832149ca52ddca0e594ccbce6a52c639fe9de\", \"target_date\": \"1405/08/17\"}, {\"operation_id\": \"77ef651b80bb56c68216267e119d96fa\", \"recipient_id\": \"397185913\", \"sha256\": \"9e53446078f1a84ea4db50179ed6acc1b80fa0f4a5d5a7272d49eae660f77fbb\", \"target_date\": \"1405/08/18\"}, {\"operation_id\": \"d24c5f7fe66b5f14aa533aca0805ee1b\", \"recipient_id\": \"514458396\", \"sha256\": \"9e53446078f1a84ea4db50179ed6acc1b80fa0f4a5d5a7272d49eae660f77fbb\", \"target_date\": \"1405/08/18\"}], \"owner_instruction\": \"اجازه اجرای ارسال واقعی همین چهار عملیات، مشروط به کنترل‌های ضروری صحت فایل، هویت گیرنده و جلوگیری از ارسال تکراری، داده شده است.\", \"plan_sha256\": \"e391798b01cb8063dc0ff09a11cd0f811d90f89ed7afa5ae1168a0a7284992d6\", \"recorded_at\": \"2026-11-10T11:44:19.347503+00:00\"}, \"recipient_name\": \"هوشمند پاکدل\", \"validation\": {\"bytes\": 180996, \"date\": \"1405/08/17\", \"devices\": 12, \"pages\": 3, \"pdf_sha256\": \"61b92d5dcef76b55ed0a2b7990b832149ca52ddca0e594ccbce6a52c639fe9de\", \"rows\": 13, \"searchable\": true, \"vector\": true}}"
+    },
+    {
+      "id": 4,
+      "operation_id": "38b37b4e949e5eb7b906280ea54e4487",
+      "created": "2026-11-10T11:45:41.041149+00:00",
+      "event": "historical_hold_released_for_operation",
+      "evidence": "{\"approval_ref\": null, \"created\": \"2026-11-10T08:30:38.568593+00:00\", \"deadline\": \"2026-11-10T20:30:00+00:00\", \"due\": \"2026-11-09T08:30:00+00:00\", \"evidence\": \"{\\\"delivery\\\": [{\\\"kind\\\": \\\"report\\\", \\\"label\\\": \\\"امامی\\\", \\\"message_id\\\": null, \\\"recipient\\\": \\\"397185913\\\", \\\"status\\\": \\\"pending\\\"}, {\\\"kind\\\": \\\"report\\\", \\\"label\\\": \\\"هوشمند پاکدل\\\", \\\"message_id\\\": null, \\\"recipient\\\": \\\"514458396\\\", \\\"status\\\": \\\"pending\\\"}], \\\"previous_run\\\": {\\\"attempt\\\": 98, \\\"data_state\\\": \\\"missing\\\", \\\"due\\\": \\\"2026-11-09T08:30:00+00:00\\\", \\\"error\\\": \\\"no_target_date_records\\\", \\\"error_detail\\\": null, \\\"finished\\\": \\\"2026-11-10T08:22:06.651503+00:00\\\", \\\"next_attempt_at\\\": \\\"2026-11-10T08:37:04+00:00\\\", \\\"notice_delivery_state\\\": \\\"suppressed\\\", \\\"recipient\\\": \\\"capability:reports.maintenance.daily_receive\\\", \\\"schedule_id\\\": \\\"maintenance_daily_report\\\", \\\"started\\\": \\\"2026-11-10T08:22:04+00:00\\\", \\\"status\\\": \\\"waiting_for_data\\\", \\\"task\\\": \\\"maintenance_daily_report\\\"}}\", \"reason\": \"owner_review_required_for_historical_delivery\", \"schedule_id\": \"maintenance_daily_report\", \"status\": \"held\"}"
+    },
+    {
+      "id": 5,
+      "operation_id": "77ef651b80bb56c68216267e119d96fa",
+      "created": "2026-11-10T11:45:41.042150+00:00",
+      "event": "owner_authorized",
+      "evidence": "{\"approval\": {\"approval_ref\": \"owner-explicit-four-maintenance-deliveries-20261110\", \"excluded_dates\": [\"1405/08/15\", \"1405/08/16\"], \"operations\": [{\"operation_id\": \"d6f8f4f75bd65e5eacecf08e4772d919\", \"recipient_id\": \"397185913\", \"sha256\": \"61b92d5dcef76b55ed0a2b7990b832149ca52ddca0e594ccbce6a52c639fe9de\", \"target_date\": \"1405/08/17\"}, {\"operation_id\": \"38b37b4e949e5eb7b906280ea54e4487\", \"recipient_id\": \"514458396\", \"sha256\": \"61b92d5dcef76b55ed0a2b7990b832149ca52ddca0e594ccbce6a52c639fe9de\", \"target_date\": \"1405/08/17\"}, {\"operation_id\": \"77ef651b80bb56c68216267e119d96fa\", \"recipient_id\": \"397185913\", \"sha256\": \"9e53446078f1a84ea4db50179ed6acc1b80fa0f4a5d5a7272d49eae660f77fbb\", \"target_date\": \"1405/08/18\"}, {\"operation_id\": \"d24c5f7fe66b5f14aa533aca0805ee1b\", \"recipient_id\": \"514458396\", \"sha256\": \"9e53446078f1a84ea4db50179ed6acc1b80fa0f4a5d5a7272d49eae660f77fbb\", \"target_date\": \"1405/08/18\"}], \"owner_instruction\": \"اجازه اجرای ارسال واقعی همین چهار عملیات، مشروط به کنترل‌های ضروری صحت فایل، هویت گیرنده و جلوگیری از ارسال تکراری، داده شده است.\", \"plan_sha256\": \"e391798b01cb8063dc0ff09a11cd0f811d90f89ed7afa5ae1168a0a7284992d6\", \"recorded_at\": \"2026-11-10T11:44:19.347503+00:00\"}, \"recipient_name\": \"امامی\", \"validation\": {\"bytes\": 151884, \"date\": \"1405/08/18\", \"devices\": 8, \"pages\": 2, \"pdf_sha256\": \"9e53446078f1a84ea4db50179ed6acc1b80fa0f4a5d5a7272d49eae660f77fbb\", \"rows\": 8, \"searchable\": true, \"vector\": true}}"
+    },
+    {
+      "id": 6,
+      "operation_id": "77ef651b80bb56c68216267e119d96fa",
+      "created": "2026-11-10T11:45:41.042150+00:00",
+      "event": "historical_hold_released_for_operation",
+      "evidence": "{\"approval_ref\": null, \"created\": \"2026-11-10T08:30:38.568593+00:00\", \"deadline\": \"2026-11-11T20:30:00+00:00\", \"due\": \"2026-11-10T08:30:00+00:00\", \"evidence\": \"{\\\"delivery\\\": [{\\\"kind\\\": \\\"report\\\", \\\"label\\\": \\\"امامی\\\", \\\"message_id\\\": null, \\\"recipient\\\": \\\"397185913\\\", \\\"status\\\": \\\"pending\\\"}, {\\\"kind\\\": \\\"report\\\", \\\"label\\\": \\\"هوشمند پاکدل\\\", \\\"message_id\\\": null, \\\"recipient\\\": \\\"514458396\\\", \\\"status\\\": \\\"pending\\\"}], \\\"previous_run\\\": {\\\"attempt\\\": 1, \\\"data_state\\\": \\\"missing\\\", \\\"due\\\": \\\"2026-11-10T08:30:00+00:00\\\", \\\"error\\\": \\\"no_target_date_records\\\", \\\"error_detail\\\": null, \\\"finished\\\": \\\"2026-11-10T08:30:04.120515+00:00\\\", \\\"next_attempt_at\\\": \\\"2026-11-10T08:31:02+00:00\\\", \\\"notice_delivery_state\\\": \\\"suppressed\\\", \\\"recipient\\\": \\\"capability:reports.maintenance.daily_receive\\\", \\\"schedule_id\\\": \\\"maintenance_daily_report\\\", \\\"started\\\": \\\"2026-11-10T08:30:02+00:00\\\", \\\"status\\\": \\\"waiting_for_data\\\", \\\"task\\\": \\\"maintenance_daily_report\\\"}}\", \"reason\": \"owner_review_required_for_historical_delivery\", \"schedule_id\": \"maintenance_daily_report\", \"status\": \"held\"}"
+    },
+    {
+      "id": 7,
+      "operation_id": "d24c5f7fe66b5f14aa533aca0805ee1b",
+      "created": "2026-11-10T11:45:41.043150+00:00",
+      "event": "owner_authorized",
+      "evidence": "{\"approval\": {\"approval_ref\": \"owner-explicit-four-maintenance-deliveries-20261110\", \"excluded_dates\": [\"1405/08/15\", \"1405/08/16\"], \"operations\": [{\"operation_id\": \"d6f8f4f75bd65e5eacecf08e4772d919\", \"recipient_id\": \"397185913\", \"sha256\": \"61b92d5dcef76b55ed0a2b7990b832149ca52ddca0e594ccbce6a52c639fe9de\", \"target_date\": \"1405/08/17\"}, {\"operation_id\": \"38b37b4e949e5eb7b906280ea54e4487\", \"recipient_id\": \"514458396\", \"sha256\": \"61b92d5dcef76b55ed0a2b7990b832149ca52ddca0e594ccbce6a52c639fe9de\", \"target_date\": \"1405/08/17\"}, {\"operation_id\": \"77ef651b80bb56c68216267e119d96fa\", \"recipient_id\": \"397185913\", \"sha256\": \"9e53446078f1a84ea4db50179ed6acc1b80fa0f4a5d5a7272d49eae660f77fbb\", \"target_date\": \"1405/08/18\"}, {\"operation_id\": \"d24c5f7fe66b5f14aa533aca0805ee1b\", \"recipient_id\": \"514458396\", \"sha256\": \"9e53446078f1a84ea4db50179ed6acc1b80fa0f4a5d5a7272d49eae660f77fbb\", \"target_date\": \"1405/08/18\"}], \"owner_instruction\": \"اجازه اجرای ارسال واقعی همین چهار عملیات، مشروط به کنترل‌های ضروری صحت فایل، هویت گیرنده و جلوگیری از ارسال تکراری، داده شده است.\", \"plan_sha256\": \"e391798b01cb8063dc0ff09a11cd0f811d90f89ed7afa5ae1168a0a7284992d6\", \"recorded_at\": \"2026-11-10T11:44:19.347503+00:00\"}, \"recipient_name\": \"هوشمند پاکدل\", \"validation\": {\"bytes\": 151884, \"date\": \"1405/08/18\", \"devices\": 8, \"pages\": 2, \"pdf_sha256\": \"9e53446078f1a84ea4db50179ed6acc1b80fa0f4a5d5a7272d49eae660f77fbb\", \"rows\": 8, \"searchable\": true, \"vector\": true}}"
+    },
+    {
+      "id": 8,
+      "operation_id": "d24c5f7fe66b5f14aa533aca0805ee1b",
+      "created": "2026-11-10T11:45:41.043150+00:00",
+      "event": "historical_hold_released_for_operation",
+      "evidence": "{\"approval_ref\": null, \"created\": \"2026-11-10T08:30:38.568593+00:00\", \"deadline\": \"2026-11-11T20:30:00+00:00\", \"due\": \"2026-11-10T08:30:00+00:00\", \"evidence\": \"{\\\"delivery\\\": [{\\\"kind\\\": \\\"report\\\", \\\"label\\\": \\\"امامی\\\", \\\"message_id\\\": null, \\\"recipient\\\": \\\"397185913\\\", \\\"status\\\": \\\"pending\\\"}, {\\\"kind\\\": \\\"report\\\", \\\"label\\\": \\\"هوشمند پاکدل\\\", \\\"message_id\\\": null, \\\"recipient\\\": \\\"514458396\\\", \\\"status\\\": \\\"pending\\\"}], \\\"previous_run\\\": {\\\"attempt\\\": 1, \\\"data_state\\\": \\\"missing\\\", \\\"due\\\": \\\"2026-11-10T08:30:00+00:00\\\", \\\"error\\\": \\\"no_target_date_records\\\", \\\"error_detail\\\": null, \\\"finished\\\": \\\"2026-11-10T08:30:04.120515+00:00\\\", \\\"next_attempt_at\\\": \\\"2026-11-10T08:31:02+00:00\\\", \\\"notice_delivery_state\\\": \\\"suppressed\\\", \\\"recipient\\\": \\\"capability:reports.maintenance.daily_receive\\\", \\\"schedule_id\\\": \\\"maintenance_daily_report\\\", \\\"started\\\": \\\"2026-11-10T08:30:02+00:00\\\", \\\"status\\\": \\\"waiting_for_data\\\", \\\"task\\\": \\\"maintenance_daily_report\\\"}}\", \"reason\": \"owner_review_required_for_historical_delivery\", \"schedule_id\": \"maintenance_daily_report\", \"status\": \"held\"}"
+    },
+    {
+      "id": 9,
+      "operation_id": "d6f8f4f75bd65e5eacecf08e4772d919",
+      "created": "2026-11-10T11:46:52.055911+00:00",
+      "event": "sending",
+      "evidence": "{\"recipient_id\": \"397185913\", \"sha256\": \"61b92d5dcef76b55ed0a2b7990b832149ca52ddca0e594ccbce6a52c639fe9de\"}"
+    },
+    {
+      "id": 10,
+      "operation_id": "d6f8f4f75bd65e5eacecf08e4772d919",
+      "created": "2026-11-10T11:46:53.486354+00:00",
+      "event": "sent",
+      "evidence": "{\"message_id\": \"7417\", \"operation_id\": \"d6f8f4f75bd65e5eacecf08e4772d919\", \"recipient_id\": \"397185913\", \"sha256\": \"61b92d5dcef76b55ed0a2b7990b832149ca52ddca0e594ccbce6a52c639fe9de\"}"
+    },
+    {
+      "id": 11,
+      "operation_id": "38b37b4e949e5eb7b906280ea54e4487",
+      "created": "2026-11-10T11:46:53.510035+00:00",
+      "event": "sending",
+      "evidence": "{\"recipient_id\": \"514458396\", \"sha256\": \"61b92d5dcef76b55ed0a2b7990b832149ca52ddca0e594ccbce6a52c639fe9de\"}"
+    },
+    {
+      "id": 12,
+      "operation_id": "38b37b4e949e5eb7b906280ea54e4487",
+      "created": "2026-11-10T11:46:55.611033+00:00",
+      "event": "sent",
+      "evidence": "{\"message_id\": \"7418\", \"operation_id\": \"38b37b4e949e5eb7b906280ea54e4487\", \"recipient_id\": \"514458396\", \"sha256\": \"61b92d5dcef76b55ed0a2b7990b832149ca52ddca0e594ccbce6a52c639fe9de\"}"
+    },
+    {
+      "id": 13,
+      "operation_id": "77ef651b80bb56c68216267e119d96fa",
+      "created": "2026-11-10T11:46:55.642816+00:00",
+      "event": "sending",
+      "evidence": "{\"recipient_id\": \"397185913\", \"sha256\": \"9e53446078f1a84ea4db50179ed6acc1b80fa0f4a5d5a7272d49eae660f77fbb\"}"
+    },
+    {
+      "id": 14,
+      "operation_id": "77ef651b80bb56c68216267e119d96fa",
+      "created": "2026-11-10T11:46:56.516163+00:00",
+      "event": "sent",
+      "evidence": "{\"message_id\": \"7419\", \"operation_id\": \"77ef651b80bb56c68216267e119d96fa\", \"recipient_id\": \"397185913\", \"sha256\": \"9e53446078f1a84ea4db50179ed6acc1b80fa0f4a5d5a7272d49eae660f77fbb\"}"
+    },
+    {
+      "id": 15,
+      "operation_id": "d24c5f7fe66b5f14aa533aca0805ee1b",
+      "created": "2026-11-10T11:46:56.553224+00:00",
+      "event": "sending",
+      "evidence": "{\"recipient_id\": \"514458396\", \"sha256\": \"9e53446078f1a84ea4db50179ed6acc1b80fa0f4a5d5a7272d49eae660f77fbb\"}"
+    },
+    {
+      "id": 16,
+      "operation_id": "d24c5f7fe66b5f14aa533aca0805ee1b",
+      "created": "2026-11-10T11:46:57.509416+00:00",
+      "event": "sent",
+      "evidence": "{\"message_id\": \"7420\", \"operation_id\": \"d24c5f7fe66b5f14aa533aca0805ee1b\", \"recipient_id\": \"514458396\", \"sha256\": \"9e53446078f1a84ea4db50179ed6acc1b80fa0f4a5d5a7272d49eae660f77fbb\"}"
+    },
+    {
+      "id": 17,
+      "operation_id": "d6f8f4f75bd65e5eacecf08e4772d919",
+      "created": "2026-11-10T12:13:46.328047+00:00",
+      "event": "historical_hold_satisfied",
+      "evidence": "{\"approval_ref\": \"owner-explicit-four-maintenance-deliveries-20261110\", \"next_action\": \"no further send; original occurrence suppressed by recovered guard\", \"previous_hold\": {\"approval_ref\": null, \"created\": \"2026-11-10T08:30:38.568593+00:00\", \"deadline\": \"2026-11-10T20:30:00+00:00\", \"due\": \"2026-11-09T08:30:00+00:00\", \"evidence\": \"{\\\"delivery\\\": [{\\\"kind\\\": \\\"report\\\", \\\"label\\\": \\\"امامی\\\", \\\"message_id\\\": null, \\\"recipient\\\": \\\"397185913\\\", \\\"status\\\": \\\"pending\\\"}, {\\\"kind\\\": \\\"report\\\", \\\"label\\\": \\\"هوشمند پاکدل\\\", \\\"message_id\\\": null, \\\"recipient\\\": \\\"514458396\\\", \\\"status\\\": \\\"pending\\\"}], \\\"previous_run\\\": {\\\"attempt\\\": 98, \\\"data_state\\\": \\\"missing\\\", \\\"due\\\": \\\"2026-11-09T08:30:00+00:00\\\", \\\"error\\\": \\\"no_target_date_records\\\", \\\"error_detail\\\": null, \\\"finished\\\": \\\"2026-11-10T08:22:06.651503+00:00\\\", \\\"next_attempt_at\\\": \\\"2026-11-10T08:37:04+00:00\\\", \\\"notice_delivery_state\\\": \\\"suppressed\\\", \\\"recipient\\\": \\\"capability:reports.maintenance.daily_receive\\\", \\\"schedule_id\\\": \\\"maintenance_daily_report\\\", \\\"started\\\": \\\"2026-11-10T08:22:04+00:00\\\", \\\"status\\\": \\\"waiting_for_data\\\", \\\"task\\\": \\\"maintenance_daily_report\\\"}}\", \"reason\": \"owner_review_required_for_historical_delivery\", \"schedule_id\": \"maintenance_daily_report\", \"status\": \"held\"}}"
+    },
+    {
+      "id": 18,
+      "operation_id": "38b37b4e949e5eb7b906280ea54e4487",
+      "created": "2026-11-10T12:13:46.332045+00:00",
+      "event": "historical_hold_satisfied",
+      "evidence": "{\"approval_ref\": \"owner-explicit-four-maintenance-deliveries-20261110\", \"next_action\": \"no further send; original occurrence suppressed by recovered guard\", \"previous_hold\": {\"approval_ref\": null, \"created\": \"2026-11-10T08:30:38.568593+00:00\", \"deadline\": \"2026-11-10T20:30:00+00:00\", \"due\": \"2026-11-09T08:30:00+00:00\", \"evidence\": \"{\\\"delivery\\\": [{\\\"kind\\\": \\\"report\\\", \\\"label\\\": \\\"امامی\\\", \\\"message_id\\\": null, \\\"recipient\\\": \\\"397185913\\\", \\\"status\\\": \\\"pending\\\"}, {\\\"kind\\\": \\\"report\\\", \\\"label\\\": \\\"هوشمند پاکدل\\\", \\\"message_id\\\": null, \\\"recipient\\\": \\\"514458396\\\", \\\"status\\\": \\\"pending\\\"}], \\\"previous_run\\\": {\\\"attempt\\\": 98, \\\"data_state\\\": \\\"missing\\\", \\\"due\\\": \\\"2026-11-09T08:30:00+00:00\\\", \\\"error\\\": \\\"no_target_date_records\\\", \\\"error_detail\\\": null, \\\"finished\\\": \\\"2026-11-10T08:22:06.651503+00:00\\\", \\\"next_attempt_at\\\": \\\"2026-11-10T08:37:04+00:00\\\", \\\"notice_delivery_state\\\": \\\"suppressed\\\", \\\"recipient\\\": \\\"capability:reports.maintenance.daily_receive\\\", \\\"schedule_id\\\": \\\"maintenance_daily_report\\\", \\\"started\\\": \\\"2026-11-10T08:22:04+00:00\\\", \\\"status\\\": \\\"waiting_for_data\\\", \\\"task\\\": \\\"maintenance_daily_report\\\"}}\", \"reason\": \"owner_review_required_for_historical_delivery\", \"schedule_id\": \"maintenance_daily_report\", \"status\": \"held\"}}"
+    },
+    {
+      "id": 19,
+      "operation_id": "77ef651b80bb56c68216267e119d96fa",
+      "created": "2026-11-10T12:13:46.333108+00:00",
+      "event": "historical_hold_satisfied",
+      "evidence": "{\"approval_ref\": \"owner-explicit-four-maintenance-deliveries-20261110\", \"next_action\": \"no further send; original occurrence suppressed by recovered guard\", \"previous_hold\": {\"approval_ref\": null, \"created\": \"2026-11-10T08:30:38.568593+00:00\", \"deadline\": \"2026-11-11T20:30:00+00:00\", \"due\": \"2026-11-10T08:30:00+00:00\", \"evidence\": \"{\\\"delivery\\\": [{\\\"kind\\\": \\\"report\\\", \\\"label\\\": \\\"امامی\\\", \\\"message_id\\\": null, \\\"recipient\\\": \\\"397185913\\\", \\\"status\\\": \\\"pending\\\"}, {\\\"kind\\\": \\\"report\\\", \\\"label\\\": \\\"هوشمند پاکدل\\\", \\\"message_id\\\": null, \\\"recipient\\\": \\\"514458396\\\", \\\"status\\\": \\\"pending\\\"}], \\\"previous_run\\\": {\\\"attempt\\\": 1, \\\"data_state\\\": \\\"missing\\\", \\\"due\\\": \\\"2026-11-10T08:30:00+00:00\\\", \\\"error\\\": \\\"no_target_date_records\\\", \\\"error_detail\\\": null, \\\"finished\\\": \\\"2026-11-10T08:30:04.120515+00:00\\\", \\\"next_attempt_at\\\": \\\"2026-11-10T08:31:02+00:00\\\", \\\"notice_delivery_state\\\": \\\"suppressed\\\", \\\"recipient\\\": \\\"capability:reports.maintenance.daily_receive\\\", \\\"schedule_id\\\": \\\"maintenance_daily_report\\\", \\\"started\\\": \\\"2026-11-10T08:30:02+00:00\\\", \\\"status\\\": \\\"waiting_for_data\\\", \\\"task\\\": \\\"maintenance_daily_report\\\"}}\", \"reason\": \"owner_review_required_for_historical_delivery\", \"schedule_id\": \"maintenance_daily_report\", \"status\": \"held\"}}"
+    },
+    {
+      "id": 20,
+      "operation_id": "d24c5f7fe66b5f14aa533aca0805ee1b",
+      "created": "2026-11-10T12:13:46.333108+00:00",
+      "event": "historical_hold_satisfied",
+      "evidence": "{\"approval_ref\": \"owner-explicit-four-maintenance-deliveries-20261110\", \"next_action\": \"no further send; original occurrence suppressed by recovered guard\", \"previous_hold\": {\"approval_ref\": null, \"created\": \"2026-11-10T08:30:38.568593+00:00\", \"deadline\": \"2026-11-11T20:30:00+00:00\", \"due\": \"2026-11-10T08:30:00+00:00\", \"evidence\": \"{\\\"delivery\\\": [{\\\"kind\\\": \\\"report\\\", \\\"label\\\": \\\"امامی\\\", \\\"message_id\\\": null, \\\"recipient\\\": \\\"397185913\\\", \\\"status\\\": \\\"pending\\\"}, {\\\"kind\\\": \\\"report\\\", \\\"label\\\": \\\"هوشمند پاکدل\\\", \\\"message_id\\\": null, \\\"recipient\\\": \\\"514458396\\\", \\\"status\\\": \\\"pending\\\"}], \\\"previous_run\\\": {\\\"attempt\\\": 1, \\\"data_state\\\": \\\"missing\\\", \\\"due\\\": \\\"2026-11-10T08:30:00+00:00\\\", \\\"error\\\": \\\"no_target_date_records\\\", \\\"error_detail\\\": null, \\\"finished\\\": \\\"2026-11-10T08:30:04.120515+00:00\\\", \\\"next_attempt_at\\\": \\\"2026-11-10T08:31:02+00:00\\\", \\\"notice_delivery_state\\\": \\\"suppressed\\\", \\\"recipient\\\": \\\"capability:reports.maintenance.daily_receive\\\", \\\"schedule_id\\\": \\\"maintenance_daily_report\\\", \\\"started\\\": \\\"2026-11-10T08:30:02+00:00\\\", \\\"status\\\": \\\"waiting_for_data\\\", \\\"task\\\": \\\"maintenance_daily_report\\\"}}\", \"reason\": \"owner_review_required_for_historical_delivery\", \"schedule_id\": \"maintenance_daily_report\", \"status\": \"held\"}}"
+    }
+  ],
+  "natural_scheduler_wakeup": [
+    {
+      "schedule_id": "maintenance_daily_report",
+      "source_sha256": "78fe91effe2d463a679167c583b11cf94649a9916c983133f6294de18adc3ae0",
+      "observed": "2026-11-10T12:14:01.814588+00:00",
+      "recovery_at": "2026-11-10T10:35:05.736346+00:00"
+    }
+  ],
+  "integrity": "ok",
+  "drain_released": true,
+  "registry": {
+    "status": "ready",
+    "recipients": [
+      "397185913",
+      "514458396"
+    ],
+    "names": {
+      "397185913": "امامی",
+      "514458396": "هوشمند پاکدل"
+    }
+  },
+  "gateway": {
+    "phase": "running",
+    "pid": 46212,
+    "start_time": 1794309099.8300228,
+    "started_at": "2026-11-10T11:11:39.830022+00:00",
+    "create_time": 1794309090.0440032
+  },
+  "heartbeat": {
+    "pid": 46212,
+    "updated_at": "2026-11-10T12:14:11.747184+00:00",
+    "monotonic": 191388.5,
+    "start_time": 1794309099.7519195,
+    "loop_tick_socket": true,
+    "loop_tick_tcp_port": 55611
+  },
+  "sync_health": {
+    "status": "partial",
+    "healthy": false,
+    "last_success": "2026-11-10T11:36:12.487276+00:00"
+  },
+  "plan_unchanged": true,
+  "transport_calls": 0
+}
