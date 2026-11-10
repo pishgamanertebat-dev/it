@@ -28,7 +28,7 @@ def ensure_schema(conn):
 
 def snapshot(conn, jobs, now, store):
     """Seven days of completed work plus EVERY unresolved historical obligation."""
-    counts = dict(complete=0,waiting=0,error=0,closed=0,uncertain=0)
+    counts = dict(complete=0,waiting=0,error=0,closed=0,uncertain=0,review=0,unverified=0)
     details=[];correction_status=[]
     floor=now-timedelta(days=7)
     for job in jobs:
@@ -60,7 +60,8 @@ def snapshot(conn, jobs, now, store):
             hold=conn.execute("SELECT * FROM report_recovery_hold WHERE schedule_id=? AND due=? AND status='held'",(job['id'],run['due'])).fetchone()
             if any(r['status'] in {'uncertain','sending'} for r in receipts) or run['status']=='uncertain':state='uncertain'
             elif run['status']=='no_data_final':state='closed'
-            elif hold:state='error'
+            elif hold or open_corrections:state='review'
+            elif run['status'] in {'succeeded','not_recorded'}:state='unverified'
             elif run.get('error') in {'date_missing','no_target_date_records'} and run['status'] in {'waiting_for_data','retry_wait','skipped'}:state='waiting'
             else:state='error'
             counts[state]+=1
@@ -81,6 +82,7 @@ def format_messages(data):
     header=('خلاصه وضعیت ارسال گزارش‌ها — '+_parse(data['captured_at']).astimezone(TEHRAN).strftime('%Y-%m-%d %H:%M')+
         '\nکامل در ۷ روز: '+str(c['complete'])+' | منتظر: '+str(c['waiting'])+
         ' | خطادار: '+str(c['error'])+' | بسته بدون ارسال: '+str(c['closed'])+' | نامطمئن: '+str(c['uncertain'])+
+        '\nنیازمند تصمیم انسانی: '+str(c.get('review',0))+' | سوابق تحویل ناکافی: '+str(c.get('unverified',0))+
         '\nهمه موارد حل‌نشده قدیمی در این Snapshot باقی می‌مانند.')
     blocks=[header]
     for r in data['unresolved']:
@@ -93,6 +95,9 @@ def format_messages(data):
         elif not r['recipients'] and any(c['status'] not in {'sent','resolved'} for c in r['corrections']):
             reason='رسید ارسال اولیه موجود است؛ صحت محتوای نسخه اولیه یا نیاز به اصلاحیه هنوز تعیین تکلیف نشده است'
             action='بررسی فایل دریافت‌شده و تصمیم مالک درباره اصلاحیه'
+        elif r['state']=='unverified':
+            reason='سوابق گیرنده یا رسید فایل برای تأیید تحویل کافی نیست؛ نبود ارسال نیز اثبات نشده است'
+            action='بررسی تاریخچه؛ از ایجاد تعهد برای گیرنده جدید یا بازفرستادن کور پرهیز شود'
         elif r['state']=='waiting':reason='داده همان تاریخ کامل نیست';action='تکمیل منبع تا مهلت ۳۶ ساعت'
         elif r['state']=='closed':reason='بسته بدون ارسال؛ '+str(r['error'] or 'علت ثبت نشده');action='بررسی بازیابی و تأیید مالک؛ بازگشایی خودکار ندارد'
         elif r['state']=='uncertain':reason='نتیجه ارسال نامطمئن';action='بررسی رسید؛ ارسال مجدد خودکار ممنوع'

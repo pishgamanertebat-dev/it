@@ -63,7 +63,20 @@ class SummaryTests(unittest.TestCase):
         job=dict(self.job(),task='driver_daily',recipient_capability='reports.driver_daily.daily_receive')
         c=connect(self.state);ensure_schema(c)
         data=snapshot(c,[job],self.moment,self.store);c.close()
-        self.assertEqual(data['counts']['complete'],0);self.assertEqual(data['counts']['error'],1)
+        self.assertEqual(data['counts']['complete'],0);self.assertEqual(data['counts']['unverified'],1)
+
+    def test_owner_hold_and_missing_historical_proof_are_distinct_from_technical_error(self):
+        self.missing();c=connect(self.state);ensure_schema(c)
+        self.addCleanup(c.close)
+        with c:c.execute('INSERT INTO report_recovery_hold VALUES (?,?,?,?,?,?,?,?)',
+            (self.job()['id'],self.due,'held','owner_review',self.due,self.due,'{}',None))
+        data=snapshot(c,[self.job()],self.moment,self.store)
+        self.assertEqual(data['counts']['review'],1);self.assertEqual(data['counts']['error'],0)
+        with c:
+            c.execute('DELETE FROM report_recovery_hold')
+            c.execute("UPDATE runs SET status='succeeded',error=NULL")
+        data=snapshot(c,[self.job()],self.moment,self.store)
+        self.assertEqual(data['counts']['unverified'],1);self.assertEqual(data['counts']['error'],0)
 
     def test_uncertain_or_interrupted_summary_is_not_resent(self):
         self.missing()
