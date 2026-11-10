@@ -197,6 +197,7 @@ def _problems(conn, job, run, expected, store):
     rows = _delivery_summary(conn, job, run, expected, store)
     by_user = {row['recipient']: row for row in rows}
     found = []
+    hold=conn.execute("SELECT * FROM report_recovery_hold WHERE schedule_id=? AND due=? AND status='held'",(job['id'],run['due'])).fetchone()
     for user in expected:
         user = str(user)
         row = by_user.get(user)
@@ -221,13 +222,16 @@ def _problems(conn, job, run, expected, store):
             event = 'partial_delivery'
         else:
             event = 'generation_failure' if error else 'receipt_unconfirmed'
+        if hold and event not in {'uncertain','missing_expired','closed_without_delivery'}:
+            event='recovery_review'
         found.append({
             'recipient': user, 'kind': kind, 'klass': klass,
             'event': event, 'error_code': error,
+            'recovery_hold': bool(hold),
             'maintenance_report': job.get('task') == 'maintenance_daily_report',
             'generation_failed': (job.get('task') == 'maintenance_daily_report' and kind == 'report'
                 and run['error'] in {'ValueError', 'invalid_source'} and _column(run, 'data_state') != 'ready'),
-            'retrying': klass != 'uncertain' and run['status'] in RETRYING_RUN,
+            'retrying': not hold and klass != 'uncertain' and run['status'] in RETRYING_RUN,
             'label': _label(store, user)})
         if public_reason(run['error'], _column(run,'error_detail')):
             found[-1]['failure_code']=run['error']
@@ -283,7 +287,9 @@ def format_exception(title, target, due_clock, problems):
     kinds = {item['kind'] for item in problems}
     klasses = {item['klass'] for item in problems}
     events = {item.get('event') for item in problems}
-    if events <= {'missing_expired','closed_without_delivery'}:
+    if events == {'recovery_review'}:
+        header = '⚠️ گزارش تاریخی در انتظار تصمیم بازیابی است'
+    elif events <= {'missing_expired','closed_without_delivery'}:
         header = '⚠️ نوبت گزارش بدون ارسال بسته شد'
     elif events == {'missing_waiting'}:
         header = '⚠️ گزارش در انتظار تکمیل داده است'
@@ -299,7 +305,10 @@ def format_exception(title, target, due_clock, problems):
         header = '⚠️ ارسال گزارش کامل نشد'
     lines = [header, '', f'گزارش: {title}', f'تاریخ گزارش: {target}', f'موعد: {due_clock}']
     for item in problems:
-        if item.get('event') == 'missing_expired':
+        if item.get('event') == 'recovery_review':
+            state='ارسال خودکار این نوبت تاریخی متوقف است'
+            reason='بازیابی فقط پس از بررسی منبع، رسید و تأیید مالک؛ موعد اصلی و تاریخ داده محفوظ است'
+        elif item.get('event') == 'missing_expired':
             state = 'مهلت ۳۶ ساعت از موعد اصلی پایان یافت؛ ارسال خودکار بسته است'
             reason = 'داده همان تاریخ تکمیل نشد؛ بازیابی فقط پس از بررسی و تأیید مالک'
         elif item.get('event') == 'closed_without_delivery':
@@ -737,6 +746,11 @@ def scan_delivery_exceptions(conn, jobs, now, authorization=None, *, sender_fact
     for job in selected:
         try:
             runs = list(conn.execute('SELECT * FROM runs WHERE schedule_id=?', (job['id'],)))
+            runs.extend(dict(schedule_id=job['id'],due=h['due'],status='skipped',error='owner_recovery_review',
+                data_state=None,notice_delivery_state=None,error_detail=None,started=h['created'],finished=None)
+                for h in conn.execute('''SELECT h.* FROM report_recovery_hold AS h
+                    WHERE h.schedule_id=? AND h.status='held' AND NOT EXISTS (
+                    SELECT 1 FROM runs AS r WHERE r.schedule_id=h.schedule_id AND r.due=h.due)''',(job['id'],)))
             for run in runs:
                 _process_run(conn, job, run, store, _operators(store, job) if job['task']=='machinery_performance_daily_report' else operators, now, factory)
         except Exception as exc:

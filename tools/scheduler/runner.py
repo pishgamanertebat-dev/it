@@ -220,6 +220,8 @@ def connect(path):
                 SELECT schedule_id,due,recipient_id,'report',status,message_id,updated FROM receipts_legacy""")
             conn.execute('DROP TABLE receipts_legacy')
     office_receipts.create_schema(conn)
+    from .recovery_review import ensure_schema as recovery_schema
+    recovery_schema(conn)
     conn.execute('''CREATE TABLE IF NOT EXISTS missing_data_closures (
         schedule_id TEXT NOT NULL, due TEXT NOT NULL, deadline TEXT NOT NULL,
         closed_at TEXT NOT NULL, policy TEXT NOT NULL, previous_run TEXT NOT NULL,
@@ -249,6 +251,8 @@ def _expire_missing_reports(conn, job, now, *, preview=False):
               AND status IN ('waiting_for_data','retry_wait','skipped')
               AND error IN ('date_missing','no_target_date_records')
               AND COALESCE(data_state,'missing')='missing'
+              AND NOT EXISTS (SELECT 1 FROM report_recovery_hold AS hold
+                  WHERE hold.schedule_id=runs.schedule_id AND hold.due=runs.due AND hold.status='held')
               AND NOT EXISTS (SELECT 1 FROM receipts AS receipt
                   WHERE receipt.schedule_id=runs.schedule_id AND receipt.due=runs.due
                     AND receipt.delivery_kind='report'
@@ -331,6 +335,8 @@ def _claim_once(conn, job, due):
 
 def _claim_replay(conn, job, due, row, now):
     key = (job['id'], due_storage_key(due))
+    from .recovery_review import held
+    if held(conn,key):return False
     started = now.astimezone(timezone.utc).isoformat(timespec='seconds')
     if row is None:
         with conn:
@@ -635,6 +641,8 @@ def plan_replay(config=CONFIG, state=STATE, now=None, registry=TASKS):
                 daily_identity=job['task'] in REPORT_TASKS)
             for due in dues:
                 key = due_storage_key(due)
+                from .recovery_review import held
+                if held(conn,(job['id'],key)):continue
                 row = rows.get(key)
                 planned.append({
                     'schedule_id': job['id'], 'task': job['task'], 'original_due': due.isoformat(),

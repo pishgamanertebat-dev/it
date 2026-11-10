@@ -35,12 +35,15 @@ def snapshot(conn, jobs, now, store):
         if not job.get('enabled',True):continue
         expected=_expected(job,store)
         runs={r['due']:dict(r) for r in conn.execute('SELECT * FROM runs WHERE schedule_id=?',(job['id'],))}
+        for h in conn.execute("SELECT * FROM report_recovery_hold WHERE schedule_id=? AND status='held'",(job['id'],)):
+            runs.setdefault(h['due'],dict(schedule_id=job['id'],due=h['due'],status='not_recorded',error='occurrence_not_recorded',started=None,finished=None))
         trigger=job.get('trigger')
         if trigger and hasattr(trigger,'get_next_fire_time'):
             dues,flooded=_occurrences(trigger,floor,now,10)
             if not flooded:
+                by_day={_parse(key).astimezone(trigger.timezone).date():key for key in sorted(runs,reverse=True)}
                 for due in dues:
-                    key=due_storage_key(due)
+                    key=by_day.get(due.date(),due_storage_key(due))
                     runs.setdefault(key,dict(schedule_id=job['id'],due=key,status='not_recorded',error='occurrence_not_recorded',started=None,finished=None))
         for run in sorted(runs.values(),key=lambda r:r['due']):
             if _parse(run['due'])>now:continue
@@ -54,8 +57,10 @@ def snapshot(conn, jobs, now, store):
                 if _parse(run['due'])>=floor:counts['complete']+=1
                 continue
             problems=_problems(conn,job,run,expected or (),store)
+            hold=conn.execute("SELECT * FROM report_recovery_hold WHERE schedule_id=? AND due=? AND status='held'",(job['id'],run['due'])).fetchone()
             if any(r['status'] in {'uncertain','sending'} for r in receipts) or run['status']=='uncertain':state='uncertain'
             elif run['status']=='no_data_final':state='closed'
+            elif hold:state='error'
             elif run.get('error') in {'date_missing','no_target_date_records'} and run['status'] in {'waiting_for_data','retry_wait','skipped'}:state='waiting'
             else:state='error'
             counts[state]+=1
@@ -65,6 +70,7 @@ def snapshot(conn, jobs, now, store):
                 state=state,error=run.get('error'),error_detail=run.get('error_detail'),
                 recipients=undelivered,problems=problems,corrections=corrections,
                 resolver_available=expected is not None))
+            details[-1]['recovery_hold']=dict(hold) if hold else None
     return dict(captured_at=_iso(now),counts=counts,unresolved=details,correction_status=correction_status,
                 completed_window_days=7,unresolved_history='all')
 
@@ -81,7 +87,10 @@ def format_messages(data):
         due=_parse(r['original_due']).astimezone(TEHRAN).strftime('%Y-%m-%d %H:%M')
         last=_parse(r['last_attempt']).astimezone(TEHRAN).strftime('%Y-%m-%d %H:%M') if r['last_attempt'] else 'ثبت نشده'
         names='، '.join(x['label'] for x in r['recipients']) or ('مجوز گیرنده قابل بررسی نیست' if not r['resolver_available'] else 'اصلاحیه')
-        if r['state']=='waiting':reason='داده همان تاریخ کامل نیست';action='تکمیل منبع تا مهلت ۳۶ ساعت'
+        if r.get('recovery_hold'):
+            reason='توقف مستقل نوبت تاریخی برای تصمیم مالک؛ علت قبلی: '+str(r['error'] or 'رسید کامل نیست')
+            action='بررسی منبع و رسید؛ ارسال فقط پس از تأیید مستقل مالک'
+        elif r['state']=='waiting':reason='داده همان تاریخ کامل نیست';action='تکمیل منبع تا مهلت ۳۶ ساعت'
         elif r['state']=='closed':reason='بسته بدون ارسال؛ '+str(r['error'] or 'علت ثبت نشده');action='بررسی بازیابی و تأیید مالک؛ بازگشایی خودکار ندارد'
         elif r['state']=='uncertain':reason='نتیجه ارسال نامطمئن';action='بررسی رسید؛ ارسال مجدد خودکار ممنوع'
         else:reason=public_reason(r['error'],r['error_detail']) or str(r['error'] or 'رسید معتبر کامل نیست');action='بررسی خطا و رسید هر فایل'
