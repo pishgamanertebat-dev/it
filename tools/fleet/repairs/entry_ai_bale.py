@@ -106,9 +106,10 @@ class DailyAIHandler(RepairsEntryHandler):
                          'اگر PDF این تاریخ قبلاً ارسال شده، اصلاحیهٔ مستقل لازم است؛ ارسال مجدد انجام نمی‌شود.')
             if d['status']=='DONE':
                 await self.lifecycle.retire(key,gateway)
-                self.sessions.pop(key);self.persist()
+                s['stage']='BUSY';self.persist()
                 message='\n'.join(lines)
                 await self.reply(key,gateway,send,message)
+                self.sessions.pop(key);self.persist()
                 return
             s['stage']='RECOVERY'
             await self.reply(key,gateway,send,'\n'.join(lines)+'\nادامه گزارش فقط نتیجهٔ ثبت قبلی را بررسی می‌کند.')
@@ -154,7 +155,7 @@ class DailyAIHandler(RepairsEntryHandler):
             s['draft']=d['id'];s.pop('raw',None);self.persist()
             await self.show(key,gateway,send);return
         if command=='resume':
-            d=self.drafts.latest(*key)
+            d=self.current(key) if s.get('draft') else self.drafts.latest(*key)
             if not d:
                 if s.get('raw'):
                     s['stage']='OFFER'
@@ -229,6 +230,10 @@ class DailyAIHandler(RepairsEntryHandler):
         callback=isinstance(raw,dict) and raw.get('bale_inline_callback') is True
         if callback and not str(raw.get('data','')).startswith('ik:daily_ai:'):return None
         s=self.sessions.get(key)
+        if callback and not s:
+            existing=self.drafts.latest(*key)
+            if existing:
+                self.sessions[key]=s=dict(stage='PAUSED',revision='',expires=self.clock()+1800,draft=existing['id'])
         decision = trace_route(text, 'callback' if callback else ('manual_form_open' if not allow_start else None))
         command=''
         if key in self.busy:

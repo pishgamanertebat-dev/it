@@ -281,5 +281,30 @@ class TwoStepBaleTests(unittest.IsolatedAsyncioTestCase):
         d=self.handler.current(self.key)
         self.assertEqual(d['payload']['modes'],{'HD710':'append'});self.assertEqual(len(d['payload']['groups']),2)
 
+    async def test_expired_session_old_callback_reopens_safe_review_without_write(self):
+        await self.start();old=self.button('confirm_text');original=self.source.read_bytes()
+        self.handler.sessions.pop(self.key);self.handler.persist()
+        await self.deliver(old)
+        self.assertIn('اصلاح گزارش',self.labels());self.assertIn('تأیید متن',self.labels())
+        self.assertEqual(original,self.source.read_bytes())
+        self.assertFalse(any(c['action']=='ai_commit' for c in self.calls))
+
+    async def test_failed_receipt_transport_restart_recovers_saved_result_without_second_write(self):
+        await self.start();real=self.bot.send_message.side_effect
+        async def lose_receipt(**kw):
+            if kw['text'].startswith('گزارش ثبت شد.'):
+                raise OSError('receipt transport unavailable')
+            return await real(**kw)
+        self.bot.send_message.side_effect=lose_receipt
+        await self.deliver(self.button('confirm_text'))
+        saved=self.handler.current(self.key);self.assertEqual(saved['status'],'DONE')
+        published=self.source.read_bytes()
+        for timer in self.handler.lifecycle.timers.values():timer.cancel()
+        self.bot.send_message.side_effect=real;self.handler=self.handler_factory()
+        await self.deliver(self.event('ادامه گزارش'))
+        self.assertIn('گزارش ثبت شد.',self.messages[-1]['text'])
+        self.assertNotIn(self.key,self.handler.sessions);self.assertEqual(published,self.source.read_bytes())
+        self.assertEqual(sum(c['action']=='ai_commit' for c in self.calls),1)
+
 
 if __name__=='__main__':unittest.main()
