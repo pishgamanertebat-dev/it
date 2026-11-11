@@ -1,0 +1,87 @@
+{
+  "maintenance": {
+    "baseline_event": "9bc7f95d8da84602982b101b6d85e64b",
+    "baseline_hash": "841da662ce91f2973cef091a922a7caa74ee82c62502a9c2aae8f1c1e6e20e13",
+    "current_hash": "78fe91effe2d463a679167c583b11cf94649a9916c983133f6294de18adc3ae0",
+    "baseline_to_current_additions_accepted": true,
+    "changed_sheets": [
+      "متفرقه",
+      "1251",
+      "1253",
+      "1254",
+      "471",
+      "472",
+      "473",
+      "601.",
+      "151",
+      "701",
+      "702",
+      "704",
+      "706",
+      "709",
+      "710",
+      "715",
+      "720",
+      "721",
+      "467"
+    ],
+    "misc_sheet_structure": {
+      "متفرقه": {
+        "structural_guard_passed": true,
+        "changed_fields": [
+          "cells"
+        ],
+        "baseline_last_content_row": 183,
+        "historical_cells_preserved": true,
+        "additions": []
+      }
+    },
+    "mine_server_hash_equal": true,
+    "rules": "existing fail-closed additions() including cells, styles, printing, panes and zoom"
+  },
+  "drivers": {
+    "server_sha256": "d062a9ce21b0e5133180f9264020f5f72d3b008316f808d8a713a702bc29cd05",
+    "mine_sha256": "3ae97386a0b4bcb3e03f371d75acc761e259e9923159aecc51fbfb052a9df71b",
+    "server_equals_journal_head": true,
+    "mine_equals_recorded_upstream": true,
+    "protected_bale_cells": 0,
+    "protected_local_changes": [
+      {
+        "sheet": "گزارش رورانه1405.07.17",
+        "cell": "C1",
+        "base": {
+          "value": "تاریخ1405/07/16",
+          "type": "s"
+        },
+        "local": {
+          "value": "تاریخ1405/07/17",
+          "type": "s"
+        }
+      },
+      {
+        "sheet": "گزارش روزانه 1405.05.13   ",
+        "cell": "@row19",
+        "kind": "row_height",
+        "row": 19,
+        "base": null,
+        "local": 63.0,
+        "anchor": {
+          "column": 3,
+          "code": "HD709"
+        }
+      },
+      {
+        "sheet": "گزارش روزانه 1405.05.16   ",
+        "cell": "@row13",
+        "kind": "row_height",
+        "row": 13,
+        "base": null,
+        "local": 67.5,
+        "anchor": {
+          "column": 3,
+          "code": "HD709"
+        }
+      }
+    ]
+  }
+}

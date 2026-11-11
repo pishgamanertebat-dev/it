@@ -1,0 +1,17 @@
+{
+  "first_observed": "2026-11-10T14:05:00.000650+00:00",
+  "second_observed": "2026-11-10T14:15:00.002943+00:00",
+  "first_receipts": 4,
+  "second_receipts": 4,
+  "prior_terminal_receipts_unchanged": true,
+  "no_new_summary_receipt_keys": true,
+  "summary_exists": true,
+  "summary_hash_valid": true,
+  "all_observed_summary_parts_sent": true,
+  "every_expected_part_and_operator_has_receipt": true,
+  "message_ids_unique": true,
+  "owner_dates_all_closed": true,
+  "today_alert_receipt_count_first": 44,
+  "today_alert_receipt_count_second": 44,
+  "transport_calls": 0
+}

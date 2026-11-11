@@ -10,6 +10,7 @@ import fitz
 import openpyxl
 
 from tools.fleet.overflow.report import normalize, validate_date
+from tools.scheduler.report_errors import ReportFailure
 
 ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_SOURCE = Path(r'E:\Function\گزارش روزانه رانندگان2.xlsx')
@@ -78,8 +79,11 @@ def export_pdf(source, sheet, output, work_dir, columns):
             values = [row[c-1] if c <= len(row) else None for c in columns]
             if not any(normalize(v) for v in values):
                 continue
-            if not all(normalize(v) for v in values[:3]):
-                raise ValueError(f'Incomplete driver identity at row {number}')
+            for index,field in ((1,'type'),(2,'code')):
+                if not normalize(values[index]):
+                    raise ReportFailure(f'source_driver_{field}_missing',stage='source',
+                        sheet=ws.title,row=number,column=columns[index],
+                        sheet_number=book.sheetnames.index(ws.title)+1)
             last_row = number
             # Excel cannot grow a row beyond 409 points. Split large cells in
             # the private copy into bounded continuation rows before AutoFit.

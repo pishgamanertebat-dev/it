@@ -13,6 +13,9 @@ REASONS = {
     'source_permission': 'مجوز خواندن فایل منبع در دسترس نیست',
     'source_changed': 'فایل منبع هنگام تولید گزارش تغییر کرده است',
     'source_invalid': 'ساختار یا داده‌های فایل منبع معتبر نیست',
+    'source_driver_type_missing': 'ستون نوع دستگاه در فایل گزارش رانندگان خالی است',
+    'source_driver_code_missing': 'ستون کد دستگاه در فایل گزارش رانندگان خالی است',
+    'source_driver_code_duplicate': 'کد دستگاه در فایل گزارش رانندگان تکراری است',
     'source_section_missing': 'عنوان جدول تعویض‌ها، سرستون‌ها یا بخش موجودی فعلی در فایل موازنه روغن پیدا نشد',
     'source_formula_unverified': 'نتیجه ذخیره‌شده فرمول‌های موازنه روغن قابل تأیید نیست؛ فایل را در اکسل محاسبه و ذخیره کنید',
     'source_performance_formula_unverified': 'نتیجه ذخیره‌شده فرمول‌های عملکرد ماشین آلات قابل تأیید نیست؛ فایل را در اکسل محاسبه و ذخیره کنید',
@@ -137,6 +140,9 @@ def public_reason(code, details=None):
     if 'sheet' in safe: location.append('شیت ' + safe['sheet'])
     if 'row' in safe: location.append('ردیف ' + str(safe['row']))
     if 'column' in safe: location.append('ستون ' + str(safe['column']))
+    if code.startswith('source_driver_') and 'row' in safe and 'column' in safe:
+        from openpyxl.utils import get_column_letter
+        location.append('سلول '+get_column_letter(safe['column'])+str(safe['row']))
     if 'sheet_number' in safe:location.append('شماره شیت '+str(safe['sheet_number']))
     if 'date' in safe:location.append('تاریخ '+safe['date'])
     if 'section' in safe:location.append('بخش '+{'mechanical':'مکانیکی','metalwork':'آهنگری'}[safe['section']])

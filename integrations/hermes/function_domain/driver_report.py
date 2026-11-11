@@ -6,6 +6,7 @@ import openpyxl
 from tools.fleet.overflow.report import normalize,validate_date
 from integrations.hermes.function_domain.scoped import ScopedReader
 from integrations.hermes.function_domain.extract import zip_safe
+from tools.scheduler.report_errors import ReportFailure
 
 SOURCE_NAME='گزارش روزانه رانندگان2.xlsx'
 SECTIONS={'mechanical':'شرح معایب مکانیکی','metalwork':'شرح معایب آهنگری'}
@@ -53,10 +54,17 @@ def load_driver(date,reader=None,*,data=None):
         for number,row in enumerate(ws.iter_rows(min_row=3,values_only=True),3):
             values=[row[i] if i<len(row) else None for i in indices]
             if not any(normalize(v) for v in values):continue
-            if not all(normalize(v) for v in values[:3]):
-                raise ValueError(f'Incomplete driver identity at row {number}')
+            # Ordinal is presentation data; retain a missing value verbatim.
+            # Equipment type and unique machine code remain mandatory.
+            for index,field in ((1,'type'),(2,'code')):
+                if not normalize(values[index]):
+                    raise ReportFailure(f'source_driver_{field}_missing',stage='source',
+                        sheet=ws.title,row=number,column=indices[index]+1,
+                        date=date,sheet_number=base['sheet_number'])
             if any(normalize(r['values'][2])==normalize(values[2]) for r in base['inventory']):
-                raise ValueError(f'Duplicate driver code at row {number}')
+                raise ReportFailure('source_driver_code_duplicate',stage='source',
+                    sheet=ws.title,row=number,column=indices[2]+1,
+                    date=date,sheet_number=base['sheet_number'])
             base['inventory'].append({'row':number,'values':values})
             for index,name in enumerate(SECTIONS,3):
                 if normalize(values[index]):sections[name].append(values[:3]+[str(values[index])])
@@ -73,7 +81,7 @@ def render_driver(report,output_dir=None):
     for section,content in report['sections'].items():
         title=content['title']+' — '+report['date']
         headers=['ردیف','نوع دستگاه','کد دستگاه',content['title']]
-        def cells(values,tag):return ''.join(f'<{tag} dir="auto">{html.escape(str(v if v is not None else "—"))}</{tag}>' for v in reversed(values))
+        def cells(values,tag):return ''.join(f'<{tag} dir="auto">{html.escape(str(v if v is not None else ""))}</{tag}>' for v in reversed(values))
         table='<tr>'+cells(headers,'th')+'</tr>'
         for i,row in enumerate(content['rows']):
             color='#f0f5f8' if i%2==0 else '#ffffff'

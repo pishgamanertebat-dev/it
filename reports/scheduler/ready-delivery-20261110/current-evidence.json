@@ -1,0 +1,127 @@
+{
+  "captured": "2026-11-10T11:41:10.595493+00:00",
+  "registry": {
+    "status": "ready",
+    "recipients": [
+      "397185913",
+      "514458396"
+    ],
+    "names": {
+      "397185913": "امامی",
+      "514458396": "هوشمند پاکدل"
+    }
+  },
+  "tables": [
+    "runs",
+    "receipts",
+    "notifier_meta",
+    "notifier_baseline_receipt",
+    "notifier_baseline_run",
+    "delivery_failure_watch",
+    "delivery_alert_case",
+    "delivery_alert_receipt",
+    "office_artifact_receipts",
+    "source_notice_baseline",
+    "source_notice_alert_receipt",
+    "report_preflight_runs",
+    "completion_reminder_receipts",
+    "report_recovery_hold",
+    "missing_data_closures",
+    "report_correction_review",
+    "manager_daily_snapshot",
+    "manager_daily_receipt"
+  ],
+  "runs": [
+    {
+      "schedule_id": "maintenance_daily_report",
+      "due": "2026-11-09T08:30:00+00:00",
+      "recipient": "capability:reports.maintenance.daily_receive",
+      "task": "maintenance_daily_report",
+      "status": "waiting_for_data",
+      "started": "2026-11-10T08:22:04+00:00",
+      "finished": "2026-11-10T08:22:06.651503+00:00",
+      "error": "no_target_date_records",
+      "attempt": 98,
+      "next_attempt_at": "2026-11-10T08:37:04+00:00",
+      "data_state": "missing",
+      "notice_delivery_state": "suppressed",
+      "error_detail": null
+    },
+    {
+      "schedule_id": "maintenance_daily_report",
+      "due": "2026-11-10T08:30:00+00:00",
+      "recipient": "capability:reports.maintenance.daily_receive",
+      "task": "maintenance_daily_report",
+      "status": "waiting_for_data",
+      "started": "2026-11-10T08:30:02+00:00",
+      "finished": "2026-11-10T08:30:04.120515+00:00",
+      "error": "no_target_date_records",
+      "attempt": 1,
+      "next_attempt_at": "2026-11-10T08:31:02+00:00",
+      "data_state": "missing",
+      "notice_delivery_state": "suppressed",
+      "error_detail": null
+    }
+  ],
+  "holds": [
+    {
+      "schedule_id": "maintenance_daily_report",
+      "due": "2026-11-09T08:30:00+00:00",
+      "status": "held",
+      "reason": "owner_review_required_for_historical_delivery",
+      "created": "2026-11-10T08:30:38.568593+00:00",
+      "deadline": "2026-11-10T20:30:00+00:00",
+      "evidence": "{\"delivery\": [{\"kind\": \"report\", \"label\": \"امامی\", \"message_id\": null, \"recipient\": \"397185913\", \"status\": \"pending\"}, {\"kind\": \"report\", \"label\": \"هوشمند پاکدل\", \"message_id\": null, \"recipient\": \"514458396\", \"status\": \"pending\"}], \"previous_run\": {\"attempt\": 98, \"data_state\": \"missing\", \"due\": \"2026-11-09T08:30:00+00:00\", \"error\": \"no_target_date_records\", \"error_detail\": null, \"finished\": \"2026-11-10T08:22:06.651503+00:00\", \"next_attempt_at\": \"2026-11-10T08:37:04+00:00\", \"notice_delivery_state\": \"suppressed\", \"recipient\": \"capability:reports.maintenance.daily_receive\", \"schedule_id\": \"maintenance_daily_report\", \"started\": \"2026-11-10T08:22:04+00:00\", \"status\": \"waiting_for_data\", \"task\": \"maintenance_daily_report\"}}",
+      "approval_ref": null
+    },
+    {
+      "schedule_id": "maintenance_daily_report",
+      "due": "2026-11-10T08:30:00+00:00",
+      "status": "held",
+      "reason": "owner_review_required_for_historical_delivery",
+      "created": "2026-11-10T08:30:38.568593+00:00",
+      "deadline": "2026-11-11T20:30:00+00:00",
+      "evidence": "{\"delivery\": [{\"kind\": \"report\", \"label\": \"امامی\", \"message_id\": null, \"recipient\": \"397185913\", \"status\": \"pending\"}, {\"kind\": \"report\", \"label\": \"هوشمند پاکدل\", \"message_id\": null, \"recipient\": \"514458396\", \"status\": \"pending\"}], \"previous_run\": {\"attempt\": 1, \"data_state\": \"missing\", \"due\": \"2026-11-10T08:30:00+00:00\", \"error\": \"no_target_date_records\", \"error_detail\": null, \"finished\": \"2026-11-10T08:30:04.120515+00:00\", \"next_attempt_at\": \"2026-11-10T08:31:02+00:00\", \"notice_delivery_state\": \"suppressed\", \"recipient\": \"capability:reports.maintenance.daily_receive\", \"schedule_id\": \"maintenance_daily_report\", \"started\": \"2026-11-10T08:30:02+00:00\", \"status\": \"waiting_for_data\", \"task\": \"maintenance_daily_report\"}}",
+      "approval_ref": null
+    }
+  ],
+  "receipts": [
+    {
+      "schedule_id": "maintenance_daily_report",
+      "due": "2026-11-09T08:30:00+00:00",
+      "recipient_id": "514458396",
+      "delivery_kind": "report",
+      "status": "pending",
+      "message_id": null,
+      "updated": "2026-11-09T08:30:02.246813+00:00"
+    },
+    {
+      "schedule_id": "maintenance_daily_report",
+      "due": "2026-11-09T08:30:00+00:00",
+      "recipient_id": "397185913",
+      "delivery_kind": "report",
+      "status": "pending",
+      "message_id": null,
+      "updated": "2026-11-09T08:30:02.278009+00:00"
+    },
+    {
+      "schedule_id": "maintenance_daily_report",
+      "due": "2026-11-10T08:30:00+00:00",
+      "recipient_id": "397185913",
+      "delivery_kind": "report",
+      "status": "pending",
+      "message_id": null,
+      "updated": "2026-11-10T08:30:02.449459+00:00"
+    },
+    {
+      "schedule_id": "maintenance_daily_report",
+      "due": "2026-11-10T08:30:00+00:00",
+      "recipient_id": "514458396",
+      "delivery_kind": "report",
+      "status": "pending",
+      "message_id": null,
+      "updated": "2026-11-10T08:30:02.503658+00:00"
+    }
+  ],
+  "artifacts": []
+}

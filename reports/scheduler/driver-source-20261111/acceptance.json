@@ -1,0 +1,17 @@
+{
+  "focused_tests": {
+    "run": 83,
+    "passed": 83,
+    "failed": 0,
+    "new_regression_tests": 7,
+    "log": "acceptance-tests.log"
+  },
+  "native_excel": {
+    "mechanical": "passed",
+    "metalwork": "passed",
+    "evidence": "native-acceptance.json"
+  },
+  "installed": "installed.json",
+  "source_preserved": true,
+  "manual_sends": 0
+}

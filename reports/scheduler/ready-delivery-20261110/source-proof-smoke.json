@@ -1,0 +1,12 @@
+{
+  "accepted_source": {
+    "source_sha256": "78fe91effe2d463a679167c583b11cf94649a9916c983133f6294de18adc3ae0",
+    "journal_version": "95283601b5814785ab9734e46b86240b",
+    "baseline": "9bc7f95d8da84602982b101b6d85e64b"
+  },
+  "freshness": {
+    "checked_at": "2026-11-10T11:56:11.970738+00:00",
+    "source_sha256": "78fe91effe2d463a679167c583b11cf94649a9916c983133f6294de18adc3ae0",
+    "state": "DATA_NOT_READY"
+  }
+}

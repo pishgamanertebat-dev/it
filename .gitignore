@@ -95,6 +95,7 @@ tmp/
 cache/
 
 *.log
+reports/scheduler/**/observer.lock
 
 
 # ==================================================

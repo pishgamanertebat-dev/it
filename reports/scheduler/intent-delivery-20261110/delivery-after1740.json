@@ -1,0 +1,1301 @@
+{
+  "captured_at": "2026-11-10T14:15:00.002943+00:00",
+  "recovery": [
+    {
+      "operation_id": "d6f8f4f75bd65e5eacecf08e4772d919",
+      "date": "1405/08/17",
+      "recipient": "397185913",
+      "approved": false,
+      "current_receipts": [
+        {
+          "schedule_id": "manual-maintenance-recovery-1405-08-17-61b92d5dcef7",
+          "due": "2026-11-09T08:30:00+00:00",
+          "recipient_id": "397185913",
+          "delivery_kind": "report",
+          "status": "sent",
+          "message_id": "7417",
+          "updated": "2026-11-10T11:46:53.314165+00:00"
+        }
+      ],
+      "current_artifacts": [
+        {
+          "schedule_id": "manual-maintenance-recovery-1405-08-17-61b92d5dcef7",
+          "due": "2026-11-09T08:30:00+00:00",
+          "recipient_id": "397185913",
+          "artifact_id": "d6f8f4f75bd65e5eacecf08e4772d919",
+          "status": "sent",
+          "message_id": "7417",
+          "sha256": "61b92d5dcef76b55ed0a2b7990b832149ca52ddca0e594ccbce6a52c639fe9de",
+          "updated": "2026-11-10T11:46:53.448043+00:00"
+        }
+      ],
+      "original_receipts": [
+        {
+          "schedule_id": "maintenance_daily_report",
+          "due": "2026-11-09T08:30:00+00:00",
+          "recipient_id": "397185913",
+          "delivery_kind": "report",
+          "status": "pending",
+          "message_id": null,
+          "updated": "2026-11-09T08:30:02.278009+00:00"
+        }
+      ],
+      "hold": [
+        {
+          "schedule_id": "maintenance_daily_report",
+          "due": "2026-11-09T08:30:00+00:00",
+          "status": "recovered",
+          "reason": "owner_review_required_for_historical_delivery",
+          "created": "2026-11-10T08:30:38.568593+00:00",
+          "deadline": "2026-11-10T20:30:00+00:00",
+          "evidence": "{\"delivery\": [{\"kind\": \"report\", \"label\": \"امامی\", \"message_id\": null, \"recipient\": \"397185913\", \"status\": \"pending\"}, {\"kind\": \"report\", \"label\": \"هوشمند پاکدل\", \"message_id\": null, \"recipient\": \"514458396\", \"status\": \"pending\"}], \"previous_run\": {\"attempt\": 98, \"data_state\": \"missing\", \"due\": \"2026-11-09T08:30:00+00:00\", \"error\": \"no_target_date_records\", \"error_detail\": null, \"finished\": \"2026-11-10T08:22:06.651503+00:00\", \"next_attempt_at\": \"2026-11-10T08:37:04+00:00\", \"notice_delivery_state\": \"suppressed\", \"recipient\": \"capability:reports.maintenance.daily_receive\", \"schedule_id\": \"maintenance_daily_report\", \"started\": \"2026-11-10T08:22:04+00:00\", \"status\": \"waiting_for_data\", \"task\": \"maintenance_daily_report\"}}",
+          "approval_ref": "owner-explicit-four-maintenance-deliveries-20261110"
+        }
+      ],
+      "awaiting_owner": false
+    },
+    {
+      "operation_id": "38b37b4e949e5eb7b906280ea54e4487",
+      "date": "1405/08/17",
+      "recipient": "514458396",
+      "approved": false,
+      "current_receipts": [
+        {
+          "schedule_id": "manual-maintenance-recovery-1405-08-17-61b92d5dcef7",
+          "due": "2026-11-09T08:30:00+00:00",
+          "recipient_id": "514458396",
+          "delivery_kind": "report",
+          "status": "sent",
+          "message_id": "7418",
+          "updated": "2026-11-10T11:46:55.558116+00:00"
+        }
+      ],
+      "current_artifacts": [
+        {
+          "schedule_id": "manual-maintenance-recovery-1405-08-17-61b92d5dcef7",
+          "due": "2026-11-09T08:30:00+00:00",
+          "recipient_id": "514458396",
+          "artifact_id": "38b37b4e949e5eb7b906280ea54e4487",
+          "status": "sent",
+          "message_id": "7418",
+          "sha256": "61b92d5dcef76b55ed0a2b7990b832149ca52ddca0e594ccbce6a52c639fe9de",
+          "updated": "2026-11-10T11:46:55.579778+00:00"
+        }
+      ],
+      "original_receipts": [
+        {
+          "schedule_id": "maintenance_daily_report",
+          "due": "2026-11-09T08:30:00+00:00",
+          "recipient_id": "514458396",
+          "delivery_kind": "report",
+          "status": "pending",
+          "message_id": null,
+          "updated": "2026-11-09T08:30:02.246813+00:00"
+        }
+      ],
+      "hold": [
+        {
+          "schedule_id": "maintenance_daily_report",
+          "due": "2026-11-09T08:30:00+00:00",
+          "status": "recovered",
+          "reason": "owner_review_required_for_historical_delivery",
+          "created": "2026-11-10T08:30:38.568593+00:00",
+          "deadline": "2026-11-10T20:30:00+00:00",
+          "evidence": "{\"delivery\": [{\"kind\": \"report\", \"label\": \"امامی\", \"message_id\": null, \"recipient\": \"397185913\", \"status\": \"pending\"}, {\"kind\": \"report\", \"label\": \"هوشمند پاکدل\", \"message_id\": null, \"recipient\": \"514458396\", \"status\": \"pending\"}], \"previous_run\": {\"attempt\": 98, \"data_state\": \"missing\", \"due\": \"2026-11-09T08:30:00+00:00\", \"error\": \"no_target_date_records\", \"error_detail\": null, \"finished\": \"2026-11-10T08:22:06.651503+00:00\", \"next_attempt_at\": \"2026-11-10T08:37:04+00:00\", \"notice_delivery_state\": \"suppressed\", \"recipient\": \"capability:reports.maintenance.daily_receive\", \"schedule_id\": \"maintenance_daily_report\", \"started\": \"2026-11-10T08:22:04+00:00\", \"status\": \"waiting_for_data\", \"task\": \"maintenance_daily_report\"}}",
+          "approval_ref": "owner-explicit-four-maintenance-deliveries-20261110"
+        }
+      ],
+      "awaiting_owner": false
+    },
+    {
+      "operation_id": "77ef651b80bb56c68216267e119d96fa",
+      "date": "1405/08/18",
+      "recipient": "397185913",
+      "approved": false,
+      "current_receipts": [
+        {
+          "schedule_id": "manual-maintenance-recovery-1405-08-18-9e53446078f1",
+          "due": "2026-11-10T08:30:00+00:00",
+          "recipient_id": "397185913",
+          "delivery_kind": "report",
+          "status": "sent",
+          "message_id": "7419",
+          "updated": "2026-11-10T11:46:56.466943+00:00"
+        }
+      ],
+      "current_artifacts": [
+        {
+          "schedule_id": "manual-maintenance-recovery-1405-08-18-9e53446078f1",
+          "due": "2026-11-10T08:30:00+00:00",
+          "recipient_id": "397185913",
+          "artifact_id": "77ef651b80bb56c68216267e119d96fa",
+          "status": "sent",
+          "message_id": "7419",
+          "sha256": "9e53446078f1a84ea4db50179ed6acc1b80fa0f4a5d5a7272d49eae660f77fbb",
+          "updated": "2026-11-10T11:46:56.486104+00:00"
+        }
+      ],
+      "original_receipts": [
+        {
+          "schedule_id": "maintenance_daily_report",
+          "due": "2026-11-10T08:30:00+00:00",
+          "recipient_id": "397185913",
+          "delivery_kind": "report",
+          "status": "pending",
+          "message_id": null,
+          "updated": "2026-11-10T08:30:02.449459+00:00"
+        }
+      ],
+      "hold": [
+        {
+          "schedule_id": "maintenance_daily_report",
+          "due": "2026-11-10T08:30:00+00:00",
+          "status": "recovered",
+          "reason": "owner_review_required_for_historical_delivery",
+          "created": "2026-11-10T08:30:38.568593+00:00",
+          "deadline": "2026-11-11T20:30:00+00:00",
+          "evidence": "{\"delivery\": [{\"kind\": \"report\", \"label\": \"امامی\", \"message_id\": null, \"recipient\": \"397185913\", \"status\": \"pending\"}, {\"kind\": \"report\", \"label\": \"هوشمند پاکدل\", \"message_id\": null, \"recipient\": \"514458396\", \"status\": \"pending\"}], \"previous_run\": {\"attempt\": 1, \"data_state\": \"missing\", \"due\": \"2026-11-10T08:30:00+00:00\", \"error\": \"no_target_date_records\", \"error_detail\": null, \"finished\": \"2026-11-10T08:30:04.120515+00:00\", \"next_attempt_at\": \"2026-11-10T08:31:02+00:00\", \"notice_delivery_state\": \"suppressed\", \"recipient\": \"capability:reports.maintenance.daily_receive\", \"schedule_id\": \"maintenance_daily_report\", \"started\": \"2026-11-10T08:30:02+00:00\", \"status\": \"waiting_for_data\", \"task\": \"maintenance_daily_report\"}}",
+          "approval_ref": "owner-explicit-four-maintenance-deliveries-20261110"
+        }
+      ],
+      "awaiting_owner": false
+    },
+    {
+      "operation_id": "d24c5f7fe66b5f14aa533aca0805ee1b",
+      "date": "1405/08/18",
+      "recipient": "514458396",
+      "approved": false,
+      "current_receipts": [
+        {
+          "schedule_id": "manual-maintenance-recovery-1405-08-18-9e53446078f1",
+          "due": "2026-11-10T08:30:00+00:00",
+          "recipient_id": "514458396",
+          "delivery_kind": "report",
+          "status": "sent",
+          "message_id": "7420",
+          "updated": "2026-11-10T11:46:57.451310+00:00"
+        }
+      ],
+      "current_artifacts": [
+        {
+          "schedule_id": "manual-maintenance-recovery-1405-08-18-9e53446078f1",
+          "due": "2026-11-10T08:30:00+00:00",
+          "recipient_id": "514458396",
+          "artifact_id": "d24c5f7fe66b5f14aa533aca0805ee1b",
+          "status": "sent",
+          "message_id": "7420",
+          "sha256": "9e53446078f1a84ea4db50179ed6acc1b80fa0f4a5d5a7272d49eae660f77fbb",
+          "updated": "2026-11-10T11:46:57.477576+00:00"
+        }
+      ],
+      "original_receipts": [
+        {
+          "schedule_id": "maintenance_daily_report",
+          "due": "2026-11-10T08:30:00+00:00",
+          "recipient_id": "514458396",
+          "delivery_kind": "report",
+          "status": "pending",
+          "message_id": null,
+          "updated": "2026-11-10T08:30:02.503658+00:00"
+        }
+      ],
+      "hold": [
+        {
+          "schedule_id": "maintenance_daily_report",
+          "due": "2026-11-10T08:30:00+00:00",
+          "status": "recovered",
+          "reason": "owner_review_required_for_historical_delivery",
+          "created": "2026-11-10T08:30:38.568593+00:00",
+          "deadline": "2026-11-11T20:30:00+00:00",
+          "evidence": "{\"delivery\": [{\"kind\": \"report\", \"label\": \"امامی\", \"message_id\": null, \"recipient\": \"397185913\", \"status\": \"pending\"}, {\"kind\": \"report\", \"label\": \"هوشمند پاکدل\", \"message_id\": null, \"recipient\": \"514458396\", \"status\": \"pending\"}], \"previous_run\": {\"attempt\": 1, \"data_state\": \"missing\", \"due\": \"2026-11-10T08:30:00+00:00\", \"error\": \"no_target_date_records\", \"error_detail\": null, \"finished\": \"2026-11-10T08:30:04.120515+00:00\", \"next_attempt_at\": \"2026-11-10T08:31:02+00:00\", \"notice_delivery_state\": \"suppressed\", \"recipient\": \"capability:reports.maintenance.daily_receive\", \"schedule_id\": \"maintenance_daily_report\", \"started\": \"2026-11-10T08:30:02+00:00\", \"status\": \"waiting_for_data\", \"task\": \"maintenance_daily_report\"}}",
+          "approval_ref": "owner-explicit-four-maintenance-deliveries-20261110"
+        }
+      ],
+      "awaiting_owner": false
+    }
+  ],
+  "pakdel_7366": [
+    {
+      "schedule_id": "driver_daily_office_supervisor",
+      "due": "2026-11-10T05:30:00+00:00",
+      "recipient_id": "514458396",
+      "artifact_id": "mechanical",
+      "status": "sent",
+      "message_id": "7366",
+      "sha256": "fa205c75c25cfa788b9fcc55bb28e15975d831137394f8e6dc45735bbe838ea8",
+      "updated": "2026-11-10T05:40:40.185574+00:00"
+    }
+  ],
+  "data18_1500": [
+    {
+      "schedule_id": "oil_balance_daily_report",
+      "due": "2026-11-10T11:30:00+00:00",
+      "recipient": "capability:reports.oil_balance.daily_receive",
+      "task": "oil_balance_daily_report",
+      "status": "succeeded",
+      "started": "2026-11-10T11:30:02+00:00",
+      "finished": "2026-11-10T11:30:18.186165+00:00",
+      "error": null,
+      "attempt": 1,
+      "next_attempt_at": null,
+      "data_state": "ready",
+      "notice_delivery_state": null,
+      "error_detail": null,
+      "data_date": "1405/08/18",
+      "receipts": [
+        {
+          "schedule_id": "oil_balance_daily_report",
+          "due": "2026-11-10T11:30:00+00:00",
+          "recipient_id": "397185913",
+          "delivery_kind": "report",
+          "status": "sent",
+          "message_id": "7414",
+          "updated": "2026-11-10T11:30:18.127501+00:00"
+        }
+      ]
+    },
+    {
+      "schedule_id": "machinery_performance_daily_report",
+      "due": "2026-11-10T11:30:00+00:00",
+      "recipient": "capability:reports.machinery_performance.daily_receive",
+      "task": "machinery_performance_daily_report",
+      "status": "succeeded",
+      "started": "2026-11-10T12:49:02+00:00",
+      "finished": "2026-11-10T12:49:19.227187+00:00",
+      "error": null,
+      "attempt": 9,
+      "next_attempt_at": null,
+      "data_state": "ready",
+      "notice_delivery_state": "suppressed",
+      "error_detail": null,
+      "data_date": "1405/08/18",
+      "receipts": [
+        {
+          "schedule_id": "machinery_performance_daily_report",
+          "due": "2026-11-10T11:30:00+00:00",
+          "recipient_id": "641220453",
+          "delivery_kind": "report",
+          "status": "sent",
+          "message_id": "7431",
+          "updated": "2026-11-10T12:49:19.185926+00:00"
+        },
+        {
+          "schedule_id": "machinery_performance_daily_report",
+          "due": "2026-11-10T11:30:00+00:00",
+          "recipient_id": "397185913",
+          "delivery_kind": "report",
+          "status": "sent",
+          "message_id": "7430",
+          "updated": "2026-11-10T12:49:17.866331+00:00"
+        }
+      ]
+    }
+  ],
+  "past_1500": true,
+  "past_1730": true,
+  "manager_receipts": [
+    {
+      "day": "2026-11-10",
+      "part": 0,
+      "operator_id": "455740857",
+      "status": "sent",
+      "message_id": "7434",
+      "error": null,
+      "updated": "2026-11-10T14:00:01+00:00"
+    },
+    {
+      "day": "2026-11-10",
+      "part": 1,
+      "operator_id": "455740857",
+      "status": "sent",
+      "message_id": "7435",
+      "error": null,
+      "updated": "2026-11-10T14:00:01+00:00"
+    },
+    {
+      "day": "2026-11-10",
+      "part": 2,
+      "operator_id": "455740857",
+      "status": "sent",
+      "message_id": "7436",
+      "error": null,
+      "updated": "2026-11-10T14:00:01+00:00"
+    },
+    {
+      "day": "2026-11-10",
+      "part": 3,
+      "operator_id": "455740857",
+      "status": "sent",
+      "message_id": "7437",
+      "error": null,
+      "updated": "2026-11-10T14:00:01+00:00"
+    }
+  ],
+  "summary_integrity": [
+    {
+      "hash_valid": true,
+      "parts": 4,
+      "captured": "2026-11-10T14:00:01+00:00",
+      "counts": {
+        "closed": 15,
+        "complete": 41,
+        "error": 0,
+        "review": 25,
+        "uncertain": 2,
+        "unverified": 0,
+        "waiting": 0
+      },
+      "expected_receipt_keys_unique": true,
+      "message_ids_unique": true,
+      "owner_closed": [
+        {
+          "corrections": [],
+          "error": "missing_date_expired",
+          "error_detail": null,
+          "last_attempt": "2026-11-09T16:15:02.241329+00:00",
+          "original_due": "2026-11-08T04:15:00+00:00",
+          "owner_closed": true,
+          "problems": [],
+          "recipients": [
+            {
+              "kind": "report",
+              "label": "امامی",
+              "message_id": null,
+              "recipient": "397185913",
+              "status": "pending"
+            },
+            {
+              "kind": "report",
+              "label": "هوشمند پاکدل",
+              "message_id": null,
+              "recipient": "514458396",
+              "status": "pending"
+            }
+          ],
+          "recovery_hold": {
+            "approval_ref": null,
+            "created": "2026-11-10T08:30:38.568593+00:00",
+            "deadline": "2026-11-09T16:15:00+00:00",
+            "due": "2026-11-08T04:15:00+00:00",
+            "evidence": "{\"delivery\": [{\"kind\": \"report\", \"label\": \"امامی\", \"message_id\": null, \"recipient\": \"397185913\", \"status\": \"pending\"}, {\"kind\": \"report\", \"label\": \"هوشمند پاکدل\", \"message_id\": null, \"recipient\": \"514458396\", \"status\": \"pending\"}], \"previous_run\": {\"attempt\": 142, \"data_state\": \"missing\", \"due\": \"2026-11-08T04:15:00+00:00\", \"error\": \"missing_date_expired\", \"error_detail\": null, \"finished\": \"2026-11-09T16:15:02.241329+00:00\", \"next_attempt_at\": null, \"notice_delivery_state\": \"sent\", \"recipient\": \"capability:reports.overflow.daily_receive\", \"schedule_id\": \"overflow_daily_test\", \"started\": \"2026-11-09T16:02:01+00:00\", \"status\": \"no_data_final\", \"task\": \"overflow\"}}",
+            "reason": "owner_review_required_for_historical_delivery",
+            "schedule_id": "overflow_daily_test",
+            "status": "held"
+          },
+          "resolver_available": true,
+          "schedule_id": "overflow_daily_test",
+          "state": "closed",
+          "target": "1405/08/16",
+          "title": "گزارش سرریز روزانه"
+        },
+        {
+          "corrections": [],
+          "error": "missing_date_expired",
+          "error_detail": null,
+          "last_attempt": "2026-11-08T17:30:02.095028+00:00",
+          "original_due": "2026-11-07T05:30:00+00:00",
+          "owner_closed": true,
+          "problems": [],
+          "recipients": [
+            {
+              "kind": "report",
+              "label": "امامی",
+              "message_id": null,
+              "recipient": "397185913",
+              "status": "unconfirmed"
+            },
+            {
+              "kind": "report",
+              "label": "هوشمند پاکدل",
+              "message_id": null,
+              "recipient": "514458396",
+              "status": "unconfirmed"
+            }
+          ],
+          "recovery_hold": {
+            "approval_ref": null,
+            "created": "2026-11-10T08:30:38.568593+00:00",
+            "deadline": "2026-11-08T17:30:00+00:00",
+            "due": "2026-11-07T05:30:00+00:00",
+            "evidence": "{\"delivery\": [{\"kind\": \"report\", \"label\": \"امامی\", \"message_id\": null, \"recipient\": \"397185913\", \"status\": \"unconfirmed\"}, {\"kind\": \"report\", \"label\": \"هوشمند پاکدل\", \"message_id\": null, \"recipient\": \"514458396\", \"status\": \"unconfirmed\"}], \"previous_run\": {\"attempt\": 113, \"data_state\": \"missing\", \"due\": \"2026-11-07T05:30:00+00:00\", \"error\": \"missing_date_expired\", \"error_detail\": null, \"finished\": \"2026-11-08T17:30:02.095028+00:00\", \"next_attempt_at\": null, \"notice_delivery_state\": \"suppressed\", \"recipient\": \"capability:reports.driver_daily.daily_receive\", \"schedule_id\": \"driver_daily_office_supervisor\", \"started\": \"2026-11-08T17:28:02+00:00\", \"status\": \"no_data_final\", \"task\": \"driver_daily\"}}",
+            "reason": "owner_review_required_for_historical_delivery",
+            "schedule_id": "driver_daily_office_supervisor",
+            "status": "held"
+          },
+          "resolver_available": true,
+          "schedule_id": "driver_daily_office_supervisor",
+          "state": "closed",
+          "target": "1405/08/15",
+          "title": "گزارش روزانه رانندگان"
+        },
+        {
+          "corrections": [],
+          "error": "missing_date_expired",
+          "error_detail": null,
+          "last_attempt": "2026-11-09T17:30:01.883234+00:00",
+          "original_due": "2026-11-08T05:30:00+00:00",
+          "owner_closed": true,
+          "problems": [],
+          "recipients": [
+            {
+              "kind": "report",
+              "label": "امامی",
+              "message_id": null,
+              "recipient": "397185913",
+              "status": "unconfirmed"
+            },
+            {
+              "kind": "report",
+              "label": "هوشمند پاکدل",
+              "message_id": null,
+              "recipient": "514458396",
+              "status": "unconfirmed"
+            }
+          ],
+          "recovery_hold": {
+            "approval_ref": null,
+            "created": "2026-11-10T08:30:38.568593+00:00",
+            "deadline": "2026-11-09T17:30:00+00:00",
+            "due": "2026-11-08T05:30:00+00:00",
+            "evidence": "{\"delivery\": [{\"kind\": \"report\", \"label\": \"امامی\", \"message_id\": null, \"recipient\": \"397185913\", \"status\": \"unconfirmed\"}, {\"kind\": \"report\", \"label\": \"هوشمند پاکدل\", \"message_id\": null, \"recipient\": \"514458396\", \"status\": \"unconfirmed\"}], \"previous_run\": {\"attempt\": 145, \"data_state\": \"missing\", \"due\": \"2026-11-08T05:30:00+00:00\", \"error\": \"missing_date_expired\", \"error_detail\": null, \"finished\": \"2026-11-09T17:30:01.883234+00:00\", \"next_attempt_at\": null, \"notice_delivery_state\": \"suppressed\", \"recipient\": \"capability:reports.driver_daily.daily_receive\", \"schedule_id\": \"driver_daily_office_supervisor\", \"started\": \"2026-11-09T17:17:02+00:00\", \"status\": \"no_data_final\", \"task\": \"driver_daily\"}}",
+            "reason": "owner_review_required_for_historical_delivery",
+            "schedule_id": "driver_daily_office_supervisor",
+            "status": "held"
+          },
+          "resolver_available": true,
+          "schedule_id": "driver_daily_office_supervisor",
+          "state": "closed",
+          "target": "1405/08/16",
+          "title": "گزارش روزانه رانندگان"
+        },
+        {
+          "corrections": [],
+          "error": "missing_date_expired",
+          "error_detail": null,
+          "last_attempt": "2026-11-09T16:15:02.241329+00:00",
+          "original_due": "2026-11-08T04:15:00+00:00",
+          "owner_closed": true,
+          "problems": [],
+          "recipients": [
+            {
+              "kind": "report",
+              "label": "محسن کرمعلی",
+              "message_id": null,
+              "recipient": "1732374823",
+              "status": "pending"
+            },
+            {
+              "kind": "report",
+              "label": "سعیدشایسته",
+              "message_id": null,
+              "recipient": "654806764",
+              "status": "pending"
+            }
+          ],
+          "recovery_hold": {
+            "approval_ref": null,
+            "created": "2026-11-10T08:30:38.568593+00:00",
+            "deadline": "2026-11-09T16:15:00+00:00",
+            "due": "2026-11-08T04:15:00+00:00",
+            "evidence": "{\"delivery\": [{\"kind\": \"report\", \"label\": \"محسن کرمعلی\", \"message_id\": null, \"recipient\": \"1732374823\", \"status\": \"pending\"}, {\"kind\": \"report\", \"label\": \"سعیدشایسته\", \"message_id\": null, \"recipient\": \"654806764\", \"status\": \"pending\"}], \"previous_run\": {\"attempt\": 142, \"data_state\": \"missing\", \"due\": \"2026-11-08T04:15:00+00:00\", \"error\": \"missing_date_expired\", \"error_detail\": null, \"finished\": \"2026-11-09T16:15:02.241329+00:00\", \"next_attempt_at\": null, \"notice_delivery_state\": \"sent\", \"recipient\": \"capability:reports.overflow.mechanical_daily_receive\", \"schedule_id\": \"overflow_daily_mechanical\", \"started\": \"2026-11-09T16:02:01+00:00\", \"status\": \"no_data_final\", \"task\": \"mechanical_overflow\"}}",
+            "reason": "owner_review_required_for_historical_delivery",
+            "schedule_id": "overflow_daily_mechanical",
+            "status": "held"
+          },
+          "resolver_available": true,
+          "schedule_id": "overflow_daily_mechanical",
+          "state": "closed",
+          "target": "1405/08/16",
+          "title": "گزارش سرریز روزانه"
+        },
+        {
+          "corrections": [],
+          "error": "missing_date_expired",
+          "error_detail": null,
+          "last_attempt": "2026-11-08T17:30:02.095028+00:00",
+          "original_due": "2026-11-07T05:30:00+00:00",
+          "owner_closed": true,
+          "problems": [],
+          "recipients": [
+            {
+              "kind": "report",
+              "label": "محسن کرمعلی",
+              "message_id": null,
+              "recipient": "1732374823",
+              "status": "pending"
+            },
+            {
+              "kind": "report",
+              "label": "سعیدشایسته",
+              "message_id": null,
+              "recipient": "654806764",
+              "status": "pending"
+            }
+          ],
+          "recovery_hold": {
+            "approval_ref": null,
+            "created": "2026-11-10T08:30:38.568593+00:00",
+            "deadline": "2026-11-08T17:30:00+00:00",
+            "due": "2026-11-07T05:30:00+00:00",
+            "evidence": "{\"delivery\": [{\"kind\": \"report\", \"label\": \"محسن کرمعلی\", \"message_id\": null, \"recipient\": \"1732374823\", \"status\": \"pending\"}, {\"kind\": \"report\", \"label\": \"سعیدشایسته\", \"message_id\": null, \"recipient\": \"654806764\", \"status\": \"pending\"}], \"previous_run\": {\"attempt\": 113, \"data_state\": \"missing\", \"due\": \"2026-11-07T05:30:00+00:00\", \"error\": \"missing_date_expired\", \"error_detail\": null, \"finished\": \"2026-11-08T17:30:02.095028+00:00\", \"next_attempt_at\": null, \"notice_delivery_state\": \"suppressed\", \"recipient\": \"capability:reports.driver_daily.mechanical_daily_receive\", \"schedule_id\": \"driver_daily_mechanical\", \"started\": \"2026-11-08T17:28:02+00:00\", \"status\": \"no_data_final\", \"task\": \"mechanical_driver_daily\"}}",
+            "reason": "owner_review_required_for_historical_delivery",
+            "schedule_id": "driver_daily_mechanical",
+            "status": "held"
+          },
+          "resolver_available": true,
+          "schedule_id": "driver_daily_mechanical",
+          "state": "closed",
+          "target": "1405/08/15",
+          "title": "گزارش روزانه معایب مکانیکی رانندگان"
+        },
+        {
+          "corrections": [],
+          "error": "missing_date_expired",
+          "error_detail": null,
+          "last_attempt": "2026-11-09T17:30:01.883234+00:00",
+          "original_due": "2026-11-08T05:30:00+00:00",
+          "owner_closed": true,
+          "problems": [],
+          "recipients": [
+            {
+              "kind": "report",
+              "label": "محسن کرمعلی",
+              "message_id": null,
+              "recipient": "1732374823",
+              "status": "pending"
+            },
+            {
+              "kind": "report",
+              "label": "سعیدشایسته",
+              "message_id": null,
+              "recipient": "654806764",
+              "status": "pending"
+            }
+          ],
+          "recovery_hold": {
+            "approval_ref": null,
+            "created": "2026-11-10T08:30:38.568593+00:00",
+            "deadline": "2026-11-09T17:30:00+00:00",
+            "due": "2026-11-08T05:30:00+00:00",
+            "evidence": "{\"delivery\": [{\"kind\": \"report\", \"label\": \"محسن کرمعلی\", \"message_id\": null, \"recipient\": \"1732374823\", \"status\": \"pending\"}, {\"kind\": \"report\", \"label\": \"سعیدشایسته\", \"message_id\": null, \"recipient\": \"654806764\", \"status\": \"pending\"}], \"previous_run\": {\"attempt\": 145, \"data_state\": \"missing\", \"due\": \"2026-11-08T05:30:00+00:00\", \"error\": \"missing_date_expired\", \"error_detail\": null, \"finished\": \"2026-11-09T17:30:01.883234+00:00\", \"next_attempt_at\": null, \"notice_delivery_state\": \"suppressed\", \"recipient\": \"capability:reports.driver_daily.mechanical_daily_receive\", \"schedule_id\": \"driver_daily_mechanical\", \"started\": \"2026-11-09T17:17:02+00:00\", \"status\": \"no_data_final\", \"task\": \"mechanical_driver_daily\"}}",
+            "reason": "owner_review_required_for_historical_delivery",
+            "schedule_id": "driver_daily_mechanical",
+            "status": "held"
+          },
+          "resolver_available": true,
+          "schedule_id": "driver_daily_mechanical",
+          "state": "closed",
+          "target": "1405/08/16",
+          "title": "گزارش روزانه معایب مکانیکی رانندگان"
+        },
+        {
+          "corrections": [],
+          "error": "missing_date_expired",
+          "error_detail": null,
+          "last_attempt": "2026-11-10T08:30:38.568593+00:00",
+          "original_due": "2026-11-07T05:30:00+00:00",
+          "owner_closed": true,
+          "problems": [],
+          "recipients": [
+            {
+              "kind": "report",
+              "label": "صادق،صادقیان،",
+              "message_id": null,
+              "recipient": "387679249",
+              "status": "pending"
+            }
+          ],
+          "recovery_hold": {
+            "approval_ref": null,
+            "created": "2026-11-10T08:30:38.568593+00:00",
+            "deadline": "2026-11-08T17:30:00+00:00",
+            "due": "2026-11-07T05:30:00+00:00",
+            "evidence": "{\"delivery\": [{\"kind\": \"report\", \"label\": \"صادق،صادقیان،\", \"message_id\": null, \"recipient\": \"387679249\", \"status\": \"pending\"}], \"previous_run\": {\"attempt\": 266, \"data_state\": \"missing\", \"due\": \"2026-11-07T05:30:00+00:00\", \"error\": \"missing_date_expired\", \"error_detail\": null, \"finished\": \"2026-11-10T08:30:38.568593+00:00\", \"next_attempt_at\": null, \"notice_delivery_state\": \"sent\", \"recipient\": \"capability:reports.driver_daily.metalwork_daily_receive\", \"schedule_id\": \"driver_daily_metalwork\", \"started\": \"2026-11-10T08:15:03+00:00\", \"status\": \"no_data_final\", \"task\": \"metalwork_driver_daily\"}}",
+            "reason": "owner_review_required_for_historical_delivery",
+            "schedule_id": "driver_daily_metalwork",
+            "status": "held"
+          },
+          "resolver_available": true,
+          "schedule_id": "driver_daily_metalwork",
+          "state": "closed",
+          "target": "1405/08/15",
+          "title": "گزارش روزانه معایب آهنگری رانندگان"
+        },
+        {
+          "corrections": [],
+          "error": "missing_date_expired",
+          "error_detail": null,
+          "last_attempt": "2026-11-10T08:30:38.568593+00:00",
+          "original_due": "2026-11-08T05:30:00+00:00",
+          "owner_closed": true,
+          "problems": [],
+          "recipients": [
+            {
+              "kind": "report",
+              "label": "صادق،صادقیان،",
+              "message_id": null,
+              "recipient": "387679249",
+              "status": "pending"
+            }
+          ],
+          "recovery_hold": {
+            "approval_ref": null,
+            "created": "2026-11-10T08:30:38.568593+00:00",
+            "deadline": "2026-11-09T17:30:00+00:00",
+            "due": "2026-11-08T05:30:00+00:00",
+            "evidence": "{\"delivery\": [{\"kind\": \"report\", \"label\": \"صادق،صادقیان،\", \"message_id\": null, \"recipient\": \"387679249\", \"status\": \"pending\"}], \"previous_run\": {\"attempt\": 204, \"data_state\": \"missing\", \"due\": \"2026-11-08T05:30:00+00:00\", \"error\": \"missing_date_expired\", \"error_detail\": null, \"finished\": \"2026-11-10T08:30:38.568593+00:00\", \"next_attempt_at\": null, \"notice_delivery_state\": \"sent\", \"recipient\": \"capability:reports.driver_daily.metalwork_daily_receive\", \"schedule_id\": \"driver_daily_metalwork\", \"started\": \"2026-11-10T08:15:03+00:00\", \"status\": \"no_data_final\", \"task\": \"metalwork_driver_daily\"}}",
+            "reason": "owner_review_required_for_historical_delivery",
+            "schedule_id": "driver_daily_metalwork",
+            "status": "held"
+          },
+          "resolver_available": true,
+          "schedule_id": "driver_daily_metalwork",
+          "state": "closed",
+          "target": "1405/08/16",
+          "title": "گزارش روزانه معایب آهنگری رانندگان"
+        },
+        {
+          "corrections": [],
+          "error": "missing_date_expired",
+          "error_detail": null,
+          "last_attempt": "2026-11-09T20:30:02.525838+00:00",
+          "original_due": "2026-11-08T08:30:00+00:00",
+          "owner_closed": true,
+          "problems": [],
+          "recipients": [
+            {
+              "kind": "report",
+              "label": "امامی",
+              "message_id": null,
+              "recipient": "397185913",
+              "status": "pending"
+            },
+            {
+              "kind": "report",
+              "label": "هوشمند پاکدل",
+              "message_id": null,
+              "recipient": "514458396",
+              "status": "pending"
+            }
+          ],
+          "recovery_hold": {
+            "approval_ref": null,
+            "created": "2026-11-10T08:30:38.568593+00:00",
+            "deadline": "2026-11-09T20:30:00+00:00",
+            "due": "2026-11-08T08:30:00+00:00",
+            "evidence": "{\"delivery\": [{\"kind\": \"report\", \"label\": \"امامی\", \"message_id\": null, \"recipient\": \"397185913\", \"status\": \"pending\"}, {\"kind\": \"report\", \"label\": \"هوشمند پاکدل\", \"message_id\": null, \"recipient\": \"514458396\", \"status\": \"pending\"}], \"previous_run\": {\"attempt\": 146, \"data_state\": \"missing\", \"due\": \"2026-11-08T08:30:00+00:00\", \"error\": \"missing_date_expired\", \"error_detail\": null, \"finished\": \"2026-11-09T20:30:02.525838+00:00\", \"next_attempt_at\": null, \"notice_delivery_state\": \"suppressed\", \"recipient\": \"capability:reports.maintenance.daily_receive\", \"schedule_id\": \"maintenance_daily_report\", \"started\": \"2026-11-09T20:24:02+00:00\", \"status\": \"no_data_final\", \"task\": \"maintenance_daily_report\"}}",
+            "reason": "owner_review_required_for_historical_delivery",
+            "schedule_id": "maintenance_daily_report",
+            "status": "held"
+          },
+          "resolver_available": true,
+          "schedule_id": "maintenance_daily_report",
+          "state": "closed",
+          "target": "1405/08/16",
+          "title": "گزارش روزانه تعمیرات ماشین‌آلات"
+        },
+        {
+          "corrections": [],
+          "error": "missing_date_expired",
+          "error_detail": null,
+          "last_attempt": "2026-11-09T23:30:01.981550+00:00",
+          "original_due": "2026-11-08T11:30:00+00:00",
+          "owner_closed": true,
+          "problems": [],
+          "recipients": [
+            {
+              "kind": "report",
+              "label": "امامی",
+              "message_id": null,
+              "recipient": "397185913",
+              "status": "pending"
+            }
+          ],
+          "recovery_hold": {
+            "approval_ref": null,
+            "created": "2026-11-10T08:30:38.568593+00:00",
+            "deadline": "2026-11-09T23:30:00+00:00",
+            "due": "2026-11-08T11:30:00+00:00",
+            "evidence": "{\"delivery\": [{\"kind\": \"report\", \"label\": \"امامی\", \"message_id\": null, \"recipient\": \"397185913\", \"status\": \"pending\"}], \"previous_run\": {\"attempt\": 146, \"data_state\": \"missing\", \"due\": \"2026-11-08T11:30:00+00:00\", \"error\": \"missing_date_expired\", \"error_detail\": null, \"finished\": \"2026-11-09T23:30:01.981550+00:00\", \"next_attempt_at\": null, \"notice_delivery_state\": \"suppressed\", \"recipient\": \"capability:reports.oil_balance.daily_receive\", \"schedule_id\": \"oil_balance_daily_report\", \"started\": \"2026-11-09T23:26:02+00:00\", \"status\": \"no_data_final\", \"task\": \"oil_balance_daily_report\"}}",
+            "reason": "owner_review_required_for_historical_delivery",
+            "schedule_id": "oil_balance_daily_report",
+            "status": "held"
+          },
+          "resolver_available": true,
+          "schedule_id": "oil_balance_daily_report",
+          "state": "closed",
+          "target": "1405/08/16",
+          "title": "گزارش روزانه موازنه روغن"
+        },
+        {
+          "corrections": [],
+          "error": "superseded_missing_date",
+          "error_detail": null,
+          "last_attempt": "2026-11-09T11:44:02.950317+00:00",
+          "original_due": "2026-11-07T11:30:00+00:00",
+          "owner_closed": true,
+          "problems": [],
+          "recipients": [
+            {
+              "kind": "report",
+              "label": "امامی",
+              "message_id": null,
+              "recipient": "397185913",
+              "status": "pending"
+            },
+            {
+              "kind": "report",
+              "label": "حمید هدایتی",
+              "message_id": null,
+              "recipient": "641220453",
+              "status": "pending"
+            }
+          ],
+          "recovery_hold": {
+            "approval_ref": null,
+            "created": "2026-11-10T08:30:38.568593+00:00",
+            "deadline": "2026-11-08T23:30:00+00:00",
+            "due": "2026-11-07T11:30:00+00:00",
+            "evidence": "{\"delivery\": [{\"kind\": \"report\", \"label\": \"امامی\", \"message_id\": null, \"recipient\": \"397185913\", \"status\": \"pending\"}, {\"kind\": \"report\", \"label\": \"حمید هدایتی\", \"message_id\": null, \"recipient\": \"641220453\", \"status\": \"pending\"}], \"previous_run\": {\"attempt\": 160, \"data_state\": \"missing\", \"due\": \"2026-11-07T11:30:00+00:00\", \"error\": \"superseded_missing_date\", \"error_detail\": null, \"finished\": \"2026-11-09T11:44:02.950317+00:00\", \"next_attempt_at\": null, \"notice_delivery_state\": \"suppressed\", \"recipient\": \"capability:reports.machinery_performance.daily_receive\", \"schedule_id\": \"machinery_performance_daily_report\", \"started\": \"2026-11-09T11:29:02+00:00\", \"status\": \"no_data_final\", \"task\": \"machinery_performance_daily_report\"}}",
+            "reason": "owner_review_required_for_historical_delivery",
+            "schedule_id": "machinery_performance_daily_report",
+            "status": "held"
+          },
+          "resolver_available": true,
+          "schedule_id": "machinery_performance_daily_report",
+          "state": "closed",
+          "target": "1405/08/15",
+          "title": "عملکرد مصرف ماشین آلات"
+        },
+        {
+          "corrections": [],
+          "error": "superseded_missing_date",
+          "error_detail": null,
+          "last_attempt": "2026-11-09T23:40:02.274626+00:00",
+          "original_due": "2026-11-08T11:30:00+00:00",
+          "owner_closed": true,
+          "problems": [],
+          "recipients": [
+            {
+              "kind": "report",
+              "label": "امامی",
+              "message_id": null,
+              "recipient": "397185913",
+              "status": "pending"
+            },
+            {
+              "kind": "report",
+              "label": "حمید هدایتی",
+              "message_id": null,
+              "recipient": "641220453",
+              "status": "pending"
+            }
+          ],
+          "recovery_hold": {
+            "approval_ref": null,
+            "created": "2026-11-10T08:30:38.568593+00:00",
+            "deadline": "2026-11-09T23:30:00+00:00",
+            "due": "2026-11-08T11:30:00+00:00",
+            "evidence": "{\"delivery\": [{\"kind\": \"report\", \"label\": \"امامی\", \"message_id\": null, \"recipient\": \"397185913\", \"status\": \"pending\"}, {\"kind\": \"report\", \"label\": \"حمید هدایتی\", \"message_id\": null, \"recipient\": \"641220453\", \"status\": \"pending\"}], \"previous_run\": {\"attempt\": 50, \"data_state\": \"missing\", \"due\": \"2026-11-08T11:30:00+00:00\", \"error\": \"superseded_missing_date\", \"error_detail\": null, \"finished\": \"2026-11-09T23:40:02.274626+00:00\", \"next_attempt_at\": null, \"notice_delivery_state\": \"suppressed\", \"recipient\": \"capability:reports.machinery_performance.daily_receive\", \"schedule_id\": \"machinery_performance_daily_report\", \"started\": \"2026-11-09T23:25:02+00:00\", \"status\": \"no_data_final\", \"task\": \"machinery_performance_daily_report\"}}",
+            "reason": "owner_review_required_for_historical_delivery",
+            "schedule_id": "machinery_performance_daily_report",
+            "status": "held"
+          },
+          "resolver_available": true,
+          "schedule_id": "machinery_performance_daily_report",
+          "state": "closed",
+          "target": "1405/08/16",
+          "title": "عملکرد مصرف ماشین آلات"
+        }
+      ]
+    }
+  ],
+  "today_alert_receipts": [
+    {
+      "schedule_id": "overflow_daily_test",
+      "due": "2026-11-05T04:15:00+00:00",
+      "episode": 2,
+      "alert_kind": "exception",
+      "operator_id": "455740857",
+      "status": "sent",
+      "message_id": "7374",
+      "error": null,
+      "updated": "2026-11-10T08:31:02+00:00"
+    },
+    {
+      "schedule_id": "overflow_daily_test",
+      "due": "2026-11-08T04:15:00+00:00",
+      "episode": 1,
+      "alert_kind": "exception",
+      "operator_id": "455740857",
+      "status": "sent",
+      "message_id": "7375",
+      "error": null,
+      "updated": "2026-11-10T08:31:02+00:00"
+    },
+    {
+      "schedule_id": "driver_daily_office_supervisor",
+      "due": "2026-10-30T05:30:00+00:00",
+      "episode": 1,
+      "alert_kind": "exception",
+      "operator_id": "455740857",
+      "status": "sent",
+      "message_id": "7376",
+      "error": null,
+      "updated": "2026-11-10T08:31:02+00:00"
+    },
+    {
+      "schedule_id": "driver_daily_office_supervisor",
+      "due": "2026-11-07T05:30:00+00:00",
+      "episode": 1,
+      "alert_kind": "exception",
+      "operator_id": "455740857",
+      "status": "sent",
+      "message_id": "7377",
+      "error": null,
+      "updated": "2026-11-10T08:31:02+00:00"
+    },
+    {
+      "schedule_id": "driver_daily_office_supervisor",
+      "due": "2026-11-08T05:30:00+00:00",
+      "episode": 1,
+      "alert_kind": "exception",
+      "operator_id": "455740857",
+      "status": "sent",
+      "message_id": "7378",
+      "error": null,
+      "updated": "2026-11-10T08:31:02+00:00"
+    },
+    {
+      "schedule_id": "overflow_daily_mechanical",
+      "due": "2026-11-08T04:15:00+00:00",
+      "episode": 1,
+      "alert_kind": "exception",
+      "operator_id": "455740857",
+      "status": "sent",
+      "message_id": "7379",
+      "error": null,
+      "updated": "2026-11-10T08:31:02+00:00"
+    },
+    {
+      "schedule_id": "driver_daily_mechanical",
+      "due": "2026-10-30T05:30:00+00:00",
+      "episode": 1,
+      "alert_kind": "exception",
+      "operator_id": "455740857",
+      "status": "sent",
+      "message_id": "7380",
+      "error": null,
+      "updated": "2026-11-10T08:31:02+00:00"
+    },
+    {
+      "schedule_id": "driver_daily_mechanical",
+      "due": "2026-11-07T05:30:00+00:00",
+      "episode": 1,
+      "alert_kind": "exception",
+      "operator_id": "455740857",
+      "status": "sent",
+      "message_id": "7381",
+      "error": null,
+      "updated": "2026-11-10T08:31:02+00:00"
+    },
+    {
+      "schedule_id": "driver_daily_mechanical",
+      "due": "2026-11-08T05:30:00+00:00",
+      "episode": 1,
+      "alert_kind": "exception",
+      "operator_id": "455740857",
+      "status": "sent",
+      "message_id": "7382",
+      "error": null,
+      "updated": "2026-11-10T08:31:02+00:00"
+    },
+    {
+      "schedule_id": "driver_daily_metalwork",
+      "due": "2026-10-30T05:30:00+00:00",
+      "episode": 1,
+      "alert_kind": "exception",
+      "operator_id": "455740857",
+      "status": "sent",
+      "message_id": "7383",
+      "error": null,
+      "updated": "2026-11-10T08:31:02+00:00"
+    },
+    {
+      "schedule_id": "driver_daily_metalwork",
+      "due": "2026-11-07T05:30:00+00:00",
+      "episode": 1,
+      "alert_kind": "exception",
+      "operator_id": "455740857",
+      "status": "sent",
+      "message_id": "7384",
+      "error": null,
+      "updated": "2026-11-10T08:31:02+00:00"
+    },
+    {
+      "schedule_id": "driver_daily_metalwork",
+      "due": "2026-11-08T05:30:00+00:00",
+      "episode": 1,
+      "alert_kind": "exception",
+      "operator_id": "455740857",
+      "status": "sent",
+      "message_id": "7385",
+      "error": null,
+      "updated": "2026-11-10T08:31:02+00:00"
+    },
+    {
+      "schedule_id": "maintenance_daily_report",
+      "due": "2026-11-08T08:30:00+00:00",
+      "episode": 1,
+      "alert_kind": "exception",
+      "operator_id": "455740857",
+      "status": "sent",
+      "message_id": "7386",
+      "error": null,
+      "updated": "2026-11-10T08:31:02+00:00"
+    },
+    {
+      "schedule_id": "oil_balance_daily_report",
+      "due": "2026-11-08T11:30:00+00:00",
+      "episode": 1,
+      "alert_kind": "exception",
+      "operator_id": "455740857",
+      "status": "sent",
+      "message_id": "7387",
+      "error": null,
+      "updated": "2026-11-10T08:31:02+00:00"
+    },
+    {
+      "schedule_id": "machinery_performance_daily_report",
+      "due": "2026-11-07T11:30:00+00:00",
+      "episode": 1,
+      "alert_kind": "exception",
+      "operator_id": "455740857",
+      "status": "sent",
+      "message_id": "7388",
+      "error": null,
+      "updated": "2026-11-10T08:31:02+00:00"
+    },
+    {
+      "schedule_id": "machinery_performance_daily_report",
+      "due": "2026-11-07T11:30:00+00:00",
+      "episode": 1,
+      "alert_kind": "exception",
+      "operator_id": "641220453",
+      "status": "sent",
+      "message_id": "7389",
+      "error": null,
+      "updated": "2026-11-10T08:31:02+00:00"
+    },
+    {
+      "schedule_id": "machinery_performance_daily_report",
+      "due": "2026-11-08T11:30:00+00:00",
+      "episode": 1,
+      "alert_kind": "exception",
+      "operator_id": "455740857",
+      "status": "sent",
+      "message_id": "7390",
+      "error": null,
+      "updated": "2026-11-10T08:31:02+00:00"
+    },
+    {
+      "schedule_id": "machinery_performance_daily_report",
+      "due": "2026-11-08T11:30:00+00:00",
+      "episode": 1,
+      "alert_kind": "exception",
+      "operator_id": "641220453",
+      "status": "sent",
+      "message_id": "7391",
+      "error": null,
+      "updated": "2026-11-10T08:31:02+00:00"
+    },
+    {
+      "schedule_id": "maintenance_daily_report",
+      "due": "2026-11-09T08:30:00+00:00",
+      "episode": 1,
+      "alert_kind": "exception",
+      "operator_id": "455740857",
+      "status": "sent",
+      "message_id": "7392",
+      "error": null,
+      "updated": "2026-11-10T08:46:02+00:00"
+    },
+    {
+      "schedule_id": "maintenance_daily_report",
+      "due": "2026-11-10T08:30:00+00:00",
+      "episode": 1,
+      "alert_kind": "exception",
+      "operator_id": "455740857",
+      "status": "sent",
+      "message_id": "7393",
+      "error": null,
+      "updated": "2026-11-10T08:46:02+00:00"
+    },
+    {
+      "schedule_id": "oil_balance_daily_report",
+      "due": "2026-11-09T11:30:00+00:00",
+      "episode": 1,
+      "alert_kind": "exception",
+      "operator_id": "455740857",
+      "status": "sent",
+      "message_id": "7394",
+      "error": null,
+      "updated": "2026-11-10T08:46:02+00:00"
+    },
+    {
+      "schedule_id": "overflow_daily_test",
+      "due": "2026-09-16T05:30:00+00:00",
+      "episode": 1,
+      "alert_kind": "exception",
+      "operator_id": "455740857",
+      "status": "sent",
+      "message_id": "7395",
+      "error": null,
+      "updated": "2026-11-10T08:54:02+00:00"
+    },
+    {
+      "schedule_id": "overflow_daily_test",
+      "due": "2026-09-17T05:30:00+00:00",
+      "episode": 1,
+      "alert_kind": "exception",
+      "operator_id": "455740857",
+      "status": "sent",
+      "message_id": "7396",
+      "error": null,
+      "updated": "2026-11-10T08:54:02+00:00"
+    },
+    {
+      "schedule_id": "overflow_daily_test",
+      "due": "2026-09-18T05:30:00+00:00",
+      "episode": 1,
+      "alert_kind": "exception",
+      "operator_id": "455740857",
+      "status": "sent",
+      "message_id": "7397",
+      "error": null,
+      "updated": "2026-11-10T08:54:02+00:00"
+    },
+    {
+      "schedule_id": "overflow_daily_test",
+      "due": "2026-09-19T05:30:00+00:00",
+      "episode": 1,
+      "alert_kind": "exception",
+      "operator_id": "455740857",
+      "status": "sent",
+      "message_id": "7398",
+      "error": null,
+      "updated": "2026-11-10T08:54:02+00:00"
+    },
+    {
+      "schedule_id": "overflow_daily_test",
+      "due": "2026-09-20T05:30:00+00:00",
+      "episode": 1,
+      "alert_kind": "exception",
+      "operator_id": "455740857",
+      "status": "sent",
+      "message_id": "7399",
+      "error": null,
+      "updated": "2026-11-10T08:54:02+00:00"
+    },
+    {
+      "schedule_id": "overflow_daily_test",
+      "due": "2026-09-21T05:30:00+00:00",
+      "episode": 1,
+      "alert_kind": "exception",
+      "operator_id": "455740857",
+      "status": "sent",
+      "message_id": "7400",
+      "error": null,
+      "updated": "2026-11-10T08:54:02+00:00"
+    },
+    {
+      "schedule_id": "overflow_daily_test",
+      "due": "2026-09-23T05:30:00+00:00",
+      "episode": 1,
+      "alert_kind": "exception",
+      "operator_id": "455740857",
+      "status": "sent",
+      "message_id": "7401",
+      "error": null,
+      "updated": "2026-11-10T08:54:02+00:00"
+    },
+    {
+      "schedule_id": "overflow_daily_test",
+      "due": "2026-09-24T05:30:00+00:00",
+      "episode": 1,
+      "alert_kind": "exception",
+      "operator_id": "455740857",
+      "status": "sent",
+      "message_id": "7402",
+      "error": null,
+      "updated": "2026-11-10T08:54:02+00:00"
+    },
+    {
+      "schedule_id": "overflow_daily_test",
+      "due": "2026-09-25T05:30:00+00:00",
+      "episode": 1,
+      "alert_kind": "exception",
+      "operator_id": "455740857",
+      "status": "sent",
+      "message_id": "7403",
+      "error": null,
+      "updated": "2026-11-10T08:54:02+00:00"
+    },
+    {
+      "schedule_id": "overflow_daily_test",
+      "due": "2026-09-26T05:30:00+00:00",
+      "episode": 1,
+      "alert_kind": "exception",
+      "operator_id": "455740857",
+      "status": "sent",
+      "message_id": "7404",
+      "error": null,
+      "updated": "2026-11-10T08:54:02+00:00"
+    },
+    {
+      "schedule_id": "overflow_daily_test",
+      "due": "2026-09-27T05:30:00+00:00",
+      "episode": 1,
+      "alert_kind": "exception",
+      "operator_id": "455740857",
+      "status": "sent",
+      "message_id": "7405",
+      "error": null,
+      "updated": "2026-11-10T08:54:02+00:00"
+    },
+    {
+      "schedule_id": "overflow_daily_test",
+      "due": "2026-09-28T05:30:00+00:00",
+      "episode": 1,
+      "alert_kind": "exception",
+      "operator_id": "455740857",
+      "status": "sent",
+      "message_id": "7406",
+      "error": null,
+      "updated": "2026-11-10T08:54:02+00:00"
+    },
+    {
+      "schedule_id": "overflow_daily_test",
+      "due": "2026-09-29T05:30:00+00:00",
+      "episode": 1,
+      "alert_kind": "exception",
+      "operator_id": "455740857",
+      "status": "sent",
+      "message_id": "7407",
+      "error": null,
+      "updated": "2026-11-10T08:54:02+00:00"
+    },
+    {
+      "schedule_id": "overflow_daily_test",
+      "due": "2026-09-30T05:30:00+00:00",
+      "episode": 1,
+      "alert_kind": "exception",
+      "operator_id": "455740857",
+      "status": "sent",
+      "message_id": "7408",
+      "error": null,
+      "updated": "2026-11-10T08:54:02+00:00"
+    },
+    {
+      "schedule_id": "overflow_daily_test",
+      "due": "2026-10-01T05:30:00+00:00",
+      "episode": 1,
+      "alert_kind": "exception",
+      "operator_id": "455740857",
+      "status": "sent",
+      "message_id": "7409",
+      "error": null,
+      "updated": "2026-11-10T08:54:02+00:00"
+    },
+    {
+      "schedule_id": "overflow_daily_test",
+      "due": "2026-10-03T05:30:00+00:00",
+      "episode": 1,
+      "alert_kind": "exception",
+      "operator_id": "455740857",
+      "status": "sent",
+      "message_id": "7410",
+      "error": null,
+      "updated": "2026-11-10T08:54:02+00:00"
+    },
+    {
+      "schedule_id": "overflow_daily_test",
+      "due": "2026-10-04T05:30:00+00:00",
+      "episode": 1,
+      "alert_kind": "exception",
+      "operator_id": "455740857",
+      "status": "sent",
+      "message_id": "7411",
+      "error": null,
+      "updated": "2026-11-10T08:54:02+00:00"
+    },
+    {
+      "schedule_id": "machinery_performance_daily_report",
+      "due": "2026-11-10T11:30:00+00:00",
+      "episode": 1,
+      "alert_kind": "exception",
+      "operator_id": "455740857",
+      "status": "sent",
+      "message_id": "7415",
+      "error": null,
+      "updated": "2026-11-10T11:46:12+00:00"
+    },
+    {
+      "schedule_id": "machinery_performance_daily_report",
+      "due": "2026-11-10T11:30:00+00:00",
+      "episode": 1,
+      "alert_kind": "exception",
+      "operator_id": "641220453",
+      "status": "sent",
+      "message_id": "7416",
+      "error": null,
+      "updated": "2026-11-10T11:46:12+00:00"
+    },
+    {
+      "schedule_id": "maintenance_daily_report",
+      "due": "2026-11-09T08:30:00+00:00",
+      "episode": 1,
+      "alert_kind": "recovery",
+      "operator_id": "455740857",
+      "status": "sent",
+      "message_id": "7425",
+      "error": null,
+      "updated": "2026-11-10T12:14:01+00:00"
+    },
+    {
+      "schedule_id": "maintenance_daily_report",
+      "due": "2026-11-10T08:30:00+00:00",
+      "episode": 1,
+      "alert_kind": "recovery",
+      "operator_id": "455740857",
+      "status": "sent",
+      "message_id": "7426",
+      "error": null,
+      "updated": "2026-11-10T12:14:01+00:00"
+    },
+    {
+      "schedule_id": "machinery_performance_daily_report",
+      "due": "2026-11-10T11:30:00+00:00",
+      "episode": 1,
+      "alert_kind": "recovery",
+      "operator_id": "455740857",
+      "status": "sent",
+      "message_id": "7432",
+      "error": null,
+      "updated": "2026-11-10T12:49:02+00:00"
+    },
+    {
+      "schedule_id": "machinery_performance_daily_report",
+      "due": "2026-11-10T11:30:00+00:00",
+      "episode": 1,
+      "alert_kind": "recovery",
+      "operator_id": "641220453",
+      "status": "sent",
+      "message_id": "7433",
+      "error": null,
+      "updated": "2026-11-10T12:49:02+00:00"
+    }
+  ],
+  "alert_keys_unique": true,
+  "actual_sends_performed": 0
+}

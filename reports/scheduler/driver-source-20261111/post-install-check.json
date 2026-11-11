@@ -1,0 +1,53 @@
+{
+  "checked_utc": "2026-11-11T05:18:27.049671+00:00",
+  "installed_hashes_match": {
+    "integrations/hermes/function_domain/driver_report.py": true,
+    "tools/fleet/repairs/report.py": true,
+    "tools/scheduler/report_errors.py": true,
+    "tools/admin/test_driver_ordinal.py": true
+  },
+  "source_sha256": "08a42282afa77993feba1a0b148678c6edf3d402ca1a526f735bf059e9ff5d5b",
+  "inventory_count": 36,
+  "section_counts": {
+    "mechanical": 36,
+    "metalwork": 28
+  },
+  "blank_ordinals": [
+    {
+      "row": 28,
+      "code": "HD718"
+    }
+  ],
+  "preflight": [
+    {
+      "schedule_id": "driver_daily_office_supervisor",
+      "due": "2026-11-11T05:30:00+00:00",
+      "status": "failed",
+      "checked": "2026-11-11T05:17:02+00:00",
+      "error_code": "source_invalid",
+      "error_detail": "{\"stage\": \"source\"}",
+      "next_attempt_at": "2026-11-11T05:22:02+00:00",
+      "sample_date": null
+    },
+    {
+      "schedule_id": "driver_daily_mechanical",
+      "due": "2026-11-11T05:30:00+00:00",
+      "status": "failed",
+      "checked": "2026-11-11T05:17:02+00:00",
+      "error_code": "source_invalid",
+      "error_detail": "{\"stage\": \"source\"}",
+      "next_attempt_at": "2026-11-11T05:22:02+00:00",
+      "sample_date": null
+    },
+    {
+      "schedule_id": "driver_daily_metalwork",
+      "due": "2026-11-11T05:30:00+00:00",
+      "status": "failed",
+      "checked": "2026-11-11T05:17:02+00:00",
+      "error_code": "source_invalid",
+      "error_detail": "{\"stage\": \"source\"}",
+      "next_attempt_at": "2026-11-11T05:22:02+00:00",
+      "sample_date": null
+    }
+  ]
+}

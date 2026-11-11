@@ -1,0 +1,336 @@
+{
+  "status": "passed",
+  "section": "mechanical",
+  "date": "1405/08/19",
+  "sheet": "گزارش رورانه1405.08.19 ",
+  "pages": 4,
+  "nonempty_descriptions": 36,
+  "cells": [
+    {
+      "row": 3,
+      "code": "EX1251",
+      "pages": [
+        1
+      ],
+      "description_verified": true,
+      "description_characters": 1
+    },
+    {
+      "row": 4,
+      "code": "EX1252",
+      "pages": [
+        1
+      ],
+      "description_verified": true,
+      "description_characters": 59
+    },
+    {
+      "row": 5,
+      "code": "EX1253",
+      "pages": [
+        1
+      ],
+      "description_verified": true,
+      "description_characters": 64
+    },
+    {
+      "row": 6,
+      "code": "EX1254",
+      "pages": [
+        1
+      ],
+      "description_verified": true,
+      "description_characters": 1
+    },
+    {
+      "row": 7,
+      "code": "EX1255",
+      "pages": [
+        1
+      ],
+      "description_verified": true,
+      "description_characters": 133
+    },
+    {
+      "row": 8,
+      "code": "EX1256",
+      "pages": [
+        1
+      ],
+      "description_verified": true,
+      "description_characters": 71
+    },
+    {
+      "row": 9,
+      "code": "EX601",
+      "pages": [
+        1
+      ],
+      "description_verified": true,
+      "description_characters": 29
+    },
+    {
+      "row": 10,
+      "code": "EX521",
+      "pages": [
+        1
+      ],
+      "description_verified": true,
+      "description_characters": 18
+    },
+    {
+      "row": 11,
+      "code": "EX321",
+      "pages": [
+        1
+      ],
+      "description_verified": true,
+      "description_characters": 28
+    },
+    {
+      "row": 12,
+      "code": "W472",
+      "pages": [
+        1
+      ],
+      "description_verified": true,
+      "description_characters": 70
+    },
+    {
+      "row": 13,
+      "code": "W601",
+      "pages": [
+        1
+      ],
+      "description_verified": true,
+      "description_characters": 66
+    },
+    {
+      "row": 14,
+      "code": "HD701",
+      "pages": [
+        2
+      ],
+      "description_verified": true,
+      "description_characters": 13
+    },
+    {
+      "row": 15,
+      "code": "HD702",
+      "pages": [
+        2
+      ],
+      "description_verified": true,
+      "description_characters": 18
+    },
+    {
+      "row": 16,
+      "code": "HD703",
+      "pages": [
+        2
+      ],
+      "description_verified": true,
+      "description_characters": 16
+    },
+    {
+      "row": 17,
+      "code": "HD706",
+      "pages": [
+        2
+      ],
+      "description_verified": true,
+      "description_characters": 57
+    },
+    {
+      "row": 18,
+      "code": "HD708",
+      "pages": [
+        2
+      ],
+      "description_verified": true,
+      "description_characters": 33
+    },
+    {
+      "row": 19,
+      "code": "HD709",
+      "pages": [
+        2
+      ],
+      "description_verified": true,
+      "description_characters": 42
+    },
+    {
+      "row": 20,
+      "code": "HD710",
+      "pages": [
+        2
+      ],
+      "description_verified": true,
+      "description_characters": 37
+    },
+    {
+      "row": 21,
+      "code": "HD711",
+      "pages": [
+        2
+      ],
+      "description_verified": true,
+      "description_characters": 89
+    },
+    {
+      "row": 22,
+      "code": "HD712",
+      "pages": [
+        2
+      ],
+      "description_verified": true,
+      "description_characters": 74
+    },
+    {
+      "row": 23,
+      "code": "HD713",
+      "pages": [
+        2
+      ],
+      "description_verified": true,
+      "description_characters": 183
+    },
+    {
+      "row": 24,
+      "code": "HD714",
+      "pages": [
+        3
+      ],
+      "description_verified": true,
+      "description_characters": 178
+    },
+    {
+      "row": 25,
+      "code": "HD715",
+      "pages": [
+        3
+      ],
+      "description_verified": true,
+      "description_characters": 137
+    },
+    {
+      "row": 26,
+      "code": "HD716",
+      "pages": [
+        3
+      ],
+      "description_verified": true,
+      "description_characters": 171
+    },
+    {
+      "row": 27,
+      "code": "HD717",
+      "pages": [
+        3
+      ],
+      "description_verified": true,
+      "description_characters": 122
+    },
+    {
+      "row": 28,
+      "code": "HD718",
+      "pages": [
+        3
+      ],
+      "description_verified": true,
+      "description_characters": 67
+    },
+    {
+      "row": 29,
+      "code": "HD719",
+      "pages": [
+        3
+      ],
+      "description_verified": true,
+      "description_characters": 92
+    },
+    {
+      "row": 30,
+      "code": "HD720",
+      "pages": [
+        3
+      ],
+      "description_verified": true,
+      "description_characters": 80
+    },
+    {
+      "row": 31,
+      "code": "HD463",
+      "pages": [
+        3
+      ],
+      "description_verified": true,
+      "description_characters": 23
+    },
+    {
+      "row": 32,
+      "code": "HD464",
+      "pages": [
+        3
+      ],
+      "description_verified": true,
+      "description_characters": 11
+    },
+    {
+      "row": 33,
+      "code": "HD465",
+      "pages": [
+        3
+      ],
+      "description_verified": true,
+      "description_characters": 25
+    },
+    {
+      "row": 34,
+      "code": "HD466",
+      "pages": [
+        4
+      ],
+      "description_verified": true,
+      "description_characters": 51
+    },
+    {
+      "row": 35,
+      "code": "HD467",
+      "pages": [
+        4
+      ],
+      "description_verified": true,
+      "description_characters": 62
+    },
+    {
+      "row": 36,
+      "code": "HD469",
+      "pages": [
+        4
+      ],
+      "description_verified": true,
+      "description_characters": 49
+    },
+    {
+      "row": 37,
+      "code": "TR1",
+      "pages": [
+        4
+      ],
+      "description_verified": true,
+      "description_characters": 63
+    },
+    {
+      "row": 38,
+      "code": "TA1",
+      "pages": [
+        4
+      ],
+      "description_verified": true,
+      "description_characters": 53
+    }
+  ],
+  "snapshot_sha256": "08a42282afa77993feba1a0b148678c6edf3d402ca1a526f735bf059e9ff5d5b",
+  "pdf_sha256": "bcd435cca89f234b7b95a1bc51f73bd907781af59a4155212b04ea9c7a2704d0"
+}

@@ -1,0 +1,23 @@
+{
+  "installed_utc": "2026-11-11T05:18:01.502006+00:00",
+  "files": {
+    "integrations/hermes/function_domain/driver_report.py": {
+      "before_sha256": "1faf0c7e8e4c88901d9e7ee0dca260ff14aa3cbd6abeed23d0906fb29ca9be4c",
+      "installed_sha256": "20cd3e8fec67b8f9ac2eec463f83db668c7864a91e92f9d017642972f36e4488"
+    },
+    "tools/fleet/repairs/report.py": {
+      "before_sha256": "c7f99ff3321e89492b86b494704331065ac3197fd97915add38e13fa1485f247",
+      "installed_sha256": "a477d85199f5620056f6938530fa7ba6dedc8eda0e27e2a14c8cb5cc00ea435a"
+    },
+    "tools/scheduler/report_errors.py": {
+      "before_sha256": "267eedaf93e8abf7ed152c46cfb23e7af7d868b4127e70a51b186fba8098f0c1",
+      "installed_sha256": "6200fe83ff88f8229d33939de2672991fda30892c7a16faba0c15ee8aac3a56a"
+    },
+    "tools/admin/test_driver_ordinal.py": {
+      "before_sha256": null,
+      "installed_sha256": "6856c06420957da88417a509d5c5d5f422c910b4819a1d4fd99528a7903af7b6"
+    }
+  },
+  "restart_required": false,
+  "manual_send": false
+}

@@ -1,0 +1,336 @@
+{
+  "status": "passed",
+  "section": "metalwork",
+  "date": "1405/08/19",
+  "sheet": "گزارش رورانه1405.08.19 ",
+  "pages": 4,
+  "nonempty_descriptions": 28,
+  "cells": [
+    {
+      "row": 3,
+      "code": "EX1251",
+      "pages": [
+        1
+      ],
+      "description_verified": true,
+      "description_characters": 52
+    },
+    {
+      "row": 4,
+      "code": "EX1252",
+      "pages": [
+        1
+      ],
+      "description_verified": true,
+      "description_characters": 31
+    },
+    {
+      "row": 5,
+      "code": "EX1253",
+      "pages": [
+        1
+      ],
+      "description_verified": true,
+      "description_characters": 22
+    },
+    {
+      "row": 6,
+      "code": "EX1254",
+      "pages": [
+        1
+      ],
+      "description_verified": true,
+      "description_characters": 71
+    },
+    {
+      "row": 7,
+      "code": "EX1255",
+      "pages": [
+        1
+      ],
+      "description_verified": true,
+      "description_characters": 11
+    },
+    {
+      "row": 8,
+      "code": "EX1256",
+      "pages": [
+        1
+      ],
+      "description_verified": true,
+      "description_characters": 101
+    },
+    {
+      "row": 9,
+      "code": "EX601",
+      "pages": [
+        1
+      ],
+      "description_verified": true,
+      "description_characters": 0
+    },
+    {
+      "row": 10,
+      "code": "EX521",
+      "pages": [
+        1
+      ],
+      "description_verified": true,
+      "description_characters": 0
+    },
+    {
+      "row": 11,
+      "code": "EX321",
+      "pages": [
+        1
+      ],
+      "description_verified": true,
+      "description_characters": 28
+    },
+    {
+      "row": 12,
+      "code": "W472",
+      "pages": [
+        1
+      ],
+      "description_verified": true,
+      "description_characters": 41
+    },
+    {
+      "row": 13,
+      "code": "W601",
+      "pages": [
+        1
+      ],
+      "description_verified": true,
+      "description_characters": 0
+    },
+    {
+      "row": 14,
+      "code": "HD701",
+      "pages": [
+        1
+      ],
+      "description_verified": true,
+      "description_characters": 0
+    },
+    {
+      "row": 15,
+      "code": "HD702",
+      "pages": [
+        2
+      ],
+      "description_verified": true,
+      "description_characters": 5
+    },
+    {
+      "row": 16,
+      "code": "HD703",
+      "pages": [
+        2
+      ],
+      "description_verified": true,
+      "description_characters": 11
+    },
+    {
+      "row": 17,
+      "code": "HD706",
+      "pages": [
+        2
+      ],
+      "description_verified": true,
+      "description_characters": 150
+    },
+    {
+      "row": 18,
+      "code": "HD708",
+      "pages": [
+        2
+      ],
+      "description_verified": true,
+      "description_characters": 38
+    },
+    {
+      "row": 19,
+      "code": "HD709",
+      "pages": [
+        2
+      ],
+      "description_verified": true,
+      "description_characters": 121
+    },
+    {
+      "row": 20,
+      "code": "HD710",
+      "pages": [
+        2
+      ],
+      "description_verified": true,
+      "description_characters": 0
+    },
+    {
+      "row": 21,
+      "code": "HD711",
+      "pages": [
+        2
+      ],
+      "description_verified": true,
+      "description_characters": 31
+    },
+    {
+      "row": 22,
+      "code": "HD712",
+      "pages": [
+        2
+      ],
+      "description_verified": true,
+      "description_characters": 62
+    },
+    {
+      "row": 23,
+      "code": "HD713",
+      "pages": [
+        2
+      ],
+      "description_verified": true,
+      "description_characters": 134
+    },
+    {
+      "row": 24,
+      "code": "HD714",
+      "pages": [
+        2
+      ],
+      "description_verified": true,
+      "description_characters": 79
+    },
+    {
+      "row": 25,
+      "code": "HD715",
+      "pages": [
+        2
+      ],
+      "description_verified": true,
+      "description_characters": 38
+    },
+    {
+      "row": 26,
+      "code": "HD716",
+      "pages": [
+        3
+      ],
+      "description_verified": true,
+      "description_characters": 69
+    },
+    {
+      "row": 27,
+      "code": "HD717",
+      "pages": [
+        3
+      ],
+      "description_verified": true,
+      "description_characters": 41
+    },
+    {
+      "row": 28,
+      "code": "HD718",
+      "pages": [
+        3
+      ],
+      "description_verified": true,
+      "description_characters": 0
+    },
+    {
+      "row": 29,
+      "code": "HD719",
+      "pages": [
+        3
+      ],
+      "description_verified": true,
+      "description_characters": 0
+    },
+    {
+      "row": 30,
+      "code": "HD720",
+      "pages": [
+        3
+      ],
+      "description_verified": true,
+      "description_characters": 0
+    },
+    {
+      "row": 31,
+      "code": "HD463",
+      "pages": [
+        3
+      ],
+      "description_verified": true,
+      "description_characters": 20
+    },
+    {
+      "row": 32,
+      "code": "HD464",
+      "pages": [
+        3
+      ],
+      "description_verified": true,
+      "description_characters": 40
+    },
+    {
+      "row": 33,
+      "code": "HD465",
+      "pages": [
+        3
+      ],
+      "description_verified": true,
+      "description_characters": 41
+    },
+    {
+      "row": 34,
+      "code": "HD466",
+      "pages": [
+        3
+      ],
+      "description_verified": true,
+      "description_characters": 21
+    },
+    {
+      "row": 35,
+      "code": "HD467",
+      "pages": [
+        3
+      ],
+      "description_verified": true,
+      "description_characters": 29
+    },
+    {
+      "row": 36,
+      "code": "HD469",
+      "pages": [
+        3
+      ],
+      "description_verified": true,
+      "description_characters": 48
+    },
+    {
+      "row": 37,
+      "code": "TR1",
+      "pages": [
+        3
+      ],
+      "description_verified": true,
+      "description_characters": 48
+    },
+    {
+      "row": 38,
+      "code": "TA1",
+      "pages": [
+        4
+      ],
+      "description_verified": true,
+      "description_characters": 51
+    }
+  ],
+  "snapshot_sha256": "08a42282afa77993feba1a0b148678c6edf3d402ca1a526f735bf059e9ff5d5b",
+  "pdf_sha256": "7ac7791f1135d49be8f7064e99286486e2645a2642b682660951a72467aaa3a9"
+}

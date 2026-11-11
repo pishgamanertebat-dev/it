@@ -1,0 +1,294 @@
+{
+  "checked_utc": "2026-11-11T05:09:09.048681+00:00",
+  "implementation_changed": false,
+  "source_changed": false,
+  "manual_send": false,
+  "snapshot_read_error": {
+    "type": "PermissionError",
+    "winerror": 32
+  },
+  "ledger": {
+    "runs": [
+      {
+        "schedule_id": "driver_daily_mechanical",
+        "due": "2026-11-10T05:30:00+00:00",
+        "recipient": "capability:reports.driver_daily.mechanical_daily_receive",
+        "task": "mechanical_driver_daily",
+        "status": "succeeded",
+        "started": "2026-11-10T05:38:02+00:00",
+        "finished": "2026-11-10T05:42:09.047418+00:00",
+        "error": null,
+        "attempt": 4,
+        "next_attempt_at": null,
+        "data_state": "ready",
+        "notice_delivery_state": null,
+        "error_detail": null
+      },
+      {
+        "schedule_id": "driver_daily_metalwork",
+        "due": "2026-11-10T05:30:00+00:00",
+        "recipient": "capability:reports.driver_daily.metalwork_daily_receive",
+        "task": "metalwork_driver_daily",
+        "status": "succeeded",
+        "started": "2026-11-10T05:38:02+00:00",
+        "finished": "2026-11-10T05:43:28.847068+00:00",
+        "error": null,
+        "attempt": 4,
+        "next_attempt_at": null,
+        "data_state": "ready",
+        "notice_delivery_state": null,
+        "error_detail": null
+      },
+      {
+        "schedule_id": "driver_daily_office_supervisor",
+        "due": "2026-11-10T05:30:00+00:00",
+        "recipient": "capability:reports.driver_daily.daily_receive",
+        "task": "driver_daily",
+        "status": "succeeded",
+        "started": "2026-11-10T05:38:02+00:00",
+        "finished": "2026-11-10T05:40:40.799155+00:00",
+        "error": null,
+        "attempt": 4,
+        "next_attempt_at": null,
+        "data_state": "ready",
+        "notice_delivery_state": null,
+        "error_detail": null
+      }
+    ],
+    "receipts": [
+      {
+        "schedule_id": "driver_daily_mechanical",
+        "due": "2026-11-10T05:30:00+00:00",
+        "recipient_id": "654806764",
+        "delivery_kind": "report",
+        "status": "sent",
+        "message_id": "7369",
+        "updated": "2026-11-10T05:42:09.016999+00:00"
+      },
+      {
+        "schedule_id": "driver_daily_mechanical",
+        "due": "2026-11-10T05:30:00+00:00",
+        "recipient_id": "1732374823",
+        "delivery_kind": "report",
+        "status": "sent",
+        "message_id": "7368",
+        "updated": "2026-11-10T05:42:08.595182+00:00"
+      },
+      {
+        "schedule_id": "driver_daily_metalwork",
+        "due": "2026-11-10T05:30:00+00:00",
+        "recipient_id": "387679249",
+        "delivery_kind": "report",
+        "status": "sent",
+        "message_id": "7370",
+        "updated": "2026-11-10T05:43:28.808829+00:00"
+      },
+      {
+        "schedule_id": "driver_daily_office_supervisor",
+        "due": "2026-11-10T05:30:00+00:00",
+        "recipient_id": "397185913",
+        "delivery_kind": "report",
+        "status": "sent",
+        "message_id": null,
+        "updated": "2026-11-10T05:40:39.653021+00:00"
+      },
+      {
+        "schedule_id": "driver_daily_office_supervisor",
+        "due": "2026-11-10T05:30:00+00:00",
+        "recipient_id": "514458396",
+        "delivery_kind": "report",
+        "status": "sent",
+        "message_id": null,
+        "updated": "2026-11-10T05:40:40.768913+00:00"
+      }
+    ],
+    "office_artifact_receipts": [
+      {
+        "schedule_id": "driver_daily_office_supervisor",
+        "due": "2026-11-10T05:30:00+00:00",
+        "recipient_id": "397185913",
+        "artifact_id": "mechanical",
+        "status": "sent",
+        "message_id": "7364",
+        "sha256": "fa205c75c25cfa788b9fcc55bb28e15975d831137394f8e6dc45735bbe838ea8",
+        "updated": "2026-11-10T05:40:38.654895+00:00"
+      },
+      {
+        "schedule_id": "driver_daily_office_supervisor",
+        "due": "2026-11-10T05:30:00+00:00",
+        "recipient_id": "397185913",
+        "artifact_id": "metalwork",
+        "status": "sent",
+        "message_id": "7365",
+        "sha256": "9c2a1d4b43c8e902d21776ccdcdfb5d90fe9edecd5c469a256576aa02b3f15fe",
+        "updated": "2026-11-10T05:40:39.635802+00:00"
+      },
+      {
+        "schedule_id": "driver_daily_office_supervisor",
+        "due": "2026-11-10T05:30:00+00:00",
+        "recipient_id": "514458396",
+        "artifact_id": "mechanical",
+        "status": "sent",
+        "message_id": "7366",
+        "sha256": "fa205c75c25cfa788b9fcc55bb28e15975d831137394f8e6dc45735bbe838ea8",
+        "updated": "2026-11-10T05:40:40.185574+00:00"
+      },
+      {
+        "schedule_id": "driver_daily_office_supervisor",
+        "due": "2026-11-10T05:30:00+00:00",
+        "recipient_id": "514458396",
+        "artifact_id": "metalwork",
+        "status": "sent",
+        "message_id": "7367",
+        "sha256": "9c2a1d4b43c8e902d21776ccdcdfb5d90fe9edecd5c469a256576aa02b3f15fe",
+        "updated": "2026-11-10T05:40:40.743649+00:00"
+      }
+    ],
+    "report_preflight_runs": [
+      {
+        "schedule_id": "driver_daily_mechanical",
+        "due": "2026-11-10T05:30:00+00:00",
+        "status": "passed",
+        "checked": "2026-11-10T04:30:01+00:00",
+        "error_code": null,
+        "error_detail": null,
+        "next_attempt_at": null,
+        "sample_date": "1405/08/18"
+      },
+      {
+        "schedule_id": "driver_daily_metalwork",
+        "due": "2026-11-10T05:30:00+00:00",
+        "status": "passed",
+        "checked": "2026-11-10T04:30:01+00:00",
+        "error_code": null,
+        "error_detail": null,
+        "next_attempt_at": null,
+        "sample_date": "1405/08/18"
+      },
+      {
+        "schedule_id": "driver_daily_office_supervisor",
+        "due": "2026-11-10T05:30:00+00:00",
+        "status": "passed",
+        "checked": "2026-11-10T04:30:01+00:00",
+        "error_code": null,
+        "error_detail": null,
+        "next_attempt_at": null,
+        "sample_date": "1405/08/18"
+      },
+      {
+        "schedule_id": "driver_daily_mechanical",
+        "due": "2026-11-11T05:30:00+00:00",
+        "status": "failed",
+        "checked": "2026-11-11T05:05:03+00:00",
+        "error_code": "source_invalid",
+        "error_detail": "{\"stage\": \"source\"}",
+        "next_attempt_at": "2026-11-11T05:10:03+00:00",
+        "sample_date": null
+      },
+      {
+        "schedule_id": "driver_daily_metalwork",
+        "due": "2026-11-11T05:30:00+00:00",
+        "status": "failed",
+        "checked": "2026-11-11T05:05:03+00:00",
+        "error_code": "source_invalid",
+        "error_detail": "{\"stage\": \"source\"}",
+        "next_attempt_at": "2026-11-11T05:10:03+00:00",
+        "sample_date": null
+      },
+      {
+        "schedule_id": "driver_daily_office_supervisor",
+        "due": "2026-11-11T05:30:00+00:00",
+        "status": "failed",
+        "checked": "2026-11-11T05:05:03+00:00",
+        "error_code": "source_invalid",
+        "error_detail": "{\"stage\": \"source\"}",
+        "next_attempt_at": "2026-11-11T05:10:03+00:00",
+        "sample_date": null
+      }
+    ]
+  },
+  "scheduler_log": [
+    "2026-11-10 09:00:02,918 INFO Completed driver_daily_office_supervisor status=retry_wait error=PermissionError",
+    "2026-11-10 09:00:03,097 INFO Completed driver_daily_mechanical status=retry_wait error=PermissionError",
+    "2026-11-10 09:00:03,215 INFO Completed driver_daily_metalwork status=retry_wait error=PermissionError",
+    "2026-11-10 09:01:02,809 INFO Completed driver_daily_office_supervisor status=retry_wait error=PermissionError",
+    "2026-11-10 09:01:02,902 INFO Completed driver_daily_mechanical status=retry_wait error=PermissionError",
+    "2026-11-10 09:01:02,981 INFO Completed driver_daily_metalwork status=retry_wait error=PermissionError",
+    "2026-11-10 09:03:02,902 INFO Completed driver_daily_office_supervisor status=retry_wait error=PermissionError",
+    "2026-11-10 09:03:02,981 INFO Completed driver_daily_mechanical status=retry_wait error=PermissionError",
+    "2026-11-10 09:03:03,077 INFO Completed driver_daily_metalwork status=retry_wait error=PermissionError",
+    "2026-11-10 09:10:40,840 INFO Completed driver_daily_office_supervisor status=succeeded error=None",
+    "2026-11-10 09:12:09,070 INFO Completed driver_daily_mechanical status=succeeded error=None",
+    "2026-11-10 09:13:28,878 INFO Completed driver_daily_metalwork status=succeeded error=None",
+    "2026-11-10 09:14:04,984 INFO Completed driver_daily_metalwork status=waiting_for_data error=date_missing",
+    "2026-11-10 09:14:06,391 INFO Completed driver_daily_metalwork status=waiting_for_data error=date_missing",
+    "2026-11-10 09:29:04,886 INFO Completed driver_daily_metalwork status=waiting_for_data error=date_missing",
+    "2026-11-10 09:29:06,715 INFO Completed driver_daily_metalwork status=waiting_for_data error=date_missing",
+    "2026-11-10 09:44:05,152 INFO Completed driver_daily_metalwork status=waiting_for_data error=date_missing",
+    "2026-11-10 09:44:06,840 INFO Completed driver_daily_metalwork status=waiting_for_data error=date_missing",
+    "2026-11-11 08:00:07,920 INFO Report preflight schedule=driver_daily_office_supervisor due=2026-11-11T05:30:00+00:00 status=failed error=source_invalid",
+    "2026-11-11 08:00:11,371 INFO Report preflight schedule=driver_daily_mechanical due=2026-11-11T05:30:00+00:00 status=failed error=source_invalid",
+    "2026-11-11 08:00:14,570 INFO Report preflight schedule=driver_daily_metalwork due=2026-11-11T05:30:00+00:00 status=failed error=source_invalid",
+    "2026-11-11 08:05:07,339 INFO Report preflight schedule=driver_daily_office_supervisor due=2026-11-11T05:30:00+00:00 status=failed error=source_invalid",
+    "2026-11-11 08:05:08,539 INFO Report preflight schedule=driver_daily_mechanical due=2026-11-11T05:30:00+00:00 status=failed error=source_invalid",
+    "2026-11-11 08:05:09,792 INFO Report preflight schedule=driver_daily_metalwork due=2026-11-11T05:30:00+00:00 status=failed error=source_invalid",
+    "2026-11-11 08:10:07,807 INFO Report preflight schedule=driver_daily_office_supervisor due=2026-11-11T05:30:00+00:00 status=failed error=source_invalid",
+    "2026-11-11 08:10:09,193 INFO Report preflight schedule=driver_daily_mechanical due=2026-11-11T05:30:00+00:00 status=failed error=source_invalid",
+    "2026-11-11 08:10:10,429 INFO Report preflight schedule=driver_daily_metalwork due=2026-11-11T05:30:00+00:00 status=failed error=source_invalid",
+    "2026-11-11 08:15:11,882 INFO Report preflight schedule=driver_daily_office_supervisor due=2026-11-11T05:30:00+00:00 status=failed error=source_invalid",
+    "2026-11-11 08:15:14,080 INFO Report preflight schedule=driver_daily_mechanical due=2026-11-11T05:30:00+00:00 status=failed error=source_invalid",
+    "2026-11-11 08:15:16,001 INFO Report preflight schedule=driver_daily_metalwork due=2026-11-11T05:30:00+00:00 status=failed error=source_invalid",
+    "2026-11-11 08:20:07,737 INFO Report preflight schedule=driver_daily_office_supervisor due=2026-11-11T05:30:00+00:00 status=failed error=source_invalid",
+    "2026-11-11 08:20:10,331 INFO Report preflight schedule=driver_daily_mechanical due=2026-11-11T05:30:00+00:00 status=failed error=source_invalid",
+    "2026-11-11 08:20:12,115 INFO Report preflight schedule=driver_daily_metalwork due=2026-11-11T05:30:00+00:00 status=failed error=source_invalid",
+    "2026-11-11 08:25:10,017 INFO Report preflight schedule=driver_daily_office_supervisor due=2026-11-11T05:30:00+00:00 status=failed error=source_invalid",
+    "2026-11-11 08:25:11,457 INFO Report preflight schedule=driver_daily_mechanical due=2026-11-11T05:30:00+00:00 status=failed error=source_invalid",
+    "2026-11-11 08:25:13,577 INFO Report preflight schedule=driver_daily_metalwork due=2026-11-11T05:30:00+00:00 status=failed error=source_invalid",
+    "2026-11-11 08:30:09,759 INFO Report preflight schedule=driver_daily_office_supervisor due=2026-11-11T05:30:00+00:00 status=failed error=source_invalid",
+    "2026-11-11 08:30:11,758 INFO Report preflight schedule=driver_daily_mechanical due=2026-11-11T05:30:00+00:00 status=failed error=source_invalid",
+    "2026-11-11 08:30:13,794 INFO Report preflight schedule=driver_daily_metalwork due=2026-11-11T05:30:00+00:00 status=failed error=source_invalid",
+    "2026-11-11 08:35:09,049 INFO Report preflight schedule=driver_daily_office_supervisor due=2026-11-11T05:30:00+00:00 status=failed error=source_invalid",
+    "2026-11-11 08:35:11,069 INFO Report preflight schedule=driver_daily_mechanical due=2026-11-11T05:30:00+00:00 status=failed error=source_invalid",
+    "2026-11-11 08:35:13,101 INFO Report preflight schedule=driver_daily_metalwork due=2026-11-11T05:30:00+00:00 status=failed error=source_invalid"
+  ],
+  "prior_verified_source_observation": {
+    "source": "E:/Function/????? ?????? ????????2.xlsx",
+    "sha256": "08a42282afa77993feba1a0b148678c6edf3d402ca1a526f735bf059e9ff5d5b",
+    "bytes": 806671,
+    "date": "1405/08/19",
+    "sheet": "????? ??????1405.08.19 ",
+    "sheet_number": 1,
+    "dimensions": [
+      38,
+      5
+    ],
+    "merged_ranges": [],
+    "incomplete_rows": [
+      {
+        "row": 28,
+        "missing_cells": [
+          "A28"
+        ],
+        "missing_fields": [
+          "ordinal"
+        ],
+        "machine_code": "HD718",
+        "machine_type_present": true,
+        "mechanical_description_present": true
+      }
+    ],
+    "reproduced_failure": {
+      "type": "ValueError",
+      "function": "load_driver",
+      "file": "integrations/hermes/function_domain/driver_report.py",
+      "line": 57,
+      "row": 28
+    },
+    "data_18_parse_result": {
+      "status": "ready",
+      "mechanical_rows": 35,
+      "metalwork_rows": 28
+    },
+    "snapshot_saved": false
+  }
+}

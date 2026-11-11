@@ -1,0 +1,100 @@
+{
+  "checked_at": "2026-11-10T11:01:17.220624+00:00",
+  "files": {
+    "drivers": {
+      "server": {
+        "path": "E:\\Function\\گزارش روزانه رانندگان2.xlsx",
+        "status": "ok",
+        "sha256": "d062a9ce21b0e5133180f9264020f5f72d3b008316f808d8a713a702bc29cd05",
+        "size": 801918,
+        "mtime_utc": "2026-11-10T03:58:36.233905+00:00",
+        "snapshot": "E:\\KomatsoAI\\reports\\scheduler\\intent-delivery-20261110\\sources\\d062a9ce21b0e5133180f9264020f5f72d3b008316f808d8a713a702bc29cd05.xlsx"
+      },
+      "mine": {
+        "path": "\\\\192.168.20.251\\share\\گزارش روزانه رانندگان2.xlsx",
+        "status": "ok",
+        "sha256": "3ae97386a0b4bcb3e03f371d75acc761e259e9923159aecc51fbfb052a9df71b",
+        "size": 759584,
+        "mtime_utc": "2026-11-10T03:57:09.485695+00:00",
+        "snapshot": "E:\\KomatsoAI\\reports\\scheduler\\intent-delivery-20261110\\sources\\3ae97386a0b4bcb3e03f371d75acc761e259e9923159aecc51fbfb052a9df71b.xlsx"
+      },
+      "hash_equal": false
+    },
+    "maintenance_local": {
+      "server": {
+        "path": "E:\\Function\\تعمیرات 1405.xlsx",
+        "status": "ok",
+        "sha256": "78fe91effe2d463a679167c583b11cf94649a9916c983133f6294de18adc3ae0",
+        "size": 191186,
+        "mtime_utc": "2026-11-10T08:40:19.792814+00:00",
+        "snapshot": "E:\\KomatsoAI\\reports\\scheduler\\intent-delivery-20261110\\sources\\78fe91effe2d463a679167c583b11cf94649a9916c983133f6294de18adc3ae0.xlsx"
+      },
+      "mine": {
+        "path": "\\\\192.168.20.251\\share\\تعمیرات 1405.xlsx",
+        "status": "ok",
+        "sha256": "78fe91effe2d463a679167c583b11cf94649a9916c983133f6294de18adc3ae0",
+        "size": 191186,
+        "mtime_utc": "2026-11-10T04:55:53.773929+00:00",
+        "snapshot": "E:\\KomatsoAI\\reports\\scheduler\\intent-delivery-20261110\\sources\\78fe91effe2d463a679167c583b11cf94649a9916c983133f6294de18adc3ae0.xlsx"
+      },
+      "hash_equal": true
+    },
+    "oil": {
+      "server": {
+        "path": "E:\\Function\\موازنه روغن مصرفی.xlsx",
+        "status": "ok",
+        "sha256": "ba5bfc88a4d75d1b19fdf0410dfef7e1c040c2b0432059f99a99a458b0413902",
+        "size": 16015,
+        "mtime_utc": "2026-11-10T03:36:26.736182+00:00",
+        "snapshot": "E:\\KomatsoAI\\reports\\scheduler\\intent-delivery-20261110\\sources\\ba5bfc88a4d75d1b19fdf0410dfef7e1c040c2b0432059f99a99a458b0413902.xlsx"
+      },
+      "mine": {
+        "path": "\\\\192.168.20.251\\share\\موازنه روغن مصرفی.xlsx",
+        "status": "ok",
+        "sha256": "ba5bfc88a4d75d1b19fdf0410dfef7e1c040c2b0432059f99a99a458b0413902",
+        "size": 16015,
+        "mtime_utc": "2026-11-10T03:36:26.736182+00:00",
+        "snapshot": "E:\\KomatsoAI\\reports\\scheduler\\intent-delivery-20261110\\sources\\ba5bfc88a4d75d1b19fdf0410dfef7e1c040c2b0432059f99a99a458b0413902.xlsx"
+      },
+      "hash_equal": true
+    },
+    "performance": {
+      "server": {
+        "path": "E:\\Function\\عملکرد ماشین آلات.xlsx",
+        "status": "ok",
+        "sha256": "d890add01f66c7d62357f47548c0ad7cec3a5995914ee7e8a7f129dbc15258c0",
+        "size": 101348,
+        "mtime_utc": "2026-11-09T06:53:14.644291+00:00",
+        "snapshot": "E:\\KomatsoAI\\reports\\scheduler\\intent-delivery-20261110\\sources\\d890add01f66c7d62357f47548c0ad7cec3a5995914ee7e8a7f129dbc15258c0.xlsx"
+      },
+      "mine": {
+        "path": "\\\\192.168.20.251\\share\\عملکرد ماشین آلات.xlsx",
+        "status": "ok",
+        "sha256": "d890add01f66c7d62357f47548c0ad7cec3a5995914ee7e8a7f129dbc15258c0",
+        "size": 101348,
+        "mtime_utc": "2026-11-09T06:53:14.644291+00:00",
+        "snapshot": "E:\\KomatsoAI\\reports\\scheduler\\intent-delivery-20261110\\sources\\d890add01f66c7d62357f47548c0ad7cec3a5995914ee7e8a7f129dbc15258c0.xlsx"
+      },
+      "hash_equal": true
+    },
+    "overflow": {
+      "server": {
+        "path": "E:\\Function\\سرریز روزانه.xlsx",
+        "status": "ok",
+        "sha256": "999b33cf7bfebe36df9abeaefc19749cabddc812af10b5c4083627863ad99057",
+        "size": 1071670,
+        "mtime_utc": "2026-11-10T04:25:35.276519+00:00",
+        "snapshot": "E:\\KomatsoAI\\reports\\scheduler\\intent-delivery-20261110\\sources\\999b33cf7bfebe36df9abeaefc19749cabddc812af10b5c4083627863ad99057.xlsx"
+      },
+      "mine": {
+        "path": "\\\\192.168.20.251\\share\\سرریز روزانه.xlsx",
+        "status": "ok",
+        "sha256": "999b33cf7bfebe36df9abeaefc19749cabddc812af10b5c4083627863ad99057",
+        "size": 1071670,
+        "mtime_utc": "2026-11-10T04:25:35.276519+00:00",
+        "snapshot": "E:\\KomatsoAI\\reports\\scheduler\\intent-delivery-20261110\\sources\\999b33cf7bfebe36df9abeaefc19749cabddc812af10b5c4083627863ad99057.xlsx"
+      },
+      "hash_equal": true
+    }
+  }
+}

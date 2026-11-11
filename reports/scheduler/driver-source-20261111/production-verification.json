@@ -1,0 +1,175 @@
+{
+  "verified_utc": "2026-11-11T05:28:10.355221+00:00",
+  "preflight": [
+    {
+      "schedule_id": "driver_daily_mechanical",
+      "due": "2026-11-11T05:30:00+00:00",
+      "status": "passed",
+      "checked": "2026-11-11T05:23:01+00:00",
+      "error_code": null,
+      "error_detail": null,
+      "next_attempt_at": null,
+      "sample_date": "1405/08/19"
+    },
+    {
+      "schedule_id": "driver_daily_metalwork",
+      "due": "2026-11-11T05:30:00+00:00",
+      "status": "passed",
+      "checked": "2026-11-11T05:23:01+00:00",
+      "error_code": null,
+      "error_detail": null,
+      "next_attempt_at": null,
+      "sample_date": "1405/08/19"
+    },
+    {
+      "schedule_id": "driver_daily_office_supervisor",
+      "due": "2026-11-11T05:30:00+00:00",
+      "status": "passed",
+      "checked": "2026-11-11T05:23:01+00:00",
+      "error_code": null,
+      "error_detail": null,
+      "next_attempt_at": null,
+      "sample_date": "1405/08/19"
+    }
+  ],
+  "runs": [
+    {
+      "schedule_id": "driver_daily_office_supervisor",
+      "due": "2026-11-10T05:30:00+00:00",
+      "recipient": "capability:reports.driver_daily.daily_receive",
+      "task": "driver_daily",
+      "status": "succeeded",
+      "started": "2026-11-10T05:38:02+00:00",
+      "finished": "2026-11-10T05:40:40.799155+00:00",
+      "error": null,
+      "attempt": 4,
+      "next_attempt_at": null,
+      "data_state": "ready",
+      "notice_delivery_state": null,
+      "error_detail": null
+    },
+    {
+      "schedule_id": "driver_daily_mechanical",
+      "due": "2026-11-10T05:30:00+00:00",
+      "recipient": "capability:reports.driver_daily.mechanical_daily_receive",
+      "task": "mechanical_driver_daily",
+      "status": "succeeded",
+      "started": "2026-11-10T05:38:02+00:00",
+      "finished": "2026-11-10T05:42:09.047418+00:00",
+      "error": null,
+      "attempt": 4,
+      "next_attempt_at": null,
+      "data_state": "ready",
+      "notice_delivery_state": null,
+      "error_detail": null
+    },
+    {
+      "schedule_id": "driver_daily_metalwork",
+      "due": "2026-11-10T05:30:00+00:00",
+      "recipient": "capability:reports.driver_daily.metalwork_daily_receive",
+      "task": "metalwork_driver_daily",
+      "status": "succeeded",
+      "started": "2026-11-10T05:38:02+00:00",
+      "finished": "2026-11-10T05:43:28.847068+00:00",
+      "error": null,
+      "attempt": 4,
+      "next_attempt_at": null,
+      "data_state": "ready",
+      "notice_delivery_state": null,
+      "error_detail": null
+    }
+  ],
+  "receipts": [
+    {
+      "schedule_id": "driver_daily_office_supervisor",
+      "due": "2026-11-10T05:30:00+00:00",
+      "recipient_id": "397185913",
+      "delivery_kind": "report",
+      "status": "sent",
+      "message_id": null,
+      "updated": "2026-11-10T05:40:39.653021+00:00"
+    },
+    {
+      "schedule_id": "driver_daily_office_supervisor",
+      "due": "2026-11-10T05:30:00+00:00",
+      "recipient_id": "514458396",
+      "delivery_kind": "report",
+      "status": "sent",
+      "message_id": null,
+      "updated": "2026-11-10T05:40:40.768913+00:00"
+    },
+    {
+      "schedule_id": "driver_daily_mechanical",
+      "due": "2026-11-10T05:30:00+00:00",
+      "recipient_id": "654806764",
+      "delivery_kind": "report",
+      "status": "sent",
+      "message_id": "7369",
+      "updated": "2026-11-10T05:42:09.016999+00:00"
+    },
+    {
+      "schedule_id": "driver_daily_mechanical",
+      "due": "2026-11-10T05:30:00+00:00",
+      "recipient_id": "1732374823",
+      "delivery_kind": "report",
+      "status": "sent",
+      "message_id": "7368",
+      "updated": "2026-11-10T05:42:08.595182+00:00"
+    },
+    {
+      "schedule_id": "driver_daily_metalwork",
+      "due": "2026-11-10T05:30:00+00:00",
+      "recipient_id": "387679249",
+      "delivery_kind": "report",
+      "status": "sent",
+      "message_id": "7370",
+      "updated": "2026-11-10T05:43:28.808829+00:00"
+    }
+  ],
+  "office_artifact_receipts": [
+    {
+      "schedule_id": "driver_daily_office_supervisor",
+      "due": "2026-11-10T05:30:00+00:00",
+      "recipient_id": "397185913",
+      "artifact_id": "mechanical",
+      "status": "sent",
+      "message_id": "7364",
+      "sha256": "fa205c75c25cfa788b9fcc55bb28e15975d831137394f8e6dc45735bbe838ea8",
+      "updated": "2026-11-10T05:40:38.654895+00:00"
+    },
+    {
+      "schedule_id": "driver_daily_office_supervisor",
+      "due": "2026-11-10T05:30:00+00:00",
+      "recipient_id": "397185913",
+      "artifact_id": "metalwork",
+      "status": "sent",
+      "message_id": "7365",
+      "sha256": "9c2a1d4b43c8e902d21776ccdcdfb5d90fe9edecd5c469a256576aa02b3f15fe",
+      "updated": "2026-11-10T05:40:39.635802+00:00"
+    },
+    {
+      "schedule_id": "driver_daily_office_supervisor",
+      "due": "2026-11-10T05:30:00+00:00",
+      "recipient_id": "514458396",
+      "artifact_id": "mechanical",
+      "status": "sent",
+      "message_id": "7366",
+      "sha256": "fa205c75c25cfa788b9fcc55bb28e15975d831137394f8e6dc45735bbe838ea8",
+      "updated": "2026-11-10T05:40:40.185574+00:00"
+    },
+    {
+      "schedule_id": "driver_daily_office_supervisor",
+      "due": "2026-11-10T05:30:00+00:00",
+      "recipient_id": "514458396",
+      "artifact_id": "metalwork",
+      "status": "sent",
+      "message_id": "7367",
+      "sha256": "9c2a1d4b43c8e902d21776ccdcdfb5d90fe9edecd5c469a256576aa02b3f15fe",
+      "updated": "2026-11-10T05:40:40.743649+00:00"
+    }
+  ],
+  "final_source_sha256": "08a42282afa77993feba1a0b148678c6edf3d402ca1a526f735bf059e9ff5d5b",
+  "prior_receipts_preserved": true,
+  "installed_hashes_match": true,
+  "final_checked_utc": "2026-11-11T05:28:35.317141+00:00"
+}

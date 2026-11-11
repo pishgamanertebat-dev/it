@@ -1,0 +1,15 @@
+{
+  "sha256": "08a42282afa77993feba1a0b148678c6edf3d402ca1a526f735bf059e9ff5d5b",
+  "inventory_count": 36,
+  "mechanical_rows": 36,
+  "metalwork_rows": 28,
+  "blank_ordinals": [
+    {
+      "row": 28,
+      "code": "HD718"
+    }
+  ],
+  "missing_type_or_code": [],
+  "duplicate_codes": [],
+  "source_snapshot_saved": true
+}
