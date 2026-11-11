@@ -83,8 +83,9 @@ class RowGuardTests(unittest.TestCase):
         sheet.delete_rows(entry.find_row(sheet,'HD710',entry.layout(sheet)))
         book.save(self.source);book.close();before=self.source.read_bytes()
         result=self.save(d)
-        self.assertEqual(result['status'],'PARTIAL')
-        self.assertIn('ردیف دستگاه',next(iter(result['results'].values()))['message'])
+        self.assertEqual(result['status'],'EDIT')
+        self.assertTrue(any('ردیف دستگاه' in issue for issue in result['payload']['issues']))
+        self.assertFalse(result['results'])
         self.assertEqual(before,self.source.read_bytes())
 
 
@@ -106,7 +107,7 @@ class OfferTests(unittest.IsolatedAsyncioTestCase):
             self.assertEqual((await self.deliver(self.event(RAW,actor=actor)))['reason'],'daily-ai')
             self.assertEqual(self.handler.sessions[(actor,actor)]['stage'],'OFFER')
             self.assertEqual(self.handler.sessions[(actor,actor)]['raw'],RAW)
-            self.assertEqual(self.messages[-1]['reply_markup']['inline_keyboard'][0][0]['text'],'ساخت پیش‌نویس ثبت')
+            self.assertEqual(self.messages[-1]['reply_markup']['inline_keyboard'][0][0]['text'],'تأیید گزارش')
         self.handler.extractor.assert_not_called()
         self.assertEqual(self.calls,[]);self.assertEqual(before,self.source.read_bytes())
 

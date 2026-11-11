@@ -1,4 +1,4 @@
-"""Isolated two-approval, real Writer and fake transport acceptance."""
+"""Isolated two-step entry, guarded atomic Writer and fake transport acceptance."""
 import asyncio
 from contextlib import closing
 import copy
@@ -59,29 +59,26 @@ class DraftTests(unittest.TestCase):
 
     def confirm(self,d,stage,action,message):
         token='token'+str(message)
-        self.store.bind(d,stage,token,str(message))
+        self.store.bind(d,stage,token,str(message),write_intent=stage=='TEXT_CONFIRM')
         return self.store.consume(d['id'],d['actor'],d['chat'],stage,token,str(message),action)
 
     def approved(self,d):
         d=self.ready(d)
-        d=self.confirm(d,'TEXT_CONFIRM','confirm_text',101)
-        return self.confirm(d,'WRITE_CONFIRM','confirm_write',102)
+        return self.confirm(d,'TEXT_CONFIRM','confirm_text',101)
 
     def save(self,d,**kw):return draft.commit(d['actor'],d['chat'],d['id'],**(self.kw|kw))
 
-    def test_two_confirmations_no_write_after_first_and_journal_based_success(self):
+    def test_explicit_text_and_write_authorization_and_journal_based_success(self):
         original=self.source.read_bytes();d=self.ready(self.create())
-        d=self.confirm(d,'TEXT_CONFIRM','confirm_text',1)
         self.assertEqual(original,self.source.read_bytes())
-
         with self.assertRaises(ValueError):self.save(d)
-        d=self.confirm(d,'WRITE_CONFIRM','confirm_write',2);saved=self.save(d)
+        d=self.confirm(d,'TEXT_CONFIRM','confirm_text',1);saved=self.save(d)
         self.assertEqual(saved['status'],'DONE')
         book=openpyxl.load_workbook(self.source)
         self.assertEqual(book.worksheets[0]['D4'].value,'تعویض واترپمپ');book.close()
         with closing(entry.open_audit(self.state)) as db:
             self.assertEqual(db.execute("SELECT status FROM edits").fetchone()[0],'succeeded')
-            self.assertEqual(db.execute("SELECT COUNT(*) FROM entry_draft_events WHERE event='callback'").fetchone()[0],2)
+            self.assertEqual(db.execute("SELECT COUNT(*) FROM entry_draft_events WHERE event='callback'").fetchone()[0],1)
 
     def test_unresolved_kept_and_explicitly_excluded_and_two_works_same_machine(self):
         sample=extracted([('710','تعویض واترپمپ','710 تعویض واترپمپ'),('710','باز کردن موتور','710 باز کردن موتور'),
@@ -129,6 +126,7 @@ class DraftTests(unittest.TestCase):
         d=self.approved(d);self.save(d)
         with closing(entry.open_audit(self.state)) as db:
             request=json.loads(db.execute('SELECT request FROM edits ORDER BY created DESC LIMIT 1').fetchone()[0])
+            request=request['entries'][0]
             self.assertEqual(request['description'],'تعویض واترپمپ\nتعویض واترپمپ')
             self.assertEqual(request['entered_description'],'تعویض واترپمپ')
         d=self.create();d=self.edit(d,'section','mechanical');d=self.edit(d,'description','x'*1800,index=0);d=self.edit(d,'mode','append','HD710')
@@ -136,7 +134,7 @@ class DraftTests(unittest.TestCase):
         d=self.edit(d,'mode','replace','HD710');self.assertFalse(d['payload']['issues'])
 
     def test_edits_invalidate_both_confirmations_and_old_callbacks(self):
-        d=self.ready(self.create());d=self.confirm(d,'TEXT_CONFIRM','confirm_text',1)
+        d=self.ready(self.create())
         self.store.bind(d,'WRITE_CONFIRM','old',2)
         d=self.edit(d,'description','اصلاح کامل',index=0)
         self.assertIsNone(d['text_ok']);self.assertIsNone(d['write_ok'])
@@ -144,7 +142,7 @@ class DraftTests(unittest.TestCase):
         with self.assertRaises(ValueError):self.save(d)
 
     def test_wrong_actor_chat_message_stage_and_replayed_callback_denied(self):
-        d=self.ready(self.create());self.store.bind(d,'TEXT_CONFIRM','t',1)
+        d=self.ready(self.create());self.store.bind(d,'TEXT_CONFIRM','t',1,write_intent=True)
         for actor,chat,stage,message in [('1732374823','1732374823','TEXT_CONFIRM',1),(ACTOR,'other','TEXT_CONFIRM',1),(ACTOR,ACTOR,'WRITE_CONFIRM',1),(ACTOR,ACTOR,'TEXT_CONFIRM',9)]:
             with self.assertRaises(ValueError):self.store.consume(d['id'],actor,chat,stage,'t',message,'confirm_text')
         self.store.consume(d['id'],ACTOR,ACTOR,'TEXT_CONFIRM','t',1,'confirm_text')
@@ -156,7 +154,7 @@ class DraftTests(unittest.TestCase):
         saved=self.save(d);before=self.source.read_bytes();self.save(saved)
         self.assertEqual(before,self.source.read_bytes())
 
-    def test_cut_after_replace_recovers_same_uuid_and_partial_results_remain_visible(self):
+    def test_cut_after_replace_recovers_atomic_batch_from_journal_without_rewriting(self):
         d=self.approved(self.create(extracted([('710','تعمیر','710 تعمیر'),('332','جوش','332 جوش')])))
         real=entry.replace_source;count=0
         def cut(*args):
@@ -166,23 +164,24 @@ class DraftTests(unittest.TestCase):
                 real(*args);raise RuntimeError('cut after replace before receipt')
             raise OSError('locked second device')
         with patch.object(entry,'replace_source',side_effect=cut):partial=self.save(d)
-        self.assertEqual(partial['status'],'PARTIAL');self.assertEqual(len(partial['results']),2)
-        self.assertTrue(all(r['status']=='unresolved' for r in partial['results'].values()))
+        self.assertEqual(partial['status'],'DONE');self.assertEqual(len(partial['results']),2)
         saved=self.save(partial);self.assertEqual(saved['status'],'DONE')
         with closing(entry.open_audit(self.state)) as db:
-            self.assertEqual(db.execute("SELECT COUNT(*) FROM edits WHERE status='succeeded'").fetchone()[0],2)
+            self.assertEqual(db.execute("SELECT COUNT(*) FROM edits WHERE status='succeeded'").fetchone()[0],1)
         self.assertEqual([g['operation'] for g in saved['payload']['groups']],[g['operation'] for g in d['payload']['groups']])
 
-    def test_one_success_one_failure_retry_does_not_repeat_success(self):
+    def test_second_device_failure_does_not_publish_first_device(self):
         d=self.approved(self.create(extracted([('710','تعمیر','710 تعمیر'),('332','جوش','332 جوش')])))
-        real=entry.commit
-        def fail(actor,request,**kw):
-            if request['code']=='EX332':raise entry.EntryError('locked')
-            return real(actor,request,**kw)
-        with patch.object(entry,'commit',side_effect=fail):partial=self.save(d)
-        self.assertEqual(sum(r['status']=='succeeded' for r in partial['results'].values()),1)
-        with patch.object(entry,'commit',wraps=real) as retry:
-            self.assertEqual(self.save(partial)['status'],'DONE');self.assertEqual(retry.call_count,1)
+        real=entry.set_description;original=self.source.read_bytes()
+        def fail(book,selected,*args,**kw):
+            if selected['code']=='EX332':raise entry.EntryError('locked')
+            return real(book,selected,*args,**kw)
+        with patch.object(entry,'set_description',side_effect=fail):result=self.save(d)
+        self.assertEqual(result['status'],'EDIT');self.assertFalse(result['results'])
+        self.assertEqual(self.source.read_bytes(),original)
+        with self.assertRaises(ValueError):self.save(result)
+        result=self.approved(result)
+        self.assertEqual(self.save(result)['status'],'DONE')
 
     def test_revoke_and_date_expiry_under_lock_and_before_replace(self):
         d=self.approved(self.create());original=self.source.read_bytes()
@@ -201,7 +200,7 @@ class DraftTests(unittest.TestCase):
             self.store.update(changed,'test_revoke_confirmation')
         with patch.object(openpyxl.workbook.workbook.Workbook,'save',revoke),patch.object(entry,'replace_source') as replace:
             result=self.save(d)
-            self.assertEqual(result['status'],'PARTIAL');replace.assert_not_called()
+            self.assertEqual(result['status'],'EDIT');replace.assert_not_called()
         self.assertEqual(original,self.source.read_bytes())
         self.assertIsNone(self.store.load(d['id'],ACTOR,ACTOR)['text_ok'])
         with self.assertRaises(ValueError):self.save(d)
@@ -286,18 +285,18 @@ class BaleTests(unittest.IsolatedAsyncioTestCase):
 
     async def start(self):
         await self.deliver(self.event('ثبت کن 710 تعویض واترپمپ'))
-        await self.deliver(self.button('sections'));await self.deliver(self.button('mechanical'))
+        await self.deliver(self.button('build'))
+        await self.deliver(self.button('edit'));await self.deliver(self.button('sections'));await self.deliver(self.button('mechanical'))
 
-    async def test_fake_bale_two_separate_messages_free_yes_does_not_write(self):
+    async def test_confirm_text_writes_directly_free_yes_and_stale_buttons_do_not_write(self):
         original=self.source.read_bytes();await self.start()
         self.assertEqual(self.handler.sessions[self.key]['stage'],'TEXT_CONFIRM')
-        old=self.button('confirm_text');await self.deliver(old)
-        self.assertEqual(self.handler.sessions[self.key]['stage'],'WRITE_CONFIRM')
+        old=self.button('confirm_text')
+        await self.deliver(self.event('بله'))
         self.assertEqual(original,self.source.read_bytes())
-        await self.deliver(self.event('بله'));await self.deliver(old)
-        self.assertEqual(original,self.source.read_bytes())
-        await self.deliver(self.button('confirm_write'))
-        self.assertIn('ثبت موفق',self.messages[-1]['text'])
+        await self.deliver(old)
+        self.assertIn('گزارش ثبت شد.',self.messages[-1]['text'])
+        self.assertNotIn(self.key,self.handler.sessions)
         await self.deliver(self.button('confirm_write') if self.key in self.handler.sessions else old)
         self.assertEqual(sum(c['action']=='ai_commit' for c in self.calls),1)
 
@@ -320,8 +319,9 @@ class BaleTests(unittest.IsolatedAsyncioTestCase):
         self.handler=self.handler_factory();await self.deliver(old)
         self.assertIsNone(self.handler.current(self.key)['text_ok'])
         await self.deliver(self.event('ادامه پیش‌نویس'));self.assertEqual(self.handler.current(self.key)['id'],d['id'])
-        await self.deliver(self.button('pause'));await self.deliver(self.event('/new'))
-        self.assertEqual(self.handler.current(self.key)['hash'],d['hash'])
+        await self.deliver(self.event('توقف پیش‌نویس'));await self.deliver(self.event('/new'))
+        self.assertEqual(self.handler.current(self.key)['payload']['extraction'],d['payload']['extraction'])
+        self.assertEqual(self.handler.current(self.key)['payload']['items'],d['payload']['items'])
         self.assertFalse(any(c['action']=='ai_commit' for c in self.calls))
 
 

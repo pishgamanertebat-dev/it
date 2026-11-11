@@ -95,9 +95,9 @@ class DraftStore:
             self.event(db, d, event, evidence)
         return d
 
-    def bind(self, d, stage, token, message):
+    def bind(self, d, stage, token, message, *, write_intent=False):
         d['binding'] = dict(stage=stage, token=token, message=str(message), expires=time.time()+1800,
-                            version=d['version'], hash=d['hash'])
+                            version=d['version'], hash=d['hash'], write_intent=write_intent)
         return self.update(d, 'prompt', evidence=d['binding'])
 
     def consume(self, identifier, actor, chat, stage, token, message, action):
@@ -114,18 +114,19 @@ class DraftStore:
                     or b.get('message') != str(message) or b.get('expires',0) < time.time()
                     or b.get('version') != d['version'] or b.get('hash') != d['hash']):
                 raise DraftError('دکمه قدیمی یا نامعتبر است؛ «ادامه پیش‌نویس» را بفرستید.')
-            evidence = dict(b, action=action)
+            evidence = dict(b, action=action,actor=str(actor),chat=str(chat))
             db.execute('UPDATE entry_drafts SET binding=NULL WHERE id=?', (identifier,))
             d['binding'] = None
             if action == 'confirm_text':
-                if stage != 'TEXT_CONFIRM' or d['status'] != 'EDIT' or d['payload'].get('issues'):
+                if (stage != 'TEXT_CONFIRM' or d['status'] != 'EDIT' or d['payload'].get('issues')
+                        or b.get('write_intent') is not True
+                        or d['payload'].get('workflow') != 'two_step_v1'):
                     raise DraftError('گزارش هنوز آمادهٔ تأیید نیست.')
-                d.update(text_ok=evidence, write_ok=None, status='TEXT_OK')
-                db.execute("UPDATE entry_drafts SET text_ok=?,write_ok=NULL,status='TEXT_OK' WHERE id=?", (encoded(evidence),identifier))
+                evidence['intent'] = 'confirm_text_and_write'
+                d.update(text_ok=evidence, write_ok=evidence, status='COMMITTING')
+                db.execute("UPDATE entry_drafts SET text_ok=?,write_ok=?,status='COMMITTING' WHERE id=?",
+                           (encoded(evidence),encoded(evidence),identifier))
             elif action == 'confirm_write':
-                if stage != 'WRITE_CONFIRM' or d['status'] not in ('TEXT_OK','PARTIAL','COMMITTING') or not d['text_ok']:
-                    raise DraftError('تأیید متن معتبر وجود ندارد.')
-                d.update(write_ok=evidence, status='COMMITTING')
-                db.execute("UPDATE entry_drafts SET write_ok=?,status='COMMITTING' WHERE id=?", (encoded(evidence),identifier))
+                raise DraftError('دکمهٔ ثبت قبلی معتبر نیست؛ گزارش را باز کنید و متن را دوباره تأیید کنید.')
             self.event(db,d,'callback',evidence)
             return d

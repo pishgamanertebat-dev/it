@@ -2,6 +2,10 @@
 import json
 import re
 import uuid
+import time
+from contextlib import closing
+import hashlib
+from pathlib import Path
 
 from . import entry_service as entry, entry_dates
 
@@ -35,6 +39,7 @@ def report_date(raw, current):
 
 def refresh(d, actor, *, config, day=None, fleet_db=entry.FLEET_DB):
     p=d['payload']; current=day or entry_dates.today(); issues=[]; groups={}
+    previous={(g['date'],g['section'],g['code']):g['expected'] for g in p.get('groups',[])}
     from tools.authorization.net import repairs_sections
     sections=repairs_sections(actor, json.loads(config.read_text('utf8')))
     if p['section'] not in sections:
@@ -77,6 +82,9 @@ def refresh(d, actor, *, config, day=None, fleet_db=entry.FLEET_DB):
     if not groups:
         issues.append('هیچ دستگاه معتبر برای ثبت انتخاب نشده است.')
     for code,group in groups.items():
+        field=(group['date'],group['section'],code)
+        if field in previous and previous[field] != group['expected']:
+            p['modes'].pop(code,None)
         mode=p['modes'].get(code)
         if group['expected'] and mode not in ('append','replace'):
             issues.append(f'{code}: افزودن یا جایگزینی شرح قبلی را انتخاب کنید.')
@@ -86,7 +94,11 @@ def refresh(d, actor, *, config, day=None, fleet_db=entry.FLEET_DB):
         if len(group['final_description'])>1800:
             issues.append(f'{code}: متن نهایی بیش از ۱۸۰۰ نویسه است.')
         group['operation']=uuid.uuid4().hex
-    p.update(groups=list(groups.values()),issues=list(dict.fromkeys(issues)),sections=list(sections))
+        group['duplicate_text'] = bool(group['expected'] and
+            (group['description'].strip() == group['expected'].strip()
+             or group['description'].strip() in group['expected'].splitlines()))
+    p.update(groups=list(groups.values()),issues=list(dict.fromkeys(issues)),sections=list(sections),
+             workflow='two_step_v1',batch_operation=uuid.uuid4().hex)
     return d
 
 
@@ -110,9 +122,9 @@ def edit(d,field,value,*,index=None,config=entry.CONFIG,runtime=entry.RUNTIME,da
         raise entry.EntryError('ثبت شروع شده؛ نتیجهٔ همان عملیات را بازیابی کنید.')
     p=d['payload']
     if field=='date':
-        p['date_override']=entry.selected_date(value,day);p['resolved']=list(set(p['resolved'])|{'date'})
+        p['date_override']=entry.selected_date(value,day);p['resolved']=list(set(p['resolved'])|{'date'});p['modes']={}
     elif field=='section':
-        entry.permission(d['actor'],config,section=value);p['section']=value
+        entry.permission(d['actor'],config,section=value);p['section']=value;p['modes']={}
     elif field=='mode':
         if value not in ('append','replace') or index not in [g['code'] for g in p['groups']]:
             raise entry.EntryError('روش ذخیره معتبر نیست.')
@@ -137,9 +149,14 @@ def approval(d):
     for name in ('text_ok','write_ok'):
         proof=d[name] or {}
         if proof.get('hash')!=d['hash'] or proof.get('version')!=d['version']:
-            raise entry.EntryError('دو تأیید مستقل برای همین نسخه لازم است.')
-    if d['text_ok']['message']==d['write_ok']['message'] or d['text_ok']['token']==d['write_ok']['token']:
-        raise entry.EntryError('پیام تأیید دوم باید مستقل باشد.')
+            raise entry.EntryError('تأیید صریح متن و ثبت برای همین نسخه لازم است.')
+    if (d['payload'].get('workflow') != 'two_step_v1' or d['text_ok'] != d['write_ok']
+            or d['text_ok'].get('intent') != 'confirm_text_and_write'
+            or d['text_ok'].get('write_intent') is not True
+            or d['text_ok'].get('actor') != d['actor'] or d['text_ok'].get('chat') != d['chat']
+            or d['text_ok'].get('stage') != 'TEXT_CONFIRM' or d['text_ok'].get('action') != 'confirm_text'
+            or d['text_ok'].get('expires',0) < time.time()):
+        raise entry.EntryError('صفحهٔ بررسی قدیمی است؛ متن را در صفحهٔ جدید دوباره تأیید کنید.')
     if d['status'] not in ('COMMITTING','PARTIAL','DONE') or d['payload']['issues']:
         raise entry.EntryError('پیش‌نویس اجازهٔ ثبت ندارد.')
 
@@ -152,24 +169,54 @@ def commit(actor,chat,identifier,*,config=entry.CONFIG,runtime=entry.RUNTIME,day
             raise entry.EntryError('تأیید پیش‌نویس تغییر کرده است.')
         entry.selected_date(d['payload']['date'],day)
     check()
-    for group in d['payload']['groups']:
-        op=group['operation']
-        if d['results'].get(op,{}).get('status')=='succeeded':continue
-        request={k:group[k] for k in ('code','name','date','section','expected','description','write_mode','operation')}
-        try:
-            result=entry.commit(actor,request,config=config,runtime=runtime,day=day,fleet_db=fleet_db,
-                                approval_check=check,require_existing_row=True)
-            d['results'][op]=dict(status='succeeded',result=result)
-        except Exception as exc:
-            # Never assert absence of a write after a lost return or a prepared journal.
-            d['results'][op]=dict(status='unresolved',message=str(exc) or type(exc).__name__)
-        latest=store.load(identifier,actor,chat)
-        if latest['hash']!=d['hash'] or latest['version']!=d['version']:
-            raise entry.EntryError('پیش‌نویس هنگام ثبت تغییر کرد؛ نتیجه نیازمند بررسی است.')
-        latest['results'][op]=d['results'][op]
-        d=store.update(latest,'operation_result',evidence=dict(operation=op,**latest['results'][op]))
-    d['status']='DONE' if all(d['results'].get(g['operation'],{}).get('status')=='succeeded' for g in d['payload']['groups']) else 'PARTIAL'
-    return store.update(d,'batch_result')
+    requests=[{k:g[k] for k in ('code','name','date','section','expected','description','write_mode','operation')}
+              for g in d['payload']['groups']]
+    try:
+        result=entry.commit_batch(actor,requests,d['payload']['batch_operation'],config=config,runtime=runtime,
+                                  day=day,fleet_db=fleet_db,approval_check=check)
+    except Exception as exc:
+        return recover(d,config=config,runtime=runtime,day=day,fleet_db=fleet_db,error=str(exc))
+    return complete(store.load(identifier,actor,chat),result,store)
+
+
+def complete(d,result,store):
+    for g,r in zip(d['payload']['groups'],result['devices'],strict=True):
+        d['results'][g['operation']]=dict(status='succeeded',result=dict(r,delivery=result.get('delivery',{})))
+    d['status']='DONE'
+    # The receipt evidence also lives durably in the Writer journal/batch event.
+    return store.update(d,'batch_result',evidence=result)
+
+
+def recover(d,*,config=entry.CONFIG,runtime=entry.RUNTIME,day=None,fleet_db=entry.FLEET_DB,error=None):
+    """Read/reconcile the existing operation; never publish or retry a write."""
+    store=DraftStore(runtime);settings=gate(d['actor'],d['chat'],config)
+    batch=d['payload'].get('batch_operation')
+    with entry.writer_lock(Path(runtime)), closing(entry.open_audit(runtime)) as db:
+        source=Path(settings['source']).resolve(strict=True)
+        with entry.source_reader(source) as stream:
+            digest=hashlib.sha256(stream.read()).hexdigest()
+            try:
+                entry.recover_prepared(db,source,digest)
+            except entry.EntryError as exc:
+                error=str(exc)
+            row=db.execute('SELECT * FROM edits WHERE operation=?',(batch,)).fetchone() if batch else None
+            if row and row['status']=='succeeded':
+                return complete(store.load(d['id'],d['actor'],d['chat']),json.loads(row['result']),store)
+            if (row and row['status']=='prepared') or not batch:
+                d=store.load(d['id'],d['actor'],d['chat'])
+                # Legacy partial reports are never replayed by a new callback.
+                for g in d['payload']['groups']:
+                    old=db.execute('SELECT * FROM edits WHERE operation=?',(g['operation'],)).fetchone()
+                    if old and old['status']=='succeeded':
+                        d['results'][g['operation']]=dict(status='succeeded',result=json.loads(old['result']))
+                d.update(status='PARTIAL',binding=None)
+                return store.update(d,'recovery_required',evidence=error)
+    # The journal proves no publication. Rebase the preview and require fresh approval.
+    d=store.load(d['id'],d['actor'],d['chat'])
+    d.update(status='EDIT',results={},text_ok=None,write_ok=None,binding=None)
+    refresh(d,d['actor'],config=config,day=day,fleet_db=fleet_db)
+    d['payload']['notice']='ثبت انجام نشد. '+(error or 'متن و وضعیت فعلی را بررسی و دوباره تأیید کنید.')
+    return store.update(d,'write_not_applied',edit=True,evidence=error)
 
 
 def execute(payload,*,config=entry.CONFIG,runtime=entry.RUNTIME,day=None,fleet_db=entry.FLEET_DB):
@@ -182,9 +229,11 @@ def execute(payload,*,config=entry.CONFIG,runtime=entry.RUNTIME,day=None,fleet_d
     if payload['action']=='ai_commit':return commit(actor,chat,payload['draft'],**kw)
     d=DraftStore(runtime).load(payload['draft'],actor,chat)
     if payload['action']=='ai_resume':
-        if d['status'] in ('TEXT_OK','COMMITTING','PARTIAL'):
+        if d['status'] in ('COMMITTING','PARTIAL'):
             entry.permission(actor,config,section=d['payload']['section'])
-            entry.selected_date(d['payload']['date'],day)
+            return recover(d,**kw)
+        if d['status'] in ('EDIT','TEXT_OK'):
+            return edit(d,'review',None,**kw)
         return d
     if payload['action']=='ai_edit':return edit(d,payload['field'],payload.get('value'),index=payload.get('index'),**kw)
     raise entry.EntryError('درخواست پیش‌نویس معتبر نیست.')

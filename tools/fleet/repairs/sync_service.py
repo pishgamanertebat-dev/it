@@ -91,16 +91,20 @@ def journal_state(db, source, state, runtime=RUNTIME):
                         or not original.is_file() or digest(original.read_bytes()) != row['before_hash']):
                     raise SyncConflict('FAULT_SYNC_BASELINE_MISSING: pre-Bale local changes need review')
                 local_overlays = extend_changes(local_overlays, local_changes(baseline.read_bytes(), original.read_bytes()))
-            section = request.get('section')
-            if section not in SECTIONS or not isinstance(request.get('description'), str):
-                raise SyncConflict('FAULT_SYNC_INVALID_JOURNAL: unrecognized confirmed edit')
-            field = (request['date'], key(request['code']), section)
-            previous = overlays.get(field)
-            if previous and request['expected'] != previous['description']:
-                raise SyncConflict('FAULT_SYNC_JOURNAL_CHAIN_CONFLICT: ' + repr(field))
-            overlays[field] = dict(date=request['date'], code=request['code'], name=request['name'],
-                section=section, base=previous['base'] if previous else request['expected'],
-                description=request['description'], operation=row['operation'], actor=row['actor'])
+            entries = request['entries'] if request.get('_kind') == 'daily_report_batch' else [request]
+            if not isinstance(entries, list) or not entries:
+                raise SyncConflict('FAULT_SYNC_INVALID_JOURNAL: empty batch')
+            for edit in entries:
+                section = edit.get('section')
+                if section not in SECTIONS or not isinstance(edit.get('description'), str):
+                    raise SyncConflict('FAULT_SYNC_INVALID_JOURNAL: unrecognized confirmed edit')
+                field = (edit['date'], key(edit['code']), section)
+                previous = overlays.get(field)
+                if previous and edit['expected'] != previous['description']:
+                    raise SyncConflict('FAULT_SYNC_JOURNAL_CHAIN_CONFLICT: ' + repr(field))
+                overlays[field] = dict(date=edit['date'], code=edit['code'], name=edit['name'],
+                    section=section, base=previous['base'] if previous else edit['expected'],
+                    description=edit['description'], operation=edit['operation'], actor=row['actor'])
             if local_overlays:
                 snapshot = Path(runtime) / 'backups' / (row['after_hash'] + '.xlsx')
                 if not snapshot.is_file() or digest(snapshot.read_bytes()) != row['after_hash']:

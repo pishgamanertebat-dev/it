@@ -31,6 +31,10 @@ class EntryError(ValueError):
     pass
 
 
+class EntryConflict(EntryError):
+    """The reviewed target cell changed; fresh content approval is required."""
+
+
 class EntryAuthorizationDenied(PermissionError):
     """Distinguish domain denial from an OS file-lock PermissionError."""
     pass
@@ -361,7 +365,7 @@ def set_description(book, selected, section, description, day, expected, templat
     row = find_row(sheet, selected['code'], cols)
     old = text_value(sheet.cell(row, cols[section]).value) if row else ''
     if old != expected:
-        raise EntryError('شرح این دستگاه پس از نمایش شما تغییر کرده است؛ «شرح خرابی» را دوباره باز کنید و متن جدید را بررسی کنید.')
+        raise EntryConflict(f'شرح دستگاه {selected["code"]} پس از نمایش شما تغییر کرده است؛ متن جدید را بررسی و دوباره تأیید کنید.')
     if row is None and clearing:
         return result
     template_book = openpyxl.load_workbook(template_path)
@@ -423,8 +427,8 @@ def require_target_row(book, code, date):
         raise EntryError(f'ردیف دستگاه {code} در شیت {date} موجود نیست؛ تغییر ساختار فایل نیازمند تأیید مستقل مالک است.')
 
 
-def commit(actor, request, *, config=CONFIG, runtime=RUNTIME, day=None, fleet_db=FLEET_DB, approval_check=None,
-           require_existing_row=False):
+def prepare_entry(actor, request, *, config=CONFIG, day=None, fleet_db=FLEET_DB, approval_check=None,
+                  require_existing_row=False):
     settings = permission(actor, config, section=request.get('section'), clearing=not request.get('description'))
     operation = str(request.get('operation', ''))
     if not re.fullmatch(r'[a-f0-9]{32}', operation):
@@ -457,18 +461,57 @@ def commit(actor, request, *, config=CONFIG, runtime=RUNTIME, day=None, fleet_db
     def mutate(book):
         selected = machine(book, request['code'], fleet_db)
         if require_existing_row:
+            if key(selected['code']) != key(request['code']) or selected['name'] != request.get('name'):
+                raise EntryConflict('هویت دستگاه پس از بررسی تغییر کرده است؛ گزارش را دوباره بررسی کنید.')
             require_target_row(book, selected['code'], request['date'])
         return set_description(book, selected, section, description, request['date'],
                                expected, settings['template'], allow_create=request['date'] == (day or entry_dates.today()))
+    return settings, journal_request, mutate, check_authorization, check_date
+
+
+def commit(actor, request, *, config=CONFIG, runtime=RUNTIME, day=None, fleet_db=FLEET_DB, approval_check=None,
+           require_existing_row=False):
+    settings, journal_request, mutate, check_authorization, check_date = prepare_entry(
+        actor, request, config=config, day=day, fleet_db=fleet_db, approval_check=approval_check,
+        require_existing_row=require_existing_row)
     return commit_workbook(actor, journal_request, settings, mutate, runtime=runtime, day=day,
                            authorization_check=check_authorization,
-                           date_check=check_date)
+                           date_check=check_date, daily_section=request['section'])
+
+
+def commit_batch(actor, requests, operation, *, config=CONFIG, runtime=RUNTIME, day=None,
+                 fleet_db=FLEET_DB, approval_check=None):
+    """One candidate, journal operation and atomic Replace for the entire report."""
+    if not requests:
+        raise EntryError('هیچ دستگاهی برای ثبت وجود ندارد.')
+    prepared = [prepare_entry(actor, request, config=config, day=day, fleet_db=fleet_db,
+                             approval_check=approval_check, require_existing_row=True)
+                for request in requests]
+    fields = [(r['date'], key(r['code']), r['section']) for r in requests]
+    if len(set(fields)) != len(fields) or len({(d,s) for d,_,s in fields}) != 1:
+        raise EntryError('مقصدهای گزارش یکسان یا معتبر نیستند.')
+    settings = prepared[0][0]
+    journal = dict(_kind='daily_report_batch', operation=operation, date=requests[0]['date'],
+                   entries=[p[1] for p in prepared])
+    def authorization():
+        for p in prepared:
+            if p[0] != settings:
+                raise EntryError('تنظیمات مقصد تغییر کرده است.')
+            p[3]()
+    def dates():
+        for p in prepared: p[4]()
+    def mutate(book):
+        return {'devices': [p[2](book) for p in prepared]}
+    return commit_workbook(actor, journal, settings, mutate, runtime=runtime, day=day,
+                           authorization_check=authorization, date_check=dates, daily_section=requests[0]['section'])
 
 
 def open_audit(runtime):
     db = sqlite3.connect(Path(runtime) / 'audit.sqlite3')
     db.row_factory = sqlite3.Row
     db.execute('CREATE TABLE IF NOT EXISTS edits (operation TEXT PRIMARY KEY, fingerprint TEXT,\n                actor TEXT, source TEXT, request TEXT, before_hash TEXT, after_hash TEXT, backup TEXT,\n                status TEXT, result TEXT, created TEXT)')
+    db.execute('''CREATE TABLE IF NOT EXISTS entry_correction_reviews (
+        operation TEXT PRIMARY KEY, date TEXT, section TEXT, status TEXT, evidence TEXT)''')
     return db
 
 
@@ -481,6 +524,8 @@ def recover_prepared(db, source, digest):
         else:
             raise EntryError('نتیجهٔ ثبت قبلی نیاز به بررسی دارد؛ برای جلوگیری از بازنویسی، ثبت متوقف شد.')
         db.execute('UPDATE edits SET status=? WHERE operation=?', (status, pending['operation']))
+        db.execute('UPDATE entry_correction_reviews SET status=? WHERE operation=?',
+                   ('needs_review' if status=='succeeded' else 'not_applied',pending['operation']))
     db.commit()
 
 
@@ -514,6 +559,10 @@ def publish_candidate(source, original, candidate, db, actor, request, result, *
             (operation, fingerprint, str(actor), str(source), json.dumps(request, ensure_ascii=False),
              digest, after, str(backup), 'prepared', json.dumps(result, ensure_ascii=False),
              datetime.now(timezone.utc).isoformat()))
+        delivery=result.get('delivery',{})
+        if delivery.get('status') in ('correction_required','verification_required'):
+            db.execute('INSERT OR REPLACE INTO entry_correction_reviews VALUES (?,?,?,?,?)',
+                       (operation,request['date'],delivery['section'],'pending_publication',json.dumps(delivery,ensure_ascii=False)))
     temporary = source.with_name('.repairs-' + uuid.uuid4().hex + '.xlsx')
     try:
         with temporary.open('xb') as stream:
@@ -533,11 +582,12 @@ def publish_candidate(source, original, candidate, db, actor, request, result, *
         temporary.unlink(missing_ok=True)
     with db:
         db.execute("UPDATE edits SET status='succeeded' WHERE operation=?", (operation,))
+        db.execute("UPDATE entry_correction_reviews SET status='needs_review' WHERE operation=?", (operation,))
     return result
 
 
 def commit_workbook(actor, request, settings, mutate, *, runtime, day=None, command='شرح خرابی', authorization_check=None,
-                    replay_check=None, date_check=None):
+                    replay_check=None, date_check=None, daily_section=None):
     """Journal and atomically replace an existing workbook for a confirmed operation."""
     operation = str(request.get('operation', ''))
     if not re.fullmatch(r'[a-f0-9]{32}', operation):
@@ -569,6 +619,10 @@ def commit_workbook(actor, request, settings, mutate, *, runtime, day=None, comm
                 book = openpyxl.load_workbook(io.BytesIO(original))
                 try:
                     result = mutate(book)
+                    if daily_section:
+                        from .entry_delivery import delivery_review
+                        result['delivery']=dict(delivery_review(request['date'],daily_section,
+                            settings.get('delivery_receipts',ROOT/'runtime/scheduler/runs.sqlite3')),section=daily_section)
                     output = io.BytesIO()
                     book.save(output)
                     candidate = output.getvalue()
