@@ -24,3 +24,30 @@
 ```
 
 آزمون دوم روی کپی مستقل فایل واقعی، تمام شیت‌ها و حفظ مقادیر و سبک سلول‌های تاریخی را بررسی می‌کند. هیچ دادهٔ آزمایشی در منبع و هیچ پیامی در بله ایجاد نمی‌کند. بازخوانی دروازهٔ بی‌کار با `python -m tools.fleet.repairs.activate_entry` در محیط پروژه انجام می‌شود؛ وضعیت اتصال بله نیز بررسی می‌شود.
+
+## Share copy policy (2026-11-12)
+
+`settings/maintenance_entry.json` selects `sync_policy: upstream_copy` for
+Maintenance 1405. Share owns source history and formatting; edits to existing
+cells, views, print settings and new sheets no longer require a reviewed import.
+With no local Writer branch, Sync copies the valid XLSX package byte for byte,
+without making the report parser a prerequisite for copying it.
+
+With local manual-form or automatic-report appends, Sync first reconstructs the
+local workbook exactly from its retained Share baseline and UUID journal. It
+then appends those known records to the incoming Share snapshot. Different
+upstream records stay separate, even with identical text. Returning the complete
+exact Writer workbook to Share acknowledges its operations without row matching.
+Unknown local edits, incomplete journal operations, corrupt files, missing
+targets and incompatible headers needed for a protected append still stop
+publication and retain both inputs. Report validation/permissions remain separate.
+
+The installed two-minute job uses the versioned mirror under
+`integrations/hermes/mine_sync/`. Share's deny-write handle ends after staging;
+the local deny-write handle covers only reading and final byte-check/replace.
+Slow parsing does not hold either workbook read-only. A concurrently changed
+local workbook stops replacement and is retried with fresh bytes.
+
+The pinned owner-copy repair and private native Excel check are in
+`integrations/hermes/repair_maintenance_manual_copy_20261112.py` and
+`integrations/hermes/verify_maintenance_sync_excel_20261112.ps1`.

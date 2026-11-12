@@ -1,8 +1,10 @@
-"""Owner-approved maintenance boundary and conservative, journal-proven imports.
+"""Owner-approved maintenance boundary and journal-proven imports.
 
 Old edit rows remain evidence, not a replay queue. New mine rows may be imported
 verbatim. Concurrent branches merge only on disjoint worksheets, after proving
 both the Writer UUID/hash chain and unchanged historical cells/worksheet layout.
+The upstream_copy policy instead accepts Share history/layout corrections while
+carrying only exact, reconstructable local Writer appends into that new version.
 """
 from contextlib import closing, contextmanager
 from copy import copy, deepcopy
@@ -19,7 +21,7 @@ import zipfile
 
 import openpyxl
 
-from .entry_service import (EntryError, open_audit, publish_candidate, recover_prepared,
+from .entry_service import (EntryError, open_audit, publish_candidate, recover_prepared, source_reader,
                             writer_lock)
 from .maintenance_service import CONFIG, RUNTIME, layout
 
@@ -179,9 +181,14 @@ def xml(value):
     return tostring(value.to_tree()).decode() if value is not None else None
 
 
-def cell_state(cell):
-    return (cell.value, cell.data_type, *(xml(getattr(cell, field)) for field in
-            ('font', 'fill', 'border', 'alignment', 'protection')), cell.number_format,
+def cell_state(cell, styles=None):
+    # Excel repeats a few styles across thousands of cells. Serialize each
+    # style once per sheet, preserving the exact same comparison fields.
+    styles = {} if styles is None else styles
+    if cell.style_id not in styles:
+        styles[cell.style_id] = (*(xml(getattr(cell, field)) for field in
+            ('font', 'fill', 'border', 'alignment', 'protection')), cell.number_format)
+    return (cell.value, cell.data_type, *styles[cell.style_id],
             (cell.comment.text, cell.comment.author) if cell.comment else None,
             (cell.hyperlink.target, cell.hyperlink.location, cell.hyperlink.tooltip,
              cell.hyperlink.display) if cell.hyperlink else None)
@@ -204,7 +211,8 @@ def view_state(views):
 
 
 def sheet_state(sheet):
-    return dict(cells={c.coordinate: cell_state(c) for c in sheet._cells.values()
+    styles = {}
+    return dict(cells={c.coordinate: cell_state(c, styles) for c in sheet._cells.values()
                        if c.value is not None or c.has_style or c.comment or c.hyperlink},
                 rows={r: (dict(d), tuple(d._style) if d.has_style else None)
                       for r, d in sheet.row_dimensions.items()},
@@ -303,8 +311,8 @@ def combine(base_data, local_data, incoming_data):
             book.close()
 
 
-def sync_from_baseline(db, source, original, incoming, runtime, *, reviewed_change=None):
-    """Caller holds the existing Writer lock and deny-write source handle."""
+def sync_from_baseline(db, source, original, incoming, runtime, *, reviewed_change=None, upstream_copy=False):
+    """Caller holds the Writer lock; recheck source bytes under a short file lock."""
     state = baseline(db, source, runtime)
     if state is None:
         return None
@@ -332,6 +340,13 @@ def sync_from_baseline(db, source, original, incoming, runtime, *, reviewed_chan
         if request.get('_kind') == KIND:
             mine_hash = result['mine_hash']
             snapshot(runtime, mine_hash)
+            absorbed = result.get('absorbed_operations', [])
+            if absorbed:
+                if (row['before_hash'] != row['after_hash'] or mine_hash != row['after_hash']
+                        or absorbed != protected):
+                    raise EntryError('MAINTENANCE_SYNC_INVALID_UPSTREAM_ACKNOWLEDGEMENT')
+                protected = []
+                report_batches = []
         elif request.get('_kind') == 'maintenance_report_batch_v1':
             from .maintenance_report import verify_operation
             verify_operation(request, result)
@@ -342,6 +357,11 @@ def sync_from_baseline(db, source, original, incoming, runtime, *, reviewed_chan
                     or not all(field in request for field in ('canonical', 'mechanic', 'description', 'parts'))):
                 raise EntryError('MAINTENANCE_SYNC_INVALID_WRITER_OPERATION: ' + row['operation'])
             protected.append(row['operation'])
+            if upstream_copy:
+                # Manual form appends use the same deterministic Writer. Replay
+                # their exact saved request, including the verified recorder.
+                report_batches.append((row['operation'], [dict(record={
+                    **request, 'recorder': result.get('recorder')})]))
         latest = row['after_hash']
     if current_hash != latest:
         raise EntryError('MAINTENANCE_SYNC_UNJOURNALED_LOCAL_CHANGE')
@@ -351,6 +371,16 @@ def sync_from_baseline(db, source, original, incoming, runtime, *, reviewed_chan
     from .maintenance_sync import retain_snapshot
     retain_snapshot(runtime, incoming)
     if incoming_hash == current_hash:
+        if upstream_copy:
+            # Exact equality with the complete proven Writer output establishes
+            # inclusion of its UUIDs; no individual row/text match is used.
+            result = dict(status='unchanged', hash=current_hash, mine_hash=incoming_hash,
+                          protected_operations=[], absorbed_operations=protected, baseline=state['event_id'])
+            with source_reader(source) as locked:
+                if digest(locked.read()) != current_hash:
+                    raise EntryError('MAINTENANCE_SYNC_SOURCE_CHANGED')
+                return publish_candidate(source, original, original, db, 'mine-file-sync',
+                    dict(_kind=KIND, operation=uuid.uuid4().hex), result, runtime=runtime)
         # Equality preserves the published file, but cannot establish that a
         # matching mine row is the same event. Keep the old upstream base;
         # later overlapping mine changes still require explicit review.
@@ -358,7 +388,15 @@ def sync_from_baseline(db, source, original, incoming, runtime, *, reviewed_chan
                     protected_operations=protected, baseline=state['event_id'],
                     upstream_identity_unacknowledged=True)
     base_data = snapshot(runtime, mine_hash)
-    if current_hash == mine_hash:
+    if current_hash == mine_hash and upstream_copy and reviewed_change is None:
+        # A pure copy must not depend on the report parser's header/layout
+        # contract. Validate the package, then preserve all upstream bytes.
+        with zipfile.ZipFile(io.BytesIO(incoming)) as archive:
+            if archive.testzip() is not None or 'xl/workbook.xml' not in archive.namelist():
+                raise EntryError('MAINTENANCE_SYNC_INVALID_WORKBOOK')
+        changed = []
+        candidate = incoming
+    elif current_hash == mine_hash:
         base, mine = validate_workbook(base_data), validate_workbook(incoming)
         try:
             if reviewed_change is None:
@@ -379,20 +417,24 @@ def sync_from_baseline(db, source, original, incoming, runtime, *, reviewed_chan
         if reviewed_change is not None:
             raise EntryError('MAINTENANCE_REVIEWED_IMPORT_LOCAL_BRANCH: explicit reconciliation required')
         if report_batches and len(report_batches) == len(protected):
-            candidate, changed, positions = combine_report_batches(base_data, original, incoming, report_batches)
+            candidate, changed, positions = combine_report_batches(base_data, original, incoming, report_batches,
+                                                                   upstream_copy=upstream_copy)
         else:
             candidate, changed = combine(base_data, original, incoming)
-    result = dict(status='imported' if current_hash == mine_hash else 'merged', mine_hash=incoming_hash,
+    result = dict(status='imported' if current_hash == mine_hash else 'merged', hash=digest(candidate), mine_hash=incoming_hash,
                   changed_sheets=changed, protected_operations=protected, baseline=state['event_id'])
     if reviewed_change is not None:
         result['reviewed_change'] = reviewed_change
     if current_hash != mine_hash and report_batches and len(report_batches) == len(protected):
         result.update(merge_strategy='journalled_report_append_v1',report_positions=positions)
-    return publish_candidate(source, original, candidate, db, 'mine-file-sync',
-                             dict(_kind=KIND, operation=uuid.uuid4().hex), result, runtime=runtime)
+    with source_reader(source) as locked:
+        if digest(locked.read()) != current_hash:
+            raise EntryError('MAINTENANCE_SYNC_SOURCE_CHANGED: retry with current local bytes')
+        return publish_candidate(source, original, candidate, db, 'mine-file-sync',
+                                 dict(_kind=KIND, operation=uuid.uuid4().hex), result, runtime=runtime)
 
 
-def combine_report_batches(base_data, local_data, incoming_data, batches):
+def combine_report_batches(base_data, local_data, incoming_data, batches, *, upstream_copy=False):
     """Carry only UUID-proven new reports across appended upstream records.
 
     Rebuilding Local from the upstream baseline and the complete ordered report
@@ -402,7 +444,12 @@ def combine_report_batches(base_data, local_data, incoming_data, batches):
     from .maintenance_report import apply_records
     base, local, incoming = [validate_workbook(data) for data in (base_data, local_data, incoming_data)]
     try:
-        changed = additions(base, incoming)
+        # Share owns source history/layout. Only local UUID-proven reports are
+        # carried over; do not make a historical correction or Excel view save
+        # an incident requiring another owner review.
+        changed = ([title for title in incoming.sheetnames
+                    if title not in base or sheet_state(base[title]) != sheet_state(incoming[title])]
+                   if upstream_copy else additions(base, incoming))
         if local.sheetnames != base.sheetnames:
             raise EntryError('MAINTENANCE_SYNC_LOCAL_STRUCTURE_CONFLICT')
         for _, saved in batches:

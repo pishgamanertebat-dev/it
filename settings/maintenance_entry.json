@@ -1,4 +1,5 @@
 {
   "allowed_users": ["455740857", "654806764", "641220453", "1732374823"],
-  "source": "E:\\Function\\تعمیرات 1405.xlsx"
+  "source": "E:\\Function\\تعمیرات 1405.xlsx",
+  "sync_policy": "upstream_copy"
 }

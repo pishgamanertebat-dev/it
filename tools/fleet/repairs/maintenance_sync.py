@@ -51,8 +51,11 @@ def guard_snapshot(staged, destination, *, config=CONFIG, runtime=RUNTIME):
     with writer_lock(runtime):
         if not (runtime / 'audit.sqlite3').is_file():
             raise MaintenanceSyncBlocked('MAINTENANCE_SYNC_JOURNAL_MISSING: publication denied')
-        with closing(open_audit(runtime)) as db, source_reader(source) as locked:
-            original = locked.read()
+        with closing(open_audit(runtime)) as db:
+            # Parsing and journal verification can take seconds. Hold the Excel
+            # deny-write handle only for the read and final atomic publication.
+            with source_reader(source) as locked:
+                original = locked.read()
             current_hash = digest(original)
             with db:
                 db.execute('''CREATE TABLE IF NOT EXISTS maintenance_sync_failures (
@@ -65,8 +68,14 @@ def guard_snapshot(staged, destination, *, config=CONFIG, runtime=RUNTIME):
             from .maintenance_baseline import sync_from_baseline
             active = False
             try:
-                result = sync_from_baseline(db, source, original, incoming, runtime)
+                result = sync_from_baseline(db, source, original, incoming, runtime,
+                                            upstream_copy=settings.get('sync_policy') == 'upstream_copy')
                 if result is not None:
+                    # Also recheck no-op results: Excel can save after our first
+                    # short read while the journal is being verified.
+                    with source_reader(source) as current:
+                        if digest(current.read()) != result['hash']:
+                            raise EntryError('MAINTENANCE_SYNC_SOURCE_CHANGED: retry with current local bytes')
                     return result
             except EntryError as exc:
                 active = True

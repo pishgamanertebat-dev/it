@@ -1,0 +1,88 @@
+{
+  "sync": {
+    "sync_healthy": true,
+    "health_status": "success",
+    "last_successful_run": "2026-11-12T10:42:59.551516+00:00"
+  },
+  "run": {
+    "schedule_id": "maintenance_daily_report",
+    "due": "2026-11-12T08:30:00+00:00",
+    "recipient": "capability:reports.maintenance.daily_receive",
+    "task": "maintenance_daily_report",
+    "status": "succeeded",
+    "started": "2026-11-12T10:41:02+00:00",
+    "finished": "2026-11-12T10:41:43.241334+00:00",
+    "error": null,
+    "attempt": 13,
+    "next_attempt_at": null,
+    "data_state": "ready",
+    "notice_delivery_state": null,
+    "error_detail": null
+  },
+  "receipts": [
+    {
+      "schedule_id": "maintenance_daily_report",
+      "due": "2026-11-12T08:30:00+00:00",
+      "recipient_id": "397185913",
+      "delivery_kind": "report",
+      "status": "sent",
+      "message_id": "7713",
+      "updated": "2026-11-12T10:41:42.791353+00:00"
+    },
+    {
+      "schedule_id": "maintenance_daily_report",
+      "due": "2026-11-12T08:30:00+00:00",
+      "recipient_id": "514458396",
+      "delivery_kind": "report",
+      "status": "sent",
+      "message_id": "7714",
+      "updated": "2026-11-12T10:41:43.203918+00:00"
+    }
+  ],
+  "historic_receipts_unchanged": true,
+  "scheduler_integrity": "ok",
+  "historic_edits_unchanged": true,
+  "maintenance_integrity": "ok",
+  "proof": {
+    "source_sha256": "d4b075c71306f93fd1c4d8b82c83424b25b701fd7506f97baebc19c05bf61a58",
+    "journal_version": "32dd6657a53249cd9af20048cb705402",
+    "baseline": "9bc7f95d8da84602982b101b6d85e64b"
+  },
+  "rows_matched": 17,
+  "installed_mirror_matches": true,
+  "pdf_validation": {
+    "pages": 3,
+    "bytes": 208103,
+    "searchable": true,
+    "vector": true,
+    "devices": 12,
+    "rows": 17,
+    "date": "1405/08/20",
+    "pdf_sha256": "ab4d13f97316c4a50f49405ef57d85730508fdf7aa1b040b11ba028b6d4a6151"
+  },
+  "tests": {
+    "domain_tests": 73,
+    "sync_tests": 29,
+    "reliability_tests": 18,
+    "total": 120,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0
+  },
+  "future_share_rehearsal": {
+    "success": true,
+    "seconds": 12.484,
+    "protected_rows": 18,
+    "changed_sheets": [
+      "متفرقه"
+    ],
+    "source_modified": false
+  },
+  "native_excel": {
+    "read_only": false,
+    "sha256": "D4B075C71306F93FD1C4D8B82C83424B25B701FD7506F97BAEBC19C05BF61A58",
+    "repair_mode": false,
+    "sheets": 63,
+    "version": "16.0"
+  }
+}
