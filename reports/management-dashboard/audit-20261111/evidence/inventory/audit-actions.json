@@ -1,0 +1,30 @@
+{
+  "audit_version": "management-dashboard-audit-1",
+  "completed_utc": "2026-11-11T09:42:36.673482+00:00",
+  "write_scope": "E:\\KomatsoAI\\reports\\management-dashboard\\audit-20261111",
+  "production_code_mutations": 0,
+  "operational_workbook_writes": 0,
+  "source_sql_mutations": 0,
+  "receipt_rewrites": 0,
+  "backfills": 0,
+  "replays": 0,
+  "transport_sends": 0,
+  "gateway_or_scheduler_restarts": 0,
+  "role_or_permission_changes": 0,
+  "firewall_or_vpn_changes": 0,
+  "services_created": 0,
+  "ports_opened": 0,
+  "dependencies_installed": 0,
+  "hrms_calculations_executed": 0,
+  "source_read_methods": [
+    "file/code/metadata read",
+    "SQLite mode=ro query_only Online Backup to memory",
+    "selected aggregate queries",
+    "allowlisted JSON state",
+    "WinAPI/registry/network information"
+  ],
+  "external_requests": "official technical documentation only; no private operational data sent",
+  "source_code_files_verified": 228,
+  "source_code_drift": [],
+  "production_state_note": "Normal background jobs remained active. This audit makes no byte-equality claim for live databases or source workbooks over the full observation interval."
+}

@@ -1,0 +1,20 @@
+{
+  "enabled": true,
+  "reporters": {
+    "1732374823": {
+      "department": "تعمیرگاه",
+      "mechanic": "اکیپ مکانیکی",
+      "scope": "all"
+    },
+    "654806764": {
+      "department": "تعمیرگاه",
+      "mechanic": "اکیپ مکانیکی",
+      "scope": "all"
+    },
+    "387679249": {
+      "department": "آهنگری",
+      "mechanic": "اکیپ آهنگری",
+      "scope": "miscellaneous"
+    }
+  }
+}

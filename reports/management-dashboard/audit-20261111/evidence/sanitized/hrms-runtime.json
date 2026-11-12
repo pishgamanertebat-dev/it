@@ -1,0 +1,31 @@
+{
+  "observed_utc": "2026-11-11T08:59:04.977790+00:00",
+  "health": {
+    "last_successful_poll_utc": "2026-11-11T08:58:54+00:00",
+    "worker_alive": true
+  },
+  "process": {
+    "state": "running",
+    "pid": 17764,
+    "started_at_utc": "2026-11-08T13:02:13+00:00"
+  },
+  "initial_install_manifest_matches": {
+    ".env.example": true,
+    ".gitignore": true,
+    "README.md": false,
+    "run.py": true,
+    "settings.example.json": true,
+    "start.ps1": false,
+    "stop.ps1": true,
+    "hrms_bale\\api.py": false,
+    "hrms_bale\\bot.py": false,
+    "hrms_bale\\cli.py": false,
+    "hrms_bale\\config.py": true,
+    "hrms_bale\\pipeline.py": false,
+    "hrms_bale\\store.py": false,
+    "hrms_bale\\__init__.py": true,
+    "tests\\test_bale.py": false,
+    "VALIDATION.md": false
+  },
+  "initial_install_manifest_is_current": false
+}

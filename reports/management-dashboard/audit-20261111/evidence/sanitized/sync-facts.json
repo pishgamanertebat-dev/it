@@ -1,0 +1,46 @@
+{
+  "observed_utc": "2026-11-11T08:59:04.977790+00:00",
+  "source_state": "C:\\Users\\win-10\\AppData\\Local\\hermes\\state\\mine-file-sync.json",
+  "schema_version": 3,
+  "reliability_schema_version": 1,
+  "layout": "flat",
+  "last_attempt_at": "2026-11-11T08:58:52.770622+00:00",
+  "last_success_at": "2026-11-10T14:52:12.851193+00:00",
+  "last_successful_run": "2026-11-10T14:52:12.851193+00:00",
+  "last_completed_scan": "2026-11-11T08:57:19.535090+00:00",
+  "last_clock_at": "2026-11-11T08:57:19.535090+00:00",
+  "sync_healthy": false,
+  "health_status": "attempt_running",
+  "outage": false,
+  "outage_since": null,
+  "consecutive_source_failures": 0,
+  "next_attempt_at": null,
+  "last_failure_classification": "source_outage",
+  "last_recovery_at": "2026-11-11T08:53:30.012892+00:00",
+  "last_run": {
+    "status": "partial",
+    "source_enumerated": true,
+    "started_at": "2026-11-11T08:56:52.764407+00:00",
+    "finished_at": "2026-11-11T08:57:19.535090+00:00",
+    "errors": 1,
+    "scanned": 38,
+    "copied": 0,
+    "updated": 1,
+    "skipped_locked": 0,
+    "skipped_unstable": 0,
+    "collisions": 0,
+    "maintenance_guard": {
+      "status": "blocked",
+      "error": "{\"status\": \"blocked\", \"error\": \"MAINTENANCE_SYNC_HISTORICAL_CELL_CONFLICT: sheet=705 cell=D23: replacement stopped; local=78fe91effe2d463a679167c583b11cf94649a9916c983133f6294de18adc3ae0; mine=c1ff0dde7df5599312d55f0bcc24a33ed19005e12a7ad6882cc618a10d894f41; journal=E:\\\\KomatsoAI\\\\runtime\\\\maintenance-entry\\\\audit.sqlite3; both snapshots retained; manual review required\"}"
+    },
+    "fault_merge": null,
+    "failure_classification": null,
+    "duration_seconds": 26.766
+  },
+  "guard_evidence": {
+    "maintenance_guard": {
+      "status": "blocked",
+      "error": "{\"status\": \"blocked\", \"error\": \"MAINTENANCE_SYNC_HISTORICAL_CELL_CONFLICT: sheet=705 cell=D23: replacement stopped; local=78fe91effe2d463a679167c583b11cf94649a9916c983133f6294de18adc3ae0; mine=c1ff0dde7df5599312d55f0bcc24a33ed19005e12a7ad6882cc618a10d894f41; journal=E:\\\\KomatsoAI\\\\runtime\\\\maintenance-entry\\\\audit.sqlite3; both snapshots retained; manual review required\"}"
+    }
+  }
+}

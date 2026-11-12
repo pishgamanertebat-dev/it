@@ -1,0 +1,44 @@
+{
+  "observed_utc": "2026-11-11T08:55:46.798523+00:00",
+  "os": "Windows-10-10.0.19045-SP0",
+  "logical_cpu": 8,
+  "memory": {
+    "length": 64,
+    "load": 44,
+    "total_physical": 20400558080,
+    "available_physical": 11393253376,
+    "total_page": 23487565824,
+    "available_page": 12349952000,
+    "total_virtual": 140737488224256,
+    "available_virtual": 140733022539776,
+    "available_extended": 0
+  },
+  "disks": {
+    "C:/": {
+      "total": 219057164288,
+      "used": 106816978944,
+      "free": 112240185344
+    },
+    "E:/": {
+      "total": 209714147328,
+      "used": 52644524032,
+      "free": 157069623296
+    }
+  },
+  "cim_access": "denied_hresult_0x80041003",
+  "registry": {
+    "windows": {
+      "ProductName": "Windows 10 Enterprise",
+      "DisplayVersion": "22H2",
+      "CurrentBuildNumber": "19045"
+    },
+    "hardware": {
+      "SystemManufacturer": "VMware, Inc.",
+      "SystemProductName": "VMware Virtual Platform"
+    },
+    "cpu": {
+      "ProcessorNameString": "Intel(R) Xeon(R) CPU E5-2680 v4 @ 2.40GHz",
+      "~MHz": 2397
+    }
+  }
+}

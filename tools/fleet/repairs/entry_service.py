@@ -94,6 +94,8 @@ def today_sheet(book, day):
 
 
 def machine(book, entered, fleet_db=FLEET_DB):
+    from tools.fleet.equipment_codes import canonical_input
+    entered = canonical_input(entered)
     entered = key(entered)
     if not entered or len(entered) > 30:
         raise EntryError('کد دستگاه معتبر نیست.')

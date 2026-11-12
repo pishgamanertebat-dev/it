@@ -29,6 +29,11 @@ def get_operational_year(conn):
 
 
 def resolve_machine(conn, code):
+    try:
+        from .equipment_codes import canonical_input
+    except ImportError:
+        from equipment_codes import canonical_input
+    code = canonical_input(code)
     code = code.strip()
 
     rows = conn.execute(

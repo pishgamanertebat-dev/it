@@ -1,0 +1,231 @@
+[
+  {
+    "group_code": "G01",
+    "version": "G01-1.0.0",
+    "effective_from": "1405/06/01",
+    "effective_to": "1405/06/31",
+    "state": "implemented",
+    "rule_file": "rules-G01-1.0.0.json",
+    "personnel_scope_count": 0,
+    "sha256": "6ee78b1db8819ee70cbc1f495b5cd89426430aa6d6813ffa3e5b80efd47357ec"
+  },
+  {
+    "group_code": "G05",
+    "version": "G05-1.1.0",
+    "effective_from": "1405/06/01",
+    "effective_to": "1405/06/31",
+    "state": "implemented",
+    "rule_file": "rules-G05-1.1.0.json",
+    "personnel_scope_count": 0,
+    "sha256": "eced8691e64c5a8b151317f7ea8166406d6f7ec7ed80eb5a1fd6fe400689fe48"
+  },
+  {
+    "group_code": "G07",
+    "version": "G07-1.0.0",
+    "effective_from": "1405/06/01",
+    "effective_to": "1405/06/31",
+    "state": "implemented",
+    "rule_file": "rules-G07-1.0.0.json",
+    "personnel_scope_count": 0,
+    "sha256": "bcfc0345aeaf35b53ed6becabd18288f5d63ace498fddcb65fc876b7e22c8dfa"
+  },
+  {
+    "group_code": "G04",
+    "version": "G04-1.0.0",
+    "effective_from": "1405/07/01",
+    "effective_to": "",
+    "state": "implemented",
+    "rule_file": "rules-G04-1.0.0.json",
+    "personnel_scope_count": 0,
+    "sha256": "eb74aceb1cd40d9eacb39a0c21ab964bc3f7cc38264e52c276bf1db7e5be113a"
+  },
+  {
+    "group_code": "G05",
+    "version": "G05-1.3.0",
+    "effective_from": "1405/07/01",
+    "effective_to": "1405/07/30",
+    "state": "implemented",
+    "rule_file": "rules-G05-1.3.0.json",
+    "personnel_scope_count": 0,
+    "sha256": "e34c5c7315da1e171a1c916dafd57d0a1742c62ad110a7cf761e93c5a22d30b9"
+  },
+  {
+    "group_code": "G07",
+    "version": "G07-2.0.0",
+    "effective_from": "1405/07/01",
+    "effective_to": "1405/07/30",
+    "state": "implemented",
+    "rule_file": "rules-G07-2.0.0.json",
+    "personnel_scope_count": 0,
+    "sha256": "8a5ad4c2a39496cca82435ab61a6d906bb71bb544838815648e8ace6070d9d28"
+  },
+  {
+    "group_code": "G01",
+    "version": "G01-7.0.0",
+    "effective_from": "1405/07/01",
+    "effective_to": "",
+    "state": "implemented",
+    "rule_file": "rules-G01-7.0.0.json",
+    "personnel_scope_count": 0,
+    "sha256": "2c10c6278be2ffe41ce4e4b1aed032fe1e127b9e6777e9a668b3029471ed2ddc"
+  },
+  {
+    "group_code": "G02",
+    "version": "G02-1.2.0",
+    "effective_from": "1405/07/01",
+    "effective_to": "1405/07/30",
+    "state": "implemented",
+    "rule_file": "rules-G02-1.2.0.json",
+    "personnel_scope_count": 0,
+    "sha256": "4fa7f4e0aa8b25f1cfbb58b9723b6faee2003cbae31f83e39c651c1eadd0df9b"
+  },
+  {
+    "group_code": "G03",
+    "version": "G03-6.0.0",
+    "effective_from": "1405/07/01",
+    "effective_to": "1405/07/30",
+    "state": "implemented",
+    "rule_file": "rules-G03-6.0.0.json",
+    "personnel_scope_count": 0,
+    "sha256": "47c498b11f719ee47678af4b93984711b2b3c65b931dc25ce405598a4ab2228b"
+  },
+  {
+    "group_code": "G06",
+    "version": "G06-2.0.0",
+    "effective_from": "1405/07/01",
+    "effective_to": "",
+    "state": "implemented",
+    "rule_file": "rules-G06-2.0.0.json",
+    "personnel_scope_count": 0,
+    "sha256": "a9435c0b36c6710ffe7401c8a76bb3a1602c5997b949fd885ae7fe32b87cb271"
+  },
+  {
+    "group_code": "G09",
+    "version": "G09-WORD-OTHER-PENDING",
+    "effective_from": "1405/07/01",
+    "effective_to": "",
+    "state": "pending",
+    "rule_file": "",
+    "personnel_scope_count": 0
+  },
+  {
+    "group_code": "G09",
+    "version": "G09-7.0.0",
+    "effective_from": "1405/07/01",
+    "effective_to": "1405/07/30",
+    "state": "implemented",
+    "rule_file": "rules-G09-7.0.0.json",
+    "personnel_scope_count": 2,
+    "sha256": "149a200549cabad5e4662c90ec7b6a8a20e81955d92f23347df412f628fcd417"
+  },
+  {
+    "group_code": "G09",
+    "version": "G09-7.0.1",
+    "effective_from": "1405/07/01",
+    "effective_to": "1405/07/30",
+    "state": "implemented",
+    "rule_file": "rules-G09-7.0.1.json",
+    "personnel_scope_count": 1,
+    "sha256": "d90f827d6f79f85a13e8d369e22780bfc9b561e66d565666331ecb0b69c2e6df"
+  },
+  {
+    "group_code": "G09",
+    "version": "G09-7.2.0",
+    "effective_from": "1405/07/01",
+    "effective_to": "1405/07/30",
+    "state": "implemented",
+    "rule_file": "rules-G09-7.2.0.json",
+    "personnel_scope_count": 1,
+    "sha256": "43dd5938fcc09a976780bf7c76f3c5fe1836bcb80ea740922357d25df3a8ede9"
+  },
+  {
+    "group_code": "G08",
+    "version": "G08-1.2.1",
+    "effective_from": "1405/07/01",
+    "effective_to": "",
+    "state": "implemented",
+    "rule_file": "rules-G08-1.2.1.json",
+    "personnel_scope_count": 9,
+    "sha256": "8af75632e35b8ed568e42dd6aa710ebeb964595c02d869f2d969f735cb6c950d"
+  },
+  {
+    "group_code": "G09",
+    "version": "G09-8.0.0",
+    "effective_from": "1405/08/01",
+    "effective_to": "",
+    "state": "implemented",
+    "rule_file": "rules-G09-8.0.0.json",
+    "personnel_scope_count": 2,
+    "sha256": "ca849f48bdfa544e4b89133684093291e79d1bd662bb1f0e64048afdaa7fee67"
+  },
+  {
+    "group_code": "G09",
+    "version": "G09-8.0.1",
+    "effective_from": "1405/08/01",
+    "effective_to": "",
+    "state": "implemented",
+    "rule_file": "rules-G09-8.0.1.json",
+    "personnel_scope_count": 1,
+    "sha256": "f45c1416001b2e3cc09cbaf350372c0e0023fee4b285ec7b0dbbb3cf69e5148f"
+  },
+  {
+    "group_code": "G09",
+    "version": "G09-8.1.0",
+    "effective_from": "1405/08/01",
+    "effective_to": "",
+    "state": "implemented",
+    "rule_file": "rules-G09-8.1.0.json",
+    "personnel_scope_count": 1,
+    "sha256": "e00149e4fb21a44ccff644603e3fd03e054e0bfc5b1b09a91dd8851011e261fb"
+  },
+  {
+    "group_code": "G05",
+    "version": "G05-1.3.1",
+    "effective_from": "1405/07/30",
+    "effective_to": "1405/07/30",
+    "state": "implemented",
+    "rule_file": "rules-G05-1.3.1.json",
+    "personnel_scope_count": 1,
+    "sha256": "b39b6051661d0d96bbbae34410c11788c21b5c942b128a3a8c1cd91db72504eb"
+  },
+  {
+    "group_code": "G02",
+    "version": "G02-1.3.0",
+    "effective_from": "1405/08/01",
+    "effective_to": "",
+    "state": "implemented",
+    "rule_file": "rules-G02-1.3.0.json",
+    "personnel_scope_count": 0,
+    "sha256": "761d8f416e31dcf2a96209f91fd6da88d4236dc6403dd4a24042a0dc71abff75"
+  },
+  {
+    "group_code": "G03",
+    "version": "G03-7.0.0",
+    "effective_from": "1405/08/01",
+    "effective_to": "",
+    "state": "implemented",
+    "rule_file": "rules-G03-7.0.0.json",
+    "personnel_scope_count": 0,
+    "sha256": "082e2bc4ae187c822a5b8d57337586ba5820893937e6d4ff68fa7e0e2c3222b0"
+  },
+  {
+    "group_code": "G05",
+    "version": "G05-1.4.0",
+    "effective_from": "1405/08/01",
+    "effective_to": "",
+    "state": "implemented",
+    "rule_file": "rules-G05-1.4.0.json",
+    "personnel_scope_count": 0,
+    "sha256": "ebdc539042324d40ef731cc3e5f6f07864d1bee0340b40ac91a709fb495e7959"
+  },
+  {
+    "group_code": "G07",
+    "version": "G07-2.1.0",
+    "effective_from": "1405/08/01",
+    "effective_to": "",
+    "state": "implemented",
+    "rule_file": "rules-G07-2.1.0.json",
+    "personnel_scope_count": 0,
+    "sha256": "651e53008e356d4263ee315804ac6dbf118f9c44a0336f134cbf43c6af4d6bc6"
+  }
+]

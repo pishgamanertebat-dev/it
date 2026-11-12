@@ -1,0 +1,16 @@
+{
+  "recorded_commit": "39892553ca354e7ccb72c2ee96e6c22a6d8345d4",
+  "recorded_installed_tehran": "2026-11-11T11:20:47.017317+03:30",
+  "current_disk_matches": {
+    "tools/fleet/repairs/entry_ai_bale.py": true,
+    "tools/fleet/repairs/entry_draft.py": true,
+    "tools/fleet/repairs/entry_draft_store.py": true,
+    "tools/fleet/repairs/entry_service.py": true,
+    "tools/fleet/repairs/sync_service.py": true,
+    "tools/fleet/repairs/entry_delivery.py": true,
+    "tools/fleet/repairs/test_ai_daily_entry.py": true,
+    "tools/fleet/repairs/test_intent_regression.py": true,
+    "tools/fleet/repairs/test_two_step_entry.py": true
+  },
+  "loaded_code_proof": "historical deployment evidence plus fresh gateway state; no new live entry"
+}

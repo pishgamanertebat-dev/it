@@ -127,6 +127,17 @@ def dispatch(event, gateway, *, send, bale_approved=False):
         import time
         current_order = work_order.pending.get(('bale', actor, chat))
         order_open = bool(current_order and current_order.expires > time.time() and current_order.stage != 'RESULT')
+        from tools.fleet.repairs.maintenance_report_policy import enabled as maintenance_reports_enabled
+        if bale_approved and not order_open and maintenance_reports_enabled():
+            from tools.fleet.repairs.maintenance_report_bale import _handler as automatic_maintenance
+            result = automatic_maintenance.handle(event,gateway,send=send)
+            if result is not None:
+                for handler in (repairs_entry,maintenance_entry):
+                    session=handler.sessions.get((actor,chat))
+                    if session:
+                        session['paused']=True
+                        handler.persist()
+                return result
         if daily_ai is not None and order_open:
             from tools.fleet.repairs.entry_ai_bale import trace_route
             trace_route(event.text, 'work_order_open')

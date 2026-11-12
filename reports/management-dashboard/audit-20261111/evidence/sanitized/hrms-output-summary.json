@@ -1,0 +1,96 @@
+[
+  {
+    "path": "E:\\HRMS\\runtime\\bale\\85e879eaec95\\reports\\1405-07\\20261108T133213981382Z_66c02e5878c646ceab0f97df90856add\\manifest.json",
+    "state": "complete",
+    "period": "1405/07",
+    "finished_at_utc": "2026-11-08T13:32:16.871658+00:00",
+    "employees": 1,
+    "forms_generated": 1,
+    "hr_approval_state": "not_recorded",
+    "publication_policy": "publication-1",
+    "network_used": false,
+    "record_count": 30,
+    "rule_versions": {
+      "null": 7,
+      "G02-1.2.0": 23
+    },
+    "monthly_count": 1,
+    "monthly_field_names": [
+      "calendar_coverage_complete",
+      "final_overtime_minutes",
+      "final_payroll_deduction_minutes",
+      "final_work_minutes",
+      "incomplete_days",
+      "known_days",
+      "known_deduction_minutes",
+      "known_overtime_minutes",
+      "known_work_minutes",
+      "leave_days",
+      "missing_dates",
+      "month",
+      "personnel_id",
+      "publication",
+      "rows",
+      "shifts",
+      "unresolved_days"
+    ],
+    "publication_states": {
+      "draft": 1
+    }
+  },
+  {
+    "path": "E:\\HRMS\\runtime\\bale\\0fb13cb4e0de\\reports\\1405-07\\20261108T132816267071Z_0fa836e838f94fc89add95bacd917031\\manifest.json",
+    "state": "complete",
+    "period": "1405/07",
+    "finished_at_utc": "2026-11-08T13:28:20.824816+00:00",
+    "employees": 1,
+    "forms_generated": 1,
+    "hr_approval_state": "not_recorded",
+    "publication_policy": "publication-1",
+    "network_used": false,
+    "record_count": 30,
+    "rule_versions": {
+      "G02-1.2.0": 23,
+      "null": 7
+    },
+    "monthly_count": 1,
+    "monthly_field_names": [
+      "calendar_coverage_complete",
+      "final_overtime_minutes",
+      "final_payroll_deduction_minutes",
+      "final_work_minutes",
+      "incomplete_days",
+      "known_days",
+      "known_deduction_minutes",
+      "known_overtime_minutes",
+      "known_work_minutes",
+      "leave_days",
+      "missing_dates",
+      "month",
+      "personnel_id",
+      "publication",
+      "rows",
+      "shifts",
+      "unresolved_days"
+    ],
+    "publication_states": {
+      "draft": 1
+    }
+  },
+  {
+    "path": "E:\\HRMS\\runtime\\bale\\3dbf7210220c\\reports\\1405-07\\20261108T131220558993Z_36ab08d71fc047d591451dded03e06aa\\manifest.json",
+    "state": "complete",
+    "period": "1405/07",
+    "finished_at_utc": "2026-11-08T13:12:22.485192+00:00",
+    "employees": 0,
+    "forms_generated": 0,
+    "hr_approval_state": "not_recorded",
+    "publication_policy": "publication-1",
+    "network_used": false,
+    "record_count": 30,
+    "rule_versions": {},
+    "monthly_count": 0,
+    "monthly_field_names": [],
+    "publication_states": {}
+  }
+]

@@ -1,0 +1,6 @@
+{
+  "status": "unknown",
+  "query": "schtasks /Query /FO CSV /V",
+  "error": "The system cannot find the path specified",
+  "saved_definitions": "HRMS autostart XML and source install scripts only; live registration not verified"
+}

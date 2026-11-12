@@ -1,0 +1,12 @@
+﻿{
+    "observed_utc":  "2026-11-11T09:42:35.4393428Z",
+    "head":  "75b712cd531bc08aed566014e9a1d7e2e0d15e69",
+    "branch":  "hermes-v0.21.4-upgrade",
+    "tracked_diff":  [
+
+                     ],
+    "untracked_audit_folder":  "reports/management-dashboard/",
+    "initial_tracked_worktree":  "no tracked changes reported",
+    "inspection_limitation":  "git status warned about an unrelated work_orders/oil_change/.../manager_preview_mos4ziv3 directory being inaccessible",
+    "hrms_git":  "not a git repository"
+}

@@ -1,0 +1,143 @@
+{
+  "completed_utc": "2026-11-11T09:42:37.657884+00:00",
+  "status": "PASS",
+  "check_count": 28,
+  "failed": [],
+  "checks": {
+    "required_deliverables": {
+      "passed": true,
+      "detail": {
+        "count": 23
+      }
+    },
+    "reviewed_source_code_hashes_unchanged": {
+      "passed": true,
+      "detail": {
+        "files_checked": 228,
+        "drift": []
+      }
+    },
+    "source_index_evidence_hash_table_refreshed": {
+      "passed": true,
+      "detail": null
+    },
+    "json_parses": {
+      "passed": true,
+      "detail": []
+    },
+    "openapi_version": {
+      "passed": true,
+      "detail": null
+    },
+    "openapi_references_resolve": {
+      "passed": true,
+      "detail": {
+        "ref_count": 198,
+        "missing": []
+      }
+    },
+    "seventeen_read_routes": {
+      "passed": true,
+      "detail": 17
+    },
+    "unique_operation_ids": {
+      "passed": true,
+      "detail": null
+    },
+    "all_api_routes_authenticated": {
+      "passed": true,
+      "detail": null
+    },
+    "path_and_query_parameter_consistency": {
+      "passed": true,
+      "detail": null
+    },
+    "schemas_required_properties_consistent": {
+      "passed": true,
+      "detail": null
+    },
+    "complete_synthetic_api_examples_match_schema": {
+      "passed": true,
+      "detail": {
+        "count": 16,
+        "errors": []
+      }
+    },
+    "inline_openapi_examples_present": {
+      "passed": true,
+      "detail": null
+    },
+    "twenty_six_unique_sources": {
+      "passed": true,
+      "detail": null
+    },
+    "source_catalog_required_fields": {
+      "passed": true,
+      "detail": null
+    },
+    "dictionary_eighty_four_tables": {
+      "passed": true,
+      "detail": null
+    },
+    "live_hrms_not_misrepresented": {
+      "passed": true,
+      "detail": null
+    },
+    "eight_current_enabled_jobs_covered": {
+      "passed": true,
+      "detail": null
+    },
+    "all_eight_pages_specified": {
+      "passed": true,
+      "detail": null
+    },
+    "all_nine_hr_groups_covered": {
+      "passed": true,
+      "detail": null
+    },
+    "four_recovery_receipt_chains_match": {
+      "passed": true,
+      "detail": null
+    },
+    "four_recovery_artifact_source_bytes_match": {
+      "passed": true,
+      "detail": null
+    },
+    "markdown_local_links_resolve": {
+      "passed": true,
+      "detail": {
+        "documents": 21,
+        "broken": []
+      }
+    },
+    "markdown_code_fences_balanced": {
+      "passed": true,
+      "detail": []
+    },
+    "report_headers_have_audit_provenance": {
+      "passed": true,
+      "detail": []
+    },
+    "audit_script_syntax": {
+      "passed": true,
+      "detail": []
+    },
+    "no_raw_database_workbook_private_binary_copies": {
+      "passed": true,
+      "detail": []
+    },
+    "common_secret_patterns_absent": {
+      "passed": true,
+      "detail": []
+    }
+  },
+  "scope": "Documentation and static contract verification only; dashboard not built; domain/native tests not rerun",
+  "explicit_gaps": [
+    "HRMS live DB schema/count unreadable",
+    "WireGuard route and live task registrations unverified",
+    "legacy recipient/artifact proof incomplete",
+    "no new native Office or load benchmark"
+  ],
+  "formal_openapi_meta_schema_validator": "not installed or run; structural/schema/example checks are enumerated above",
+  "production_mutations_attempted_by_audit": 0
+}

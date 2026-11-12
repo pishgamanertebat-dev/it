@@ -1,0 +1,8 @@
+{
+  "observed_utc": "2026-11-11T08:53:00+00:00",
+  "status": "partial",
+  "method": "CIM query",
+  "error_code": "HRESULT_0x80041003",
+  "reason": "Access denied; no permissions changed",
+  "fallback": "infrastructure-native.json and network-processes.json"
+}

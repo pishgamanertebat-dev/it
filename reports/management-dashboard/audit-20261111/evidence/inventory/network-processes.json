@@ -1,0 +1,263 @@
+﻿{
+    "observed_utc":  "2026-11-11T08:56:08.1823342Z",
+    "interfaces":  [
+                       {
+                           "name":  "Tailscale",
+                           "description":  "Tailscale Tunnel",
+                           "status":  "Up",
+                           "addresses":  [
+                                             "fd7a:115c:a1e0::5c34:c104",
+                                             "fe80::d8ff:5060:f230:9168%6",
+                                             "100.85.193.3"
+                                         ]
+                       },
+                       {
+                           "name":  "Ethernet0",
+                           "description":  "Intel(R) 82574L Gigabit Network Connection",
+                           "status":  "Up",
+                           "addresses":  [
+                                             "fe80::2bd5:bf73:c898:f8b9%17",
+                                             "192.168.8.238"
+                                         ]
+                       },
+                       {
+                           "name":  "Local Area Connection",
+                           "description":  "TAP-Windows Adapter V9",
+                           "status":  "Down",
+                           "addresses":  [
+                                             "fe80::8b31:7822:f3b9:b8%13",
+                                             "169.254.146.81"
+                                         ]
+                       },
+                       {
+                           "name":  "Loopback Pseudo-Interface 1",
+                           "description":  "Software Loopback Interface 1",
+                           "status":  "Up",
+                           "addresses":  [
+                                             "::1",
+                                             "127.0.0.1"
+                                         ]
+                       }
+                   ],
+    "listeners":  [
+                      {
+                          "address":  "0.0.0.0",
+                          "port":  135
+                      },
+                      {
+                          "address":  "0.0.0.0",
+                          "port":  445
+                      },
+                      {
+                          "address":  "0.0.0.0",
+                          "port":  3389
+                      },
+                      {
+                          "address":  "0.0.0.0",
+                          "port":  5040
+                      },
+                      {
+                          "address":  "0.0.0.0",
+                          "port":  5357
+                      },
+                      {
+                          "address":  "0.0.0.0",
+                          "port":  7680
+                      },
+                      {
+                          "address":  "0.0.0.0",
+                          "port":  49664
+                      },
+                      {
+                          "address":  "0.0.0.0",
+                          "port":  49665
+                      },
+                      {
+                          "address":  "0.0.0.0",
+                          "port":  49666
+                      },
+                      {
+                          "address":  "0.0.0.0",
+                          "port":  49667
+                      },
+                      {
+                          "address":  "0.0.0.0",
+                          "port":  49668
+                      },
+                      {
+                          "address":  "0.0.0.0",
+                          "port":  49669
+                      },
+                      {
+                          "address":  "0.0.0.0",
+                          "port":  49670
+                      },
+                      {
+                          "address":  "100.85.193.3",
+                          "port":  33532
+                      },
+                      {
+                          "address":  "127.0.0.1",
+                          "port":  1001
+                      },
+                      {
+                          "address":  "127.0.0.1",
+                          "port":  28894
+                      },
+                      {
+                          "address":  "127.0.0.1",
+                          "port":  49709
+                      },
+                      {
+                          "address":  "127.0.0.1",
+                          "port":  51041
+                      },
+                      {
+                          "address":  "127.0.0.1",
+                          "port":  61052
+                      },
+                      {
+                          "address":  "127.0.0.1",
+                          "port":  63969
+                      },
+                      {
+                          "address":  "127.0.0.1",
+                          "port":  64153
+                      },
+                      {
+                          "address":  "192.168.8.238",
+                          "port":  139
+                      },
+                      {
+                          "address":  "::",
+                          "port":  135
+                      },
+                      {
+                          "address":  "::",
+                          "port":  445
+                      },
+                      {
+                          "address":  "::",
+                          "port":  3389
+                      },
+                      {
+                          "address":  "::",
+                          "port":  5357
+                      },
+                      {
+                          "address":  "::",
+                          "port":  7680
+                      },
+                      {
+                          "address":  "::",
+                          "port":  49664
+                      },
+                      {
+                          "address":  "::",
+                          "port":  49665
+                      },
+                      {
+                          "address":  "::",
+                          "port":  49666
+                      },
+                      {
+                          "address":  "::",
+                          "port":  49667
+                      },
+                      {
+                          "address":  "::",
+                          "port":  49668
+                      },
+                      {
+                          "address":  "::",
+                          "port":  49669
+                      },
+                      {
+                          "address":  "::",
+                          "port":  49670
+                      },
+                      {
+                          "address":  "::1",
+                          "port":  42050
+                      },
+                      {
+                          "address":  "fd7a:115c:a1e0::5c34:c104",
+                          "port":  46664
+                      }
+                  ],
+    "processes":  [
+                      {
+                          "Id":  28352,
+                          "ProcessName":  "EXCEL",
+                          "WorkingSet64":  137756672,
+                          "CPU":  null
+                      },
+                      {
+                          "Id":  1764,
+                          "ProcessName":  "python",
+                          "WorkingSet64":  3112960,
+                          "CPU":  0.03125
+                      },
+                      {
+                          "Id":  17764,
+                          "ProcessName":  "python",
+                          "WorkingSet64":  25169920,
+                          "CPU":  1148.890625
+                      },
+                      {
+                          "Id":  20872,
+                          "ProcessName":  "python",
+                          "WorkingSet64":  3485696,
+                          "CPU":  0
+                      },
+                      {
+                          "Id":  36740,
+                          "ProcessName":  "python",
+                          "WorkingSet64":  269176832,
+                          "CPU":  146.53125
+                      },
+                      {
+                          "Id":  43220,
+                          "ProcessName":  "python",
+                          "WorkingSet64":  52232192,
+                          "CPU":  3.640625
+                      },
+                      {
+                          "Id":  50712,
+                          "ProcessName":  "python",
+                          "WorkingSet64":  3485696,
+                          "CPU":  0
+                      },
+                      {
+                          "Id":  10888,
+                          "ProcessName":  "pythonw",
+                          "WorkingSet64":  1449984,
+                          "CPU":  0.015625
+                      },
+                      {
+                          "Id":  11072,
+                          "ProcessName":  "pythonw",
+                          "WorkingSet64":  24121344,
+                          "CPU":  90763.59375
+                      },
+                      {
+                          "Id":  13860,
+                          "ProcessName":  "pythonw",
+                          "WorkingSet64":  9732096,
+                          "CPU":  1.28125
+                      },
+                      {
+                          "Id":  23716,
+                          "ProcessName":  "pythonw",
+                          "WorkingSet64":  4038656,
+                          "CPU":  0.03125
+                      }
+                  ],
+    "services":  [
+                     {
+                         "Name":  "WinRM",
+                         "Status":  1,
+                         "StartType":  3
+                     }
+                 ]
+}

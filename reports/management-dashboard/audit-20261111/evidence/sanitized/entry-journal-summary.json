@@ -1,0 +1,69 @@
+{
+  "observed_utc": "2026-11-11T09:01:29.380695+00:00",
+  "K-ENTRY": {
+    "edits": [
+      {
+        "status": "succeeded",
+        "count": 43
+      }
+    ],
+    "draft_states": [
+      {
+        "status": "EDIT",
+        "count": 1
+      }
+    ],
+    "latest_fault_sync_error": [
+      {
+        "created": "2026-11-11T06:48:34.944009+00:00",
+        "error": "فایل اکسل باز یا در حال ویرایش است؛ آن را ببندید و دوباره تأیید کنید."
+      }
+    ]
+  },
+  "K-MAINT-ENTRY": {
+    "edits": [
+      {
+        "status": "succeeded",
+        "count": 2
+      }
+    ],
+    "maintenance_failures": [
+      {
+        "identity": "fd9389c3c2b05b1bd8ed18974e96a4137f7393eebbd38f32f04438a565e46100",
+        "reason": "MAINTENANCE_SYNC_UNVERIFIED_HISTORY",
+        "first_seen": "2026-11-07T11:00:21.196569+00:00",
+        "last_seen": "2026-11-07T11:48:21.120531+00:00",
+        "attempts": 25,
+        "local_hash": "841da662ce91f2973cef091a922a7caa74ee82c62502a9c2aae8f1c1e6e20e13",
+        "incoming_hash": "841da662ce91f2973cef091a922a7caa74ee82c62502a9c2aae8f1c1e6e20e13"
+      },
+      {
+        "identity": "668a08f0dbbcebe021e8b57a4ffba1be301dec332cf350b474391a5592ef8a62",
+        "reason": "MAINTENANCE_SYNC_STRUCTURE_CONFLICT: sheet=متفرقه field=properties",
+        "first_seen": "2026-11-09T04:05:03.458965+00:00",
+        "last_seen": "2026-11-10T04:44:29.353305+00:00",
+        "attempts": 407,
+        "local_hash": "841da662ce91f2973cef091a922a7caa74ee82c62502a9c2aae8f1c1e6e20e13",
+        "incoming_hash": "e0ee7adf604ef87e0f803153cccdc91aefaf308c2675ebc983659de0a351744a"
+      },
+      {
+        "identity": "1faddb00b6515919375fb9bb461aca5869675649c44b2423e16abb654131a76a",
+        "reason": "MAINTENANCE_SYNC_STRUCTURE_CONFLICT: sheet=متفرقه field=properties",
+        "first_seen": "2026-11-10T05:07:21.214951+00:00",
+        "last_seen": "2026-11-10T07:15:12.168485+00:00",
+        "attempts": 63,
+        "local_hash": "841da662ce91f2973cef091a922a7caa74ee82c62502a9c2aae8f1c1e6e20e13",
+        "incoming_hash": "78fe91effe2d463a679167c583b11cf94649a9916c983133f6294de18adc3ae0"
+      },
+      {
+        "identity": "8ca684ca40bfb395299d215625719251aeeb6c3e71006eba765a9cecbbb8b27f",
+        "reason": "MAINTENANCE_SYNC_HISTORICAL_CELL_CONFLICT: sheet=705 cell=D23",
+        "first_seen": "2026-11-10T15:16:19.457227+00:00",
+        "last_seen": "2026-11-11T09:01:11.892399+00:00",
+        "attempts": 198,
+        "local_hash": "78fe91effe2d463a679167c583b11cf94649a9916c983133f6294de18adc3ae0",
+        "incoming_hash": "c1ff0dde7df5599312d55f0bcc24a33ed19005e12a7ad6882cc618a10d894f41"
+      }
+    ]
+  }
+}

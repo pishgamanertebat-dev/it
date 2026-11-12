@@ -14,6 +14,7 @@ DIGITS=str.maketrans('۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩','012345678901234
 COMPANY='شرکت صنعتی و معدنی پیشگامان ارتباط هشت بهشت'
 TITLE='گزارش روزانه تعمیرات ماشین‌آلات'
 REPORT_COLUMNS=['تاریخ','کد مکانیزم','نام مکانیک / تعمیرکار','نوع خرابی','قطعات مصرفی']
+RECORDED_COLUMNS=['تاریخ','کد مکانیزم','ثبت‌کننده','نام مکانیک / تعمیرکار','نوع خرابی','قطعات مصرفی']
 logger=logging.getLogger(__name__)
 
 def output_columns(columns, rule):
@@ -30,8 +31,12 @@ def output_columns(columns, rule):
             found=[c for c,label in columns if label in labels]
             if len(found)!=1:raise ValueError('Missing or ambiguous report field')
             mapped.append(found[0])
-    if (not isinstance(mapped,list) or len(mapped)!=5 or any(type(c)!=int for c in mapped)
-            or len(set(mapped))!=5 or set(mapped)!={c for c,_ in columns}
+    recorder=rule.get('recorder_column')
+    count=6 if recorder is not None else 5
+    allowed={c for c,_ in columns} | ({recorder} if recorder is not None else set())
+    if (not isinstance(mapped,list) or len(mapped)!=count or any(type(c)!=int for c in mapped)
+            or len(set(mapped))!=count or set(mapped)!=allowed
+            or (recorder is not None and mapped[2]!=recorder)
             or mapped[0]!=next(c for c,label in columns if label=='تاریخ')):
         raise ValueError('Invalid explicit report column mapping')
     return mapped
@@ -113,7 +118,8 @@ def source_snapshot(reader=None):
 def scan(data, target, *, layout=None):
     """Scan every sheet and validate even non-matching rows; never carry a blank date."""
     target=exact_date(target)
-    rules=(layout or json.loads(LAYOUT.read_text(encoding='utf-8')))['sheets']
+    configuration=layout or json.loads(LAYOUT.read_text(encoding='utf-8'))
+    rules=configuration['sheets']
     zip_safe(data)
     book=openpyxl.load_workbook(io.BytesIO(data),data_only=False,keep_links=False)
     devices=[];dates=set();excluded=[];undated=0;warnings=[];discovered=[]
@@ -128,13 +134,25 @@ def scan(data, target, *, layout=None):
             r=None
             if s.max_row>10000 or s.max_column>32:raise ValueError('Worksheet dimensions exceed reporting bounds: '+s.title)
             new=s.title not in rules
-            rule=discover_rule(s,rules) if new else rules[s.title]
+            inspected=configuration.get('additional_schema_variants',{}).get(s.title)
+            if new and inspected and {c.column:c.value for c in s[inspected['header_row']] if c.value is not None}==dict(inspected['columns']):
+                rule=inspected
+            else:
+                rule=discover_rule(s,rules) if new else rules[s.title]
             if new:discovered.append(s.title)
+            h=rule['header_row']
+            actual={c.column:c.value for c in s[h] if c.value is not None}
+            # Template transitions are explicitly inspected per sheet. An extra
+            # unknown column still fails, and legacy snapshots keep their schema.
+            if actual != dict(rule['columns']):
+                variants=[v for v in rule.get('schema_variants',[]) if actual==dict(v['columns'])]
+                if len(variants)==1:rule={**rule,**variants[0]}
             if rule.get('exclude'):
                 excluded.append(s.title);continue
             # Descriptive names identify a section; explicit record codes identify its equipment.
             # The first activity establishes the code, and every later activity must agree.
-            code=None if rule.get('code_from_records') else sheet_code(s.title,rule)
+            miscellaneous=rule.get('miscellaneous') is True
+            code=None if miscellaneous or rule.get('code_from_records') else sheet_code(s.title,rule)
             h=rule['header_row'];columns=rule['columns'];indices=[c for c,_ in columns]
             expected={c:label for c,label in columns}
             actual={c.column:c.value for c in s[h] if c.value is not None}
@@ -156,7 +174,8 @@ def scan(data, target, *, layout=None):
                 cells=list(s[r]);values={c.column:c.value for c in cells if c.value is not None}
                 if not values:continue
                 if values==expected:continue  # Exact repeated header only.
-                if set(values)-set(indices):raise ValueError('Uninspected nonempty helper column: '+s.title)
+                allowed_indices=set(indices)|({rule['recorder_column']} if 'recorder_column' in rule else set())
+                if set(values)-allowed_indices:raise ValueError('Uninspected nonempty helper column: '+s.title)
                 if any(c.data_type in {'f','e'} for c in cells if c.value is not None):raise ValueError(f'Formula/error requires separate inspection: {s.title} row {r}')
                 raw=s.cell(r,dc).value
                 if raw is None and r not in merged_dates:
@@ -169,11 +188,11 @@ def scan(data, target, *, layout=None):
                 if not any(display(values.get(c)) for c in indices if c!=dc):continue
                 raw_code=values.get(report_indices[1])
                 record_code=mechanism_code(raw_code)
-                if code is None:
+                if not miscellaneous and code is None:
                     if record_code is None:
                         raise ValueError(f'{s.title} row {r}, column {report_indices[1]}: explicit mechanism code required, found {raw_code!r} (date {day})')
                     code=record_code
-                if record_code!=code:
+                if not miscellaneous and record_code!=code:
                     detail=f'{s.title} row {r}, column {report_indices[1]}: mechanism code {raw_code!r} does not match sheet code {code} (date {day})'
                     if new or day==target:
                         raise RecordIdentityMismatch(detail,sheet=s.title,row=r,column=report_indices[1])
@@ -184,16 +203,18 @@ def scan(data, target, *, layout=None):
                     vals=[day if c==dc else display(values.get(c)) for c in report_indices]
                     if any(len(v)>20000 for v in vals):raise ValueError('Cell text exceeds rendering bounds')
                     matched.append({'source_row':r,'values':vals})
-            title_mismatch=(titles!=rule['title_cells'] or any(title_code(v)!=code for _,v in titles
-                if not rule.get('code_from_records') or title_code(v) is not None))
+            title_mismatch=(not miscellaneous and (titles!=rule['title_cells'] or any(title_code(v)!=code for _,v in titles
+                if not rule.get('code_from_records') or title_code(v) is not None)))
             if title_mismatch:
                 warn('device_title_mismatch',s.title,source_titles=titles,expected_code=code)
                 if not identity_note:
                     basis='کد مکانیزم رکوردها: ' if rule.get('code_from_records') else 'شناسه Sheet و کد رکوردها: '
                     identity_note='عنوان منبع: '+ ' / '.join(display(v) for _,v in titles)+'؛ '+basis+str(code)
             if matched:
+                labels=list(RECORDED_COLUMNS if 'recorder_column' in rule else REPORT_COLUMNS)
+                if miscellaneous:labels[1]='قسمت'
                 devices.append({'sheet':s.title,'device':rule['device'],'identity_note':identity_note,
-                    'columns':list(REPORT_COLUMNS),'rows':matched})
+                    'columns':labels,'rows':matched})
         return {'date':target,'devices':devices,'devices_matched':len(devices),'rows_matched':sum(len(d['rows']) for d in devices),
             'sheets_scanned':len(book.sheetnames),'excluded_sheets':excluded,'undated_placeholders_skipped':undated,
             'source_sha256':hashlib.sha256(data).hexdigest(),'available_dates':sorted(dates),
@@ -208,6 +229,7 @@ def scan(data, target, *, layout=None):
 FONT_DIR=Path('C:/Windows/Fonts')
 CSS='''@font-face{font-family:Maintenance;src:url(tahoma.ttf)} @font-face{font-family:Maintenance;src:url(tahomabd.ttf);font-weight:bold} body{font-family:Maintenance;font-size:10px;color:#173448;margin:0} h1{font-size:18px;margin:4px 0} h2{font-size:13px;margin:4px 0} p{margin:3px 0} table{border-collapse:collapse;width:100%;table-layout:fixed} td,th{border:0.6px solid #c3ced5;padding:6px 4px;vertical-align:top;text-align:right} th{background:#173448;color:white;font-size:10px}'''
 WIDTHS=[17,16,14,36,17]
+RECORDED_WIDTHS=[14,11,14,15,31,15]
 
 def wrap_cell(value, width, font):
     """Wrap every column, including tokens without spaces, without changing source cells."""
@@ -247,7 +269,7 @@ def render(report, output, *, test_sample=False):
     location={}
     archive=fitz.Archive(str(FONT_DIR))
     doc=fitz.open();page=None;y=0;bottom=790
-    fragments=[]
+    fragments=[];widths=WIDTHS
     def insert(p,body,top,height,left=30,right=565):
         spare,scale=p.insert_htmlbox(fitz.Rect(left,top,right,top+height),body,css=CSS,archive=archive,scale_low=1)
         if spare<0 or scale!=1:raise ReportFailure('pdf_layout',stage='layout',**location)
@@ -264,7 +286,7 @@ def render(report, output, *, test_sample=False):
         cache_key=(tuple(values),header)
         if cache_key in height_cache:return height_cache[cache_key]
         heights=[]
-        for index,(value,width) in enumerate(zip(values,WIDTHS),1):
+        for index,(value,width) in enumerate(zip(values,widths),1):
             location['column']=index
             with fitz.open() as probe:
                 p=probe.new_page(width=595.276,height=841.89)
@@ -274,7 +296,7 @@ def render(report, output, *, test_sample=False):
     def draw_row(values,top,rh,header=False,shaded=False,record=None):
         x=565
         rects=[]
-        for value,width in zip(values,WIDTHS):
+        for value,width in zip(values,widths):
             left=x-535*width/100
             fill=(.09,.20,.28) if header else ((.94,.96,.98) if shaded else (1,1,1))
             page.draw_rect(fitz.Rect(left,top,x,top+rh),color=(.76,.81,.84),fill=fill,width=.5)
@@ -287,24 +309,27 @@ def render(report, output, *, test_sample=False):
     def new_page():
         nonlocal page,y
         page=doc.new_page(width=595.276,height=841.89)
-        header=f'<p dir="rtl">{COMPANY}</p><h1 dir="rtl">{TITLE}</h1><p dir="rtl">تاریخ: {report["date"]}</p><p dir="rtl">تعداد دستگاه‌های دارای فعالیت تعمیراتی: {report["devices_matched"]}</p>'
+        header=f'<p dir="rtl">{COMPANY}</p><h1 dir="rtl">{TITLE}</h1><p dir="rtl">تاریخ: {report["date"]}</p><p dir="rtl">تعداد دستگاه‌ها و بخش‌های دارای فعالیت تعمیراتی: {report["devices_matched"]}</p>'
         if test_sample:header+='<p dir="rtl" style="color:#a33">نمونه آزمایشی قالب گزارش</p><p dir="rtl">تاریخ داده: '+report['date']+'</p>'
         y=30+insert(page,header,30,150)+12
     try:
         new_page()
         for device in report['devices']:
+            widths=RECORDED_WIDTHS if len(device['columns'])==6 else WIDTHS
+            if len(device['columns'])!=len(widths) or any(len(row['values'])!=len(widths) for row in device['rows']):
+                raise ValueError('Unexpected PDF column count')
             location.clear();location.update(sheet=device['sheet'])
             title='<h2 dir="rtl">دستگاه: '+html.escape(device['device'])+'</h2><p dir="rtl">Sheet: '+html.escape(device['sheet'])+'</p>'
             if device['identity_note']:title+='<p dir="rtl">'+html.escape(device['identity_note'])+'</p>'
             th=height(title);hh=row_height(device['columns'],True)
             location['row']=device['rows'][0]['source_row']
             first=row_height([wrap_cell(v,535*w/100-10,fonts[False]).split('\n')[0]
-                              for v,w in zip(device['rows'][0]['values'],WIDTHS)])
+                              for v,w in zip(device['rows'][0]['values'],widths)])
             if y+th+hh+first>bottom:new_page()
             y+=insert(page,title,y,th+0.2);y+=draw_row(device['columns'],y,hh,header=True)
             for i,row in enumerate(device['rows']):
                 location['row']=row['source_row']
-                lines=[wrap_cell(v,535*w/100-10,fonts[False]).split('\n') for v,w in zip(row['values'],WIDTHS)]
+                lines=[wrap_cell(v,535*w/100-10,fonts[False]).split('\n') for v,w in zip(row['values'],widths)]
                 offset=0;total=max(map(len,lines))
                 while offset<total:
                     def chunk(count):

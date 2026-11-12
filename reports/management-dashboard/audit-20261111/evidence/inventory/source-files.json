@@ -1,0 +1,843 @@
+[
+  {
+    "path": "E:\\KomatsoAI\\settings\\ai_daily_entry.json",
+    "bytes": 25,
+    "modified_utc": "2026-11-09T11:38:11.104265+00:00",
+    "sha256": "d04a75314cdc173966a098cfdbe83b107b1427c8625814855cce326d54fcee9a"
+  },
+  {
+    "path": "E:\\KomatsoAI\\settings\\bale_developer_policy.md",
+    "bytes": 2015,
+    "modified_utc": "2026-09-21T08:11:11.459857+00:00"
+  },
+  {
+    "path": "E:\\KomatsoAI\\settings\\bale_reply_menus.json",
+    "bytes": 604,
+    "modified_utc": "2026-11-09T11:38:11.105259+00:00",
+    "sha256": "be8fcf249611fe82b3b2a9d23908ea55e2ed413e56001461b13ac38f8d9421c2"
+  },
+  {
+    "path": "E:\\KomatsoAI\\settings\\maintenance_entry.json",
+    "bytes": 121,
+    "modified_utc": "2026-11-09T11:38:11.106263+00:00",
+    "sha256": "d1276716f670dc9499ed7088c17cdadeefcc8cba3c992973572ba6e3df9db13c"
+  },
+  {
+    "path": "E:\\KomatsoAI\\settings\\repairs_entry.json",
+    "bytes": 403,
+    "modified_utc": "2026-11-09T11:38:11.107266+00:00",
+    "sha256": "18b2e8d9778971fd905a3b7e034063276d9b05eda232c11273555205d900739d"
+  },
+  {
+    "path": "E:\\KomatsoAI\\settings\\schedules.yaml",
+    "bytes": 3286,
+    "modified_utc": "2026-11-10T08:30:43.571512+00:00",
+    "sha256": "689196a7c3357eb0a6f6a3484beea3a5d440fb8e19cd12ddb849968a92418481"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\attendance-policy-1405-07-v7.json",
+    "bytes": 3365,
+    "modified_utc": "2026-10-31T05:24:55.001181+00:00",
+    "sha256": "a9dd191a5c67695fb2701bdd867520c991e036c6db25a7548ed43a1640313d7a"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\attendance-policy-1405-07-v8.json",
+    "bytes": 4286,
+    "modified_utc": "2026-10-31T09:23:35.308911+00:00",
+    "sha256": "d9fdd9145b950c5d8472fa21a893466e0716df4f825a5406c001bb3c7a47a693"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\attendance-policy-1405-07-v9.json",
+    "bytes": 4542,
+    "modified_utc": "2026-10-31T11:47:04.507321+00:00",
+    "sha256": "7a91dbb160d3f945541fe5f7129db0283dbe65dc5ca5d08beea29dcc9a7d432f"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\g08-preparation-20261102.json",
+    "bytes": 1428,
+    "modified_utc": "2026-11-02T11:03:44.131281+00:00",
+    "sha256": "72e4865c8fbe2ab5fc6d2371725f3ebd9cd8716e76f55d91b7a3b486d998ec72"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\pending_decisions.json",
+    "bytes": 4969,
+    "modified_utc": "2026-11-02T11:03:44.138289+00:00",
+    "sha256": "55331eae49eab864db132f9487beddf2cdf2bd97fa3adf77499f1222d7f7b5ec"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\policy.json",
+    "bytes": 432,
+    "modified_utc": "2026-11-02T12:07:06.343328+00:00",
+    "sha256": "bd9de3831a9cab21e5757c46d0bbe2154035ef784ba89054481478049ffee18d"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\README.fa.md",
+    "bytes": 32031,
+    "modified_utc": "2026-11-10T11:22:31.398200+00:00"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\rule_versions-before-g01-fixed-20261031.csv",
+    "bytes": 2870,
+    "modified_utc": "2026-10-31T08:37:40.804225+00:00",
+    "sha256": "915c99e5c19a74f167d01fd8d0150ceb2f4a969220b2fb7447b7663e31c594fb"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\rule_versions-before-g02-g03-g05-g07-20261110.csv",
+    "bytes": 7203,
+    "modified_utc": "2026-11-08T11:15:23.508985+00:00",
+    "sha256": "4e0d451013b5b3aa3f18a316e4862e11a2679caa8d3ed727dd0c17e6cca4a967"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\rule_versions-before-g03-cutoff-20261108.csv",
+    "bytes": 7249,
+    "modified_utc": "2026-11-08T11:15:23.518975+00:00",
+    "sha256": "2b67eeb1d2bd06e81430322511ec3a111505406b6e3ab254c042281d32e8b718"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\rule_versions-before-g03-schedule-20261107.csv",
+    "bytes": 6792,
+    "modified_utc": "2026-11-07T08:07:49.311650+00:00",
+    "sha256": "b302c0f3f6b0cf5c0b2833dc2e5f7810316175ef71014b9d3db0760d20155a99"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\rule_versions-before-g08-accounting-20261103.csv",
+    "bytes": 6785,
+    "modified_utc": "2026-11-03T06:20:09.624884+00:00",
+    "sha256": "8a045bafe600dbd32af8ad11b100c5f1f7aa842ef4ba1b842daad1dab9f10b3b"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\rule_versions-before-g08-deduction-20261103.csv",
+    "bytes": 7029,
+    "modified_utc": "2026-11-03T06:20:09.624884+00:00",
+    "sha256": "709e7c1f4419b24cece5339c77e7af5fe8f341e767b177b62101b8bad68ef93d"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\rule_versions-before-no-drop-20261103.csv",
+    "bytes": 7099,
+    "modified_utc": "2026-11-03T10:08:45.565393+00:00",
+    "sha256": "e5170c654ceec7e55642890b1e70e40a1ce4c0d483064aeef92f86c2ba8ea940"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\rule_versions-before-word-20261031.csv",
+    "bytes": 2478,
+    "modified_utc": "2026-10-31T05:32:57.765691+00:00",
+    "sha256": "c9d00b0f0d1d9f70260669c81db4d05c16f6643783a6479f86f7595f13982574"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\rule_versions.csv",
+    "bytes": 8474,
+    "modified_utc": "2026-11-10T11:20:41.319786+00:00",
+    "sha256": "565cbce33358d7bba129d7328b1e0f38c286d35fbfabe7f470d6398236be1656"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\rules-G01-1.0.0.json",
+    "bytes": 676,
+    "modified_utc": "2026-10-31T05:11:13.818694+00:00",
+    "sha256": "6ee78b1db8819ee70cbc1f495b5cd89426430aa6d6813ffa3e5b80efd47357ec"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\rules-G01-5.0.0.json",
+    "bytes": 1222,
+    "modified_utc": "2026-10-31T05:32:57.722417+00:00",
+    "sha256": "58751245bf61f59584349b27517fcf91c4ebe62f9671e6fa0a94630bf89cf24a"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\rules-G01-6.0.0.json",
+    "bytes": 1080,
+    "modified_utc": "2026-10-31T05:32:57.753615+00:00",
+    "sha256": "ae6477cccf310635d0c2ea62b9d5492a2ada4b6542b20e24a11e6be0a4729128"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\rules-G01-7.0.0.json",
+    "bytes": 1382,
+    "modified_utc": "2026-10-31T08:42:41.808566+00:00",
+    "sha256": "2c10c6278be2ffe41ce4e4b1aed032fe1e127b9e6777e9a668b3029471ed2ddc"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\rules-G02-1.0.0.json",
+    "bytes": 1431,
+    "modified_utc": "2026-10-31T05:22:38.227412+00:00",
+    "sha256": "9d9b80b33c30011948edcf8162864464d85402277b9b8887565b14cc940a29c1"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\rules-G02-1.1.0.json",
+    "bytes": 938,
+    "modified_utc": "2026-10-31T05:22:38.233412+00:00",
+    "sha256": "25ceb801d44ce07c4ccd7af12585e46b6e4bdf46daaba907568e24090c586baa"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\rules-G02-1.2.0.json",
+    "bytes": 966,
+    "modified_utc": "2026-10-31T05:31:18.227566+00:00",
+    "sha256": "4fa7f4e0aa8b25f1cfbb58b9723b6faee2003cbae31f83e39c651c1eadd0df9b"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\rules-G02-1.3.0.json",
+    "bytes": 1247,
+    "modified_utc": "2026-11-10T11:20:14.111423+00:00",
+    "sha256": "761d8f416e31dcf2a96209f91fd6da88d4236dc6403dd4a24042a0dc71abff75"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\rules-G03-2.0.0.json",
+    "bytes": 975,
+    "modified_utc": "2026-10-31T05:22:38.242712+00:00",
+    "sha256": "f67571c3f812542479e09d693b6db27807d5cf8d89101195e69954a91c8e3be6"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\rules-G03-3.0.0.json",
+    "bytes": 906,
+    "modified_utc": "2026-10-31T05:31:18.244558+00:00",
+    "sha256": "eeb443b2022b7034034cf21d7ba1c359989345fdfc31787fb366bdadfebb55d2"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\rules-G03-4.0.0.json",
+    "bytes": 1420,
+    "modified_utc": "2026-11-01T06:48:57.508840+00:00",
+    "sha256": "b16802fb8bfcea46abc4bbb6c76410021bdae2f0780b616b5a14c0d69208dc39"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\rules-G03-5.0.0.json",
+    "bytes": 1438,
+    "modified_utc": "2026-11-07T08:07:49.311650+00:00",
+    "sha256": "4752f1ebf8c2b3f92050acf4a4a1d9162ebb48ad2e6764e43e0de3132944a244"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\rules-G03-6.0.0.json",
+    "bytes": 1483,
+    "modified_utc": "2026-11-08T11:15:23.513986+00:00",
+    "sha256": "47c498b11f719ee47678af4b93984711b2b3c65b931dc25ce405598a4ab2228b"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\rules-G03-7.0.0.json",
+    "bytes": 1253,
+    "modified_utc": "2026-11-10T11:20:14.128958+00:00",
+    "sha256": "082e2bc4ae187c822a5b8d57337586ba5820893937e6d4ff68fa7e0e2c3222b0"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\rules-G04-1.0.0.json",
+    "bytes": 1569,
+    "modified_utc": "2026-10-31T05:22:38.272919+00:00",
+    "sha256": "eb74aceb1cd40d9eacb39a0c21ab964bc3f7cc38264e52c276bf1db7e5be113a"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\rules-G05-1.1.0.json",
+    "bytes": 814,
+    "modified_utc": "2026-10-31T05:11:13.811699+00:00",
+    "sha256": "eced8691e64c5a8b151317f7ea8166406d6f7ec7ed80eb5a1fd6fe400689fe48"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\rules-G05-1.3.0.json",
+    "bytes": 816,
+    "modified_utc": "2026-10-31T05:22:38.293349+00:00",
+    "sha256": "e34c5c7315da1e171a1c916dafd57d0a1742c62ad110a7cf761e93c5a22d30b9"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\rules-G05-1.3.1.json",
+    "bytes": 1064,
+    "modified_utc": "2026-11-08T08:49:21.443923+00:00",
+    "sha256": "b39b6051661d0d96bbbae34410c11788c21b5c942b128a3a8c1cd91db72504eb"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\rules-G05-1.4.0.json",
+    "bytes": 1286,
+    "modified_utc": "2026-11-10T11:20:14.149588+00:00",
+    "sha256": "ebdc539042324d40ef731cc3e5f6f07864d1bee0340b40ac91a709fb495e7959"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\rules-G06-1.0.1.json",
+    "bytes": 1101,
+    "modified_utc": "2026-10-31T05:22:38.311882+00:00",
+    "sha256": "244cd9802ff040321077abafd9ad68bc1a329ac904ac5b551fa2f6e0b1e1438c"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\rules-G06-2.0.0.json",
+    "bytes": 929,
+    "modified_utc": "2026-10-31T05:31:18.255636+00:00",
+    "sha256": "a9435c0b36c6710ffe7401c8a76bb3a1602c5997b949fd885ae7fe32b87cb271"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\rules-G07-1.0.0.json",
+    "bytes": 735,
+    "modified_utc": "2026-10-31T05:11:13.806699+00:00",
+    "sha256": "bcfc0345aeaf35b53ed6becabd18288f5d63ace498fddcb65fc876b7e22c8dfa"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\rules-G07-2.0.0.json",
+    "bytes": 1013,
+    "modified_utc": "2026-10-31T05:22:38.334876+00:00",
+    "sha256": "8a5ad4c2a39496cca82435ab61a6d906bb71bb544838815648e8ace6070d9d28"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\rules-G07-2.1.0.json",
+    "bytes": 1185,
+    "modified_utc": "2026-11-10T11:20:14.169604+00:00",
+    "sha256": "651e53008e356d4263ee315804ac6dbf118f9c44a0336f134cbf43c6af4d6bc6"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\rules-G08-1.0.0.json",
+    "bytes": 1587,
+    "modified_utc": "2026-11-02T11:03:44.197285+00:00",
+    "sha256": "e5f48aa7195245ed329e04610ebf800ce69aa9209d6c174b665cdff12e1e4443"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\rules-G08-1.1.0.json",
+    "bytes": 1405,
+    "modified_utc": "2026-11-03T06:20:09.609249+00:00",
+    "sha256": "456118becfee1cbc314997cb46703b8865938a21b5de3c53a4149732bc8ca69a"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\rules-G08-1.2.0.json",
+    "bytes": 1707,
+    "modified_utc": "2026-11-03T08:13:02.330027+00:00",
+    "sha256": "56907bb091ee12891dfb79fca8d2cd0fbd30c11cb9b3b3b14a190bc59962de43"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\rules-G08-1.2.1.json",
+    "bytes": 2038,
+    "modified_utc": "2026-11-03T10:08:45.565393+00:00",
+    "sha256": "8af75632e35b8ed568e42dd6aa710ebeb964595c02d869f2d969f735cb6c950d"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\rules-G09-2.0.0.json",
+    "bytes": 1637,
+    "modified_utc": "2026-10-31T05:22:38.353191+00:00",
+    "sha256": "6188b36168821e4124733f85a7f03f1e7fc25a9d3b70fc70e3ecb901f7d33b7a"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\rules-G09-3.0.0.json",
+    "bytes": 1772,
+    "modified_utc": "2026-10-31T05:22:38.377354+00:00",
+    "sha256": "6dc2ed7b5ad0a7339a449b3f467237055f304fbe8c39798b6fe051f5981619e5"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\rules-G09-4.0.0.json",
+    "bytes": 1780,
+    "modified_utc": "2026-10-31T05:55:07.077262+00:00",
+    "sha256": "7d45263e52024f6e97e34ff5b425da35352da95f42899da94246b47e614de4ad"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\rules-G09-4.1.0.json",
+    "bytes": 1774,
+    "modified_utc": "2026-10-31T05:55:07.079264+00:00",
+    "sha256": "44d5653c8461bd5bdbbdb75f06f1c2c67f7efe377741e6e1ccd1027fc632f93e"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\rules-G09-5.0.0.json",
+    "bytes": 2159,
+    "modified_utc": "2026-11-01T13:15:42.255567+00:00",
+    "sha256": "887c4bd0e19c89375c8a4fae999eae2d84242b088a2eae38775c4d8f6984373e"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\rules-G09-5.0.1.json",
+    "bytes": 2269,
+    "modified_utc": "2026-11-01T13:15:42.255567+00:00",
+    "sha256": "084bf3e81c2d71f69012f68fb3d77c93e4e0dc17305d1feb561eef8ecae69168"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\rules-G09-5.1.0.json",
+    "bytes": 2151,
+    "modified_utc": "2026-11-01T13:15:42.271147+00:00",
+    "sha256": "7b0baed4faeae67b6e9b046dc4550e10f4acea1cc81cd7d1fee69e180e312e1e"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\rules-G09-5.1.1.json",
+    "bytes": 2261,
+    "modified_utc": "2026-11-01T13:15:42.271147+00:00",
+    "sha256": "6155aa542897ba0119132e118202ce3fdc5951f9cff739999a8877d91d889169"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\rules-G09-5.2.0.json",
+    "bytes": 2255,
+    "modified_utc": "2026-11-01T13:15:42.271147+00:00",
+    "sha256": "72a88d817ee96946e05144aae6c1894f94fae216d564c2d27910e7fac028591d"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\rules-G09-5.2.1.json",
+    "bytes": 2302,
+    "modified_utc": "2026-11-01T18:06:15.564530+00:00",
+    "sha256": "12906d874a51b8626524413f16751f7ccb5b1f53135a5c825233f96a7bfc9bfb"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\rules-G09-6.0.0.json",
+    "bytes": 2294,
+    "modified_utc": "2026-11-02T05:59:35.794094+00:00",
+    "sha256": "26b0db659b02223483611cb7948395d4fe906c75d210048abd4bc8f8350450ec"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\rules-G09-6.0.1.json",
+    "bytes": 2324,
+    "modified_utc": "2026-11-02T05:59:35.799111+00:00",
+    "sha256": "68f4fa8ab62ccac0cd17c9bd3f27d3da8ea9f62556492f92c419a81b9acb4c69"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\rules-G09-6.1.0.json",
+    "bytes": 2286,
+    "modified_utc": "2026-11-02T05:59:35.799111+00:00",
+    "sha256": "b2e179238253b55931fd58fc9bb75f23defbfacd71cabe347dbaa6542dd56c1f"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\rules-G09-6.1.1.json",
+    "bytes": 2316,
+    "modified_utc": "2026-11-02T05:59:35.799111+00:00",
+    "sha256": "fb4aea90fce4eefd600fdd6a97cfe755791cf728387c06f54ce6433bcf22c364"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\rules-G09-7.0.0.json",
+    "bytes": 2276,
+    "modified_utc": "2026-11-02T06:55:47.332749+00:00",
+    "sha256": "149a200549cabad5e4662c90ec7b6a8a20e81955d92f23347df412f628fcd417"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\rules-G09-7.0.1.json",
+    "bytes": 2306,
+    "modified_utc": "2026-11-02T06:55:47.342733+00:00",
+    "sha256": "d90f827d6f79f85a13e8d369e22780bfc9b561e66d565666331ecb0b69c2e6df"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\rules-G09-7.1.0.json",
+    "bytes": 2268,
+    "modified_utc": "2026-11-02T06:55:47.350740+00:00",
+    "sha256": "d65b3f90e700f0c5c8d3087e2237f8473a5696e9b1395d6baa4ac90095542d54"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\rules-G09-7.1.1.json",
+    "bytes": 2298,
+    "modified_utc": "2026-11-02T06:55:47.357615+00:00",
+    "sha256": "afec7321edd40fb023b2f24838be230b0e086ec7ea5756025f46fc28f53ea09d"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\rules-G09-7.2.0.json",
+    "bytes": 2389,
+    "modified_utc": "2026-11-02T06:55:47.359646+00:00",
+    "sha256": "43dd5938fcc09a976780bf7c76f3c5fe1836bcb80ea740922357d25df3a8ede9"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\rules-G09-8.0.0.json",
+    "bytes": 1926,
+    "modified_utc": "2026-11-05T08:36:36.032827+00:00",
+    "sha256": "ca849f48bdfa544e4b89133684093291e79d1bd662bb1f0e64048afdaa7fee67"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\rules-G09-8.0.1.json",
+    "bytes": 1908,
+    "modified_utc": "2026-11-05T08:36:36.049951+00:00",
+    "sha256": "f45c1416001b2e3cc09cbaf350372c0e0023fee4b285ec7b0dbbb3cf69e5148f"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\rules-G09-8.1.0.json",
+    "bytes": 2006,
+    "modified_utc": "2026-11-05T08:36:36.049951+00:00",
+    "sha256": "e00149e4fb21a44ccff644603e3fd03e054e0bfc5b1b09a91dd8851011e261fb"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\shift-selection-1405-07-v1.json",
+    "bytes": 772,
+    "modified_utc": "2026-10-31T05:24:55.028806+00:00",
+    "sha256": "6717f148a3a34798ccca77757f5c04bf63a5c1516a18bced1c4833aadcb04be9"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\shift-selection-1405-07-v2.json",
+    "bytes": 1388,
+    "modified_utc": "2026-11-01T08:02:56.242089+00:00",
+    "sha256": "c1f1e59563c02207f83864d28eefb4dd083713a6883115dbe6cb68f8bedf180c"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\source-validation-1405-07-v1.json",
+    "bytes": 3421,
+    "modified_utc": "2026-10-31T10:16:23.023077+00:00",
+    "sha256": "46dba8ff00444d4dead2e3e3b787ef6c1719e57d80cf600d474ffe8fd92a6c6c"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\source-validation-1405-07-v2.json",
+    "bytes": 6590,
+    "modified_utc": "2026-10-31T11:53:04.491619+00:00",
+    "sha256": "19b90aa5384630eb54d85e9d36c2df010841a7e55111a295ca1769bd4c4d71b8"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\source-validation-1405-07-v3.json",
+    "bytes": 8571,
+    "modified_utc": "2026-11-01T07:49:34.102111+00:00",
+    "sha256": "6e8c5d9d929d8a41190bc53762ed86e6f08cf2ba2c46bf0f78d56da531abe3dd"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\source-validation-1405-07-v4.json",
+    "bytes": 8798,
+    "modified_utc": "2026-11-02T11:03:44.210287+00:00",
+    "sha256": "87ecf8cc93a5e23d34ef0d9e05dd6176c963baa667cdd3399ff7490b9a320964"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\source-validation-1405-07-v5.json",
+    "bytes": 9100,
+    "modified_utc": "2026-11-02T12:08:56.758454+00:00",
+    "sha256": "224ee4757d053bf55c88cbe5ebf1171642dd5f4bc00610b1da2b6943bbdccd19"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\Working_Group_Rules.docx",
+    "bytes": 35055,
+    "modified_utc": "2026-11-08T10:32:58.812371+00:00"
+  },
+  {
+    "path": "E:\\HRMS\\rules\\~$rking_Group_Rules.docx",
+    "bytes": 162,
+    "modified_utc": "2026-11-08T06:20:59.403905+00:00"
+  },
+  {
+    "path": "E:\\HRMS\\data\\hr\\approvals.md",
+    "bytes": 23267,
+    "modified_utc": "2026-10-18T11:27:51.952975+00:00"
+  },
+  {
+    "path": "E:\\HRMS\\data\\hr\\assignments.csv",
+    "bytes": 58570,
+    "modified_utc": "2026-11-04T05:34:28.756772+00:00",
+    "sha256": "3474946dfacd2471a518b7c1c0ef3311eac0ba26bc20b5307fb7303f0d6ad92e"
+  },
+  {
+    "path": "E:\\HRMS\\data\\hr\\leave_approvals.csv",
+    "bytes": 347,
+    "modified_utc": "2026-10-25T08:05:41.913513+00:00",
+    "sha256": "207f9893c332d7a62e60b6964532229192a3fc54e214fe167c25c54326069399"
+  },
+  {
+    "path": "E:\\HRMS\\data\\hr\\overrides.csv",
+    "bytes": 65,
+    "modified_utc": "2026-10-12T08:23:08.569545+00:00",
+    "sha256": "51964c165eaf4a919321ea7f19b8bdbbed37f845a625b9d3a48a685bd201533b"
+  },
+  {
+    "path": "E:\\HRMS\\data\\hr\\shift_plan.csv",
+    "bytes": 1461,
+    "modified_utc": "2026-10-13T12:08:40.458347+00:00",
+    "sha256": "8e271eb545e25642b3e40748eb2546d740aed2644f785d4bb8428065e48a6357"
+  },
+  {
+    "path": "E:\\HRMS\\data\\hr\\Working_Group_Rules.docx",
+    "bytes": 34724,
+    "modified_utc": "2026-11-02T09:28:51.535245+00:00"
+  },
+  {
+    "path": "E:\\HRMS\\data\\personnel\\HR_GUIDE.fa.md",
+    "bytes": 5709,
+    "modified_utc": "2026-11-08T13:02:04.731126+00:00"
+  },
+  {
+    "path": "E:\\HRMS\\data\\personnel\\people.xlsx",
+    "bytes": 74894,
+    "modified_utc": "2026-11-04T05:34:28.754777+00:00"
+  },
+  {
+    "path": "E:\\HRMS\\data\\personnel\\README.fa.md",
+    "bytes": 8352,
+    "modified_utc": "2026-11-08T13:02:04.712927+00:00"
+  },
+  {
+    "path": "E:\\HRMS\\integrations\\bale\\.local\\autostart-install.json",
+    "bytes": 202,
+    "modified_utc": "2026-10-27T07:41:19.138485+00:00",
+    "sha256": "b794d8aee1c9fcd93b3bc0330be235522b3b203e4b12a64bfcb986469184fbf8"
+  },
+  {
+    "path": "E:\\HRMS\\integrations\\bale\\.local\\autostart-task.xml",
+    "bytes": 1654,
+    "modified_utc": "2026-10-27T07:41:18.959466+00:00"
+  },
+  {
+    "path": "E:\\HRMS\\integrations\\bale\\.local\\health.json",
+    "bytes": 79,
+    "modified_utc": "2026-11-11T08:55:33.048066+00:00",
+    "sha256": "a0be6fb02cf1cbe45454fad0628d2a971804a495193946bd3d8cf1711ad65af2"
+  },
+  {
+    "path": "E:\\HRMS\\integrations\\bale\\.local\\installed_manifest.json",
+    "bytes": 1757,
+    "modified_utc": "2026-10-26T05:57:25.741774+00:00",
+    "sha256": "44ee134abf2253c1b5fdaf2e13db647475ab8162cc89de0a96195357e32dd8df"
+  },
+  {
+    "path": "E:\\HRMS\\integrations\\bale\\.local\\patch_20261026_form_manifest.json",
+    "bytes": 1444,
+    "modified_utc": "2026-10-26T08:05:19.043088+00:00",
+    "sha256": "947d191c87da7779efce02ec012bc38141f5181f754e93dcda6c976740f13fc3"
+  },
+  {
+    "path": "E:\\HRMS\\integrations\\bale\\.local\\patch_20261026_manifest.json",
+    "bytes": 1268,
+    "modified_utc": "2026-10-26T07:11:46.182301+00:00",
+    "sha256": "f4e764e5fcaf0b06bebfee5a119dabb5706cd0dd1e848120e023cf46f839dc38"
+  },
+  {
+    "path": "E:\\HRMS\\integrations\\bale\\.local\\process.json",
+    "bytes": 232,
+    "modified_utc": "2026-11-08T13:02:13.849473+00:00",
+    "sha256": "76033d91febe5a8dafc133172b873706df14859a6d8afdc2c11aea93084988e0"
+  },
+  {
+    "path": "E:\\HRMS\\integrations\\bale\\.local\\settings.json",
+    "bytes": 78,
+    "modified_utc": "2026-10-26T05:47:45.038384+00:00",
+    "sha256": "b095fb6feddd9f5a391f9996b2effaffe43bcb901e1b54a0a1d5e0b325b05c88"
+  },
+  {
+    "path": "E:\\HRMS\\integrations\\bale\\.local\\supervisor.json",
+    "bytes": 165,
+    "modified_utc": "2026-11-08T13:02:09.923210+00:00",
+    "sha256": "dfe8b70c08662c9b1e3e7b4295569cc84a9ef3692e29c9fe0f36156b31fe9218"
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\scheduler\\__init__.py",
+    "bytes": 54,
+    "modified_utc": "2026-09-15T12:02:16.996961+00:00",
+    "sha256": "dc71a1e68ee4d2391cf789702741ca3edc937bc331e5e78cd96c458acd7f6fe4"
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\scheduler\\completion_reminder.py",
+    "bytes": 12531,
+    "modified_utc": "2026-11-09T11:38:11.354697+00:00",
+    "sha256": "02b4d1c4c0bfa2fc88c6e204f3b7dea624947826665d718977c3a2adc05243e7"
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\scheduler\\control.py",
+    "bytes": 2472,
+    "modified_utc": "2026-11-10T08:30:32.416625+00:00",
+    "sha256": "f3281d0c641f332c441fb198a5636ac8054e3802d12c37a40b80b37f91fe79bc"
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\scheduler\\daily_summary.py",
+    "bytes": 13262,
+    "modified_utc": "2026-11-10T11:11:27.115017+00:00",
+    "sha256": "3ab736cfc343ef180b87480f42657e8cf391cb032020bd97a5819a1e9417f85c"
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\scheduler\\delivery_alert.py",
+    "bytes": 41288,
+    "modified_utc": "2026-11-10T12:13:40.931032+00:00",
+    "sha256": "6347ada9a1f1a796b413e33ea8b0c7ab86beebcfad0ed534f7e315a6c70d6722"
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\scheduler\\install.ps1",
+    "bytes": 2349,
+    "modified_utc": "2026-09-15T12:15:35.718299+00:00",
+    "sha256": "85e8bf39e0c188efc419f641e8740675fd00debc96219e0aa6d262f747758dba"
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\scheduler\\misfire.py",
+    "bytes": 6391,
+    "modified_utc": "2026-11-10T12:13:40.892561+00:00",
+    "sha256": "9a394a141219c97eaf262d4631733dc0ac97cadaa371f3efd63204289ce124da"
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\scheduler\\no_data.py",
+    "bytes": 4462,
+    "modified_utc": "2026-11-09T11:38:11.357699+00:00",
+    "sha256": "263924530e8b86f158104d6598a7ce2c611112c7607ec8caba13728faf0b97c7"
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\scheduler\\occurrence_authorization.py",
+    "bytes": 833,
+    "modified_utc": "2026-11-10T08:38:16.750965+00:00",
+    "sha256": "ea0fea4d71fc45e97edf479b44e9086168041039851262dc8d9b9ee87b32b39a"
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\scheduler\\office_delivery.py",
+    "bytes": 8238,
+    "modified_utc": "2026-11-09T13:14:51.177278+00:00",
+    "sha256": "b4841f1f86cadc81513def4d37792295766a8c6daff23eb9f54b553e078176b0"
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\scheduler\\office_receipts.py",
+    "bytes": 2475,
+    "modified_utc": "2026-11-10T08:30:57.702917+00:00",
+    "sha256": "10853fe0772615f450140c8bc4f719ab9def900e6419b028799f259e2dd16a20"
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\scheduler\\owner_history.py",
+    "bytes": 471,
+    "modified_utc": "2026-11-10T11:11:27.103029+00:00",
+    "sha256": "2c2d9d91dcfed7ee40919e6cc818ac461a427799ca96a3a89d8c5f334b3a7266"
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\scheduler\\preflight.py",
+    "bytes": 9647,
+    "modified_utc": "2026-11-10T12:13:40.923753+00:00",
+    "sha256": "9c82925acf27db72bef6b5bc6e9e2714305aedf97703b27109341485012a4923"
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\scheduler\\probe.py",
+    "bytes": 968,
+    "modified_utc": "2026-09-15T12:07:38.778506+00:00",
+    "sha256": "975c96de2b0d94e716b19da809cab937e671d5cd6dfff147a38e301279315f2b"
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\scheduler\\README.md",
+    "bytes": 19451,
+    "modified_utc": "2026-11-10T12:13:40.962775+00:00"
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\scheduler\\recovery_delivery.py",
+    "bytes": 12847,
+    "modified_utc": "2026-11-10T12:13:40.908089+00:00",
+    "sha256": "2600f77a81dc55f5dbba09fb6fce1020be5ed8b0c3e19ef735e3aa537aed47e1"
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\scheduler\\recovery_review.py",
+    "bytes": 5011,
+    "modified_utc": "2026-11-10T12:13:40.908089+00:00",
+    "sha256": "9846b66aa34cc1af88f349ed5ba393849f9cb3572a3d32c97401a345d2c8a39d"
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\scheduler\\report_errors.py",
+    "bytes": 9554,
+    "modified_utc": "2026-11-11T05:18:01.502007+00:00",
+    "sha256": "6200fe83ff88f8229d33939de2672991fda30892c7a16faba0c15ee8aac3a56a"
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\scheduler\\requirements.txt",
+    "bytes": 88,
+    "modified_utc": "2026-09-16T05:44:03.813576+00:00",
+    "sha256": "a24c26961b0e19ea7a651877f93a0e9bfb089c791e69b2f3d1e1b34208269d21"
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\scheduler\\runner.py",
+    "bytes": 43652,
+    "modified_utc": "2026-11-10T12:13:40.931032+00:00",
+    "sha256": "ef2f59cca64181141d8a1ac5042f4cc4f54df5e30fbace319d08132288297630"
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\scheduler\\source_notice_alert.py",
+    "bytes": 1326,
+    "modified_utc": "2026-11-10T08:30:45.920487+00:00",
+    "sha256": "9be4871506b643d32245fab13a08822ff7dc5cdef1c0eaf48a4aac24639c1370"
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\scheduler\\tasks.py",
+    "bytes": 30844,
+    "modified_utc": "2026-11-10T08:30:43.577511+00:00",
+    "sha256": "ed27f3bcaf68632499fe988419b43b7b3d1e4b24be75c4f7b506b0ff516fc1b1"
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\scheduler\\test_access_diagnostics.py",
+    "bytes": 2263,
+    "modified_utc": "2026-11-10T08:30:50.630885+00:00",
+    "sha256": "4399300367b7f1ce32e3525a7aa892bd3d0a35f4b747743f54b5a36917d0e306"
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\scheduler\\test_completion_reminder.py",
+    "bytes": 8971,
+    "modified_utc": "2026-11-09T11:38:11.366695+00:00",
+    "sha256": "481fd23e61e1aca45c700e00a71331bd78cc828fb4c9eefbd830ef2815daa40d"
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\scheduler\\test_control.py",
+    "bytes": 1943,
+    "modified_utc": "2026-11-10T08:30:32.417625+00:00",
+    "sha256": "5c87262083a20aad4efe31c005b9bacfd18537ce0986b47deede45e00dd2f689"
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\scheduler\\test_daily_summary.py",
+    "bytes": 7438,
+    "modified_utc": "2026-11-10T11:11:27.127075+00:00",
+    "sha256": "2901e07f6f9824e76c37bbddd15af1b0889e7b5377037a231d2161ebc99d44fb"
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\scheduler\\test_delivery_alert.py",
+    "bytes": 33409,
+    "modified_utc": "2026-11-10T08:30:45.923483+00:00",
+    "sha256": "37814a9ea122200c409b875e7f5502f3f8931f65307d89a2075c454ebbe5b017"
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\scheduler\\test_driver_pdf_gate.py",
+    "bytes": 2798,
+    "modified_utc": "2026-11-09T13:14:51.188040+00:00",
+    "sha256": "5cd243aaf5c1036a3fa75a4c0280e7446dbd995277a56d5c2a21ddad4d6a036c"
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\scheduler\\test_machinery_performance.py",
+    "bytes": 13880,
+    "modified_utc": "2026-11-10T08:30:45.925490+00:00",
+    "sha256": "d2ce34844d2474e6f71a596990215ef8843fc8a205e9d65f5aff3ecef712b443"
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\scheduler\\test_maintenance_reminder.py",
+    "bytes": 9083,
+    "modified_utc": "2026-11-09T11:38:11.370697+00:00",
+    "sha256": "f843dec0d78ffb66876e41102d98f62018ff828dc93e660e90a4c0e10aca3965"
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\scheduler\\test_misfire.py",
+    "bytes": 23398,
+    "modified_utc": "2026-11-10T08:30:43.578512+00:00",
+    "sha256": "10592208dbbff567c711defd128403d084559e99c7a45c12bfaeeedce6411dfb"
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\scheduler\\test_no_data.py",
+    "bytes": 24990,
+    "modified_utc": "2026-11-10T08:38:16.757967+00:00",
+    "sha256": "a11438df10311f5cc0a9c6e5a8a955f494dd88772c25ec54047247e7b6f4bbd4"
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\scheduler\\test_occurrence_recipients.py",
+    "bytes": 2587,
+    "modified_utc": "2026-11-10T08:38:16.758971+00:00",
+    "sha256": "0e6223867f837cd844841a2aa906b8e4f15d4529be4cd378ed15b9b91809d502"
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\scheduler\\test_office_delivery.py",
+    "bytes": 12488,
+    "modified_utc": "2026-11-10T08:30:43.579511+00:00",
+    "sha256": "7a896fd3cca392ed68ff7545b301a627ef7292522d3cd412f3d51dc06c071212"
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\scheduler\\test_oil_balance.py",
+    "bytes": 17459,
+    "modified_utc": "2026-11-09T11:38:11.376070+00:00",
+    "sha256": "182ba4e22700ef69a4e9a80f59c9a548eca9befb802c4495a3e660262e382659"
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\scheduler\\test_preflight.py",
+    "bytes": 9304,
+    "modified_utc": "2026-11-10T12:13:40.939556+00:00",
+    "sha256": "c323ec0eec59c7359d9358d094bf1c22baa7845e019658b68966746e3c499258"
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\scheduler\\test_receipt_immutability.py",
+    "bytes": 2524,
+    "modified_utc": "2026-11-10T08:30:57.707041+00:00",
+    "sha256": "0a15bef1b167e8bcfa395f605c4f8ab013debb99d29432199a92feb56a86f7f5"
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\scheduler\\test_recovery_delivery.py",
+    "bytes": 6781,
+    "modified_utc": "2026-11-10T12:13:40.946008+00:00",
+    "sha256": "f86030a593e61f5730dfd7d914a5741d53ea52a91f3fcf7624dfb2ceb5fb7878"
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\scheduler\\test_recovery_review.py",
+    "bytes": 3984,
+    "modified_utc": "2026-11-10T12:13:40.947114+00:00",
+    "sha256": "0cbca3d3ffe59d4e5a35b5afe4a68425cb6b4ec4282a4450bb36bb035795345c"
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\scheduler\\test_report_errors.py",
+    "bytes": 3655,
+    "modified_utc": "2026-11-10T08:30:55.262801+00:00",
+    "sha256": "f093f84ddd4289721a4b667f36ac9d8f708bbb273c6f23050bf2020ea88b6311"
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\scheduler\\test_runner.py",
+    "bytes": 6725,
+    "modified_utc": "2026-11-10T08:30:43.579511+00:00",
+    "sha256": "249460c68de0a776093d3acbbacdd4d07b569158f92076160a6ce4e5664b1c82"
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\scheduler\\test_source_notice_alert.py",
+    "bytes": 5161,
+    "modified_utc": "2026-11-10T08:30:45.927484+00:00",
+    "sha256": "18030bfb6206b30d7798170366c6961efe31b5b5fd4773edf009c377b49599f0"
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\scheduler\\test_source_wakeup.py",
+    "bytes": 6651,
+    "modified_utc": "2026-11-10T12:13:40.947114+00:00",
+    "sha256": "90fcaa4d33871eed030f360d029d8d6c8e6a1b159f5c7632c0d6e9edbb14ac11"
+  }
+]

@@ -1,0 +1,421 @@
+{
+  "examples_are_synthetic": true,
+  "examples": {
+    "OverviewResponse": {
+      "data": {
+        "data_date": "1405/08/17",
+        "counts": {
+          "occurrences": 1,
+          "logical_artifacts": 2,
+          "recipient_deliveries": 4,
+          "sent_with_receipt": 3,
+          "ready_artifacts": null,
+          "needs_review": null,
+          "unknown": null,
+          "complete_denominator": true
+        },
+        "components": []
+      },
+      "meta": {
+        "contract_version": "dashboard-read-model-1",
+        "served_at": "2026-11-11T09:00:00+00:00",
+        "snapshot_version": "SYNTHETIC",
+        "operational_timezone": "Asia/Tehran",
+        "availability": "complete",
+        "freshness": "unknown",
+        "age_seconds": null,
+        "sources": [],
+        "warnings": []
+      }
+    },
+    "ReportsResponse": {
+      "data": [
+        {
+          "id": "synthetic_id_001",
+          "schedule_id": "driver_daily_office_supervisor",
+          "title_fa": "گزارش نمونه مصنوعی دفتر",
+          "data_date": "1405/08/17",
+          "original_due": "2026-11-11T09:00:00+00:00",
+          "primary_status": "partial",
+          "disposition": "unknown",
+          "source_state": "SYNTHETIC",
+          "data_state": "SYNTHETIC",
+          "artifact_state": "SYNTHETIC",
+          "delivery_state": "SYNTHETIC",
+          "recovery_state": "SYNTHETIC",
+          "correction_state": "SYNTHETIC",
+          "expected_artifacts": 2,
+          "expected_deliveries": 4,
+          "recipient_set_provenance": "historical_reservation",
+          "attention_required": true,
+          "attempt": {
+            "last_attempt_at": null,
+            "last_success_at": null,
+            "attempt_count": null,
+            "last_checked_at": null,
+            "next_attempt_at": null,
+            "reason_code": null,
+            "reason_fa": null
+          },
+          "allowed_next_step_fa": null,
+          "artifact_ids": [],
+          "evidence": []
+        }
+      ],
+      "meta": {
+        "contract_version": "dashboard-read-model-1",
+        "served_at": "2026-11-11T09:00:00+00:00",
+        "snapshot_version": "SYNTHETIC",
+        "operational_timezone": "Asia/Tehran",
+        "availability": "complete",
+        "freshness": "unknown",
+        "age_seconds": null,
+        "sources": [],
+        "warnings": []
+      },
+      "page": {
+        "next_cursor": null,
+        "limit": 1,
+        "snapshot_version": "SYNTHETIC"
+      }
+    },
+    "ReportResponse": {
+      "data": {
+        "id": "synthetic_id_001",
+        "schedule_id": "driver_daily_office_supervisor",
+        "title_fa": "گزارش نمونه مصنوعی دفتر",
+        "data_date": "1405/08/17",
+        "original_due": "2026-11-11T09:00:00+00:00",
+        "primary_status": "partial",
+        "disposition": "unknown",
+        "source_state": "SYNTHETIC",
+        "data_state": "SYNTHETIC",
+        "artifact_state": "SYNTHETIC",
+        "delivery_state": "SYNTHETIC",
+        "recovery_state": "SYNTHETIC",
+        "correction_state": "SYNTHETIC",
+        "expected_artifacts": 2,
+        "expected_deliveries": 4,
+        "recipient_set_provenance": "historical_reservation",
+        "attention_required": true,
+        "attempt": {
+          "last_attempt_at": null,
+          "last_success_at": null,
+          "attempt_count": null,
+          "last_checked_at": null,
+          "next_attempt_at": null,
+          "reason_code": null,
+          "reason_fa": null
+        },
+        "allowed_next_step_fa": null,
+        "artifact_ids": [],
+        "evidence": []
+      },
+      "meta": {
+        "contract_version": "dashboard-read-model-1",
+        "served_at": "2026-11-11T09:00:00+00:00",
+        "snapshot_version": "SYNTHETIC",
+        "operational_timezone": "Asia/Tehran",
+        "availability": "complete",
+        "freshness": "unknown",
+        "age_seconds": null,
+        "sources": [],
+        "warnings": []
+      }
+    },
+    "DeliveriesResponse": {
+      "data": [],
+      "meta": {
+        "contract_version": "dashboard-read-model-1",
+        "served_at": "2026-11-11T09:00:00+00:00",
+        "snapshot_version": "SYNTHETIC",
+        "operational_timezone": "Asia/Tehran",
+        "availability": "complete",
+        "freshness": "unknown",
+        "age_seconds": null,
+        "sources": [],
+        "warnings": []
+      },
+      "page": {
+        "next_cursor": null,
+        "limit": 1,
+        "snapshot_version": "SYNTHETIC"
+      }
+    },
+    "ArtifactsResponse": {
+      "data": [],
+      "meta": {
+        "contract_version": "dashboard-read-model-1",
+        "served_at": "2026-11-11T09:00:00+00:00",
+        "snapshot_version": "SYNTHETIC",
+        "operational_timezone": "Asia/Tehran",
+        "availability": "complete",
+        "freshness": "unknown",
+        "age_seconds": null,
+        "sources": [],
+        "warnings": []
+      },
+      "page": {
+        "next_cursor": null,
+        "limit": 1,
+        "snapshot_version": "SYNTHETIC"
+      }
+    },
+    "OperationsResponse": {
+      "data": [],
+      "meta": {
+        "contract_version": "dashboard-read-model-1",
+        "served_at": "2026-11-11T09:00:00+00:00",
+        "snapshot_version": "SYNTHETIC",
+        "operational_timezone": "Asia/Tehran",
+        "availability": "complete",
+        "freshness": "unknown",
+        "age_seconds": null,
+        "sources": [],
+        "warnings": []
+      },
+      "page": {
+        "next_cursor": null,
+        "limit": 1,
+        "snapshot_version": "SYNTHETIC"
+      }
+    },
+    "AuditResponse": {
+      "data": [],
+      "meta": {
+        "contract_version": "dashboard-read-model-1",
+        "served_at": "2026-11-11T09:00:00+00:00",
+        "snapshot_version": "SYNTHETIC",
+        "operational_timezone": "Asia/Tehran",
+        "availability": "complete",
+        "freshness": "unknown",
+        "age_seconds": null,
+        "sources": [],
+        "warnings": []
+      },
+      "page": {
+        "next_cursor": null,
+        "limit": 1,
+        "snapshot_version": "SYNTHETIC"
+      }
+    },
+    "HealthResponse": {
+      "data": [],
+      "meta": {
+        "contract_version": "dashboard-read-model-1",
+        "served_at": "2026-11-11T09:00:00+00:00",
+        "snapshot_version": "SYNTHETIC",
+        "operational_timezone": "Asia/Tehran",
+        "availability": "complete",
+        "freshness": "unknown",
+        "age_seconds": null,
+        "sources": [],
+        "warnings": []
+      }
+    },
+    "SyncResponse": {
+      "data": {
+        "component": {
+          "id": "synthetic_id_001",
+          "state": "unknown",
+          "reported_state": null,
+          "last_heartbeat_at": null,
+          "last_success_at": null,
+          "last_error_code": null,
+          "reason_fa": null,
+          "age_seconds": null
+        },
+        "health_status": "SYNTHETIC",
+        "source_enumerated": null,
+        "sync_healthy": null,
+        "last_completed_scan_at": null,
+        "next_attempt_at": null,
+        "guards": []
+      },
+      "meta": {
+        "contract_version": "dashboard-read-model-1",
+        "served_at": "2026-11-11T09:00:00+00:00",
+        "snapshot_version": "SYNTHETIC",
+        "operational_timezone": "Asia/Tehran",
+        "availability": "complete",
+        "freshness": "unknown",
+        "age_seconds": null,
+        "sources": [],
+        "warnings": []
+      }
+    },
+    "HROverviewResponse": {
+      "data": {
+        "period": "1405/08",
+        "selected_processing_id": null,
+        "personnel_revision": null,
+        "total_people": null,
+        "active_people": null,
+        "without_valid_group": null,
+        "forms_generated": null,
+        "last_verified_processing_at": null,
+        "work": {
+          "known_minutes": null,
+          "provisional_minutes": null,
+          "final_minutes": null,
+          "unknown_days": null
+        },
+        "overtime": {
+          "known_minutes": null,
+          "provisional_minutes": null,
+          "final_minutes": null,
+          "unknown_days": null
+        },
+        "deduction": {
+          "known_minutes": null,
+          "provisional_minutes": null,
+          "final_minutes": null,
+          "unknown_days": null
+        },
+        "approval_state": "SYNTHETIC"
+      },
+      "meta": {
+        "contract_version": "dashboard-read-model-1",
+        "served_at": "2026-11-11T09:00:00+00:00",
+        "snapshot_version": "SYNTHETIC",
+        "operational_timezone": "Asia/Tehran",
+        "availability": "complete",
+        "freshness": "unknown",
+        "age_seconds": null,
+        "sources": [],
+        "warnings": []
+      }
+    },
+    "PersonnelResponse": {
+      "data": [],
+      "meta": {
+        "contract_version": "dashboard-read-model-1",
+        "served_at": "2026-11-11T09:00:00+00:00",
+        "snapshot_version": "SYNTHETIC",
+        "operational_timezone": "Asia/Tehran",
+        "availability": "complete",
+        "freshness": "unknown",
+        "age_seconds": null,
+        "sources": [],
+        "warnings": []
+      },
+      "page": {
+        "next_cursor": null,
+        "limit": 1,
+        "snapshot_version": "SYNTHETIC"
+      }
+    },
+    "PersonResponse": {
+      "data": {
+        "id": "synthetic_id_001",
+        "display_name": "SYNTHETIC",
+        "job_title": null,
+        "processing_state": "unknown",
+        "as_of": "1405/08/17",
+        "revision": "SYNTHETIC",
+        "groups": [],
+        "group_state": "SYNTHETIC"
+      },
+      "meta": {
+        "contract_version": "dashboard-read-model-1",
+        "served_at": "2026-11-11T09:00:00+00:00",
+        "snapshot_version": "SYNTHETIC",
+        "operational_timezone": "Asia/Tehran",
+        "availability": "complete",
+        "freshness": "unknown",
+        "age_seconds": null,
+        "sources": [],
+        "warnings": []
+      }
+    },
+    "HRProcessingListResponse": {
+      "data": [],
+      "meta": {
+        "contract_version": "dashboard-read-model-1",
+        "served_at": "2026-11-11T09:00:00+00:00",
+        "snapshot_version": "SYNTHETIC",
+        "operational_timezone": "Asia/Tehran",
+        "availability": "complete",
+        "freshness": "unknown",
+        "age_seconds": null,
+        "sources": [],
+        "warnings": []
+      },
+      "page": {
+        "next_cursor": null,
+        "limit": 1,
+        "snapshot_version": "SYNTHETIC"
+      }
+    },
+    "HRProcessingResponse": {
+      "data": {
+        "id": "synthetic_id_001",
+        "period": "1405/08",
+        "state": "SYNTHETIC",
+        "content_id": "SYNTHETIC",
+        "run_id": "SYNTHETIC",
+        "source_snapshot_ref": "SYNTHETIC",
+        "personnel_revision": null,
+        "started_at": null,
+        "finished_at": null,
+        "forms_generated": null,
+        "calculation_state": "SYNTHETIC",
+        "publication_state": "SYNTHETIC",
+        "hr_approval_state": "SYNTHETIC",
+        "outbox_delivery_state": "SYNTHETIC",
+        "rule_versions": [],
+        "issue_counts": {}
+      },
+      "meta": {
+        "contract_version": "dashboard-read-model-1",
+        "served_at": "2026-11-11T09:00:00+00:00",
+        "snapshot_version": "SYNTHETIC",
+        "operational_timezone": "Asia/Tehran",
+        "availability": "complete",
+        "freshness": "unknown",
+        "age_seconds": null,
+        "sources": [],
+        "warnings": []
+      }
+    },
+    "RulesResponse": {
+      "data": [],
+      "meta": {
+        "contract_version": "dashboard-read-model-1",
+        "served_at": "2026-11-11T09:00:00+00:00",
+        "snapshot_version": "SYNTHETIC",
+        "operational_timezone": "Asia/Tehran",
+        "availability": "complete",
+        "freshness": "unknown",
+        "age_seconds": null,
+        "sources": [],
+        "warnings": []
+      },
+      "page": {
+        "next_cursor": null,
+        "limit": 1,
+        "snapshot_version": "SYNTHETIC"
+      }
+    },
+    "MeResponse": {
+      "data": {
+        "actor_ref": "SYNTHETIC",
+        "roles": [],
+        "permissions": [],
+        "expires_at": "2026-11-11T09:00:00+00:00",
+        "operational_timezone": "Asia/Tehran"
+      },
+      "meta": {
+        "contract_version": "dashboard-read-model-1",
+        "served_at": "2026-11-11T09:00:00+00:00",
+        "snapshot_version": "SYNTHETIC",
+        "operational_timezone": "Asia/Tehran",
+        "availability": "complete",
+        "freshness": "unknown",
+        "age_seconds": null,
+        "sources": [],
+        "warnings": []
+      }
+    }
+  }
+}

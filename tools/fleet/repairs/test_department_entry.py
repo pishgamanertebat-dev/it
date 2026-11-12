@@ -142,9 +142,18 @@ class DepartmentUITests(ui_tests.EntryBaleTests):
     async def test_live_menu_and_scopes_for_five_users(self):
         from tools.bale_ui.runtime import _main_menu
         for actor, section in DEPARTMENTS.items():
-            self.assertEqual(sections_for(actor), (section,))
             menu = _main_menu(actor, bale_approved=True)
-            self.assertIn('🛠 شرح خرابی', [b.text for row in menu.rows for b in row])
+            labels = [b.text for row in menu.rows for b in row]
+            if actor in ('1732374823','654806764'):
+                # Owner moved these two reporters to Maintenance 1405. Old
+                # Drivers2 callbacks must not retain their former authority.
+                self.assertEqual(sections_for(actor), ())
+                self.assertNotIn('🛠 شرح خرابی',labels)
+                from .maintenance_report_policy import permission
+                self.assertEqual(permission(actor,actor)['scope'],'all')
+            else:
+                self.assertEqual(sections_for(actor), (section,))
+                self.assertIn('🛠 شرح خرابی',labels)
         for actor in ['641220453', '1294822197']:
             self.assertEqual(sections_for(actor), ('mechanical', 'metalwork'))
             menu = _main_menu(actor, bale_approved=True)

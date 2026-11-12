@@ -1,0 +1,8249 @@
+[
+  {
+    "path": "E:\\KomatsoAI\\tools\\scheduler\\__init__.py",
+    "sha256": "dc71a1e68ee4d2391cf789702741ca3edc937bc331e5e78cd96c458acd7f6fe4",
+    "lines": 1,
+    "anchors": []
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\scheduler\\completion_reminder.py",
+    "sha256": "02b4d1c4c0bfa2fc88c6e204f3b7dea624947826665d718977c3a2adc05243e7",
+    "lines": 245,
+    "anchors": [
+      {
+        "symbol": "validate_config",
+        "line": 17,
+        "end_line": 29
+      },
+      {
+        "symbol": "validate_maintenance_config",
+        "line": 32,
+        "end_line": 44
+      },
+      {
+        "symbol": "reminder_recipients",
+        "line": 47,
+        "end_line": 69
+      },
+      {
+        "symbol": "ensure_schema",
+        "line": 72,
+        "end_line": 78
+      },
+      {
+        "symbol": "probe",
+        "line": 81,
+        "end_line": 87
+      },
+      {
+        "symbol": "probe_maintenance",
+        "line": 90,
+        "end_line": 97
+      },
+      {
+        "symbol": "maintenance_reminder_text",
+        "line": 100,
+        "end_line": 107
+      },
+      {
+        "symbol": "reminder_text",
+        "line": 110,
+        "end_line": 119
+      },
+      {
+        "symbol": "_pending",
+        "line": 122,
+        "end_line": 138
+      },
+      {
+        "symbol": "_claim",
+        "line": 141,
+        "end_line": 152
+      },
+      {
+        "symbol": "_mark",
+        "line": 155,
+        "end_line": 162
+      },
+      {
+        "symbol": "_send",
+        "line": 165,
+        "end_line": 192
+      },
+      {
+        "symbol": "run_reminders",
+        "line": 195,
+        "end_line": 245
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\scheduler\\control.py",
+    "sha256": "f3281d0c641f332c441fb198a5636ac8054e3802d12c37a40b80b37f91fe79bc",
+    "lines": 64,
+    "anchors": [
+      {
+        "symbol": "worker_lock",
+        "line": 11,
+        "end_line": 36
+      },
+      {
+        "symbol": "write_record",
+        "line": 39,
+        "end_line": 45
+      },
+      {
+        "symbol": "scheduled_tick",
+        "line": 48,
+        "end_line": 64
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\scheduler\\daily_summary.py",
+    "sha256": "3ab736cfc343ef180b87480f42657e8cf391cb032020bd97a5819a1e9417f85c",
+    "lines": 184,
+    "anchors": [
+      {
+        "symbol": "ensure_schema",
+        "line": 14,
+        "end_line": 27
+      },
+      {
+        "symbol": "snapshot",
+        "line": 30,
+        "end_line": 80
+      },
+      {
+        "symbol": "format_messages",
+        "line": 83,
+        "end_line": 128
+      },
+      {
+        "symbol": "_label_from",
+        "line": 131,
+        "end_line": 132
+      },
+      {
+        "symbol": "scan_daily_summary",
+        "line": 135,
+        "end_line": 184
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\scheduler\\delivery_alert.py",
+    "sha256": "6347ada9a1f1a796b413e33ea8b0c7ab86beebcfad0ed534f7e315a6c70d6722",
+    "lines": 789,
+    "anchors": [
+      {
+        "symbol": "ensure_schema",
+        "line": 70,
+        "end_line": 72
+      },
+      {
+        "symbol": "_iso",
+        "line": 75,
+        "end_line": 76
+      },
+      {
+        "symbol": "_utc",
+        "line": 79,
+        "end_line": 82
+      },
+      {
+        "symbol": "_parse",
+        "line": 85,
+        "end_line": 89
+      },
+      {
+        "symbol": "ensure_activation",
+        "line": 92,
+        "end_line": 114
+      },
+      {
+        "symbol": "_release_resolved",
+        "line": 117,
+        "end_line": 131
+      },
+      {
+        "symbol": "_report_tasks",
+        "line": 134,
+        "end_line": 136
+      },
+      {
+        "symbol": "_column",
+        "line": 139,
+        "end_line": 140
+      },
+      {
+        "symbol": "_required_kind",
+        "line": 143,
+        "end_line": 149
+      },
+      {
+        "symbol": "_historical",
+        "line": 152,
+        "end_line": 162
+      },
+      {
+        "symbol": "_title",
+        "line": 165,
+        "end_line": 166
+      },
+      {
+        "symbol": "_clock",
+        "line": 169,
+        "end_line": 170
+      },
+      {
+        "symbol": "_target",
+        "line": 173,
+        "end_line": 175
+      },
+      {
+        "symbol": "_label",
+        "line": 178,
+        "end_line": 190
+      },
+      {
+        "symbol": "_problems",
+        "line": 193,
+        "end_line": 241
+      },
+      {
+        "symbol": "_sync_watches",
+        "line": 244,
+        "end_line": 266
+      },
+      {
+        "symbol": "_watch_kind",
+        "line": 269,
+        "end_line": 270
+      },
+      {
+        "symbol": "_split",
+        "line": 273,
+        "end_line": 284
+      },
+      {
+        "symbol": "format_exception",
+        "line": 287,
+        "end_line": 345
+      },
+      {
+        "symbol": "format_recovery",
+        "line": 348,
+        "end_line": 366
+      },
+      {
+        "symbol": "_delivery_summary",
+        "line": 369,
+        "end_line": 406
+      },
+      {
+        "symbol": "_fingerprint",
+        "line": 409,
+        "end_line": 413
+      },
+      {
+        "symbol": "_operators",
+        "line": 416,
+        "end_line": 433
+      },
+      {
+        "symbol": "_message_id",
+        "line": 436,
+        "end_line": 442
+      },
+      {
+        "symbol": "_receipts",
+        "line": 445,
+        "end_line": 449
+      },
+      {
+        "symbol": "_all_sent",
+        "line": 452,
+        "end_line": 454
+      },
+      {
+        "symbol": "_exception_reached",
+        "line": 457,
+        "end_line": 462
+      },
+      {
+        "symbol": "_claim",
+        "line": 465,
+        "end_line": 492
+      },
+      {
+        "symbol": "_mark",
+        "line": 495,
+        "end_line": 502
+      },
+      {
+        "symbol": "_set_status",
+        "line": 505,
+        "end_line": 511
+      },
+      {
+        "symbol": "_default_sender",
+        "line": 514,
+        "end_line": 522
+      },
+      {
+        "symbol": "_dispatch",
+        "line": 525,
+        "end_line": 570
+      },
+      {
+        "symbol": "_reload",
+        "line": 573,
+        "end_line": 576
+      },
+      {
+        "symbol": "_open_case",
+        "line": 579,
+        "end_line": 583
+      },
+      {
+        "symbol": "_insert_case",
+        "line": 586,
+        "end_line": 597
+      },
+      {
+        "symbol": "_raise_exception",
+        "line": 600,
+        "end_line": 611
+      },
+      {
+        "symbol": "_close_undelivered",
+        "line": 614,
+        "end_line": 625
+      },
+      {
+        "symbol": "_recover",
+        "line": 628,
+        "end_line": 667
+      },
+      {
+        "symbol": "_expected",
+        "line": 670,
+        "end_line": 679
+      },
+      {
+        "symbol": "_process_run",
+        "line": 682,
+        "end_line": 719
+      },
+      {
+        "symbol": "occurrence_recipients",
+        "line": 722,
+        "end_line": 735
+      },
+      {
+        "symbol": "_adopt_source_notice",
+        "line": 738,
+        "end_line": 758
+      },
+      {
+        "symbol": "scan_delivery_exceptions",
+        "line": 761,
+        "end_line": 789
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\scheduler\\misfire.py",
+    "sha256": "9a394a141219c97eaf262d4631733dc0ac97cadaa371f3efd63204289ce124da",
+    "lines": 153,
+    "anchors": [
+      {
+        "symbol": "backoff_delay",
+        "line": 18,
+        "end_line": 21
+      },
+      {
+        "symbol": "due_storage_key",
+        "line": 24,
+        "end_line": 26
+      },
+      {
+        "symbol": "classify_source_message",
+        "line": 29,
+        "end_line": 38
+      },
+      {
+        "symbol": "latest_due",
+        "line": 41,
+        "end_line": 53
+      },
+      {
+        "symbol": "_occurrences",
+        "line": 56,
+        "end_line": 68
+      },
+      {
+        "symbol": "row_actionable",
+        "line": 71,
+        "end_line": 90
+      },
+      {
+        "symbol": "replay_plan",
+        "line": 93,
+        "end_line": 137
+      },
+      {
+        "symbol": "outcome_from_receipts",
+        "line": 140,
+        "end_line": 153
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\scheduler\\no_data.py",
+    "sha256": "263924530e8b86f158104d6598a7ce2c611112c7607ec8caba13728faf0b97c7",
+    "lines": 86,
+    "anchors": [
+      {
+        "symbol": "notice_text",
+        "line": 5,
+        "end_line": 13
+      },
+      {
+        "symbol": "notify_missing",
+        "line": 16,
+        "end_line": 67
+      },
+      {
+        "symbol": "current_recipients",
+        "line": 70,
+        "end_line": 86
+      },
+      {
+        "symbol": "receipt",
+        "line": 40,
+        "end_line": 42
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\scheduler\\occurrence_authorization.py",
+    "sha256": "ea0fea4d71fc45e97edf479b44e9086168041039851262dc8d9b9ee87b32b39a",
+    "lines": 14,
+    "anchors": [
+      {
+        "symbol": "OccurrenceAuthorization",
+        "line": 5,
+        "end_line": 14
+      },
+      {
+        "symbol": "__init__",
+        "line": 6,
+        "end_line": 7
+      },
+      {
+        "symbol": "__getattr__",
+        "line": 8,
+        "end_line": 8
+      },
+      {
+        "symbol": "resolve_active_recipients",
+        "line": 9,
+        "end_line": 14
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\scheduler\\office_delivery.py",
+    "sha256": "b4841f1f86cadc81513def4d37792295766a8c6daff23eb9f54b553e078176b0",
+    "lines": 134,
+    "anchors": [
+      {
+        "symbol": "deliver",
+        "line": 9,
+        "end_line": 134
+      },
+      {
+        "symbol": "recipients",
+        "line": 18,
+        "end_line": 22
+      },
+      {
+        "symbol": "receipt",
+        "line": 79,
+        "end_line": 82
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\scheduler\\office_receipts.py",
+    "sha256": "10853fe0772615f450140c8bc4f719ab9def900e6419b028799f259e2dd16a20",
+    "lines": 38,
+    "anchors": [
+      {
+        "symbol": "create_schema",
+        "line": 6,
+        "end_line": 10
+      },
+      {
+        "symbol": "states",
+        "line": 13,
+        "end_line": 15
+      },
+      {
+        "symbol": "save",
+        "line": 18,
+        "end_line": 27
+      },
+      {
+        "symbol": "recover",
+        "line": 30,
+        "end_line": 38
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\scheduler\\owner_history.py",
+    "sha256": "2c2d9d91dcfed7ee40919e6cc818ac461a427799ca96a3a89d8c5f334b3a7266",
+    "lines": 13,
+    "anchors": [
+      {
+        "symbol": "closed_by_owner",
+        "line": 11,
+        "end_line": 13
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\scheduler\\preflight.py",
+    "sha256": "9c82925acf27db72bef6b5bc6e9e2714305aedf97703b27109341485012a4923",
+    "lines": 174,
+    "anchors": [
+      {
+        "symbol": "validate_config",
+        "line": 13,
+        "end_line": 22
+      },
+      {
+        "symbol": "probe",
+        "line": 25,
+        "end_line": 81
+      },
+      {
+        "symbol": "_connection_probe",
+        "line": 84,
+        "end_line": 88
+      },
+      {
+        "symbol": "_claim",
+        "line": 91,
+        "end_line": 104
+      },
+      {
+        "symbol": "_alert",
+        "line": 107,
+        "end_line": 118
+      },
+      {
+        "symbol": "run_preflights",
+        "line": 121,
+        "end_line": 174
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\scheduler\\probe.py",
+    "sha256": "975c96de2b0d94e716b19da809cab937e671d5cd6dfff147a38e301279315f2b",
+    "lines": 27,
+    "anchors": [
+      {
+        "symbol": "main",
+        "line": 9,
+        "end_line": 23
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\scheduler\\recovery_delivery.py",
+    "sha256": "2600f77a81dc55f5dbba09fb6fce1020be5ed8b0c3e19ef735e3aa537aed47e1",
+    "lines": 215,
+    "anchors": [
+      {
+        "symbol": "timestamp",
+        "line": 18,
+        "end_line": 19
+      },
+      {
+        "symbol": "digest",
+        "line": 22,
+        "end_line": 23
+      },
+      {
+        "symbol": "ensure_schema",
+        "line": 26,
+        "end_line": 36
+      },
+      {
+        "symbol": "event",
+        "line": 39,
+        "end_line": 41
+      },
+      {
+        "symbol": "validate_candidate",
+        "line": 44,
+        "end_line": 54
+      },
+      {
+        "symbol": "authorize",
+        "line": 57,
+        "end_line": 100
+      },
+      {
+        "symbol": "duplicate_evidence",
+        "line": 103,
+        "end_line": 112
+      },
+      {
+        "symbol": "execute",
+        "line": 115,
+        "end_line": 185
+      },
+      {
+        "symbol": "reconcile_holds",
+        "line": 188,
+        "end_line": 215
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\scheduler\\recovery_review.py",
+    "sha256": "9846b66aa34cc1af88f349ed5ba393849f9cb3572a3d32c97401a345d2c8a39d",
+    "lines": 78,
+    "anchors": [
+      {
+        "symbol": "ensure_schema",
+        "line": 6,
+        "end_line": 11
+      },
+      {
+        "symbol": "held",
+        "line": 14,
+        "end_line": 17
+      },
+      {
+        "symbol": "delivered_recoveries",
+        "line": 20,
+        "end_line": 32
+      },
+      {
+        "symbol": "hold_backlog",
+        "line": 35,
+        "end_line": 78
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\scheduler\\report_errors.py",
+    "sha256": "6200fe83ff88f8229d33939de2672991fda30892c7a16faba0c15ee8aac3a56a",
+    "lines": 152,
+    "anchors": [
+      {
+        "symbol": "access_diagnostics",
+        "line": 40,
+        "end_line": 60
+      },
+      {
+        "symbol": "report_io",
+        "line": 64,
+        "end_line": 72
+      },
+      {
+        "symbol": "RecordIdentityMismatch",
+        "line": 75,
+        "end_line": 79
+      },
+      {
+        "symbol": "ReportFailure",
+        "line": 82,
+        "end_line": 106
+      },
+      {
+        "symbol": "classify",
+        "line": 109,
+        "end_line": 125
+      },
+      {
+        "symbol": "public_reason",
+        "line": 128,
+        "end_line": 152
+      },
+      {
+        "symbol": "__init__",
+        "line": 77,
+        "end_line": 79
+      },
+      {
+        "symbol": "__init__",
+        "line": 83,
+        "end_line": 103
+      },
+      {
+        "symbol": "serialized",
+        "line": 105,
+        "end_line": 106
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\scheduler\\runner.py",
+    "sha256": "ef2f59cca64181141d8a1ac5042f4cc4f54df5e30fbace319d08132288297630",
+    "lines": 745,
+    "anchors": [
+      {
+        "symbol": "only_keys",
+        "line": 42,
+        "end_line": 44
+      },
+      {
+        "symbol": "normalize_misfire",
+        "line": 47,
+        "end_line": 63
+      },
+      {
+        "symbol": "validate_external_misfire",
+        "line": 66,
+        "end_line": 81
+      },
+      {
+        "symbol": "load_config",
+        "line": 84,
+        "end_line": 186
+      },
+      {
+        "symbol": "connect",
+        "line": 189,
+        "end_line": 230
+      },
+      {
+        "symbol": "_rows_for",
+        "line": 233,
+        "end_line": 239
+      },
+      {
+        "symbol": "_wake_after_sync",
+        "line": 242,
+        "end_line": 270
+      },
+      {
+        "symbol": "_expire_missing_reports",
+        "line": 273,
+        "end_line": 310
+      },
+      {
+        "symbol": "_closed",
+        "line": 313,
+        "end_line": 325
+      },
+      {
+        "symbol": "_save_receipt",
+        "line": 328,
+        "end_line": 343
+      },
+      {
+        "symbol": "_receipt_states",
+        "line": 346,
+        "end_line": 348
+      },
+      {
+        "symbol": "_freeze_sending",
+        "line": 351,
+        "end_line": 356
+      },
+      {
+        "symbol": "_claim_once",
+        "line": 359,
+        "end_line": 365
+      },
+      {
+        "symbol": "_claim_replay",
+        "line": 368,
+        "end_line": 399
+      },
+      {
+        "symbol": "_adjust_replay",
+        "line": 402,
+        "end_line": 419
+      },
+      {
+        "symbol": "_artifact",
+        "line": 422,
+        "end_line": 433
+      },
+      {
+        "symbol": "_execute",
+        "line": 436,
+        "end_line": 589
+      },
+      {
+        "symbol": "tick",
+        "line": 592,
+        "end_line": 655
+      },
+      {
+        "symbol": "_delivery_notifier",
+        "line": 658,
+        "end_line": 667
+      },
+      {
+        "symbol": "plan_replay",
+        "line": 670,
+        "end_line": 701
+      },
+      {
+        "symbol": "main",
+        "line": 704,
+        "end_line": 741
+      },
+      {
+        "symbol": "on_receipt",
+        "line": 486,
+        "end_line": 487
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\scheduler\\source_notice_alert.py",
+    "sha256": "9be4871506b643d32245fab13a08822ff7dc5cdef1c0eaf48a4aac24639c1370",
+    "lines": 23,
+    "anchors": [
+      {
+        "symbol": "ensure_activation",
+        "line": 7,
+        "end_line": 23
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\scheduler\\tasks.py",
+    "sha256": "ed27f3bcaf68632499fe988419b43b7b3d1e4b24be75c4f7b506b0ff516fc1b1",
+    "lines": 556,
+    "anchors": [
+      {
+        "symbol": "TransportUnavailable",
+        "line": 26,
+        "end_line": 27
+      },
+      {
+        "symbol": "TransportRejected",
+        "line": 30,
+        "end_line": 31
+      },
+      {
+        "symbol": "TransportUncertain",
+        "line": 34,
+        "end_line": 35
+      },
+      {
+        "symbol": "BaleSender",
+        "line": 38,
+        "end_line": 124
+      },
+      {
+        "symbol": "note_receipt",
+        "line": 127,
+        "end_line": 129
+      },
+      {
+        "symbol": "closed_sets",
+        "line": 132,
+        "end_line": 134
+      },
+      {
+        "symbol": "_fanout_result",
+        "line": 137,
+        "end_line": 145
+      },
+      {
+        "symbol": "overflow_report_date",
+        "line": 148,
+        "end_line": 155
+      },
+      {
+        "symbol": "overflow_report_caption",
+        "line": 158,
+        "end_line": 165
+      },
+      {
+        "symbol": "validate_overflow",
+        "line": 168,
+        "end_line": 174
+      },
+      {
+        "symbol": "overflow",
+        "line": 177,
+        "end_line": 255
+      },
+      {
+        "symbol": "driver_daily",
+        "line": 258,
+        "end_line": 333
+      },
+      {
+        "symbol": "_mechanical_push",
+        "line": 336,
+        "end_line": 424
+      },
+      {
+        "symbol": "mechanical_overflow",
+        "line": 427,
+        "end_line": 431
+      },
+      {
+        "symbol": "mechanical_driver_daily",
+        "line": 434,
+        "end_line": 438
+      },
+      {
+        "symbol": "metalwork_driver_daily",
+        "line": 441,
+        "end_line": 513
+      },
+      {
+        "symbol": "maintenance_daily_report",
+        "line": 531,
+        "end_line": 533
+      },
+      {
+        "symbol": "oil_balance_daily_report",
+        "line": 541,
+        "end_line": 543
+      },
+      {
+        "symbol": "machinery_performance_daily_report",
+        "line": 551,
+        "end_line": 553
+      },
+      {
+        "symbol": "__init__",
+        "line": 39,
+        "end_line": 46
+      },
+      {
+        "symbol": "_message_id",
+        "line": 48,
+        "end_line": 56
+      },
+      {
+        "symbol": "_post",
+        "line": 58,
+        "end_line": 87
+      },
+      {
+        "symbol": "message",
+        "line": 89,
+        "end_line": 90
+      },
+      {
+        "symbol": "photo",
+        "line": 92,
+        "end_line": 95
+      },
+      {
+        "symbol": "photo_memory",
+        "line": 97,
+        "end_line": 102
+      },
+      {
+        "symbol": "close",
+        "line": 104,
+        "end_line": 105
+      },
+      {
+        "symbol": "document",
+        "line": 107,
+        "end_line": 110
+      },
+      {
+        "symbol": "check_connection",
+        "line": 112,
+        "end_line": 124
+      },
+      {
+        "symbol": "authorized",
+        "line": 185,
+        "end_line": 191
+      },
+      {
+        "symbol": "authorized",
+        "line": 267,
+        "end_line": 273
+      },
+      {
+        "symbol": "recipients",
+        "line": 344,
+        "end_line": 347
+      },
+      {
+        "symbol": "recipients",
+        "line": 448,
+        "end_line": 449
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\authorization\\__init__.py",
+    "sha256": "531ea9cc0e4261e80b49856743fb10fc938b42e9c1d5272540ff6b55cff003f7",
+    "lines": 52,
+    "anchors": []
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\authorization\\delivery_alert.py",
+    "sha256": "9abdf8816762736196fbfb4d7123377875b6e31834fc9899df3dd23dd765d7ca",
+    "lines": 59,
+    "anchors": [
+      {
+        "symbol": "migrate",
+        "line": 18,
+        "end_line": 59
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\authorization\\machinery_performance.py",
+    "sha256": "77277b37cd53758ebf5fa9b52f3d2315bc6f5dc48078743b16f7d52e9f3e1107",
+    "lines": 57,
+    "anchors": [
+      {
+        "symbol": "migrate",
+        "line": 19,
+        "end_line": 57
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\authorization\\maintenance.py",
+    "sha256": "7bcd1e641ea9ff4ada4aeda744e4ef5b6a7a306a9f9aa13d5a16deded9273b64",
+    "lines": 33,
+    "anchors": [
+      {
+        "symbol": "migrate",
+        "line": 10,
+        "end_line": 33
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\authorization\\manage.py",
+    "sha256": "8170afd6b39cdbe30637ae19f4cad0796c51b7e635d34df134dab5a66bbd5be1",
+    "lines": 41,
+    "anchors": [
+      {
+        "symbol": "main",
+        "line": 10,
+        "end_line": 37
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\authorization\\net.py",
+    "sha256": "69007794e9fccf53a2dc5180ecacd6f89c2fe82d302bcd233b88f5bf6bc36705",
+    "lines": 227,
+    "anchors": [
+      {
+        "symbol": "assign_net_staff",
+        "line": 42,
+        "end_line": 77
+      },
+      {
+        "symbol": "repairs_sections",
+        "line": 80,
+        "end_line": 112
+      },
+      {
+        "symbol": "DomainDecision",
+        "line": 116,
+        "end_line": 119
+      },
+      {
+        "symbol": "domain_decision",
+        "line": 122,
+        "end_line": 166
+      },
+      {
+        "symbol": "migrate_net",
+        "line": 169,
+        "end_line": 227
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\authorization\\office_delivery.py",
+    "sha256": "658b0a6bb7cbd3815239310f6990ed18ef67b17fa9d44b856a81519fffcf0dc5",
+    "lines": 45,
+    "anchors": [
+      {
+        "symbol": "migrate",
+        "line": 14,
+        "end_line": 45
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\authorization\\oil_balance.py",
+    "sha256": "cfc3cad1c592ef1af36294ab90b5de66df44ddb8fe49cf8ac908202f74eda9e9",
+    "lines": 44,
+    "anchors": [
+      {
+        "symbol": "migrate",
+        "line": 17,
+        "end_line": 44
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\authorization\\run_mechanical_checks.py",
+    "sha256": "92ecb683984954a162a12ce048d0d1de6c50ce7bbc04ccb39884a07c33a6666c",
+    "lines": 33,
+    "anchors": [
+      {
+        "symbol": "main",
+        "line": 18,
+        "end_line": 32
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\authorization\\run_metalwork_checks.py",
+    "sha256": "ef8de8cd649ce8fae2c1b581ae86584ab97c8cb426736e3f31dc33403b03a4a3",
+    "lines": 35,
+    "anchors": [
+      {
+        "symbol": "main",
+        "line": 17,
+        "end_line": 33
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\authorization\\run_net_checks.py",
+    "sha256": "2880a84020004594b84b124880802e5434f1385587a0065c8a837f337dc5c1b4",
+    "lines": 142,
+    "anchors": [
+      {
+        "symbol": "safe_connect",
+        "line": 45,
+        "end_line": 59
+      },
+      {
+        "symbol": "safe_save",
+        "line": 60,
+        "end_line": 65
+      },
+      {
+        "symbol": "fixture_pdf",
+        "line": 66,
+        "end_line": 71
+      },
+      {
+        "symbol": "unique_tests",
+        "line": 72,
+        "end_line": 80
+      },
+      {
+        "symbol": "main",
+        "line": 81,
+        "end_line": 141
+      },
+      {
+        "symbol": "flatten",
+        "line": 74,
+        "end_line": 79
+      },
+      {
+        "symbol": "IsolatedDirectory",
+        "line": 119,
+        "end_line": 124
+      },
+      {
+        "symbol": "__init__",
+        "line": 120,
+        "end_line": 124
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\authorization\\run_pakdel_checks.py",
+    "sha256": "729bae7545a2959299d2389a184e7f4fe5f9b63a94fbbf1b2ce83094d258fb55",
+    "lines": 105,
+    "anchors": [
+      {
+        "symbol": "main",
+        "line": 19,
+        "end_line": 101
+      },
+      {
+        "symbol": "safe_run",
+        "line": 34,
+        "end_line": 39
+      },
+      {
+        "symbol": "safe_connect",
+        "line": 44,
+        "end_line": 55
+      },
+      {
+        "symbol": "safe_save",
+        "line": 56,
+        "end_line": 61
+      },
+      {
+        "symbol": "fixture_pdf",
+        "line": 62,
+        "end_line": 67
+      },
+      {
+        "symbol": "flatten",
+        "line": 87,
+        "end_line": 92
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\authorization\\store.py",
+    "sha256": "0d160bb80b75d649d115a60500fa343f16ee445e221adaf78eb60aec8310b8c3",
+    "lines": 626,
+    "anchors": [
+      {
+        "symbol": "now",
+        "line": 93,
+        "end_line": 94
+      },
+      {
+        "symbol": "RecipientResolution",
+        "line": 98,
+        "end_line": 101
+      },
+      {
+        "symbol": "RecipientSetResolution",
+        "line": 105,
+        "end_line": 110
+      },
+      {
+        "symbol": "FunctionScope",
+        "line": 114,
+        "end_line": 120
+      },
+      {
+        "symbol": "valid_registry_name",
+        "line": 123,
+        "end_line": 134
+      },
+      {
+        "symbol": "AuthorizationStore",
+        "line": 137,
+        "end_line": 626
+      },
+      {
+        "symbol": "__bool__",
+        "line": 119,
+        "end_line": 120
+      },
+      {
+        "symbol": "__init__",
+        "line": 138,
+        "end_line": 139
+      },
+      {
+        "symbol": "_connect",
+        "line": 141,
+        "end_line": 151
+      },
+      {
+        "symbol": "_version",
+        "line": 154,
+        "end_line": 156
+      },
+      {
+        "symbol": "backup",
+        "line": 158,
+        "end_line": 168
+      },
+      {
+        "symbol": "migrate",
+        "line": 170,
+        "end_line": 186
+      },
+      {
+        "symbol": "roles",
+        "line": 188,
+        "end_line": 201
+      },
+      {
+        "symbol": "capabilities_for_role",
+        "line": 203,
+        "end_line": 214
+      },
+      {
+        "symbol": "_has_capability",
+        "line": 217,
+        "end_line": 225
+      },
+      {
+        "symbol": "has_capability",
+        "line": 227,
+        "end_line": 235
+      },
+      {
+        "symbol": "identity_label",
+        "line": 237,
+        "end_line": 262
+      },
+      {
+        "symbol": "can_read_overflow",
+        "line": 264,
+        "end_line": 267
+      },
+      {
+        "symbol": "resolve_daily_recipient",
+        "line": 269,
+        "end_line": 291
+      },
+      {
+        "symbol": "assign_role",
+        "line": 293,
+        "end_line": 324
+      },
+      {
+        "symbol": "migrate_admin",
+        "line": 327,
+        "end_line": 347
+      },
+      {
+        "symbol": "resolve_profile",
+        "line": 349,
+        "end_line": 375
+      },
+      {
+        "symbol": "assign_roles",
+        "line": 378,
+        "end_line": 383
+      },
+      {
+        "symbol": "_assign_roles",
+        "line": 386,
+        "end_line": 400
+      },
+      {
+        "symbol": "migrate_business_admin_profile",
+        "line": 402,
+        "end_line": 442
+      },
+      {
+        "symbol": "migrate_mechanical",
+        "line": 444,
+        "end_line": 503
+      },
+      {
+        "symbol": "migrate_metalwork",
+        "line": 505,
+        "end_line": 563
+      },
+      {
+        "symbol": "resolve_active_recipients",
+        "line": 565,
+        "end_line": 599
+      },
+      {
+        "symbol": "function_scope",
+        "line": 601,
+        "end_line": 626
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\repairs\\__init__.py",
+    "sha256": "39a460215595db57dfb4f8faa6afc379c62515695898fafaad646efaffe87c28",
+    "lines": 1,
+    "anchors": []
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\repairs\\activate_entry.py",
+    "sha256": "5b1e65390ada855aa8957ee9017d931b318a14537d3c57004a76b3c580da5646",
+    "lines": 60,
+    "anchors": [
+      {
+        "symbol": "main",
+        "line": 15,
+        "end_line": 56
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\repairs\\entry_ai_bale.py",
+    "sha256": "134a5ced98905ce90d26d0a2843074e447f34e26385a841dc54626f523adfd16",
+    "lines": 291,
+    "anchors": [
+      {
+        "symbol": "trace_route",
+        "line": 13,
+        "end_line": 17
+      },
+      {
+        "symbol": "DailyAIHandler",
+        "line": 20,
+        "end_line": 288
+      },
+      {
+        "symbol": "__init__",
+        "line": 24,
+        "end_line": 35
+      },
+      {
+        "symbol": "current",
+        "line": 37,
+        "end_line": 38
+      },
+      {
+        "symbol": "actor_keyboard",
+        "line": 40,
+        "end_line": 73
+      },
+      {
+        "symbol": "reply",
+        "line": 75,
+        "end_line": 86
+      },
+      {
+        "symbol": "invoke",
+        "line": 88,
+        "end_line": 91
+      },
+      {
+        "symbol": "show",
+        "line": 93,
+        "end_line": 136
+      },
+      {
+        "symbol": "advance_ai",
+        "line": 138,
+        "end_line": 220
+      },
+      {
+        "symbol": "handle",
+        "line": 222,
+        "end_line": 288
+      },
+      {
+        "symbol": "button",
+        "line": 42,
+        "end_line": 42
+      },
+      {
+        "symbol": "execute",
+        "line": 277,
+        "end_line": 286
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\repairs\\entry_bale.py",
+    "sha256": "6fdeb3c06a712201cf404815fc79d9dd2558b49a56dbc38f487e7b825ac2b25e",
+    "lines": 447,
+    "anchors": [
+      {
+        "symbol": "normalized",
+        "line": 23,
+        "end_line": 24
+      },
+      {
+        "symbol": "sections_for",
+        "line": 27,
+        "end_line": 32
+      },
+      {
+        "symbol": "permitted",
+        "line": 35,
+        "end_line": 36
+      },
+      {
+        "symbol": "menu_permitted",
+        "line": 39,
+        "end_line": 44
+      },
+      {
+        "symbol": "keyboard",
+        "line": 47,
+        "end_line": 75
+      },
+      {
+        "symbol": "worker",
+        "line": 78,
+        "end_line": 92
+      },
+      {
+        "symbol": "RepairsEntryHandler",
+        "line": 95,
+        "end_line": 444
+      },
+      {
+        "symbol": "button",
+        "line": 48,
+        "end_line": 49
+      },
+      {
+        "symbol": "__init__",
+        "line": 106,
+        "end_line": 134
+      },
+      {
+        "symbol": "restore_keyboards",
+        "line": 136,
+        "end_line": 147
+      },
+      {
+        "symbol": "persist",
+        "line": 149,
+        "end_line": 151
+      },
+      {
+        "symbol": "active_for",
+        "line": 153,
+        "end_line": 156
+      },
+      {
+        "symbol": "actor_keyboard",
+        "line": 158,
+        "end_line": 166
+      },
+      {
+        "symbol": "date_prompt",
+        "line": 169,
+        "end_line": 170
+      },
+      {
+        "symbol": "reply",
+        "line": 172,
+        "end_line": 205
+      },
+      {
+        "symbol": "start_task",
+        "line": 207,
+        "end_line": 223
+      },
+      {
+        "symbol": "advance",
+        "line": 225,
+        "end_line": 369
+      },
+      {
+        "symbol": "handle",
+        "line": 371,
+        "end_line": 444
+      },
+      {
+        "symbol": "execute",
+        "line": 209,
+        "end_line": 220
+      },
+      {
+        "symbol": "execute",
+        "line": 440,
+        "end_line": 442
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\repairs\\entry_dates.py",
+    "sha256": "4ff6ee60d38213ff0ddc2c5f15b3732ee46c7cfa747f4bbc158f7b5d5663135e",
+    "lines": 42,
+    "anchors": [
+      {
+        "symbol": "jalali_date",
+        "line": 8,
+        "end_line": 16
+      },
+      {
+        "symbol": "formatted",
+        "line": 19,
+        "end_line": 20
+      },
+      {
+        "symbol": "today",
+        "line": 23,
+        "end_line": 25
+      },
+      {
+        "symbol": "choices",
+        "line": 28,
+        "end_line": 31
+      },
+      {
+        "symbol": "validate_selected",
+        "line": 34,
+        "end_line": 38
+      },
+      {
+        "symbol": "readable",
+        "line": 41,
+        "end_line": 42
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\repairs\\entry_delivery.py",
+    "sha256": "322bb81ffd5a9c323c01d1a0be4fc791151eea04ce6f06417a8ade6a7af6b93d",
+    "lines": 43,
+    "anchors": [
+      {
+        "symbol": "delivery_review",
+        "line": 9,
+        "end_line": 43
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\repairs\\entry_draft.py",
+    "sha256": "617982068f7915e7d9bdd86d68b28cb7ed662aae368411677140d64f8912788e",
+    "lines": 239,
+    "anchors": [
+      {
+        "symbol": "gate",
+        "line": 18,
+        "end_line": 21
+      },
+      {
+        "symbol": "report_date",
+        "line": 24,
+        "end_line": 37
+      },
+      {
+        "symbol": "refresh",
+        "line": 40,
+        "end_line": 102
+      },
+      {
+        "symbol": "create",
+        "line": 105,
+        "end_line": 116
+      },
+      {
+        "symbol": "edit",
+        "line": 119,
+        "end_line": 145
+      },
+      {
+        "symbol": "approval",
+        "line": 148,
+        "end_line": 161
+      },
+      {
+        "symbol": "commit",
+        "line": 164,
+        "end_line": 179
+      },
+      {
+        "symbol": "complete",
+        "line": 182,
+        "end_line": 187
+      },
+      {
+        "symbol": "recover",
+        "line": 190,
+        "end_line": 219
+      },
+      {
+        "symbol": "execute",
+        "line": 222,
+        "end_line": 239
+      },
+      {
+        "symbol": "check",
+        "line": 166,
+        "end_line": 170
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\repairs\\entry_draft_store.py",
+    "sha256": "8dd96b97c5f4a46147c633b2308dec1ad044868f7b49e150ab2316b3d79b5245",
+    "lines": 132,
+    "anchors": [
+      {
+        "symbol": "DraftError",
+        "line": 13,
+        "end_line": 14
+      },
+      {
+        "symbol": "encoded",
+        "line": 16,
+        "end_line": 17
+      },
+      {
+        "symbol": "content_hash",
+        "line": 20,
+        "end_line": 21
+      },
+      {
+        "symbol": "DraftStore",
+        "line": 24,
+        "end_line": 132
+      },
+      {
+        "symbol": "__init__",
+        "line": 25,
+        "end_line": 26
+      },
+      {
+        "symbol": "connect",
+        "line": 28,
+        "end_line": 38
+      },
+      {
+        "symbol": "event",
+        "line": 41,
+        "end_line": 44
+      },
+      {
+        "symbol": "decoded",
+        "line": 47,
+        "end_line": 53
+      },
+      {
+        "symbol": "load",
+        "line": 55,
+        "end_line": 61
+      },
+      {
+        "symbol": "latest",
+        "line": 63,
+        "end_line": 67
+      },
+      {
+        "symbol": "create",
+        "line": 69,
+        "end_line": 78
+      },
+      {
+        "symbol": "update",
+        "line": 80,
+        "end_line": 96
+      },
+      {
+        "symbol": "bind",
+        "line": 98,
+        "end_line": 101
+      },
+      {
+        "symbol": "consume",
+        "line": 103,
+        "end_line": 132
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\repairs\\entry_extract.py",
+    "sha256": "d51b0487c23c0d3af5d98ccd822cdd6c5f0945839a16a5e646218e264b8bd53a",
+    "lines": 154,
+    "anchors": [
+      {
+        "symbol": "enabled",
+        "line": 13,
+        "end_line": 18
+      },
+      {
+        "symbol": "intent_decision",
+        "line": 40,
+        "end_line": 67
+      },
+      {
+        "symbol": "intent",
+        "line": 70,
+        "end_line": 72
+      },
+      {
+        "symbol": "exact_keys",
+        "line": 75,
+        "end_line": 77
+      },
+      {
+        "symbol": "validate",
+        "line": 80,
+        "end_line": 130
+      },
+      {
+        "symbol": "extract",
+        "line": 133,
+        "end_line": 154
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\repairs\\entry_service.py",
+    "sha256": "23ecf586a39e90ddadb373b45a6ca8466fae7e522a16a7593ad81f1c475fec11",
+    "lines": 669,
+    "anchors": [
+      {
+        "symbol": "EntryError",
+        "line": 30,
+        "end_line": 31
+      },
+      {
+        "symbol": "EntryConflict",
+        "line": 34,
+        "end_line": 35
+      },
+      {
+        "symbol": "EntryAuthorizationDenied",
+        "line": 38,
+        "end_line": 40
+      },
+      {
+        "symbol": "permission",
+        "line": 43,
+        "end_line": 51
+      },
+      {
+        "symbol": "key",
+        "line": 54,
+        "end_line": 55
+      },
+      {
+        "symbol": "layout",
+        "line": 58,
+        "end_line": 67
+      },
+      {
+        "symbol": "dated_sheets",
+        "line": 70,
+        "end_line": 86
+      },
+      {
+        "symbol": "today_sheet",
+        "line": 89,
+        "end_line": 93
+      },
+      {
+        "symbol": "machine",
+        "line": 96,
+        "end_line": 130
+      },
+      {
+        "symbol": "find_row",
+        "line": 133,
+        "end_line": 137
+      },
+      {
+        "symbol": "text_value",
+        "line": 140,
+        "end_line": 141
+      },
+      {
+        "symbol": "selected_date",
+        "line": 144,
+        "end_line": 148
+      },
+      {
+        "symbol": "preview",
+        "line": 151,
+        "end_line": 172
+      },
+      {
+        "symbol": "source_reader",
+        "line": 176,
+        "end_line": 194
+      },
+      {
+        "symbol": "writer_lock",
+        "line": 198,
+        "end_line": 230
+      },
+      {
+        "symbol": "replace_source",
+        "line": 233,
+        "end_line": 244
+      },
+      {
+        "symbol": "copy_style",
+        "line": 247,
+        "end_line": 250
+      },
+      {
+        "symbol": "wrapped_lines",
+        "line": 253,
+        "end_line": 257
+      },
+      {
+        "symbol": "fitted_height",
+        "line": 260,
+        "end_line": 262
+      },
+      {
+        "symbol": "apply_template_row_style",
+        "line": 265,
+        "end_line": 271
+      },
+      {
+        "symbol": "machine_rows",
+        "line": 274,
+        "end_line": 275
+      },
+      {
+        "symbol": "row_texts",
+        "line": 278,
+        "end_line": 279
+      },
+      {
+        "symbol": "copy_template",
+        "line": 282,
+        "end_line": 304
+      },
+      {
+        "symbol": "create_blank_template",
+        "line": 307,
+        "end_line": 332
+      },
+      {
+        "symbol": "clone_day",
+        "line": 335,
+        "end_line": 351
+      },
+      {
+        "symbol": "set_description",
+        "line": 354,
+        "end_line": 420
+      },
+      {
+        "symbol": "require_target_row",
+        "line": 423,
+        "end_line": 427
+      },
+      {
+        "symbol": "prepare_entry",
+        "line": 430,
+        "end_line": 469
+      },
+      {
+        "symbol": "commit",
+        "line": 472,
+        "end_line": 479
+      },
+      {
+        "symbol": "commit_batch",
+        "line": 482,
+        "end_line": 506
+      },
+      {
+        "symbol": "open_audit",
+        "line": 509,
+        "end_line": 515
+      },
+      {
+        "symbol": "recover_prepared",
+        "line": 518,
+        "end_line": 529
+      },
+      {
+        "symbol": "publish_candidate",
+        "line": 532,
+        "end_line": 586
+      },
+      {
+        "symbol": "commit_workbook",
+        "line": 589,
+        "end_line": 639
+      },
+      {
+        "symbol": "main",
+        "line": 642,
+        "end_line": 665
+      },
+      {
+        "symbol": "check_date",
+        "line": 455,
+        "end_line": 456
+      },
+      {
+        "symbol": "check_authorization",
+        "line": 457,
+        "end_line": 460
+      },
+      {
+        "symbol": "mutate",
+        "line": 461,
+        "end_line": 468
+      },
+      {
+        "symbol": "authorization",
+        "line": 496,
+        "end_line": 500
+      },
+      {
+        "symbol": "dates",
+        "line": 501,
+        "end_line": 502
+      },
+      {
+        "symbol": "mutate",
+        "line": 503,
+        "end_line": 504
+      },
+      {
+        "symbol": "before_replace",
+        "line": 631,
+        "end_line": 635
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\repairs\\maintenance_bale.py",
+    "sha256": "2f05771c4d7aded5b168caa3601537bf96eae561cdb03f333f2ba0a17b773ce6",
+    "lines": 126,
+    "anchors": [
+      {
+        "symbol": "permitted",
+        "line": 12,
+        "end_line": 18
+      },
+      {
+        "symbol": "keyboard",
+        "line": 21,
+        "end_line": 30
+      },
+      {
+        "symbol": "run_worker",
+        "line": 33,
+        "end_line": 34
+      },
+      {
+        "symbol": "MaintenanceEntryHandler",
+        "line": 37,
+        "end_line": 123
+      },
+      {
+        "symbol": "button",
+        "line": 22,
+        "end_line": 23
+      },
+      {
+        "symbol": "__init__",
+        "line": 47,
+        "end_line": 48
+      },
+      {
+        "symbol": "advance",
+        "line": 50,
+        "end_line": 123
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\repairs\\maintenance_baseline.py",
+    "sha256": "e0f82841fe21f7e87435741697e26c2b85c1b006a59fd29f1af0da7ad8fb4a1f",
+    "lines": 368,
+    "anchors": [
+      {
+        "symbol": "baseline_reader",
+        "line": 31,
+        "end_line": 48
+      },
+      {
+        "symbol": "digest",
+        "line": 51,
+        "end_line": 52
+      },
+      {
+        "symbol": "encoded",
+        "line": 55,
+        "end_line": 56
+      },
+      {
+        "symbol": "history",
+        "line": 59,
+        "end_line": 61
+      },
+      {
+        "symbol": "check_journal",
+        "line": 64,
+        "end_line": 66
+      },
+      {
+        "symbol": "validate_workbook",
+        "line": 69,
+        "end_line": 84
+      },
+      {
+        "symbol": "schema",
+        "line": 87,
+        "end_line": 95
+      },
+      {
+        "symbol": "initialize",
+        "line": 98,
+        "end_line": 102
+      },
+      {
+        "symbol": "initialize_locked",
+        "line": 105,
+        "end_line": 148
+      },
+      {
+        "symbol": "baseline",
+        "line": 151,
+        "end_line": 166
+      },
+      {
+        "symbol": "snapshot",
+        "line": 169,
+        "end_line": 175
+      },
+      {
+        "symbol": "xml",
+        "line": 178,
+        "end_line": 179
+      },
+      {
+        "symbol": "cell_state",
+        "line": 182,
+        "end_line": 187
+      },
+      {
+        "symbol": "view_state",
+        "line": 190,
+        "end_line": 203
+      },
+      {
+        "symbol": "sheet_state",
+        "line": 206,
+        "end_line": 221
+      },
+      {
+        "symbol": "states",
+        "line": 224,
+        "end_line": 225
+      },
+      {
+        "symbol": "additions",
+        "line": 228,
+        "end_line": 259
+      },
+      {
+        "symbol": "combine",
+        "line": 262,
+        "end_line": 303
+      },
+      {
+        "symbol": "sync_from_baseline",
+        "line": 306,
+        "end_line": 368
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\repairs\\maintenance_permission.py",
+    "sha256": "4f119529c0e768000a50e260bd08fffc23c471bb39b48388d00fe5f24067c7c8",
+    "lines": 27,
+    "anchors": [
+      {
+        "symbol": "permission",
+        "line": 13,
+        "end_line": 27
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\repairs\\maintenance_service.py",
+    "sha256": "4a8b7ca2ba2873d984783362fc2eb27a16f642af50133079412d9c57e0fbe740",
+    "lines": 173,
+    "anchors": [
+      {
+        "symbol": "permission",
+        "line": 20,
+        "end_line": 25
+      },
+      {
+        "symbol": "layout",
+        "line": 28,
+        "end_line": 37
+      },
+      {
+        "symbol": "machines",
+        "line": 40,
+        "end_line": 51
+      },
+      {
+        "symbol": "machine",
+        "line": 54,
+        "end_line": 65
+      },
+      {
+        "symbol": "preview",
+        "line": 68,
+        "end_line": 74
+      },
+      {
+        "symbol": "validate_text",
+        "line": 77,
+        "end_line": 80
+      },
+      {
+        "symbol": "append_record",
+        "line": 83,
+        "end_line": 126
+      },
+      {
+        "symbol": "commit",
+        "line": 129,
+        "end_line": 135
+      },
+      {
+        "symbol": "verify_replay",
+        "line": 138,
+        "end_line": 149
+      },
+      {
+        "symbol": "main",
+        "line": 152,
+        "end_line": 169
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\repairs\\maintenance_sync.py",
+    "sha256": "c79926847666c70f3e52b3efbd9bc7b4845188c80ff6d9557b8d8d2ea09a374f",
+    "lines": 124,
+    "anchors": [
+      {
+        "symbol": "MaintenanceSyncBlocked",
+        "line": 14,
+        "end_line": 15
+      },
+      {
+        "symbol": "digest",
+        "line": 18,
+        "end_line": 19
+      },
+      {
+        "symbol": "retain_snapshot",
+        "line": 22,
+        "end_line": 40
+      },
+      {
+        "symbol": "guard_snapshot",
+        "line": 43,
+        "end_line": 107
+      },
+      {
+        "symbol": "main",
+        "line": 110,
+        "end_line": 120
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\repairs\\pdf_validation.py",
+    "sha256": "448f81f578636815135fbbd8c50da682a9991d555c9b0024eca092aea1b45fde",
+    "lines": 286,
+    "anchors": [
+      {
+        "symbol": "canonical",
+        "line": 21,
+        "end_line": 27
+      },
+      {
+        "symbol": "_line_variants",
+        "line": 30,
+        "end_line": 45
+      },
+      {
+        "symbol": "equivalent",
+        "line": 48,
+        "end_line": 56
+      },
+      {
+        "symbol": "_lines",
+        "line": 59,
+        "end_line": 93
+      },
+      {
+        "symbol": "_grid",
+        "line": 96,
+        "end_line": 122
+      },
+      {
+        "symbol": "DriverPDFInvalid",
+        "line": 137,
+        "end_line": 142
+      },
+      {
+        "symbol": "_validate_driver_pdf_in_process",
+        "line": 145,
+        "end_line": 240
+      },
+      {
+        "symbol": "validate_driver_pdf",
+        "line": 243,
+        "end_line": 273
+      },
+      {
+        "symbol": "distinct",
+        "line": 113,
+        "end_line": 118
+      },
+      {
+        "symbol": "__init__",
+        "line": 138,
+        "end_line": 142
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\repairs\\rehearse_ai_daily_entry.py",
+    "sha256": "95fca4c7e9b65ffd4982ba8f263778add26feb55440b97e2741c77fbd52ee46b",
+    "lines": 185,
+    "anchors": [
+      {
+        "symbol": "digest",
+        "line": 33,
+        "end_line": 33
+      },
+      {
+        "symbol": "fixture_extraction",
+        "line": 36,
+        "end_line": 43
+      },
+      {
+        "symbol": "run",
+        "line": 46,
+        "end_line": 169
+      },
+      {
+        "symbol": "main",
+        "line": 172,
+        "end_line": 182
+      },
+      {
+        "symbol": "send_message",
+        "line": 59,
+        "end_line": 59
+      },
+      {
+        "symbol": "fallback",
+        "line": 62,
+        "end_line": 62
+      },
+      {
+        "symbol": "worker",
+        "line": 63,
+        "end_line": 71
+      },
+      {
+        "symbol": "extractor",
+        "line": 72,
+        "end_line": 72
+      },
+      {
+        "symbol": "event",
+        "line": 85,
+        "end_line": 86
+      },
+      {
+        "symbol": "deliver",
+        "line": 87,
+        "end_line": 95
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\repairs\\rehearse_department_sync.py",
+    "sha256": "4a771a132a0165085324b929f1483f8123cb4b67d53e48f9deaf9d5c90117cbf",
+    "lines": 119,
+    "anchors": [
+      {
+        "symbol": "signature",
+        "line": 17,
+        "end_line": 26
+      },
+      {
+        "symbol": "main",
+        "line": 29,
+        "end_line": 115
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\repairs\\rehearse_entry.py",
+    "sha256": "5210fa766a9c7d7eab7ff815029c235d5a4d82434dda4647ca1d456f7d79832a",
+    "lines": 77,
+    "anchors": [
+      {
+        "symbol": "signature",
+        "line": 15,
+        "end_line": 23
+      },
+      {
+        "symbol": "main",
+        "line": 26,
+        "end_line": 73
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\repairs\\rehearse_maintenance.py",
+    "sha256": "3102e4482cfd87564423c2361f8f84c38db2f6f2f65a2fd85dcd0973e7126f31",
+    "lines": 66,
+    "anchors": [
+      {
+        "symbol": "snapshot",
+        "line": 14,
+        "end_line": 16
+      },
+      {
+        "symbol": "main",
+        "line": 19,
+        "end_line": 62
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\repairs\\rehearse_maintenance_baseline.py",
+    "sha256": "90cfd71b06064a76ccc28047809fb59de4a016d0aae8d368008082fcb4fbb8ca",
+    "lines": 127,
+    "anchors": [
+      {
+        "symbol": "sha",
+        "line": 20,
+        "end_line": 21
+      },
+      {
+        "symbol": "run",
+        "line": 24,
+        "end_line": 123
+      },
+      {
+        "symbol": "edits",
+        "line": 41,
+        "end_line": 43
+      },
+      {
+        "symbol": "request",
+        "line": 55,
+        "end_line": 58
+      },
+      {
+        "symbol": "append_mine",
+        "line": 60,
+        "end_line": 67
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\repairs\\rehearse_safe_manual_excel.py",
+    "sha256": "66320f2073cb7c5687775acc448479d76e655f50ab7adebeaf128c79e1fe7de2",
+    "lines": 222,
+    "anchors": [
+      {
+        "symbol": "digest",
+        "line": 19,
+        "end_line": 20
+      },
+      {
+        "symbol": "snapshot",
+        "line": 23,
+        "end_line": 37
+      },
+      {
+        "symbol": "preserved",
+        "line": 40,
+        "end_line": 53
+      },
+      {
+        "symbol": "read_snapshot",
+        "line": 56,
+        "end_line": 61
+      },
+      {
+        "symbol": "run",
+        "line": 64,
+        "end_line": 218
+      },
+      {
+        "symbol": "xml",
+        "line": 24,
+        "end_line": 25
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\repairs\\rehearse_seven_day_entry.py",
+    "sha256": "46b70bb3bc855d00f7324e200aa022efb90309aa863031b842b2a4dbd34c3c8a",
+    "lines": 299,
+    "anchors": [
+      {
+        "symbol": "digest",
+        "line": 31,
+        "end_line": 32
+      },
+      {
+        "symbol": "backup_db",
+        "line": 35,
+        "end_line": 38
+      },
+      {
+        "symbol": "write_json",
+        "line": 41,
+        "end_line": 42
+      },
+      {
+        "symbol": "rejected",
+        "line": 45,
+        "end_line": 52
+      },
+      {
+        "symbol": "check_daily",
+        "line": 55,
+        "end_line": 141
+      },
+      {
+        "symbol": "check_maintenance",
+        "line": 144,
+        "end_line": 259
+      },
+      {
+        "symbol": "main",
+        "line": 262,
+        "end_line": 295
+      },
+      {
+        "symbol": "send_message",
+        "line": 178,
+        "end_line": 180
+      },
+      {
+        "symbol": "worker",
+        "line": 183,
+        "end_line": 189
+      },
+      {
+        "symbol": "event",
+        "line": 192,
+        "end_line": 194
+      },
+      {
+        "symbol": "fallback",
+        "line": 195,
+        "end_line": 196
+      },
+      {
+        "symbol": "revoke_during_save",
+        "line": 243,
+        "end_line": 246
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\repairs\\report.py",
+    "sha256": "a477d85199f5620056f6938530fa7ba6dedc8eda0e27e2a14c8cb5cc00ea435a",
+    "lines": 125,
+    "anchors": [
+      {
+        "symbol": "section_columns",
+        "line": 20,
+        "end_line": 39
+      },
+      {
+        "symbol": "latest_sheet",
+        "line": 42,
+        "end_line": 64
+      },
+      {
+        "symbol": "export_pdf",
+        "line": 67,
+        "end_line": 125
+      },
+      {
+        "symbol": "key",
+        "line": 24,
+        "end_line": 25
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\repairs\\sync_cells.py",
+    "sha256": "67026d12c81ec3c7522689c0d1b0a0c73f0c6104cb01ba60ef1c8ce87d69fc1a",
+    "lines": 223,
+    "anchors": [
+      {
+        "symbol": "value",
+        "line": 16,
+        "end_line": 24
+      },
+      {
+        "symbol": "assign",
+        "line": 27,
+        "end_line": 32
+      },
+      {
+        "symbol": "styles",
+        "line": 35,
+        "end_line": 41
+      },
+      {
+        "symbol": "assets",
+        "line": 44,
+        "end_line": 49
+      },
+      {
+        "symbol": "dimensions",
+        "line": 52,
+        "end_line": 66
+      },
+      {
+        "symbol": "property_value",
+        "line": 69,
+        "end_line": 76
+      },
+      {
+        "symbol": "local_changes",
+        "line": 79,
+        "end_line": 144
+      },
+      {
+        "symbol": "extend_changes",
+        "line": 147,
+        "end_line": 157
+      },
+      {
+        "symbol": "apply_changes",
+        "line": 160,
+        "end_line": 191
+      },
+      {
+        "symbol": "verify_changes",
+        "line": 194,
+        "end_line": 202
+      },
+      {
+        "symbol": "refresh_confirmed_changes",
+        "line": 205,
+        "end_line": 223
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\repairs\\sync_service.py",
+    "sha256": "39471952e3bdd59c03f0086899076b6a7c2d476bb6e214e5c620ad73ed563f90",
+    "lines": 241,
+    "anchors": [
+      {
+        "symbol": "SyncConflict",
+        "line": 27,
+        "end_line": 28
+      },
+      {
+        "symbol": "digest",
+        "line": 31,
+        "end_line": 32
+      },
+      {
+        "symbol": "sync_schema",
+        "line": 35,
+        "end_line": 42
+      },
+      {
+        "symbol": "initialize",
+        "line": 45,
+        "end_line": 70
+      },
+      {
+        "symbol": "journal_state",
+        "line": 73,
+        "end_line": 114
+      },
+      {
+        "symbol": "combine",
+        "line": 117,
+        "end_line": 161
+      },
+      {
+        "symbol": "merge_snapshot",
+        "line": 164,
+        "end_line": 217
+      },
+      {
+        "symbol": "main",
+        "line": 220,
+        "end_line": 237
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\maintenance_daily\\__init__.py",
+    "sha256": "dbf3a754bbb4f05ff7a97651860fcd992f8d2efbe6433e56b18c111b1b0ebb78",
+    "lines": 1,
+    "anchors": []
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\maintenance_daily\\delivery.py",
+    "sha256": "be92b6696de9d2b3ff74cb3383452d273e0fb3e564a898a9d5931e1c0675920e",
+    "lines": 102,
+    "anchors": [
+      {
+        "symbol": "validate_params",
+        "line": 12,
+        "end_line": 18
+      },
+      {
+        "symbol": "verify_source_digest",
+        "line": 20,
+        "end_line": 26
+      },
+      {
+        "symbol": "deliver",
+        "line": 28,
+        "end_line": 102
+      },
+      {
+        "symbol": "recipients",
+        "line": 39,
+        "end_line": 39
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\maintenance_daily\\prepared.py",
+    "sha256": "796a32b65e75b71787ab2a72f28f5cdf589a5639dd6ed10aa2973ac6821974ac",
+    "lines": 145,
+    "anchors": [
+      {
+        "symbol": "sha",
+        "line": 19,
+        "end_line": 20
+      },
+      {
+        "symbol": "encoded",
+        "line": 23,
+        "end_line": 24
+      },
+      {
+        "symbol": "retained",
+        "line": 27,
+        "end_line": 33
+      },
+      {
+        "symbol": "source_proof",
+        "line": 36,
+        "end_line": 73
+      },
+      {
+        "symbol": "confirm_missing_source",
+        "line": 76,
+        "end_line": 89
+      },
+      {
+        "symbol": "load",
+        "line": 92,
+        "end_line": 112
+      },
+      {
+        "symbol": "pin",
+        "line": 115,
+        "end_line": 129
+      },
+      {
+        "symbol": "prepare",
+        "line": 132,
+        "end_line": 145
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\maintenance_daily\\report.py",
+    "sha256": "d061faa020fdcf0d3f82ac12613eacbb4359f2217172dafeb5777fd82079e84b",
+    "lines": 429,
+    "anchors": [
+      {
+        "symbol": "output_columns",
+        "line": 19,
+        "end_line": 37
+      },
+      {
+        "symbol": "display",
+        "line": 39,
+        "end_line": 40
+      },
+      {
+        "symbol": "exact_date",
+        "line": 42,
+        "end_line": 46
+      },
+      {
+        "symbol": "mechanism_code",
+        "line": 48,
+        "end_line": 56
+      },
+      {
+        "symbol": "sheet_code",
+        "line": 58,
+        "end_line": 65
+      },
+      {
+        "symbol": "title_code",
+        "line": 67,
+        "end_line": 69
+      },
+      {
+        "symbol": "title_cells",
+        "line": 71,
+        "end_line": 75
+      },
+      {
+        "symbol": "discover_rule",
+        "line": 77,
+        "end_line": 95
+      },
+      {
+        "symbol": "source_snapshot",
+        "line": 98,
+        "end_line": 111
+      },
+      {
+        "symbol": "scan",
+        "line": 113,
+        "end_line": 206
+      },
+      {
+        "symbol": "wrap_cell",
+        "line": 212,
+        "end_line": 239
+      },
+      {
+        "symbol": "render",
+        "line": 240,
+        "end_line": 339
+      },
+      {
+        "symbol": "canonical_unicode_maps",
+        "line": 341,
+        "end_line": 372
+      },
+      {
+        "symbol": "text_key",
+        "line": 374,
+        "end_line": 376
+      },
+      {
+        "symbol": "_validate_pdf",
+        "line": 378,
+        "end_line": 413
+      },
+      {
+        "symbol": "validate_pdf",
+        "line": 415,
+        "end_line": 418
+      },
+      {
+        "symbol": "build",
+        "line": 420,
+        "end_line": 429
+      },
+      {
+        "symbol": "warn",
+        "line": 120,
+        "end_line": 122
+      },
+      {
+        "symbol": "length",
+        "line": 214,
+        "end_line": 214
+      },
+      {
+        "symbol": "insert",
+        "line": 251,
+        "end_line": 254
+      },
+      {
+        "symbol": "height",
+        "line": 255,
+        "end_line": 258
+      },
+      {
+        "symbol": "cell_body",
+        "line": 259,
+        "end_line": 261
+      },
+      {
+        "symbol": "row_height",
+        "line": 263,
+        "end_line": 273
+      },
+      {
+        "symbol": "draw_row",
+        "line": 274,
+        "end_line": 286
+      },
+      {
+        "symbol": "new_page",
+        "line": 287,
+        "end_line": 292
+      },
+      {
+        "symbol": "normalized",
+        "line": 349,
+        "end_line": 352
+      },
+      {
+        "symbol": "expand",
+        "line": 360,
+        "end_line": 370
+      },
+      {
+        "symbol": "chunk",
+        "line": 310,
+        "end_line": 315
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\oil_balance\\__init__.py",
+    "sha256": "e3356c9a0074c048f58024800099067e79edceb542a8e8a8788788d38da414f2",
+    "lines": 1,
+    "anchors": []
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\oil_balance\\delivery.py",
+    "sha256": "cf62b7688f732ba07abb85dcc17dd64a0347f43a20ea3dc2eaa78ebfa931c584",
+    "lines": 113,
+    "anchors": [
+      {
+        "symbol": "validate_params",
+        "line": 17,
+        "end_line": 23
+      },
+      {
+        "symbol": "verify_source_digest",
+        "line": 26,
+        "end_line": 29
+      },
+      {
+        "symbol": "deliver",
+        "line": 32,
+        "end_line": 113
+      },
+      {
+        "symbol": "recipients",
+        "line": 43,
+        "end_line": 47
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\oil_balance\\reminder.py",
+    "sha256": "63bd56e49d4e1aa99072af298b10aec16fb2665fb64b7af5b61a9da44e20e173",
+    "lines": 83,
+    "anchors": [
+      {
+        "symbol": "probe",
+        "line": 8,
+        "end_line": 11
+      },
+      {
+        "symbol": "text",
+        "line": 14,
+        "end_line": 37
+      },
+      {
+        "symbol": "run",
+        "line": 40,
+        "end_line": 83
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\oil_balance\\render.py",
+    "sha256": "ad645a875f6b18415503699e320de248b19ec51a0d64ba59dfe9ba75c9cc85a3",
+    "lines": 124,
+    "anchors": [
+      {
+        "symbol": "pdf_key",
+        "line": 16,
+        "end_line": 18
+      },
+      {
+        "symbol": "render",
+        "line": 21,
+        "end_line": 88
+      },
+      {
+        "symbol": "validate_pdf",
+        "line": 91,
+        "end_line": 124
+      },
+      {
+        "symbol": "insert",
+        "line": 36,
+        "end_line": 41
+      },
+      {
+        "symbol": "row",
+        "line": 43,
+        "end_line": 57
+      },
+      {
+        "symbol": "new_page",
+        "line": 59,
+        "end_line": 69
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\oil_balance\\report.py",
+    "sha256": "0933390e4508df79df2329bb0b69917fd5074c936b87a998dd19b7a53b93862f",
+    "lines": 267,
+    "anchors": [
+      {
+        "symbol": "key",
+        "line": 29,
+        "end_line": 31
+      },
+      {
+        "symbol": "source_snapshot",
+        "line": 35,
+        "end_line": 45
+      },
+      {
+        "symbol": "number",
+        "line": 48,
+        "end_line": 51
+      },
+      {
+        "symbol": "FormulaValues",
+        "line": 54,
+        "end_line": 126
+      },
+      {
+        "symbol": "display_number",
+        "line": 129,
+        "end_line": 138
+      },
+      {
+        "symbol": "find_header",
+        "line": 141,
+        "end_line": 156
+      },
+      {
+        "symbol": "scan",
+        "line": 159,
+        "end_line": 245
+      },
+      {
+        "symbol": "load",
+        "line": 248,
+        "end_line": 255
+      },
+      {
+        "symbol": "build",
+        "line": 258,
+        "end_line": 267
+      },
+      {
+        "symbol": "__init__",
+        "line": 60,
+        "end_line": 62
+      },
+      {
+        "symbol": "value",
+        "line": 64,
+        "end_line": 101
+      },
+      {
+        "symbol": "evaluate",
+        "line": 103,
+        "end_line": 126
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\machinery_performance\\__init__.py",
+    "sha256": "69c29f8860d26f90941bb2671b1c974485c819f92866c6b2f8603abbec905600",
+    "lines": 1,
+    "anchors": []
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\machinery_performance\\delivery.py",
+    "sha256": "f3805bc1f2031d4a0acd9ff6679c4f1b92c9c9470b2d736116adbff20e88ccff",
+    "lines": 136,
+    "anchors": [
+      {
+        "symbol": "validate_params",
+        "line": 19,
+        "end_line": 25
+      },
+      {
+        "symbol": "pinned",
+        "line": 28,
+        "end_line": 44
+      },
+      {
+        "symbol": "prepare",
+        "line": 47,
+        "end_line": 71
+      },
+      {
+        "symbol": "deliver",
+        "line": 74,
+        "end_line": 136
+      },
+      {
+        "symbol": "recipients",
+        "line": 85,
+        "end_line": 89
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\machinery_performance\\reminder.py",
+    "sha256": "17293068995c8c7eea4ef9a215210a9b83989da6cecda021e965de71084b7225",
+    "lines": 44,
+    "anchors": [
+      {
+        "symbol": "probe",
+        "line": 6,
+        "end_line": 9
+      },
+      {
+        "symbol": "run",
+        "line": 12,
+        "end_line": 44
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\machinery_performance\\render.py",
+    "sha256": "3c99d73d2fcfbb5332db7b70b66a333168011e70985891b25eea08250fb3ed77",
+    "lines": 168,
+    "anchors": [
+      {
+        "symbol": "caption",
+        "line": 21,
+        "end_line": 27
+      },
+      {
+        "symbol": "render",
+        "line": 30,
+        "end_line": 108
+      },
+      {
+        "symbol": "validate_pdf",
+        "line": 111,
+        "end_line": 168
+      },
+      {
+        "symbol": "insert",
+        "line": 44,
+        "end_line": 49
+      },
+      {
+        "symbol": "row",
+        "line": 51,
+        "end_line": 73
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\machinery_performance\\report.py",
+    "sha256": "74cb80a55f0f7ba02c0b3b14bee346a3b5a56a5ca8d7c22b7bda698568abbb34",
+    "lines": 239,
+    "anchors": [
+      {
+        "symbol": "PerformanceFormulaValues",
+        "line": 31,
+        "end_line": 58
+      },
+      {
+        "symbol": "source_snapshot",
+        "line": 62,
+        "end_line": 71
+      },
+      {
+        "symbol": "finite",
+        "line": 74,
+        "end_line": 77
+      },
+      {
+        "symbol": "columns",
+        "line": 80,
+        "end_line": 106
+      },
+      {
+        "symbol": "scan",
+        "line": 109,
+        "end_line": 195
+      },
+      {
+        "symbol": "load",
+        "line": 198,
+        "end_line": 200
+      },
+      {
+        "symbol": "select",
+        "line": 203,
+        "end_line": 227
+      },
+      {
+        "symbol": "build",
+        "line": 230,
+        "end_line": 239
+      },
+      {
+        "symbol": "__init__",
+        "line": 37,
+        "end_line": 39
+      },
+      {
+        "symbol": "value",
+        "line": 41,
+        "end_line": 47
+      },
+      {
+        "symbol": "evaluate",
+        "line": 49,
+        "end_line": 58
+      },
+      {
+        "symbol": "recorded",
+        "line": 149,
+        "end_line": 152
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\__init__.py",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "lines": 0,
+    "anchors": []
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\channels\\__init__.py",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "lines": 0,
+    "anchors": []
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\channels\\bale\\__init__.py",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "lines": 0,
+    "anchors": []
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\channels\\bale\\car_wash_form.py",
+    "sha256": "675fb619f4e204befebafae3c60aa9704d31c39ba4ee52e1f3dcd7c0af9cce80",
+    "lines": 188,
+    "anchors": [
+      {
+        "symbol": "render",
+        "line": 13,
+        "end_line": 27
+      },
+      {
+        "symbol": "picker",
+        "line": 30,
+        "end_line": 37
+      },
+      {
+        "symbol": "keyboard",
+        "line": 40,
+        "end_line": 76
+      },
+      {
+        "symbol": "command",
+        "line": 79,
+        "end_line": 89
+      },
+      {
+        "symbol": "_clean",
+        "line": 92,
+        "end_line": 93
+      },
+      {
+        "symbol": "handle",
+        "line": 96,
+        "end_line": 188
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\channels\\bale\\create_worker.py",
+    "sha256": "425b2b18f2603163685b6d81ed02a454f4db12867ceb7fc7ff2bdc8eefd3d201",
+    "lines": 422,
+    "anchors": [
+      {
+        "symbol": "OilSourceChanged",
+        "line": 25,
+        "end_line": 26
+      },
+      {
+        "symbol": "preflight",
+        "line": 29,
+        "end_line": 54
+      },
+      {
+        "symbol": "preview_order",
+        "line": 57,
+        "end_line": 75
+      },
+      {
+        "symbol": "execute_request",
+        "line": 78,
+        "end_line": 401
+      },
+      {
+        "symbol": "main",
+        "line": 404,
+        "end_line": 418
+      },
+      {
+        "symbol": "authorize_create",
+        "line": 94,
+        "end_line": 97
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\channels\\bale\\keyboards.py",
+    "sha256": "4812bc8311af4ddf3353a4f155408016f03d3fa96fd84dd81cc35dc09f70bc1c",
+    "lines": 194,
+    "anchors": [
+      {
+        "symbol": "action",
+        "line": 7,
+        "end_line": 8
+      },
+      {
+        "symbol": "oil_edit_code_keyboard",
+        "line": 24,
+        "end_line": 45
+      },
+      {
+        "symbol": "oil_recovery_keyboard",
+        "line": 60,
+        "end_line": 72
+      },
+      {
+        "symbol": "entry_keyboard",
+        "line": 92,
+        "end_line": 100
+      },
+      {
+        "symbol": "staff_keyboard",
+        "line": 109,
+        "end_line": 113
+      },
+      {
+        "symbol": "keyboard_for",
+        "line": 116,
+        "end_line": 154
+      },
+      {
+        "symbol": "command_for",
+        "line": 157,
+        "end_line": 194
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\channels\\bale\\message_handler.py",
+    "sha256": "11ca4b5dd21eac8d5bdd2d715d36ad68d0436b73707c16789806a2e2fd759fc0",
+    "lines": 1338,
+    "anchors": [
+      {
+        "symbol": "_prepare_in_thread",
+        "line": 50,
+        "end_line": 62
+      },
+      {
+        "symbol": "normalize_text",
+        "line": 71,
+        "end_line": 72
+      },
+      {
+        "symbol": "normalize_digits",
+        "line": 75,
+        "end_line": 76
+      },
+      {
+        "symbol": "run_create_worker",
+        "line": 79,
+        "end_line": 95
+      },
+      {
+        "symbol": "FormSession",
+        "line": 99,
+        "end_line": 126
+      },
+      {
+        "symbol": "manager_excel_caption",
+        "line": 133,
+        "end_line": 145
+      },
+      {
+        "symbol": "manager_review_reply",
+        "line": 148,
+        "end_line": 151
+      },
+      {
+        "symbol": "manager_excel_details",
+        "line": 154,
+        "end_line": 170
+      },
+      {
+        "symbol": "send_manager_excel",
+        "line": 173,
+        "end_line": 200
+      },
+      {
+        "symbol": "WorkOrderMenuHandler",
+        "line": 203,
+        "end_line": 1331
+      },
+      {
+        "symbol": "handle_work_order_message",
+        "line": 1337,
+        "end_line": 1338
+      },
+      {
+        "symbol": "finished",
+        "line": 54,
+        "end_line": 57
+      },
+      {
+        "symbol": "__init__",
+        "line": 204,
+        "end_line": 263
+      },
+      {
+        "symbol": "_persist",
+        "line": 265,
+        "end_line": 268
+      },
+      {
+        "symbol": "_review_card",
+        "line": 270,
+        "end_line": 274
+      },
+      {
+        "symbol": "_order_status",
+        "line": 277,
+        "end_line": 281
+      },
+      {
+        "symbol": "_keyboard",
+        "line": 283,
+        "end_line": 287
+      },
+      {
+        "symbol": "_removal",
+        "line": 289,
+        "end_line": 295
+      },
+      {
+        "symbol": "_require_removable",
+        "line": 297,
+        "end_line": 317
+      },
+      {
+        "symbol": "_removal_text",
+        "line": 319,
+        "end_line": 324
+      },
+      {
+        "symbol": "_oil_edit_code_text",
+        "line": 326,
+        "end_line": 333
+      },
+      {
+        "symbol": "_send_reply",
+        "line": 335,
+        "end_line": 434
+      },
+      {
+        "symbol": "_discard_message",
+        "line": 436,
+        "end_line": 442
+      },
+      {
+        "symbol": "_owned_stage_message_ids",
+        "line": 444,
+        "end_line": 452
+      },
+      {
+        "symbol": "_close_cancelled_form",
+        "line": 454,
+        "end_line": 474
+      },
+      {
+        "symbol": "_cancel_transient_form",
+        "line": 476,
+        "end_line": 480
+      },
+      {
+        "symbol": "_delete_cancelled_messages",
+        "line": 482,
+        "end_line": 523
+      },
+      {
+        "symbol": "_send_notice",
+        "line": 525,
+        "end_line": 536
+      },
+      {
+        "symbol": "_staff_owned_ids",
+        "line": 538,
+        "end_line": 545
+      },
+      {
+        "symbol": "_needs_staff_retry",
+        "line": 548,
+        "end_line": 549
+      },
+      {
+        "symbol": "_delete_owned_ids",
+        "line": 551,
+        "end_line": 565
+      },
+      {
+        "symbol": "_queue_staff_retire",
+        "line": 567,
+        "end_line": 574
+      },
+      {
+        "symbol": "_flush_ui_deletes",
+        "line": 576,
+        "end_line": 596
+      },
+      {
+        "symbol": "_resume_transient_cleanup",
+        "line": 598,
+        "end_line": 611
+      },
+      {
+        "symbol": "_run_request",
+        "line": 613,
+        "end_line": 822
+      },
+      {
+        "symbol": "_start_request",
+        "line": 824,
+        "end_line": 842
+      },
+      {
+        "symbol": "handle",
+        "line": 844,
+        "end_line": 1331
+      },
+      {
+        "symbol": "cleanup",
+        "line": 492,
+        "end_line": 520
+      },
+      {
+        "symbol": "cleanup",
+        "line": 606,
+        "end_line": 607
+      },
+      {
+        "symbol": "send_in_order",
+        "line": 370,
+        "end_line": 426
+      },
+      {
+        "symbol": "execute",
+        "line": 928,
+        "end_line": 962
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\channels\\bale\\oil_editor.py",
+    "sha256": "840ba83b4703a6569e2b1fcca7727789253d749a1bcf19c32a4eaedd0820339c",
+    "lines": 87,
+    "anchors": [
+      {
+        "symbol": "reset",
+        "line": 10,
+        "end_line": 17
+      },
+      {
+        "symbol": "interval_text",
+        "line": 20,
+        "end_line": 28
+      },
+      {
+        "symbol": "confirmation_text",
+        "line": 31,
+        "end_line": 45
+      },
+      {
+        "symbol": "handle",
+        "line": 48,
+        "end_line": 87
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\channels\\bale\\proposal_form.py",
+    "sha256": "25c9c8510b45b6ad0a9870c0c0cd0bd8f59f83e008251568b814eee85f756109",
+    "lines": 255,
+    "anchors": [
+      {
+        "symbol": "oil_edit_candidates",
+        "line": 8,
+        "end_line": 17
+      },
+      {
+        "symbol": "oil_edit_item",
+        "line": 20,
+        "end_line": 27
+      },
+      {
+        "symbol": "edit_oil_interval",
+        "line": 30,
+        "end_line": 54
+      },
+      {
+        "symbol": "apply_oil_edits",
+        "line": 57,
+        "end_line": 68
+      },
+      {
+        "symbol": "rebuild_oil_warnings",
+        "line": 71,
+        "end_line": 85
+      },
+      {
+        "symbol": "creation_metadata",
+        "line": 88,
+        "end_line": 101
+      },
+      {
+        "symbol": "_status_text",
+        "line": 104,
+        "end_line": 113
+      },
+      {
+        "symbol": "_component_card",
+        "line": 116,
+        "end_line": 129
+      },
+      {
+        "symbol": "render",
+        "line": 132,
+        "end_line": 209
+      },
+      {
+        "symbol": "add_items",
+        "line": 212,
+        "end_line": 255
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\channels\\bale\\staff_flow.py",
+    "sha256": "b0d7dfb4c7be67c1eb57e9180ec42f8616ba7144ca6040145fdb477143781aac",
+    "lines": 245,
+    "anchors": [
+      {
+        "symbol": "bot_for",
+        "line": 23,
+        "end_line": 24
+      },
+      {
+        "symbol": "order_label",
+        "line": 27,
+        "end_line": 28
+      },
+      {
+        "symbol": "dispatch",
+        "line": 31,
+        "end_line": 95
+      },
+      {
+        "symbol": "receipt",
+        "line": 98,
+        "end_line": 114
+      },
+      {
+        "symbol": "show_order",
+        "line": 117,
+        "end_line": 147
+      },
+      {
+        "symbol": "schedule_preview",
+        "line": 150,
+        "end_line": 156
+      },
+      {
+        "symbol": "handle_staff_receipt",
+        "line": 159,
+        "end_line": 245
+      },
+      {
+        "symbol": "upload",
+        "line": 43,
+        "end_line": 63
+      },
+      {
+        "symbol": "Sender",
+        "line": 65,
+        "end_line": 67
+      },
+      {
+        "symbol": "send_document",
+        "line": 66,
+        "end_line": 67
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\channels\\bale\\work_order_menu.py",
+    "sha256": "597faad9c31dcfbe05c86b08d065a60dcb830d4fa0eab35ef1fa7a03b6ab2489",
+    "lines": 57,
+    "anchors": [
+      {
+        "symbol": "InvalidWorkOrderSelection",
+        "line": 9,
+        "end_line": 10
+      },
+      {
+        "symbol": "WorkOrderTypeDisabled",
+        "line": 13,
+        "end_line": 14
+      },
+      {
+        "symbol": "build_work_order_menu",
+        "line": 17,
+        "end_line": 31
+      },
+      {
+        "symbol": "resolve_work_order_selection",
+        "line": 34,
+        "end_line": 57
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\cli\\__init__.py",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "lines": 0,
+    "anchors": []
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\core\\__init__.py",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "lines": 0,
+    "anchors": []
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\core\\approval.py",
+    "sha256": "02cb0d2b7b44bc601cf2ea3518a34c6c173e419e081477ce50c2b9b7deec3d93",
+    "lines": 124,
+    "anchors": [
+      {
+        "symbol": "approve_work_order",
+        "line": 8,
+        "end_line": 124
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\core\\assignment.py",
+    "sha256": "9baccc9603b85182597ed172966fd4ad0ed3146eebc2754190229e6e2e351c98",
+    "lines": 176,
+    "anchors": [
+      {
+        "symbol": "assign_work_order",
+        "line": 7,
+        "end_line": 176
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\core\\contracts.py",
+    "sha256": "4413c5f0d3dfb92e4cd6e7e95a5deb02dfda55f86fb60f8d9f91c137dae93324",
+    "lines": 75,
+    "anchors": [
+      {
+        "symbol": "WorkOrderTypeSpec",
+        "line": 8,
+        "end_line": 75
+      },
+      {
+        "symbol": "validate",
+        "line": 40,
+        "end_line": 75
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\core\\conversation.py",
+    "sha256": "907df27b992b4688650b178663fe5d1d7c18da3971991f29b2c8bdb474861d6d",
+    "lines": 23,
+    "anchors": [
+      {
+        "symbol": "review_context",
+        "line": 7,
+        "end_line": 23
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\core\\daily_archive.py",
+    "sha256": "0a56067fae1a5ea60e2f25a24198694ecc861101527ceb1e2f2b9af67cf03fb4",
+    "lines": 26,
+    "anchors": [
+      {
+        "symbol": "DailyArchiveError",
+        "line": 11,
+        "end_line": 12
+      },
+      {
+        "symbol": "archive_delivered_order",
+        "line": 15,
+        "end_line": 26
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\core\\db.py",
+    "sha256": "0215bb609938fb10a40f9b0d85ef4c8f9bdaec660675be62339c62f4dbcece5a",
+    "lines": 26,
+    "anchors": [
+      {
+        "symbol": "connect_db",
+        "line": 8,
+        "end_line": 26
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\core\\delivery.py",
+    "sha256": "7ad739c9435835dc59ca8467a938a45e1f872e9dd38bded8df264468e5f6dd49",
+    "lines": 340,
+    "anchors": [
+      {
+        "symbol": "prepare_manager_pdf",
+        "line": 18,
+        "end_line": 65
+      },
+      {
+        "symbol": "reviewed_staff_pdf",
+        "line": 68,
+        "end_line": 75
+      },
+      {
+        "symbol": "store_manager_pdf",
+        "line": 78,
+        "end_line": 108
+      },
+      {
+        "symbol": "send_work_order",
+        "line": 111,
+        "end_line": 340
+      },
+      {
+        "symbol": "authorize_publish",
+        "line": 169,
+        "end_line": 179
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\core\\excel_document.py",
+    "sha256": "e7ac3d264c7e09b4379667df4f278b5bf4232b85f9efca6becf25f447d2cb849",
+    "lines": 329,
+    "anchors": [
+      {
+        "symbol": "_copy_row_style",
+        "line": 13,
+        "end_line": 65
+      },
+      {
+        "symbol": "build_document",
+        "line": 68,
+        "end_line": 329
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\core\\final_copy.py",
+    "sha256": "89aa28c9488b52f89ed5671510ddf6ff4b63fd8b770fe685ab254f8ff5621c48",
+    "lines": 196,
+    "anchors": [
+      {
+        "symbol": "activate",
+        "line": 21,
+        "end_line": 34
+      },
+      {
+        "symbol": "enabled",
+        "line": 37,
+        "end_line": 40
+      },
+      {
+        "symbol": "_eligible_issuer",
+        "line": 43,
+        "end_line": 51
+      },
+      {
+        "symbol": "prepare",
+        "line": 54,
+        "end_line": 104
+      },
+      {
+        "symbol": "confirmed",
+        "line": 107,
+        "end_line": 112
+      },
+      {
+        "symbol": "enqueue",
+        "line": 115,
+        "end_line": 127
+      },
+      {
+        "symbol": "drain_pending",
+        "line": 130,
+        "end_line": 196
+      },
+      {
+        "symbol": "authorized",
+        "line": 139,
+        "end_line": 143
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\core\\oil_safety.py",
+    "sha256": "cfb56b47dd1b595bb63a385840ba1a92988e31f6f50176c4d573a7d161f90269",
+    "lines": 304,
+    "anchors": [
+      {
+        "symbol": "migrate",
+        "line": 15,
+        "end_line": 34
+      },
+      {
+        "symbol": "audit",
+        "line": 37,
+        "end_line": 40
+      },
+      {
+        "symbol": "current",
+        "line": 43,
+        "end_line": 51
+      },
+      {
+        "symbol": "creation",
+        "line": 54,
+        "end_line": 141
+      },
+      {
+        "symbol": "conflict_error",
+        "line": 144,
+        "end_line": 149
+      },
+      {
+        "symbol": "revision_lineage",
+        "line": 152,
+        "end_line": 158
+      },
+      {
+        "symbol": "supersede_delivered_parent",
+        "line": 161,
+        "end_line": 167
+      },
+      {
+        "symbol": "recover_stale",
+        "line": 170,
+        "end_line": 185
+      },
+      {
+        "symbol": "sweep",
+        "line": 188,
+        "end_line": 199
+      },
+      {
+        "symbol": "claim",
+        "line": 202,
+        "end_line": 220
+      },
+      {
+        "symbol": "start_transfer",
+        "line": 223,
+        "end_line": 233
+      },
+      {
+        "symbol": "complete",
+        "line": 236,
+        "end_line": 258
+      },
+      {
+        "symbol": "authorize_manager",
+        "line": 261,
+        "end_line": 266
+      },
+      {
+        "symbol": "pending",
+        "line": 269,
+        "end_line": 279
+      },
+      {
+        "symbol": "resolve",
+        "line": 282,
+        "end_line": 304
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\core\\operational.py",
+    "sha256": "55f37db5b547578f98153865bc4e949ea8708bc44ca9fe686532bd68258610f5",
+    "lines": 52,
+    "anchors": [
+      {
+        "symbol": "OperationalDayExpired",
+        "line": 8,
+        "end_line": 9
+      },
+      {
+        "symbol": "operational_today",
+        "line": 12,
+        "end_line": 28
+      },
+      {
+        "symbol": "require_date",
+        "line": 31,
+        "end_line": 34
+      },
+      {
+        "symbol": "require_order",
+        "line": 37,
+        "end_line": 39
+      },
+      {
+        "symbol": "require_reviewable",
+        "line": 42,
+        "end_line": 52
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\core\\paths.py",
+    "sha256": "9c4b06f72522a36ecc6b7d46cca7358617cfb0c680b1d936bdff78d7ab5ed492",
+    "lines": 23,
+    "anchors": []
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\core\\pdf_document.py",
+    "sha256": "8399a28c594620e97e3b6978c9af554a6de6fc903e6e2020676a4377a383ead4",
+    "lines": 31,
+    "anchors": [
+      {
+        "symbol": "export_staff_pdf",
+        "line": 11,
+        "end_line": 31
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\core\\permissions.py",
+    "sha256": "0c983806608f9fe74c3257492fefeee14e920d7fd9ce1b5a952f8c9767e3b9cc",
+    "lines": 112,
+    "anchors": [
+      {
+        "symbol": "PermissionResult",
+        "line": 15,
+        "end_line": 24
+      },
+      {
+        "symbol": "WorkOrderPermissionDenied",
+        "line": 27,
+        "end_line": 30
+      },
+      {
+        "symbol": "normalize_bale_id",
+        "line": 33,
+        "end_line": 40
+      },
+      {
+        "symbol": "_legacy_work_order_permission",
+        "line": 43,
+        "end_line": 84
+      },
+      {
+        "symbol": "check_work_order_permission",
+        "line": 87,
+        "end_line": 100
+      },
+      {
+        "symbol": "require_work_order_permission",
+        "line": 103,
+        "end_line": 112
+      },
+      {
+        "symbol": "allowed",
+        "line": 23,
+        "end_line": 24
+      },
+      {
+        "symbol": "__init__",
+        "line": 28,
+        "end_line": 30
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\core\\registry.py",
+    "sha256": "ddbedba18ec0701e2793232827cfbaf9b28624cac5aae2330c46a23c35d4d933",
+    "lines": 48,
+    "anchors": [
+      {
+        "symbol": "get_work_order_spec",
+        "line": 18,
+        "end_line": 22
+      },
+      {
+        "symbol": "list_work_order_specs",
+        "line": 25,
+        "end_line": 30
+      },
+      {
+        "symbol": "_menu_item",
+        "line": 33,
+        "end_line": 39
+      },
+      {
+        "symbol": "get_work_order_type",
+        "line": 42,
+        "end_line": 44
+      },
+      {
+        "symbol": "list_work_order_types",
+        "line": 47,
+        "end_line": 48
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\core\\review.py",
+    "sha256": "41da4a5fd2d2d227bbca621e52e721f3f26c5d0e03859bdbf8c98b71d1e6cea9",
+    "lines": 107,
+    "anchors": [
+      {
+        "symbol": "DocumentReviewRequired",
+        "line": 13,
+        "end_line": 14
+      },
+      {
+        "symbol": "last_record",
+        "line": 17,
+        "end_line": 21
+      },
+      {
+        "symbol": "document_identity",
+        "line": 24,
+        "end_line": 34
+      },
+      {
+        "symbol": "approved_pdf_bytes",
+        "line": 37,
+        "end_line": 51
+      },
+      {
+        "symbol": "normalize_shift",
+        "line": 54,
+        "end_line": 59
+      },
+      {
+        "symbol": "confirm_document_review",
+        "line": 62,
+        "end_line": 107
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\core\\service.py",
+    "sha256": "43d0f921c33db06176d05c2adcdad29a820e20a00dac40e3f459f92704fc94f4",
+    "lines": 642,
+    "anchors": [
+      {
+        "symbol": "validate_jalali_date",
+        "line": 20,
+        "end_line": 67
+      },
+      {
+        "symbol": "_load_builder",
+        "line": 70,
+        "end_line": 94
+      },
+      {
+        "symbol": "_next_work_order_no",
+        "line": 97,
+        "end_line": 147
+      },
+      {
+        "symbol": "_find_machine_id",
+        "line": 150,
+        "end_line": 208
+      },
+      {
+        "symbol": "get_work_order",
+        "line": 211,
+        "end_line": 291
+      },
+      {
+        "symbol": "create_work_order",
+        "line": 294,
+        "end_line": 566
+      },
+      {
+        "symbol": "list_eligible_staff",
+        "line": 569,
+        "end_line": 617
+      },
+      {
+        "symbol": "cancel_draft",
+        "line": 620,
+        "end_line": 642
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\core\\staff_dispatch.py",
+    "sha256": "7c3eb0fca04ff6167a58ea7d1b100678cab09ec96741750de9efa0199334da18",
+    "lines": 180,
+    "anchors": [
+      {
+        "symbol": "car_wash_recipient",
+        "line": 15,
+        "end_line": 18
+      },
+      {
+        "symbol": "create_schema",
+        "line": 21,
+        "end_line": 35
+      },
+      {
+        "symbol": "staff_options",
+        "line": 38,
+        "end_line": 51
+      },
+      {
+        "symbol": "staff_display_name",
+        "line": 54,
+        "end_line": 55
+      },
+      {
+        "symbol": "staff_menu",
+        "line": 58,
+        "end_line": 64
+      },
+      {
+        "symbol": "prepare_dispatch",
+        "line": 67,
+        "end_line": 106
+      },
+      {
+        "symbol": "claim_send",
+        "line": 109,
+        "end_line": 122
+      },
+      {
+        "symbol": "finish_send",
+        "line": 125,
+        "end_line": 133
+      },
+      {
+        "symbol": "recipient_orders",
+        "line": 136,
+        "end_line": 145
+      },
+      {
+        "symbol": "is_recipient",
+        "line": 148,
+        "end_line": 153
+      },
+      {
+        "symbol": "acknowledge",
+        "line": 156,
+        "end_line": 171
+      },
+      {
+        "symbol": "mark_notified",
+        "line": 174,
+        "end_line": 180
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\dev\\__init__.py",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "lines": 0,
+    "anchors": []
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\dev\\activate_bale_menu_pilot.py",
+    "sha256": "8194e1d369352bd6b1605292343acd7ea39efc39845e70b7f54abdca8beb7079",
+    "lines": 79,
+    "anchors": [
+      {
+        "symbol": "digest",
+        "line": 24,
+        "end_line": 25
+      },
+      {
+        "symbol": "main",
+        "line": 28,
+        "end_line": 75
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\dev\\check_work_order_registry.py",
+    "sha256": "e7f40acc3cc9274ff36d28560cb2b73ddfbc737370fedeefc6cd322b6619bc7b",
+    "lines": 83,
+    "anchors": [
+      {
+        "symbol": "main",
+        "line": 7,
+        "end_line": 79
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\dev\\inspect_work_order_db.py",
+    "sha256": "41fcb0b9b90d27968cd91d8935b81eb57f574515d953ef552410fd999116645a",
+    "lines": 86,
+    "anchors": [
+      {
+        "symbol": "main",
+        "line": 8,
+        "end_line": 82
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\dev\\patch_staff_inbox_bridge.py",
+    "sha256": "d176e17737f0d3d981697193266c29f66b1eabd49cb1f627a706486d6a2faf59",
+    "lines": 35,
+    "anchors": [
+      {
+        "symbol": "main",
+        "line": 12,
+        "end_line": 31
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\dev\\prepare_bale_menu_plugin.py",
+    "sha256": "7dfa892773c16c155b938d958ba9571cabd3de4be4b16dc6a51b9cb068d9f33b",
+    "lines": 86,
+    "anchors": [
+      {
+        "symbol": "stage_plugin",
+        "line": 41,
+        "end_line": 82
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\dev\\register_pilot_air_filter_staff.py",
+    "sha256": "6967ffe014f466adeda08939cb21485c3b2476eca9fc1591ba21662482bd1b78",
+    "lines": 138,
+    "anchors": [
+      {
+        "symbol": "main",
+        "line": 14,
+        "end_line": 134
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\dev\\verify_bale_plugin_pilot.py",
+    "sha256": "fa2280b4686c457918a3fe5b50b7a86dc3d6e7d14e55b01d6f9e9666855a9460",
+    "lines": 304,
+    "anchors": [
+      {
+        "symbol": "verify",
+        "line": 21,
+        "end_line": 298
+      },
+      {
+        "symbol": "send",
+        "line": 40,
+        "end_line": 42
+      },
+      {
+        "symbol": "send_document",
+        "line": 47,
+        "end_line": 50
+      },
+      {
+        "symbol": "send_message",
+        "line": 52,
+        "end_line": 54
+      },
+      {
+        "symbol": "delete_message",
+        "line": 56,
+        "end_line": 57
+      },
+      {
+        "symbol": "event",
+        "line": 63,
+        "end_line": 67
+      },
+      {
+        "symbol": "isolated_worker",
+        "line": 95,
+        "end_line": 107
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\dev\\verify_oil_unified.py",
+    "sha256": "313821e2279088969934948ca2acde42543ec83a07f0d1e0f497739a5fbc57ca",
+    "lines": 101,
+    "anchors": [
+      {
+        "symbol": "main",
+        "line": 37,
+        "end_line": 97
+      },
+      {
+        "symbol": "hashes",
+        "line": 47,
+        "end_line": 48
+      },
+      {
+        "symbol": "offline_connect",
+        "line": 53,
+        "end_line": 57
+      },
+      {
+        "symbol": "TrackingResult",
+        "line": 82,
+        "end_line": 86
+      },
+      {
+        "symbol": "startTest",
+        "line": 83,
+        "end_line": 86
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\dev\\verify_work_order_state.py",
+    "sha256": "0708444fbc643d737c5b057a7762b2dcf69919be2900107269a084530dcec7d1",
+    "lines": 175,
+    "anchors": [
+      {
+        "symbol": "main",
+        "line": 12,
+        "end_line": 171
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\migrations\\001_create_work_order_schema_v1.py",
+    "sha256": "7038ccce2d1a3248a2866d970b68ef50d731368c02230e7ec31c8bc2f30d7362",
+    "lines": 419,
+    "anchors": [
+      {
+        "symbol": "get_tables",
+        "line": 16,
+        "end_line": 27
+      },
+      {
+        "symbol": "make_backup",
+        "line": 30,
+        "end_line": 59
+      },
+      {
+        "symbol": "create_schema",
+        "line": 62,
+        "end_line": 237
+      },
+      {
+        "symbol": "show_table",
+        "line": 240,
+        "end_line": 269
+      },
+      {
+        "symbol": "main",
+        "line": 272,
+        "end_line": 415
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\migrations\\002_create_work_order_permissions.py",
+    "sha256": "9f2f739eced2765fcf33f387735dbea66b32706af667ad0d91a8d12babc3ea8c",
+    "lines": 68,
+    "anchors": [
+      {
+        "symbol": "create_schema",
+        "line": 17,
+        "end_line": 28
+      },
+      {
+        "symbol": "main",
+        "line": 31,
+        "end_line": 64
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\migrations\\003_staff_dispatch.py",
+    "sha256": "8f1ce46bdef1f28064b158678c4ad0e1e95f712bec2e3aee6475443acb1e007a",
+    "lines": 11,
+    "anchors": [
+      {
+        "symbol": "migrate",
+        "line": 5,
+        "end_line": 11
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\migrations\\004_staff_roster.py",
+    "sha256": "b5f5fc2d0411f6b1f7fc5fea409b862afea73547aff868991467b6c1e0f9b818",
+    "lines": 16,
+    "anchors": [
+      {
+        "symbol": "migrate",
+        "line": 7,
+        "end_line": 16
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\migrations\\005_oil_version_delivery_safety.py",
+    "sha256": "2c05e5ba874482baa6a405c716207f8114a358bb5a43881945a286dce7e74d0f",
+    "lines": 2,
+    "anchors": []
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\migrations\\__init__.py",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "lines": 0,
+    "anchors": []
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\types\\__init__.py",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "lines": 0,
+    "anchors": []
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\types\\air_filter\\__init__.py",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "lines": 0,
+    "anchors": []
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\types\\air_filter\\builder.py",
+    "sha256": "5b38c764f547bfa6f433a738d1d8ea4612cee3efdaeda6cb30b3ede94cb89298",
+    "lines": 196,
+    "anchors": [
+      {
+        "symbol": "normalize_machine_code",
+        "line": 34,
+        "end_line": 38
+      },
+      {
+        "symbol": "machine_name_from_code",
+        "line": 41,
+        "end_line": 108
+      },
+      {
+        "symbol": "validate_machine_codes",
+        "line": 111,
+        "end_line": 143
+      },
+      {
+        "symbol": "get_items",
+        "line": 146,
+        "end_line": 188
+      },
+      {
+        "symbol": "build_document",
+        "line": 191,
+        "end_line": 196
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\types\\air_filter\\definition.py",
+    "sha256": "629000d91336134d6a6a754bef56d9064ec0ac321428bbd27235fe4f5b83206f",
+    "lines": 16,
+    "anchors": []
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\types\\car_wash\\__init__.py",
+    "sha256": "54faf12340564e3b9f7ea739850b82177ce3ae6978c8bd91a4160ab092d1bf90",
+    "lines": 1,
+    "anchors": []
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\types\\car_wash\\builder.py",
+    "sha256": "a83021ae980d7a6778cbc98955999e783601a4339b231d834fe154521eacbc04",
+    "lines": 134,
+    "anchors": [
+      {
+        "symbol": "manual_identity",
+        "line": 18,
+        "end_line": 24
+      },
+      {
+        "symbol": "get_items",
+        "line": 27,
+        "end_line": 72
+      },
+      {
+        "symbol": "build_document",
+        "line": 75,
+        "end_line": 134
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\types\\car_wash\\definition.py",
+    "sha256": "d5cb5105a4f93e40c02f58a2dda4aeeaf579f31f104bfcc18ed4375829f1d13d",
+    "lines": 7,
+    "anchors": []
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\types\\greasing\\__init__.py",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "lines": 0,
+    "anchors": []
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\types\\greasing\\builder.py",
+    "sha256": "43267cd04fcf7babf24368acd9a5faf54b6228c94bd6fd2c5f1a4df12560183a",
+    "lines": 61,
+    "anchors": [
+      {
+        "symbol": "get_items",
+        "line": 11,
+        "end_line": 54
+      },
+      {
+        "symbol": "build_document",
+        "line": 57,
+        "end_line": 61
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\types\\greasing\\definition.py",
+    "sha256": "9f775f68d57754280a7a8cd1ca0fc709a429bf9dde6457de87d4ed3a1c2a130b",
+    "lines": 13,
+    "anchors": []
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\types\\oil_change\\__init__.py",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "lines": 0,
+    "anchors": []
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\types\\oil_change\\builder.py",
+    "sha256": "9fa4aaa22c1331619e7d31bd350a76085c1cf17432a4af64b5620a894b23fb84",
+    "lines": 287,
+    "anchors": [
+      {
+        "symbol": "planning_code",
+        "line": 41,
+        "end_line": 43
+      },
+      {
+        "symbol": "override_interval",
+        "line": 46,
+        "end_line": 60
+      },
+      {
+        "symbol": "normalize_code",
+        "line": 63,
+        "end_line": 72
+      },
+      {
+        "symbol": "normalize_interval",
+        "line": 75,
+        "end_line": 79
+      },
+      {
+        "symbol": "action_for",
+        "line": 82,
+        "end_line": 87
+      },
+      {
+        "symbol": "parse_action",
+        "line": 90,
+        "end_line": 96
+      },
+      {
+        "symbol": "get_items",
+        "line": 99,
+        "end_line": 111
+      },
+      {
+        "symbol": "build_document",
+        "line": 114,
+        "end_line": 211
+      },
+      {
+        "symbol": "_order_metadata",
+        "line": 214,
+        "end_line": 265
+      },
+      {
+        "symbol": "_single_page_a4",
+        "line": 268,
+        "end_line": 287
+      },
+      {
+        "symbol": "value",
+        "line": 222,
+        "end_line": 230
+      },
+      {
+        "symbol": "setup",
+        "line": 270,
+        "end_line": 272
+      },
+      {
+        "symbol": "cycle_title",
+        "line": 181,
+        "end_line": 185
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\types\\oil_change\\definition.py",
+    "sha256": "fac8b44ff8ff34e02c88ce7e053cbe9fd82894a7e0412e38d215133dfac4606a",
+    "lines": 13,
+    "anchors": []
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\types\\oil_change\\form.py",
+    "sha256": "d474d0ea7bee955f3a6c8f089d894d672c66816c1de5d5de2cc98e7537106ca4",
+    "lines": 36,
+    "anchors": [
+      {
+        "symbol": "code_prompt",
+        "line": 12,
+        "end_line": 17
+      },
+      {
+        "symbol": "order_date",
+        "line": 20,
+        "end_line": 28
+      },
+      {
+        "symbol": "create_request",
+        "line": 31,
+        "end_line": 36
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\v1_frozen\\__init__.py",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "lines": 0,
+    "anchors": []
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\v1_frozen\\approve_work_order_v1.py",
+    "sha256": "4fc98ee2b0f68ff4d419fe33388935cef7d167e1846dd6941054b7b4d26c0391",
+    "lines": 311,
+    "anchors": [
+      {
+        "symbol": "main",
+        "line": 11,
+        "end_line": 307
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\v1_frozen\\assign_staff_to_work_order_v1.py",
+    "sha256": "8a57af8468977ef04f5009fdbedcb0d251f043f921b76036fd1db609638ee9d1",
+    "lines": 344,
+    "anchors": [
+      {
+        "symbol": "main",
+        "line": 11,
+        "end_line": 340
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\v1_frozen\\create_air_filter_work_order_v1.py",
+    "sha256": "7cd00f27b77ca277edcbee681f53b1484a24f8677c22718f5b065d5ac52bff03",
+    "lines": 822,
+    "anchors": [
+      {
+        "symbol": "clean_code",
+        "line": 30,
+        "end_line": 31
+      },
+      {
+        "symbol": "validate_date",
+        "line": 34,
+        "end_line": 61
+      },
+      {
+        "symbol": "machine_name_from_code",
+        "line": 64,
+        "end_line": 101
+      },
+      {
+        "symbol": "find_machine_id",
+        "line": 104,
+        "end_line": 151
+      },
+      {
+        "symbol": "copy_row_style",
+        "line": 154,
+        "end_line": 206
+      },
+      {
+        "symbol": "next_work_order_no",
+        "line": 209,
+        "end_line": 257
+      },
+      {
+        "symbol": "build_excel",
+        "line": 260,
+        "end_line": 415
+      },
+      {
+        "symbol": "main",
+        "line": 418,
+        "end_line": 818
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\v1_frozen\\preview_work_order_v1.py",
+    "sha256": "762a2e8d3d990946f6befada3dafeb057c794fd6a415574e92d1383d30252040",
+    "lines": 268,
+    "anchors": [
+      {
+        "symbol": "main",
+        "line": 11,
+        "end_line": 264
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\v1_frozen\\register_air_filter_work_order_v1.py",
+    "sha256": "0305a958ed0ab410832de68cb514c1cbc3162369faaed789317cfe3963967f8f",
+    "lines": 298,
+    "anchors": [
+      {
+        "symbol": "main",
+        "line": 29,
+        "end_line": 294
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\tools\\fleet\\work_orders\\v1_frozen\\send_work_order_v1.py",
+    "sha256": "de616608dcd15b26f704c4609e14be8520c104edd59e40d3c53edc6ae196ee7f",
+    "lines": 675,
+    "anchors": [
+      {
+        "symbol": "_hermes_env_candidates",
+        "line": 25,
+        "end_line": 65
+      },
+      {
+        "symbol": "load_env_value",
+        "line": 68,
+        "end_line": 128
+      },
+      {
+        "symbol": "get_bale_token",
+        "line": 131,
+        "end_line": 176
+      },
+      {
+        "symbol": "multipart_body",
+        "line": 178,
+        "end_line": 255
+      },
+      {
+        "symbol": "send_document",
+        "line": 258,
+        "end_line": 344
+      },
+      {
+        "symbol": "main",
+        "line": 347,
+        "end_line": 671
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\integrations\\hermes\\activate_admin1.py",
+    "sha256": "2bb58825688df6a3166e404c8736627ec1d8e027f95f4caa8e7334304caca481",
+    "lines": 63,
+    "anchors": [
+      {
+        "symbol": "digest",
+        "line": 21,
+        "end_line": 21
+      },
+      {
+        "symbol": "main",
+        "line": 23,
+        "end_line": 61
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\integrations\\hermes\\admin_parts_policy.py",
+    "sha256": "8eb417acc7596bac7ea17c785bfa785aca21898b8f97467e366f7d6d0bddbba5",
+    "lines": 43,
+    "anchors": [
+      {
+        "symbol": "admin_parts_policy",
+        "line": 24,
+        "end_line": 43
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\integrations\\hermes\\deploy_admin1.py",
+    "sha256": "5f4a29637baf0559575af051f209b7f6a79f39ee20a37c3787208dffd3fe237e",
+    "lines": 171,
+    "anchors": [
+      {
+        "symbol": "digest",
+        "line": 16,
+        "end_line": 16
+      },
+      {
+        "symbol": "main",
+        "line": 18,
+        "end_line": 169
+      },
+      {
+        "symbol": "backup",
+        "line": 24,
+        "end_line": 32
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\integrations\\hermes\\deploy_admin_technical_media.py",
+    "sha256": "52847a9a2b2f15fdd6369c4c0c8c205a249a7d02fd06e187e47fb29d3b5e8aaa",
+    "lines": 72,
+    "anchors": [
+      {
+        "symbol": "main",
+        "line": 19,
+        "end_line": 68
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\integrations\\hermes\\deploy_ai_daily_entry.py",
+    "sha256": "ec4bc528f060485d7003fbc0a1833efd40202c3d470314b418da5b07551dd990",
+    "lines": 213,
+    "anchors": [
+      {
+        "symbol": "digest",
+        "line": 35,
+        "end_line": 35
+      },
+      {
+        "symbol": "load",
+        "line": 36,
+        "end_line": 36
+      },
+      {
+        "symbol": "save",
+        "line": 37,
+        "end_line": 37
+      },
+      {
+        "symbol": "git",
+        "line": 40,
+        "end_line": 43
+      },
+      {
+        "symbol": "publication",
+        "line": 46,
+        "end_line": 50
+      },
+      {
+        "symbol": "check",
+        "line": 53,
+        "end_line": 95
+      },
+      {
+        "symbol": "authority",
+        "line": 98,
+        "end_line": 110
+      },
+      {
+        "symbol": "install",
+        "line": 113,
+        "end_line": 190
+      },
+      {
+        "symbol": "verify",
+        "line": 193,
+        "end_line": 208
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\integrations\\hermes\\deploy_bale_adapter.py",
+    "sha256": "b27694e3e03d31c585d5e85569f872b4a95daea8371ce1175767b3f920695a0c",
+    "lines": 30,
+    "anchors": [
+      {
+        "symbol": "main",
+        "line": 9,
+        "end_line": 26
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\integrations\\hermes\\deploy_business_admin.py",
+    "sha256": "865a4a3d6cf2edade9dd3303b3749dd9a5fb6c008d13aec5c6a4ad1506d44578",
+    "lines": 144,
+    "anchors": [
+      {
+        "symbol": "save",
+        "line": 17,
+        "end_line": 18
+      },
+      {
+        "symbol": "digest",
+        "line": 20,
+        "end_line": 20
+      },
+      {
+        "symbol": "state",
+        "line": 22,
+        "end_line": 27
+      },
+      {
+        "symbol": "bootstrap",
+        "line": 29,
+        "end_line": 32
+      },
+      {
+        "symbol": "users",
+        "line": 34,
+        "end_line": 45
+      },
+      {
+        "symbol": "load_plugin",
+        "line": 47,
+        "end_line": 51
+      },
+      {
+        "symbol": "surface",
+        "line": 53,
+        "end_line": 80
+      },
+      {
+        "symbol": "validate",
+        "line": 82,
+        "end_line": 105
+      },
+      {
+        "symbol": "main",
+        "line": 107,
+        "end_line": 142
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\integrations\\hermes\\deploy_car_wash_recipient.py",
+    "sha256": "a31e67ac56b53e3695752350356b3f4f9f41cb69773783f3899f366cdbf909b8",
+    "lines": 88,
+    "anchors": [
+      {
+        "symbol": "verify_identity",
+        "line": 22,
+        "end_line": 27
+      },
+      {
+        "symbol": "change",
+        "line": 30,
+        "end_line": 60
+      },
+      {
+        "symbol": "main",
+        "line": 63,
+        "end_line": 84
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\integrations\\hermes\\deploy_department_entry.py",
+    "sha256": "fa632e36f9652001110ab0926716a00d3253ed4c9185dabfc769b7d8a609811e",
+    "lines": 203,
+    "anchors": [
+      {
+        "symbol": "digest",
+        "line": 28,
+        "end_line": 29
+      },
+      {
+        "symbol": "save",
+        "line": 32,
+        "end_line": 33
+      },
+      {
+        "symbol": "load_stage",
+        "line": 36,
+        "end_line": 39
+      },
+      {
+        "symbol": "install",
+        "line": 42,
+        "end_line": 100
+      },
+      {
+        "symbol": "native",
+        "line": 103,
+        "end_line": 111
+      },
+      {
+        "symbol": "restart",
+        "line": 114,
+        "end_line": 152
+      },
+      {
+        "symbol": "verify",
+        "line": 155,
+        "end_line": 192
+      },
+      {
+        "symbol": "main",
+        "line": 195,
+        "end_line": 199
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\integrations\\hermes\\deploy_komatso_bale_registry.py",
+    "sha256": "23910eba2799d7486d827f3e996fb15ea18d472656928ef837955f3bdeea683c",
+    "lines": 30,
+    "anchors": [
+      {
+        "symbol": "main",
+        "line": 9,
+        "end_line": 26
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\integrations\\hermes\\deploy_machinery_performance.py",
+    "sha256": "4424842a771038255f3d94f1eca4be7ece5d7536005f6c1a55557f5a70351aca",
+    "lines": 211,
+    "anchors": [
+      {
+        "symbol": "save",
+        "line": 34,
+        "end_line": 36
+      },
+      {
+        "symbol": "read",
+        "line": 39,
+        "end_line": 39
+      },
+      {
+        "symbol": "digest",
+        "line": 40,
+        "end_line": 40
+      },
+      {
+        "symbol": "snapshot",
+        "line": 43,
+        "end_line": 54
+      },
+      {
+        "symbol": "verify",
+        "line": 57,
+        "end_line": 91
+      },
+      {
+        "symbol": "candidate_config",
+        "line": 94,
+        "end_line": 122
+      },
+      {
+        "symbol": "prepare",
+        "line": 125,
+        "end_line": 145
+      },
+      {
+        "symbol": "activate",
+        "line": 148,
+        "end_line": 166
+      },
+      {
+        "symbol": "surfaces",
+        "line": 169,
+        "end_line": 197
+      },
+      {
+        "symbol": "main",
+        "line": 200,
+        "end_line": 208
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\integrations\\hermes\\deploy_maintenance_baseline.py",
+    "sha256": "0e4e22bd51e489a59d3bbb9b41645713b307b37e0e752561ed2ff6cbe72c01c4",
+    "lines": 212,
+    "anchors": [
+      {
+        "symbol": "deployment_locks",
+        "line": 38,
+        "end_line": 56
+      },
+      {
+        "symbol": "inspect",
+        "line": 59,
+        "end_line": 70
+      },
+      {
+        "symbol": "preflight",
+        "line": 73,
+        "end_line": 116
+      },
+      {
+        "symbol": "prepare",
+        "line": 119,
+        "end_line": 152
+      },
+      {
+        "symbol": "install",
+        "line": 155,
+        "end_line": 205
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\integrations\\hermes\\deploy_maintenance_daily.py",
+    "sha256": "8298d0593364e0715bd4dd7f9238c71f8a32eff8a1134ca8b5ecc85744c2be12",
+    "lines": 167,
+    "anchors": [
+      {
+        "symbol": "load",
+        "line": 25,
+        "end_line": 25
+      },
+      {
+        "symbol": "save",
+        "line": 26,
+        "end_line": 26
+      },
+      {
+        "symbol": "digest",
+        "line": 27,
+        "end_line": 27
+      },
+      {
+        "symbol": "all_users",
+        "line": 28,
+        "end_line": 38
+      },
+      {
+        "symbol": "recipient_sets",
+        "line": 39,
+        "end_line": 39
+      },
+      {
+        "symbol": "preflight",
+        "line": 40,
+        "end_line": 54
+      },
+      {
+        "symbol": "verify",
+        "line": 56,
+        "end_line": 77
+      },
+      {
+        "symbol": "prepare",
+        "line": 79,
+        "end_line": 125
+      },
+      {
+        "symbol": "re_column",
+        "line": 127,
+        "end_line": 129
+      },
+      {
+        "symbol": "assign",
+        "line": 131,
+        "end_line": 136
+      },
+      {
+        "symbol": "activate",
+        "line": 138,
+        "end_line": 163
+      },
+      {
+        "symbol": "main",
+        "line": 165,
+        "end_line": 166
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\integrations\\hermes\\deploy_mechanical_roles.py",
+    "sha256": "406899cf4f2d1877c431ed61be38c67eb003eb8747ec83fe98bec11b4940fe74",
+    "lines": 120,
+    "anchors": [
+      {
+        "symbol": "digest",
+        "line": 13,
+        "end_line": 13
+      },
+      {
+        "symbol": "state",
+        "line": 14,
+        "end_line": 20
+      },
+      {
+        "symbol": "runtime_pairs",
+        "line": 21,
+        "end_line": 24
+      },
+      {
+        "symbol": "preflight",
+        "line": 25,
+        "end_line": 48
+      },
+      {
+        "symbol": "main",
+        "line": 49,
+        "end_line": 119
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\integrations\\hermes\\deploy_metalwork.py",
+    "sha256": "484852d7694d776834744db7378993c2e2fd5de1de7e0805c1dbb672ce0819a2",
+    "lines": 214,
+    "anchors": [
+      {
+        "symbol": "digest",
+        "line": 19,
+        "end_line": 19
+      },
+      {
+        "symbol": "save",
+        "line": 21,
+        "end_line": 22
+      },
+      {
+        "symbol": "state",
+        "line": 24,
+        "end_line": 29
+      },
+      {
+        "symbol": "identities",
+        "line": 31,
+        "end_line": 34
+      },
+      {
+        "symbol": "bootstrap",
+        "line": 36,
+        "end_line": 41
+      },
+      {
+        "symbol": "users",
+        "line": 43,
+        "end_line": 56
+      },
+      {
+        "symbol": "recipient_sets",
+        "line": 58,
+        "end_line": 62
+      },
+      {
+        "symbol": "work_order_state",
+        "line": 64,
+        "end_line": 69
+      },
+      {
+        "symbol": "surface",
+        "line": 71,
+        "end_line": 98
+      },
+      {
+        "symbol": "validate",
+        "line": 100,
+        "end_line": 131
+      },
+      {
+        "symbol": "atomic_schedule",
+        "line": 133,
+        "end_line": 137
+      },
+      {
+        "symbol": "main",
+        "line": 139,
+        "end_line": 212
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\integrations\\hermes\\deploy_net.py",
+    "sha256": "6c353b63a8ca79eecbfe918802f7a973ca966b9cd4ccb95d52ae793a71ef66fb",
+    "lines": 203,
+    "anchors": [
+      {
+        "symbol": "read",
+        "line": 25,
+        "end_line": 25
+      },
+      {
+        "symbol": "save",
+        "line": 26,
+        "end_line": 26
+      },
+      {
+        "symbol": "digest",
+        "line": 27,
+        "end_line": 27
+      },
+      {
+        "symbol": "snapshot",
+        "line": 29,
+        "end_line": 38
+      },
+      {
+        "symbol": "fleet_state",
+        "line": 40,
+        "end_line": 48
+      },
+      {
+        "symbol": "users",
+        "line": 50,
+        "end_line": 59
+      },
+      {
+        "symbol": "recipients",
+        "line": 61,
+        "end_line": 62
+      },
+      {
+        "symbol": "protected",
+        "line": 64,
+        "end_line": 81
+      },
+      {
+        "symbol": "verify",
+        "line": 83,
+        "end_line": 106
+      },
+      {
+        "symbol": "freeze_gate",
+        "line": 108,
+        "end_line": 125
+      },
+      {
+        "symbol": "gate",
+        "line": 127,
+        "end_line": 130
+      },
+      {
+        "symbol": "deploy_profile",
+        "line": 132,
+        "end_line": 149
+      },
+      {
+        "symbol": "delta_check",
+        "line": 151,
+        "end_line": 162
+      },
+      {
+        "symbol": "main",
+        "line": 164,
+        "end_line": 202
+      },
+      {
+        "symbol": "authority_state",
+        "line": 175,
+        "end_line": 177
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\integrations\\hermes\\deploy_overflow_authorization.py",
+    "sha256": "abe0344ea0b909291403690fcd9bd60ffaad2c93fd08f2638673efcbc55877a7",
+    "lines": 51,
+    "anchors": [
+      {
+        "symbol": "digest",
+        "line": 18,
+        "end_line": 19
+      },
+      {
+        "symbol": "main",
+        "line": 22,
+        "end_line": 47
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\integrations\\hermes\\deploy_pakdel_delivery.py",
+    "sha256": "24d05f1ad3ba6383599dbe814d4ff7ef222311b935994166986e6ad24b5ce90f",
+    "lines": 155,
+    "anchors": [
+      {
+        "symbol": "digest",
+        "line": 41,
+        "end_line": 42
+      },
+      {
+        "symbol": "atomic_copy",
+        "line": 45,
+        "end_line": 52
+      },
+      {
+        "symbol": "audit_dir",
+        "line": 55,
+        "end_line": 56
+      },
+      {
+        "symbol": "integrity",
+        "line": 59,
+        "end_line": 61
+      },
+      {
+        "symbol": "backup",
+        "line": 64,
+        "end_line": 66
+      },
+      {
+        "symbol": "check",
+        "line": 69,
+        "end_line": 99
+      },
+      {
+        "symbol": "deploy",
+        "line": 102,
+        "end_line": 125
+      },
+      {
+        "symbol": "rollback",
+        "line": 128,
+        "end_line": 145
+      },
+      {
+        "symbol": "main",
+        "line": 148,
+        "end_line": 152
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\integrations\\hermes\\deploy_safe_manual_excel.py",
+    "sha256": "c12edb85bd2e5cd5aaebd29db42a721e009e82b2c981ab5dc1ebd7e4785368a4",
+    "lines": 140,
+    "anchors": [
+      {
+        "symbol": "digest",
+        "line": 25,
+        "end_line": 26
+      },
+      {
+        "symbol": "load_sync",
+        "line": 29,
+        "end_line": 33
+      },
+      {
+        "symbol": "guarded_source",
+        "line": 36,
+        "end_line": 69
+      },
+      {
+        "symbol": "prepare",
+        "line": 72,
+        "end_line": 79
+      },
+      {
+        "symbol": "install",
+        "line": 82,
+        "end_line": 133
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\integrations\\hermes\\deploy_security_phase1.py",
+    "sha256": "25274983283683caefc04770475f0e838725864eae7c979c4717018c544d0d51",
+    "lines": 88,
+    "anchors": [
+      {
+        "symbol": "digest",
+        "line": 15,
+        "end_line": 15
+      },
+      {
+        "symbol": "main",
+        "line": 16,
+        "end_line": 87
+      },
+      {
+        "symbol": "backup",
+        "line": 19,
+        "end_line": 26
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\integrations\\hermes\\deploy_service_staff_net.py",
+    "sha256": "5a94f85e7e7103bb2596d4cf3011b1744894279e204125ec244338f103ef4274",
+    "lines": 169,
+    "anchors": [
+      {
+        "symbol": "backup",
+        "line": 30,
+        "end_line": 37
+      },
+      {
+        "symbol": "snapshot",
+        "line": 40,
+        "end_line": 52
+      },
+      {
+        "symbol": "add_hamid",
+        "line": 55,
+        "end_line": 68
+      },
+      {
+        "symbol": "verify_delta",
+        "line": 71,
+        "end_line": 79
+      },
+      {
+        "symbol": "change",
+        "line": 82,
+        "end_line": 120
+      },
+      {
+        "symbol": "verify_app",
+        "line": 123,
+        "end_line": 139
+      },
+      {
+        "symbol": "main",
+        "line": 142,
+        "end_line": 165
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\integrations\\hermes\\deploy_session_names.py",
+    "sha256": "3b15d9fb794f1b418452247ca1fce991831d8e040560e856d9e55805563910c4",
+    "lines": 67,
+    "anchors": [
+      {
+        "symbol": "digest",
+        "line": 7,
+        "end_line": 7
+      },
+      {
+        "symbol": "table_hashes",
+        "line": 8,
+        "end_line": 13
+      },
+      {
+        "symbol": "history_hashes",
+        "line": 14,
+        "end_line": 22
+      },
+      {
+        "symbol": "protected",
+        "line": 24,
+        "end_line": 28
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\integrations\\hermes\\deploy_seven_day_entry.py",
+    "sha256": "8426a5f31099c438f17eb3cb1580f51e74510adcfb1359420a832e06b0f58c8c",
+    "lines": 303,
+    "anchors": [
+      {
+        "symbol": "digest",
+        "line": 38,
+        "end_line": 39
+      },
+      {
+        "symbol": "load",
+        "line": 42,
+        "end_line": 43
+      },
+      {
+        "symbol": "save",
+        "line": 46,
+        "end_line": 47
+      },
+      {
+        "symbol": "git",
+        "line": 50,
+        "end_line": 54
+      },
+      {
+        "symbol": "check",
+        "line": 57,
+        "end_line": 100
+      },
+      {
+        "symbol": "native",
+        "line": 103,
+        "end_line": 114
+      },
+      {
+        "symbol": "deployment_locks",
+        "line": 118,
+        "end_line": 136
+      },
+      {
+        "symbol": "backup_database",
+        "line": 139,
+        "end_line": 143
+      },
+      {
+        "symbol": "busy",
+        "line": 146,
+        "end_line": 149
+      },
+      {
+        "symbol": "install",
+        "line": 152,
+        "end_line": 249
+      },
+      {
+        "symbol": "verify",
+        "line": 252,
+        "end_line": 290
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\integrations\\hermes\\deploy_shared_fast_core.py",
+    "sha256": "bf7dfb4eb357d78897adc3fc7bb8697e6e6d02b5032e80fb03188788fb0ad759",
+    "lines": 80,
+    "anchors": [
+      {
+        "symbol": "digest",
+        "line": 18,
+        "end_line": 18
+      },
+      {
+        "symbol": "deployment_pairs",
+        "line": 20,
+        "end_line": 27
+      },
+      {
+        "symbol": "atomic_copy",
+        "line": 29,
+        "end_line": 40
+      },
+      {
+        "symbol": "main",
+        "line": 42,
+        "end_line": 79
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\integrations\\hermes\\deploy_shared_technical.py",
+    "sha256": "3c170e571787e215c11779ef653d03c096a2c99435456d1b910a18f149c4b61f",
+    "lines": 96,
+    "anchors": [
+      {
+        "symbol": "digest",
+        "line": 8,
+        "end_line": 8
+      },
+      {
+        "symbol": "desired",
+        "line": 9,
+        "end_line": 36
+      },
+      {
+        "symbol": "atomic",
+        "line": 38,
+        "end_line": 46
+      },
+      {
+        "symbol": "pairs",
+        "line": 48,
+        "end_line": 59
+      },
+      {
+        "symbol": "main",
+        "line": 61,
+        "end_line": 95
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\integrations\\hermes\\pdf_region.py",
+    "sha256": "dffaf2e0de529eaeb957e36584fe8beb033327ce306ce33fdab5b1ea5ea07fcf",
+    "lines": 130,
+    "anchors": [
+      {
+        "symbol": "region_schema",
+        "line": 33,
+        "end_line": 44
+      },
+      {
+        "symbol": "render_region",
+        "line": 47,
+        "end_line": 130
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\integrations\\hermes\\role_routing.py",
+    "sha256": "60ba2e4025dbf09520db3577fdfd97ecb3603e92bd4b91f4e4978f184e1532e2",
+    "lines": 24,
+    "anchors": [
+      {
+        "symbol": "resolve_profile",
+        "line": 11,
+        "end_line": 15
+      },
+      {
+        "symbol": "resolve_toolsets",
+        "line": 18,
+        "end_line": 24
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\integrations\\hermes\\send_maintenance_daily_test.py",
+    "sha256": "4ce1b94a2ff3e2ef6cda895d71c4c1cf433d5df66413cd140b2325218637aad3",
+    "lines": 71,
+    "anchors": [
+      {
+        "symbol": "claim_once",
+        "line": 14,
+        "end_line": 18
+      },
+      {
+        "symbol": "main",
+        "line": 20,
+        "end_line": 70
+      },
+      {
+        "symbol": "check_test_identity",
+        "line": 32,
+        "end_line": 36
+      },
+      {
+        "symbol": "capture_post",
+        "line": 47,
+        "end_line": 57
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\integrations\\hermes\\technical_docs_boundary.py",
+    "sha256": "3e637bf15ee04409532882065236ef4e318a1c12d1791ce366303ef8ea8cddf8",
+    "lines": 27,
+    "anchors": [
+      {
+        "symbol": "technical_docs_enabled",
+        "line": 12,
+        "end_line": 23
+      },
+      {
+        "symbol": "runtime_home",
+        "line": 25,
+        "end_line": 27
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\integrations\\hermes\\technical_image.py",
+    "sha256": "fc9e4b68ae5d429201c62eedd2f273ad84993da7af2ff894f5468606aa265bb2",
+    "lines": 57,
+    "anchors": [
+      {
+        "symbol": "upload_requires_document",
+        "line": 19,
+        "end_line": 25
+      },
+      {
+        "symbol": "validate_dimensions",
+        "line": 28,
+        "end_line": 32
+      },
+      {
+        "symbol": "validate_png",
+        "line": 35,
+        "end_line": 50
+      },
+      {
+        "symbol": "read_validated_png",
+        "line": 53,
+        "end_line": 57
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\integrations\\hermes\\technical_media.py",
+    "sha256": "b4a9a54af7843788269468bc00709a785dfe7f5ad90e7e952f3badb35648f3b2",
+    "lines": 102,
+    "anchors": [
+      {
+        "symbol": "_validated_page",
+        "line": 22,
+        "end_line": 33
+      },
+      {
+        "symbol": "_publish_page",
+        "line": 36,
+        "end_line": 59
+      },
+      {
+        "symbol": "transform_technical_media",
+        "line": 62,
+        "end_line": 102
+      },
+      {
+        "symbol": "replace",
+        "line": 78,
+        "end_line": 82
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\integrations\\hermes\\verify_ai_daily_entry.py",
+    "sha256": "84d1934d1b0666332960e368538003fd8fc3135239812c107ed77ab9546cd879",
+    "lines": 20,
+    "anchors": [
+      {
+        "symbol": "main",
+        "line": 9,
+        "end_line": 17
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\integrations\\hermes\\verify_ai_daily_model.py",
+    "sha256": "8f41e6b01bc33e857a03c475496137644d7ac4abb517b913a7907af40b97448d",
+    "lines": 73,
+    "anchors": [
+      {
+        "symbol": "main",
+        "line": 14,
+        "end_line": 70
+      },
+      {
+        "symbol": "NoExcel",
+        "line": 25,
+        "end_line": 28
+      },
+      {
+        "symbol": "no_operational_write",
+        "line": 30,
+        "end_line": 35
+      },
+      {
+        "symbol": "strings",
+        "line": 38,
+        "end_line": 43
+      },
+      {
+        "symbol": "find_spec",
+        "line": 26,
+        "end_line": 28
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\integrations\\hermes\\verify_maintenance_baseline.py",
+    "sha256": "0617e03a18b4fb3c2eedb6352b9cc982cc75b772434a93ad3db90c2aa6b49959",
+    "lines": 69,
+    "anchors": [
+      {
+        "symbol": "run",
+        "line": 27,
+        "end_line": 65
+      }
+    ]
+  },
+  {
+    "path": "E:\\KomatsoAI\\integrations\\hermes\\verify_seven_day_entry.py",
+    "sha256": "d61af7a89bc7c8c1fd28bf6ffa6676600811752ba92222439a1a2b7038c0f597",
+    "lines": 106,
+    "anchors": [
+      {
+        "symbol": "main",
+        "line": 50,
+        "end_line": 102
+      }
+    ]
+  },
+  {
+    "path": "E:\\HRMS\\hrms\\__init__.py",
+    "sha256": "e2cf63456f9cdad58e5d79f171dc7cd1027c3f6d5e4dd3edef3b61d52ff59472",
+    "lines": 2,
+    "anchors": []
+  },
+  {
+    "path": "E:\\HRMS\\hrms\\__main__.py",
+    "sha256": "bf79ba63e8550f78e1978076c7f872cc21961a7ffd3a34275fb45d5a0fb4e071",
+    "lines": 2,
+    "anchors": []
+  },
+  {
+    "path": "E:\\HRMS\\hrms\\artifacts.py",
+    "sha256": "cd945afcbf8e834735bf749f3902a0642476e4432bc970a6cfeaca15bbe69d29",
+    "lines": 211,
+    "anchors": [
+      {
+        "symbol": "sha256",
+        "line": 11,
+        "end_line": 13
+      },
+      {
+        "symbol": "write_json",
+        "line": 15,
+        "end_line": 16
+      },
+      {
+        "symbol": "write_csv",
+        "line": 18,
+        "end_line": 30
+      },
+      {
+        "symbol": "local_path",
+        "line": 32,
+        "end_line": 35
+      },
+      {
+        "symbol": "copy_input",
+        "line": 37,
+        "end_line": 47
+      },
+      {
+        "symbol": "load_rule",
+        "line": 49,
+        "end_line": 208
+      },
+      {
+        "symbol": "hhmm",
+        "line": 210,
+        "end_line": 211
+      }
+    ]
+  },
+  {
+    "path": "E:\\HRMS\\hrms\\attendance_policy.py",
+    "sha256": "0cef315ceb5a53209128c712212e960517267c8f786a559b28a6865c632a92da",
+    "lines": 212,
+    "anchors": [
+      {
+        "symbol": "load_attendance_policy",
+        "line": 10,
+        "end_line": 73
+      },
+      {
+        "symbol": "applies",
+        "line": 76,
+        "end_line": 77
+      },
+      {
+        "symbol": "decision_applies",
+        "line": 80,
+        "end_line": 82
+      },
+      {
+        "symbol": "absence_status",
+        "line": 85,
+        "end_line": 94
+      },
+      {
+        "symbol": "mapped_absence",
+        "line": 97,
+        "end_line": 105
+      },
+      {
+        "symbol": "is_label_only_leave",
+        "line": 108,
+        "end_line": 121
+      },
+      {
+        "symbol": "is_mine_leave",
+        "line": 124,
+        "end_line": 126
+      },
+      {
+        "symbol": "alternate_attendance",
+        "line": 129,
+        "end_line": 134
+      },
+      {
+        "symbol": "incomplete_detail",
+        "line": 137,
+        "end_line": 160
+      },
+      {
+        "symbol": "excluded_incomplete",
+        "line": 163,
+        "end_line": 172
+      },
+      {
+        "symbol": "incomplete_exclusion_event",
+        "line": 175,
+        "end_line": 176
+      },
+      {
+        "symbol": "day_count_only_event",
+        "line": 179,
+        "end_line": 180
+      },
+      {
+        "symbol": "apply_day_count_only_accounting",
+        "line": 183,
+        "end_line": 212
+      }
+    ]
+  },
+  {
+    "path": "E:\\HRMS\\hrms\\batch.py",
+    "sha256": "7e4d9bad432b3fddfa280486f98d5476a7f20006670febbcd8316ae9e4d51739",
+    "lines": 630,
+    "anchors": [
+      {
+        "symbol": "detect_period",
+        "line": 30,
+        "end_line": 37
+      },
+      {
+        "symbol": "employee_summary",
+        "line": 40,
+        "end_line": 60
+      },
+      {
+        "symbol": "run_batch",
+        "line": 63,
+        "end_line": 630
+      },
+      {
+        "symbol": "excluded",
+        "line": 228,
+        "end_line": 231
+      }
+    ]
+  },
+  {
+    "path": "E:\\HRMS\\hrms\\calendar.py",
+    "sha256": "0b0cd5038670169bff646cc09a8238c06d61f8f302c36d98db99d757d2f252f1",
+    "lines": 51,
+    "anchors": [
+      {
+        "symbol": "month_length",
+        "line": 12,
+        "end_line": 25
+      },
+      {
+        "symbol": "next_date",
+        "line": 28,
+        "end_line": 36
+      },
+      {
+        "symbol": "day_number",
+        "line": 40,
+        "end_line": 43
+      },
+      {
+        "symbol": "weekday_index",
+        "line": 49,
+        "end_line": 51
+      }
+    ]
+  },
+  {
+    "path": "E:\\HRMS\\hrms\\cli.py",
+    "sha256": "afe15add1ba804cf5b778937b7f517a4da00de6275ac3543920b8ab8b0dff824",
+    "lines": 48,
+    "anchors": [
+      {
+        "symbol": "main",
+        "line": 8,
+        "end_line": 45
+      }
+    ]
+  },
+  {
+    "path": "E:\\HRMS\\hrms\\comparison.py",
+    "sha256": "56b4d19d475f7e126d995069ccc8e518dda1094023504158c84ba3e161a90dae",
+    "lines": 58,
+    "anchors": [
+      {
+        "symbol": "compare",
+        "line": 5,
+        "end_line": 53
+      },
+      {
+        "symbol": "comparison_counts",
+        "line": 56,
+        "end_line": 58
+      }
+    ]
+  },
+  {
+    "path": "E:\\HRMS\\hrms\\decision_schema.py",
+    "sha256": "8a43387eb3fe7e0780303c256491d470fbabc9d79c09741c97eb56b8a37be5f1",
+    "lines": 89,
+    "anchors": [
+      {
+        "symbol": "validate_operational_policy",
+        "line": 5,
+        "end_line": 89
+      },
+      {
+        "symbol": "approved",
+        "line": 12,
+        "end_line": 14
+      },
+      {
+        "symbol": "validity",
+        "line": 15,
+        "end_line": 19
+      },
+      {
+        "symbol": "groups",
+        "line": 20,
+        "end_line": 23
+      },
+      {
+        "symbol": "statuses",
+        "line": 24,
+        "end_line": 26
+      }
+    ]
+  },
+  {
+    "path": "E:\\HRMS\\hrms\\engine.py",
+    "sha256": "485db45957cb8d3e88eb4a78dc767d64fc47b2b5f396d02712312de936e9cc96",
+    "lines": 888,
+    "anchors": [
+      {
+        "symbol": "minute",
+        "line": 9,
+        "end_line": 14
+      },
+      {
+        "symbol": "punch_intervals",
+        "line": 16,
+        "end_line": 36
+      },
+      {
+        "symbol": "night_intervals",
+        "line": 39,
+        "end_line": 61
+      },
+      {
+        "symbol": "overlap",
+        "line": 63,
+        "end_line": 63
+      },
+      {
+        "symbol": "calculate",
+        "line": 65,
+        "end_line": 75
+      },
+      {
+        "symbol": "_calculate_day",
+        "line": 78,
+        "end_line": 340
+      },
+      {
+        "symbol": "record_g09_presence",
+        "line": 343,
+        "end_line": 352
+      },
+      {
+        "symbol": "calculate_g09",
+        "line": 355,
+        "end_line": 532
+      },
+      {
+        "symbol": "apply_g09_leave_quota",
+        "line": 535,
+        "end_line": 597
+      },
+      {
+        "symbol": "calculation_intervals",
+        "line": 600,
+        "end_line": 603
+      },
+      {
+        "symbol": "calculate_metrics",
+        "line": 606,
+        "end_line": 694
+      },
+      {
+        "symbol": "required_presence",
+        "line": 696,
+        "end_line": 698
+      },
+      {
+        "symbol": "subtract_intervals",
+        "line": 701,
+        "end_line": 710
+      },
+      {
+        "symbol": "presence_accounting",
+        "line": 713,
+        "end_line": 730
+      },
+      {
+        "symbol": "review_pending_night_deductions",
+        "line": 733,
+        "end_line": 751
+      },
+      {
+        "symbol": "overtime_sides",
+        "line": 754,
+        "end_line": 757
+      },
+      {
+        "symbol": "overtime_intervals",
+        "line": 760,
+        "end_line": 779
+      },
+      {
+        "symbol": "assignment_for",
+        "line": 782,
+        "end_line": 801
+      },
+      {
+        "symbol": "monthly",
+        "line": 803,
+        "end_line": 888
+      },
+      {
+        "symbol": "take",
+        "line": 720,
+        "end_line": 727
+      }
+    ]
+  },
+  {
+    "path": "E:\\HRMS\\hrms\\export.py",
+    "sha256": "064bbb4afbfac8ce61ac6d688ea0d3a54020bd9fd244269261e86cc8e7632fdb",
+    "lines": 837,
+    "anchors": [
+      {
+        "symbol": "localize_personnel_form",
+        "line": 18,
+        "end_line": 32
+      },
+      {
+        "symbol": "safe_value",
+        "line": 35,
+        "end_line": 38
+      },
+      {
+        "symbol": "put",
+        "line": 40,
+        "end_line": 43
+      },
+      {
+        "symbol": "duration",
+        "line": 45,
+        "end_line": 48
+      },
+      {
+        "symbol": "basic",
+        "line": 50,
+        "end_line": 58
+      },
+      {
+        "symbol": "table",
+        "line": 60,
+        "end_line": 74
+      },
+      {
+        "symbol": "write_incomplete_punches",
+        "line": 76,
+        "end_line": 83
+      },
+      {
+        "symbol": "format_hourly_leave_note",
+        "line": 86,
+        "end_line": 90
+      },
+      {
+        "symbol": "pooled_g09",
+        "line": 93,
+        "end_line": 94
+      },
+      {
+        "symbol": "write_excluded_clocks",
+        "line": 97,
+        "end_line": 117
+      },
+      {
+        "symbol": "printed_value",
+        "line": 120,
+        "end_line": 128
+      },
+      {
+        "symbol": "row_total",
+        "line": 131,
+        "end_line": 144
+      },
+      {
+        "symbol": "shift_clock",
+        "line": 147,
+        "end_line": 161
+      },
+      {
+        "symbol": "omits_zero",
+        "line": 164,
+        "end_line": 173
+      },
+      {
+        "symbol": "omit_policy_zeros",
+        "line": 176,
+        "end_line": 190
+      },
+      {
+        "symbol": "_g09_footer_days",
+        "line": 194,
+        "end_line": 229
+      },
+      {
+        "symbol": "_footer_summary",
+        "line": 232,
+        "end_line": 343
+      },
+      {
+        "symbol": "balance_box",
+        "line": 346,
+        "end_line": 360
+      },
+      {
+        "symbol": "form_footer",
+        "line": 363,
+        "end_line": 449
+      },
+      {
+        "symbol": "form",
+        "line": 452,
+        "end_line": 617
+      },
+      {
+        "symbol": "export_workbook",
+        "line": 620,
+        "end_line": 650
+      },
+      {
+        "symbol": "export_batch_workbook",
+        "line": 653,
+        "end_line": 720
+      },
+      {
+        "symbol": "identity_review_sheet",
+        "line": 723,
+        "end_line": 731
+      },
+      {
+        "symbol": "_rule_guide",
+        "line": 734,
+        "end_line": 767
+      },
+      {
+        "symbol": "export_technical_workbook",
+        "line": 770,
+        "end_line": 837
+      },
+      {
+        "symbol": "clear_zero",
+        "line": 182,
+        "end_line": 184
+      },
+      {
+        "symbol": "policy_zero",
+        "line": 286,
+        "end_line": 290
+      },
+      {
+        "symbol": "number",
+        "line": 407,
+        "end_line": 407
+      },
+      {
+        "symbol": "clock",
+        "line": 740,
+        "end_line": 742
+      },
+      {
+        "symbol": "complete_sum",
+        "line": 249,
+        "end_line": 257
+      },
+      {
+        "symbol": "clock",
+        "line": 427,
+        "end_line": 427
+      }
+    ]
+  },
+  {
+    "path": "E:\\HRMS\\hrms\\friday_work.py",
+    "sha256": "46d0e3b7ddfdb0f760fc2cf86979810b1013aa3707667dbbb567ce4d56506aac",
+    "lines": 132,
+    "anchors": [
+      {
+        "symbol": "source_authorized_total",
+        "line": 12,
+        "end_line": 30
+      },
+      {
+        "symbol": "_apply_group_rules_only",
+        "line": 33,
+        "end_line": 77
+      },
+      {
+        "symbol": "apply_friday_work_credit",
+        "line": 80,
+        "end_line": 132
+      }
+    ]
+  },
+  {
+    "path": "E:\\HRMS\\hrms\\g09_calendar_days.py",
+    "sha256": "383184d9fd015ae850a38280b42f2afc9e95d3f55ddb9258c965f3a259a961af",
+    "lines": 54,
+    "anchors": [
+      {
+        "symbol": "calendar_summary",
+        "line": 8,
+        "end_line": 54
+      }
+    ]
+  },
+  {
+    "path": "E:\\HRMS\\hrms\\g09_overtime.py",
+    "sha256": "7a41206a66b69811ebec76574922f89499189a9b663d34059503ae9edf5abaa3",
+    "lines": 53,
+    "anchors": [
+      {
+        "symbol": "authorized_overtime",
+        "line": 10,
+        "end_line": 53
+      }
+    ]
+  },
+  {
+    "path": "E:\\HRMS\\hrms\\hourly_leave.py",
+    "sha256": "736470455a971ab53e6463d53f8330446cbe7c0dd2489dfd2aa570d8b6272ec0",
+    "lines": 73,
+    "anchors": [
+      {
+        "symbol": "record_hourly_leave",
+        "line": 13,
+        "end_line": 47
+      },
+      {
+        "symbol": "daily_record",
+        "line": 50,
+        "end_line": 58
+      },
+      {
+        "symbol": "monthly_summary",
+        "line": 61,
+        "end_line": 73
+      }
+    ]
+  },
+  {
+    "path": "E:\\HRMS\\hrms\\identity.py",
+    "sha256": "c1d29e8e84023e446b9e40f110566d2563fd55b408d99f9c2320180891c53b0f",
+    "lines": 92,
+    "anchors": [
+      {
+        "symbol": "normalized_name",
+        "line": 10,
+        "end_line": 12
+      },
+      {
+        "symbol": "identity_match_approval",
+        "line": 15,
+        "end_line": 26
+      },
+      {
+        "symbol": "identity_conflict",
+        "line": 29,
+        "end_line": 44
+      },
+      {
+        "symbol": "scan_identities",
+        "line": 47,
+        "end_line": 60
+      },
+      {
+        "symbol": "blocked_result",
+        "line": 63,
+        "end_line": 65
+      },
+      {
+        "symbol": "identity_report_lines",
+        "line": 68,
+        "end_line": 81
+      },
+      {
+        "symbol": "log_identity_conflicts",
+        "line": 84,
+        "end_line": 92
+      }
+    ]
+  },
+  {
+    "path": "E:\\HRMS\\hrms\\ingestion.py",
+    "sha256": "cb7dcba8cfab1979e54ba271b80bb4d2342ae23849fd9e588001ea99518c9233",
+    "lines": 474,
+    "anchors": [
+      {
+        "symbol": "fingerprint",
+        "line": 25,
+        "end_line": 27
+      },
+      {
+        "symbol": "atomic_json",
+        "line": 30,
+        "end_line": 43
+      },
+      {
+        "symbol": "file_lock",
+        "line": 47,
+        "end_line": 70
+      },
+      {
+        "symbol": "record_content",
+        "line": 73,
+        "end_line": 83
+      },
+      {
+        "symbol": "spans",
+        "line": 86,
+        "end_line": 96
+      },
+      {
+        "symbol": "selected_spans",
+        "line": 99,
+        "end_line": 105
+      },
+      {
+        "symbol": "intersects",
+        "line": 108,
+        "end_line": 109
+      },
+      {
+        "symbol": "merge_records",
+        "line": 112,
+        "end_line": 263
+      },
+      {
+        "symbol": "WismanStore",
+        "line": 266,
+        "end_line": 403
+      },
+      {
+        "symbol": "incremental_batch",
+        "line": 406,
+        "end_line": 474
+      },
+      {
+        "symbol": "format_correspondence",
+        "line": 156,
+        "end_line": 169
+      },
+      {
+        "symbol": "conflict",
+        "line": 171,
+        "end_line": 189
+      },
+      {
+        "symbol": "__init__",
+        "line": 267,
+        "end_line": 271
+      },
+      {
+        "symbol": "manifest",
+        "line": 273,
+        "end_line": 279
+      },
+      {
+        "symbol": "commit",
+        "line": 281,
+        "end_line": 283
+      },
+      {
+        "symbol": "ingest",
+        "line": 285,
+        "end_line": 347
+      },
+      {
+        "symbol": "snapshot",
+        "line": 349,
+        "end_line": 397
+      },
+      {
+        "symbol": "remember_result",
+        "line": 399,
+        "end_line": 403
+      },
+      {
+        "symbol": "prepared_spans",
+        "line": 232,
+        "end_line": 234
+      }
+    ]
+  },
+  {
+    "path": "E:\\HRMS\\hrms\\input_accounting.py",
+    "sha256": "85455031a0688e6a1984489f39759a451f0429b9571a38be9207dcc450324fd3",
+    "lines": 156,
+    "anchors": [
+      {
+        "symbol": "origin_key",
+        "line": 15,
+        "end_line": 17
+      },
+      {
+        "symbol": "result_origins",
+        "line": 20,
+        "end_line": 32
+      },
+      {
+        "symbol": "account_input",
+        "line": 35,
+        "end_line": 109
+      },
+      {
+        "symbol": "require_accounted",
+        "line": 112,
+        "end_line": 117
+      },
+      {
+        "symbol": "verify_source_coverage",
+        "line": 120,
+        "end_line": 129
+      },
+      {
+        "symbol": "append_tracking_sheet",
+        "line": 132,
+        "end_line": 156
+      }
+    ]
+  },
+  {
+    "path": "E:\\HRMS\\hrms\\mehr_reconciliation.py",
+    "sha256": "9248d2477fa992f88b136569258d25cb258e04762c4bab78d3ece08ce2c5ee39",
+    "lines": 417,
+    "anchors": [
+      {
+        "symbol": "digest",
+        "line": 29,
+        "end_line": 31
+      },
+      {
+        "symbol": "row_key",
+        "line": 34,
+        "end_line": 35
+      },
+      {
+        "symbol": "origins",
+        "line": 38,
+        "end_line": 40
+      },
+      {
+        "symbol": "coverage",
+        "line": 43,
+        "end_line": 66
+      },
+      {
+        "symbol": "contract_for",
+        "line": 69,
+        "end_line": 83
+      },
+      {
+        "symbol": "shift_kind",
+        "line": 86,
+        "end_line": 87
+      },
+      {
+        "symbol": "hrms_value",
+        "line": 90,
+        "end_line": 96
+      },
+      {
+        "symbol": "explanation",
+        "line": 99,
+        "end_line": 111
+      },
+      {
+        "symbol": "build_reconciliation",
+        "line": 114,
+        "end_line": 368
+      },
+      {
+        "symbol": "flat",
+        "line": 371,
+        "end_line": 372
+      },
+      {
+        "symbol": "excel_safe",
+        "line": 375,
+        "end_line": 379
+      },
+      {
+        "symbol": "write_reconciliation",
+        "line": 382,
+        "end_line": 417
+      }
+    ]
+  },
+  {
+    "path": "E:\\HRMS\\hrms\\messages.py",
+    "sha256": "ec21b0850fd85b23edea3a6f641046ae6a5b00685f810d283aa1e06347ae39dc",
+    "lines": 116,
+    "anchors": [
+      {
+        "symbol": "issue_text",
+        "line": 105,
+        "end_line": 105
+      },
+      {
+        "symbol": "review_issues",
+        "line": 108,
+        "end_line": 116
+      }
+    ]
+  },
+  {
+    "path": "E:\\HRMS\\hrms\\models.py",
+    "sha256": "3f5e33ea97901e497aef83a97a5f141e6256f302292bcdfed464055d8d017c24",
+    "lines": 193,
+    "anchors": [
+      {
+        "symbol": "Job",
+        "line": 4,
+        "end_line": 5
+      },
+      {
+        "symbol": "Person",
+        "line": 8,
+        "end_line": 26
+      },
+      {
+        "symbol": "WorkGroup",
+        "line": 29,
+        "end_line": 32
+      },
+      {
+        "symbol": "RuleVersion",
+        "line": 48,
+        "end_line": 112
+      },
+      {
+        "symbol": "Assignment",
+        "line": 115,
+        "end_line": 123
+      },
+      {
+        "symbol": "RawDay",
+        "line": 126,
+        "end_line": 148
+      },
+      {
+        "symbol": "DayResult",
+        "line": 151,
+        "end_line": 177
+      },
+      {
+        "symbol": "ReferenceDay",
+        "line": 180,
+        "end_line": 193
+      },
+      {
+        "symbol": "full_name",
+        "line": 25,
+        "end_line": 26
+      },
+      {
+        "symbol": "night_uses_recorded_sequence",
+        "line": 99,
+        "end_line": 102
+      },
+      {
+        "symbol": "work_windows",
+        "line": 105,
+        "end_line": 108
+      },
+      {
+        "symbol": "full_day_minutes",
+        "line": 111,
+        "end_line": 112
+      },
+      {
+        "symbol": "shift_kind",
+        "line": 147,
+        "end_line": 148
+      },
+      {
+        "symbol": "shift_kind",
+        "line": 174,
+        "end_line": 177
+      }
+    ]
+  },
+  {
+    "path": "E:\\HRMS\\hrms\\personnel.py",
+    "sha256": "0dd75e56ce1b7fa684688220666bdaf25d54a7217ea1d3977d8c95af3a322e19",
+    "lines": 644,
+    "anchors": [
+      {
+        "symbol": "PersonnelError",
+        "line": 29,
+        "end_line": 30
+      },
+      {
+        "symbol": "stamp",
+        "line": 33,
+        "end_line": 34
+      },
+      {
+        "symbol": "encode",
+        "line": 37,
+        "end_line": 38
+      },
+      {
+        "symbol": "checksum",
+        "line": 41,
+        "end_line": 42
+      },
+      {
+        "symbol": "validate_field",
+        "line": 45,
+        "end_line": 85
+      },
+      {
+        "symbol": "validate_payload",
+        "line": 88,
+        "end_line": 94
+      },
+      {
+        "symbol": "month_start",
+        "line": 101,
+        "end_line": 120
+      },
+      {
+        "symbol": "validate_operation",
+        "line": 123,
+        "end_line": 141
+      },
+      {
+        "symbol": "PersonnelService",
+        "line": 144,
+        "end_line": 634
+      },
+      {
+        "symbol": "engine_sources",
+        "line": 637,
+        "end_line": 644
+      },
+      {
+        "symbol": "__init__",
+        "line": 145,
+        "end_line": 147
+      },
+      {
+        "symbol": "db",
+        "line": 150,
+        "end_line": 168
+      },
+      {
+        "symbol": "initialize",
+        "line": 170,
+        "end_line": 219
+      },
+      {
+        "symbol": "_authorize",
+        "line": 222,
+        "end_line": 225
+      },
+      {
+        "symbol": "allowed",
+        "line": 227,
+        "end_line": 235
+      },
+      {
+        "symbol": "role",
+        "line": 237,
+        "end_line": 249
+      },
+      {
+        "symbol": "_check_legacy",
+        "line": 251,
+        "end_line": 255
+      },
+      {
+        "symbol": "_inspect",
+        "line": 258,
+        "end_line": 277
+      },
+      {
+        "symbol": "_build",
+        "line": 279,
+        "end_line": 412
+      },
+      {
+        "symbol": "_scoped_rules",
+        "line": 414,
+        "end_line": 468
+      },
+      {
+        "symbol": "_policy_fingerprint",
+        "line": 470,
+        "end_line": 472
+      },
+      {
+        "symbol": "_validate_assignments",
+        "line": 475,
+        "end_line": 486
+      },
+      {
+        "symbol": "prepare",
+        "line": 488,
+        "end_line": 513
+      },
+      {
+        "symbol": "approve",
+        "line": 515,
+        "end_line": 541
+      },
+      {
+        "symbol": "directory",
+        "line": 543,
+        "end_line": 565
+      },
+      {
+        "symbol": "preview",
+        "line": 567,
+        "end_line": 578
+      },
+      {
+        "symbol": "management_excel",
+        "line": 580,
+        "end_line": 593
+      },
+      {
+        "symbol": "export",
+        "line": 595,
+        "end_line": 634
+      }
+    ]
+  },
+  {
+    "path": "E:\\HRMS\\hrms\\personnel_display.py",
+    "sha256": "fb754ac65bb0292b27fd4f4daa00821d21541a2ec8ce8df2466cdbc6fb6ca11e",
+    "lines": 258,
+    "anchors": [
+      {
+        "symbol": "today",
+        "line": 15,
+        "end_line": 25
+      },
+      {
+        "symbol": "groups_fa",
+        "line": 28,
+        "end_line": 33
+      },
+      {
+        "symbol": "approval_fa",
+        "line": 36,
+        "end_line": 44
+      },
+      {
+        "symbol": "assignment_state",
+        "line": 47,
+        "end_line": 55
+      },
+      {
+        "symbol": "evidence_fa",
+        "line": 58,
+        "end_line": 66
+      },
+      {
+        "symbol": "status_fa",
+        "line": 69,
+        "end_line": 77
+      },
+      {
+        "symbol": "recorder_fa",
+        "line": 80,
+        "end_line": 90
+      },
+      {
+        "symbol": "projection",
+        "line": 93,
+        "end_line": 151
+      },
+      {
+        "symbol": "search_records",
+        "line": 154,
+        "end_line": 158
+      },
+      {
+        "symbol": "profile_fa",
+        "line": 161,
+        "end_line": 181
+      },
+      {
+        "symbol": "write_workbook",
+        "line": 194,
+        "end_line": 258
+      }
+    ]
+  },
+  {
+    "path": "E:\\HRMS\\hrms\\policy_store.py",
+    "sha256": "4a7dda9660d17a284dc0bf6706305da86befd96177957b6c657a4884ea1f445e",
+    "lines": 42,
+    "anchors": [
+      {
+        "symbol": "bundle_inputs",
+        "line": 12,
+        "end_line": 31
+      },
+      {
+        "symbol": "with_policy_defaults",
+        "line": 34,
+        "end_line": 42
+      }
+    ]
+  },
+  {
+    "path": "E:\\HRMS\\hrms\\publication.py",
+    "sha256": "ecd43d77095039d85a120f757a4f1db69604151636a315d6f8ef278a19ec44a0",
+    "lines": 37,
+    "anchors": [
+      {
+        "symbol": "publication_decision",
+        "line": 5,
+        "end_line": 37
+      }
+    ]
+  },
+  {
+    "path": "E:\\HRMS\\hrms\\readers.py",
+    "sha256": "95edfbcb628254659ea33eab97d9d998c4670bf27068ba5b4d701878aa2db597",
+    "lines": 407,
+    "anchors": [
+      {
+        "symbol": "text",
+        "line": 25,
+        "end_line": 28
+      },
+      {
+        "symbol": "pid",
+        "line": 30,
+        "end_line": 36
+      },
+      {
+        "symbol": "personnel_ids",
+        "line": 39,
+        "end_line": 46
+      },
+      {
+        "symbol": "date_key",
+        "line": 48,
+        "end_line": 55
+      },
+      {
+        "symbol": "group_codes",
+        "line": 57,
+        "end_line": 64
+      },
+      {
+        "symbol": "red_personnel_row",
+        "line": 67,
+        "end_line": 70
+      },
+      {
+        "symbol": "read_people",
+        "line": 73,
+        "end_line": 159
+      },
+      {
+        "symbol": "xls_snapshot",
+        "line": 161,
+        "end_line": 164
+      },
+      {
+        "symbol": "wisman_duration",
+        "line": 166,
+        "end_line": 174
+      },
+      {
+        "symbol": "wisman_calculations",
+        "line": 177,
+        "end_line": 206
+      },
+      {
+        "symbol": "read_wisman",
+        "line": 209,
+        "end_line": 220
+      },
+      {
+        "symbol": "_read_wisman",
+        "line": 223,
+        "end_line": 276
+      },
+      {
+        "symbol": "excel_minutes",
+        "line": 278,
+        "end_line": 281
+      },
+      {
+        "symbol": "read_reference",
+        "line": 283,
+        "end_line": 314
+      },
+      {
+        "symbol": "read_assignments",
+        "line": 316,
+        "end_line": 353
+      },
+      {
+        "symbol": "sync_g09_assignments",
+        "line": 355,
+        "end_line": 376
+      },
+      {
+        "symbol": "read_leave_approvals",
+        "line": 379,
+        "end_line": 390
+      },
+      {
+        "symbol": "read_overrides",
+        "line": 393,
+        "end_line": 407
+      }
+    ]
+  },
+  {
+    "path": "E:\\HRMS\\hrms\\reference_layout.py",
+    "sha256": "76d147e7b415fcdd6b7b6d8e3f6c176f769fc61111c274063ba027e419d7a9e3",
+    "lines": 214,
+    "anchors": [
+      {
+        "symbol": "ReferenceLayout",
+        "line": 29,
+        "end_line": 214
+      },
+      {
+        "symbol": "__init__",
+        "line": 35,
+        "end_line": 68
+      },
+      {
+        "symbol": "from_historical",
+        "line": 71,
+        "end_line": 105
+      },
+      {
+        "symbol": "color",
+        "line": 107,
+        "end_line": 109
+      },
+      {
+        "symbol": "style",
+        "line": 111,
+        "end_line": 134
+      },
+      {
+        "symbol": "apply",
+        "line": 136,
+        "end_line": 214
+      }
+    ]
+  },
+  {
+    "path": "E:\\HRMS\\hrms\\report.py",
+    "sha256": "945731ac421212678e23a1049337d3b91657d9580340c7a955e3732c70ae068f",
+    "lines": 82,
+    "anchors": [
+      {
+        "symbol": "write_report",
+        "line": 6,
+        "end_line": 61
+      },
+      {
+        "symbol": "write_shift_review",
+        "line": 64,
+        "end_line": 82
+      }
+    ]
+  },
+  {
+    "path": "E:\\HRMS\\hrms\\review.py",
+    "sha256": "6aa6cca356ebf6283c97a2fd3795d36a41198fb781ce2cff367e7a4e8d4e62e4",
+    "lines": 195,
+    "anchors": [
+      {
+        "symbol": "ReviewTopic",
+        "line": 20,
+        "end_line": 25
+      },
+      {
+        "symbol": "review_topics",
+        "line": 168,
+        "end_line": 185
+      },
+      {
+        "symbol": "form_review_note",
+        "line": 188,
+        "end_line": 190
+      },
+      {
+        "symbol": "form_month_review_note",
+        "line": 193,
+        "end_line": 195
+      }
+    ]
+  },
+  {
+    "path": "E:\\HRMS\\hrms\\rule_schema.py",
+    "sha256": "77d312a468375b50822f1e95ff83f2ec7537402e7eca8724d476eb6cb376d943",
+    "lines": 224,
+    "anchors": [
+      {
+        "symbol": "load_editable_rule",
+        "line": 10,
+        "end_line": 224
+      }
+    ]
+  },
+  {
+    "path": "E:\\HRMS\\hrms\\rulebook.py",
+    "sha256": "718ae3133407617acf9ca74404038d5b5f537f0e6ba5b72eb1a56c86231ec6c5",
+    "lines": 74,
+    "anchors": [
+      {
+        "symbol": "release_sources",
+        "line": 10,
+        "end_line": 20
+      },
+      {
+        "symbol": "read_rule_versions",
+        "line": 23,
+        "end_line": 58
+      },
+      {
+        "symbol": "rule_for",
+        "line": 61,
+        "end_line": 66
+      },
+      {
+        "symbol": "result_rule",
+        "line": 69,
+        "end_line": 74
+      }
+    ]
+  },
+  {
+    "path": "E:\\HRMS\\hrms\\scope.py",
+    "sha256": "1d3129406b88c3350b545a00a653a2b82912bdbcdee4f023fa09bcb1fde624e0",
+    "lines": 61,
+    "anchors": [
+      {
+        "symbol": "processing_scope",
+        "line": 7,
+        "end_line": 54
+      },
+      {
+        "symbol": "expected_dates",
+        "line": 57,
+        "end_line": 61
+      },
+      {
+        "symbol": "codes",
+        "line": 15,
+        "end_line": 19
+      }
+    ]
+  },
+  {
+    "path": "E:\\HRMS\\hrms\\service_extra.py",
+    "sha256": "fb992e2b885433663b712bbf054d18019bb031d69183c6cc6f18e702770cb8e4",
+    "lines": 123,
+    "anchors": [
+      {
+        "symbol": "extra_event",
+        "line": 20,
+        "end_line": 21
+      },
+      {
+        "symbol": "classify",
+        "line": 24,
+        "end_line": 74
+      },
+      {
+        "symbol": "expand",
+        "line": 77,
+        "end_line": 103
+      },
+      {
+        "symbol": "apply_extra",
+        "line": 106,
+        "end_line": 123
+      }
+    ]
+  },
+  {
+    "path": "E:\\HRMS\\hrms\\shift_selection.py",
+    "sha256": "073b8d5ded8475399961ef0100b95bc33e6b4a8c001547e7235a46b997230860",
+    "lines": 168,
+    "anchors": [
+      {
+        "symbol": "policy_path",
+        "line": 20,
+        "end_line": 23
+      },
+      {
+        "symbol": "load_policy",
+        "line": 26,
+        "end_line": 58
+      },
+      {
+        "symbol": "ShiftSelector",
+        "line": 61,
+        "end_line": 150
+      },
+      {
+        "symbol": "selector_for_inputs",
+        "line": 153,
+        "end_line": 168
+      },
+      {
+        "symbol": "__init__",
+        "line": 62,
+        "end_line": 70
+      },
+      {
+        "symbol": "expand",
+        "line": 72,
+        "end_line": 74
+      },
+      {
+        "symbol": "__call__",
+        "line": 76,
+        "end_line": 150
+      }
+    ]
+  },
+  {
+    "path": "E:\\HRMS\\hrms\\shifts.py",
+    "sha256": "a5f3573fbdc6701050a2179d0ad56f0f0eede8e4832c150e97fa8f45ae6b91f7",
+    "lines": 346,
+    "anchors": [
+      {
+        "symbol": "PreparedShift",
+        "line": 17,
+        "end_line": 22
+      },
+      {
+        "symbol": "read_shift_plan",
+        "line": 25,
+        "end_line": 58
+      },
+      {
+        "symbol": "pieces",
+        "line": 61,
+        "end_line": 69
+      },
+      {
+        "symbol": "check_summary",
+        "line": 72,
+        "end_line": 78
+      },
+      {
+        "symbol": "prepare_shifts",
+        "line": 81,
+        "end_line": 173
+      },
+      {
+        "symbol": "clear_calculation",
+        "line": 176,
+        "end_line": 179
+      },
+      {
+        "symbol": "review_identity_overlaps",
+        "line": 182,
+        "end_line": 208
+      },
+      {
+        "symbol": "reconcile_intervals",
+        "line": 211,
+        "end_line": 292
+      },
+      {
+        "symbol": "apply_continuous_duty",
+        "line": 295,
+        "end_line": 346
+      },
+      {
+        "symbol": "find",
+        "line": 87,
+        "end_line": 94
+      }
+    ]
+  },
+  {
+    "path": "E:\\HRMS\\hrms\\source_calculations.py",
+    "sha256": "55d7c39de3ae825418bfd2a13bbace92f68b1ced20fb9bc7c7a9151edeaef863",
+    "lines": 223,
+    "anchors": [
+      {
+        "symbol": "attendance_content",
+        "line": 16,
+        "end_line": 22
+      },
+      {
+        "symbol": "normalized",
+        "line": 25,
+        "end_line": 32
+      },
+      {
+        "symbol": "trusted",
+        "line": 35,
+        "end_line": 42
+      },
+      {
+        "symbol": "observations",
+        "line": 45,
+        "end_line": 54
+      },
+      {
+        "symbol": "comparable",
+        "line": 57,
+        "end_line": 79
+      },
+      {
+        "symbol": "compare_sources",
+        "line": 82,
+        "end_line": 180
+      },
+      {
+        "symbol": "source_calculation_report",
+        "line": 183,
+        "end_line": 201
+      },
+      {
+        "symbol": "write_source_calculation_report",
+        "line": 204,
+        "end_line": 223
+      },
+      {
+        "symbol": "cell",
+        "line": 214,
+        "end_line": 215
+      }
+    ]
+  },
+  {
+    "path": "E:\\HRMS\\hrms\\source_intake.py",
+    "sha256": "3eef988e0ddd98a53f89a963cb9c0eb9e6ce2c7b946ee3be66472ec66369d075",
+    "lines": 63,
+    "anchors": [
+      {
+        "symbol": "WismanImportError",
+        "line": 5,
+        "end_line": 9
+      },
+      {
+        "symbol": "personnel_blocks",
+        "line": 12,
+        "end_line": 44
+      },
+      {
+        "symbol": "require_complete_blocks",
+        "line": 47,
+        "end_line": 55
+      },
+      {
+        "symbol": "log_import_failure",
+        "line": 58,
+        "end_line": 63
+      },
+      {
+        "symbol": "__init__",
+        "line": 6,
+        "end_line": 9
+      }
+    ]
+  },
+  {
+    "path": "E:\\HRMS\\hrms\\source_validation.py",
+    "sha256": "6676f8ce2d3a69868244379649277befbb919f5a2511cf04118bd6139fb3d429",
+    "lines": 258,
+    "anchors": [
+      {
+        "symbol": "normalized",
+        "line": 21,
+        "end_line": 23
+      },
+      {
+        "symbol": "load_policy",
+        "line": 26,
+        "end_line": 77
+      },
+      {
+        "symbol": "bind_identity_approvals",
+        "line": 80,
+        "end_line": 87
+      },
+      {
+        "symbol": "effective_groups",
+        "line": 90,
+        "end_line": 97
+      },
+      {
+        "symbol": "apply_validation",
+        "line": 100,
+        "end_line": 202
+      },
+      {
+        "symbol": "report_lines",
+        "line": 205,
+        "end_line": 245
+      },
+      {
+        "symbol": "log_findings",
+        "line": 248,
+        "end_line": 258
+      },
+      {
+        "symbol": "add",
+        "line": 129,
+        "end_line": 136
+      }
+    ]
+  },
+  {
+    "path": "E:\\HRMS\\hrms\\warehouse.py",
+    "sha256": "86a7eeba0eb19d3e6089d5554b5da78a3c46c5431066b45aa08b177f8b1284a9",
+    "lines": 278,
+    "anchors": [
+      {
+        "symbol": "event",
+        "line": 13,
+        "end_line": 14
+      },
+      {
+        "symbol": "merge",
+        "line": 17,
+        "end_line": 24
+      },
+      {
+        "symbol": "zero",
+        "line": 27,
+        "end_line": 29
+      },
+      {
+        "symbol": "calculate_day",
+        "line": 32,
+        "end_line": 175
+      },
+      {
+        "symbol": "remember_base",
+        "line": 178,
+        "end_line": 180
+      },
+      {
+        "symbol": "calendar_summary",
+        "line": 183,
+        "end_line": 223
+      },
+      {
+        "symbol": "apply_friday_replacements",
+        "line": 226,
+        "end_line": 278
+      }
+    ]
+  },
+  {
+    "path": "E:\\HRMS\\hrms\\wisman_validation.py",
+    "sha256": "44925b75c76722c531cc8ed8f52542efb8c65b6dac798c239049bfdc2b6b270c",
+    "lines": 99,
+    "anchors": [
+      {
+        "symbol": "validate_report",
+        "line": 9,
+        "end_line": 99
+      },
+      {
+        "symbol": "clock",
+        "line": 14,
+        "end_line": 19
+      }
+    ]
+  },
+  {
+    "path": "E:\\HRMS\\integrations\\bale\\hrms_bale\\__init__.py",
+    "sha256": "971ec36bdbabf3412fa3691cb9c2100f7cc613ee5c295f3e6b24995fa9bfaae1",
+    "lines": 3,
+    "anchors": []
+  },
+  {
+    "path": "E:\\HRMS\\integrations\\bale\\hrms_bale\\api.py",
+    "sha256": "cc820f21570f89e4d6c2483639411946e47da51f2f8ff83fd531ba4b7f205cc2",
+    "lines": 110,
+    "anchors": [
+      {
+        "symbol": "APIError",
+        "line": 10,
+        "end_line": 14
+      },
+      {
+        "symbol": "NoRedirect",
+        "line": 17,
+        "end_line": 19
+      },
+      {
+        "symbol": "BaleAPI",
+        "line": 22,
+        "end_line": 110
+      },
+      {
+        "symbol": "__init__",
+        "line": 11,
+        "end_line": 14
+      },
+      {
+        "symbol": "redirect_request",
+        "line": 18,
+        "end_line": 19
+      },
+      {
+        "symbol": "__init__",
+        "line": 23,
+        "end_line": 24
+      },
+      {
+        "symbol": "_open",
+        "line": 26,
+        "end_line": 38
+      },
+      {
+        "symbol": "call",
+        "line": 40,
+        "end_line": 45
+      },
+      {
+        "symbol": "_decode",
+        "line": 48,
+        "end_line": 57
+      },
+      {
+        "symbol": "identity",
+        "line": 59,
+        "end_line": 63
+      },
+      {
+        "symbol": "ensure_polling",
+        "line": 65,
+        "end_line": 67
+      },
+      {
+        "symbol": "download",
+        "line": 69,
+        "end_line": 86
+      },
+      {
+        "symbol": "send_text",
+        "line": 88,
+        "end_line": 92
+      },
+      {
+        "symbol": "send_document",
+        "line": 94,
+        "end_line": 110
+      }
+    ]
+  },
+  {
+    "path": "E:\\HRMS\\integrations\\bale\\hrms_bale\\bot.py",
+    "sha256": "c2e3ece469e3785157a3b4a3a0f98aca12571a5be2c475191870a5271bda21cc",
+    "lines": 332,
+    "anchors": [
+      {
+        "symbol": "failure_text",
+        "line": 47,
+        "end_line": 49
+      },
+      {
+        "symbol": "summary",
+        "line": 52,
+        "end_line": 75
+      },
+      {
+        "symbol": "Bot",
+        "line": 78,
+        "end_line": 332
+      },
+      {
+        "symbol": "__init__",
+        "line": 79,
+        "end_line": 83
+      },
+      {
+        "symbol": "reply",
+        "line": 85,
+        "end_line": 86
+      },
+      {
+        "symbol": "main_keyboard",
+        "line": 88,
+        "end_line": 91
+      },
+      {
+        "symbol": "handle",
+        "line": 93,
+        "end_line": 178
+      },
+      {
+        "symbol": "handle_personnel_callback",
+        "line": 180,
+        "end_line": 188
+      },
+      {
+        "symbol": "dispatch_pending",
+        "line": 190,
+        "end_line": 199
+      },
+      {
+        "symbol": "queue_result",
+        "line": 201,
+        "end_line": 207
+      },
+      {
+        "symbol": "deliver_one",
+        "line": 209,
+        "end_line": 241
+      },
+      {
+        "symbol": "delivery_notice",
+        "line": 243,
+        "end_line": 250
+      },
+      {
+        "symbol": "record_failure",
+        "line": 252,
+        "end_line": 265
+      },
+      {
+        "symbol": "work_one",
+        "line": 267,
+        "end_line": 290
+      },
+      {
+        "symbol": "worker",
+        "line": 292,
+        "end_line": 301
+      },
+      {
+        "symbol": "run",
+        "line": 303,
+        "end_line": 332
+      }
+    ]
+  },
+  {
+    "path": "E:\\HRMS\\integrations\\bale\\hrms_bale\\cli.py",
+    "sha256": "99b0e087f782953a0e657a41b1b369bd2a118d3a72aa5a65a6a9b7b62cccb718",
+    "lines": 126,
+    "anchors": [
+      {
+        "symbol": "instance_lock",
+        "line": 18,
+        "end_line": 43
+      },
+      {
+        "symbol": "configure_logging",
+        "line": 46,
+        "end_line": 53
+      },
+      {
+        "symbol": "main",
+        "line": 56,
+        "end_line": 126
+      }
+    ]
+  },
+  {
+    "path": "E:\\HRMS\\integrations\\bale\\hrms_bale\\config.py",
+    "sha256": "04432245d33234d2d3d5071fffa9fc96da0c8a12cf9b5d17a0fadb2e5c91e0bc",
+    "lines": 39,
+    "anchors": [
+      {
+        "symbol": "Settings",
+        "line": 8,
+        "end_line": 39
+      },
+      {
+        "symbol": "load",
+        "line": 18,
+        "end_line": 39
+      }
+    ]
+  },
+  {
+    "path": "E:\\HRMS\\integrations\\bale\\hrms_bale\\personnel_review.py",
+    "sha256": "5b559a874fe0f1fd5753a49b12765727c86406c52a989e79698cee72f99c36d7",
+    "lines": 141,
+    "anchors": [
+      {
+        "symbol": "_master_rows",
+        "line": 18,
+        "end_line": 58
+      },
+      {
+        "symbol": "_similar_name",
+        "line": 61,
+        "end_line": 74
+      },
+      {
+        "symbol": "_record_line",
+        "line": 77,
+        "end_line": 81
+      },
+      {
+        "symbol": "personnel_diagnostics",
+        "line": 84,
+        "end_line": 141
+      }
+    ]
+  },
+  {
+    "path": "E:\\HRMS\\integrations\\bale\\hrms_bale\\personnel_ui.py",
+    "sha256": "bd080bbf4a6927496ee9297ac43a8296f48ff3e6b65389ac385ca732899e1c69",
+    "lines": 310,
+    "anchors": [
+      {
+        "symbol": "PersonnelUI",
+        "line": 50,
+        "end_line": 310
+      },
+      {
+        "symbol": "__init__",
+        "line": 51,
+        "end_line": 52
+      },
+      {
+        "symbol": "allowed",
+        "line": 54,
+        "end_line": 55
+      },
+      {
+        "symbol": "actor_name",
+        "line": 58,
+        "end_line": 65
+      },
+      {
+        "symbol": "_date_prompt",
+        "line": 67,
+        "end_line": 78
+      },
+      {
+        "symbol": "_start_review",
+        "line": 80,
+        "end_line": 83
+      },
+      {
+        "symbol": "_keyboard",
+        "line": 85,
+        "end_line": 121
+      },
+      {
+        "symbol": "_person",
+        "line": 123,
+        "end_line": 130
+      },
+      {
+        "symbol": "_review",
+        "line": 132,
+        "end_line": 176
+      },
+      {
+        "symbol": "handle",
+        "line": 178,
+        "end_line": 306
+      },
+      {
+        "symbol": "active",
+        "line": 308,
+        "end_line": 310
+      }
+    ]
+  },
+  {
+    "path": "E:\\HRMS\\integrations\\bale\\hrms_bale\\pipeline.py",
+    "sha256": "35256a0f071b4431c825e8656218e0904b4091ad265219d96976ffcf11a17f07",
+    "lines": 500,
+    "anchors": [
+      {
+        "symbol": "UploadError",
+        "line": 10,
+        "end_line": 11
+      },
+      {
+        "symbol": "digest",
+        "line": 14,
+        "end_line": 16
+      },
+      {
+        "symbol": "validate_document",
+        "line": 19,
+        "end_line": 27
+      },
+      {
+        "symbol": "_review_dates",
+        "line": 30,
+        "end_line": 39
+      },
+      {
+        "symbol": "_identity_review_lines",
+        "line": 42,
+        "end_line": 58
+      },
+      {
+        "symbol": "_review_context_lines",
+        "line": 61,
+        "end_line": 78
+      },
+      {
+        "symbol": "_pending_deduction_lines",
+        "line": 81,
+        "end_line": 90
+      },
+      {
+        "symbol": "_topic_details",
+        "line": 93,
+        "end_line": 167
+      },
+      {
+        "symbol": "write_review_report",
+        "line": 170,
+        "end_line": 336
+      },
+      {
+        "symbol": "Pipeline",
+        "line": 339,
+        "end_line": 500
+      },
+      {
+        "symbol": "__init__",
+        "line": 340,
+        "end_line": 344
+      },
+      {
+        "symbol": "_snapshot",
+        "line": 346,
+        "end_line": 397
+      },
+      {
+        "symbol": "process",
+        "line": 399,
+        "end_line": 449
+      },
+      {
+        "symbol": "_process_received",
+        "line": 451,
+        "end_line": 500
+      },
+      {
+        "symbol": "add",
+        "line": 252,
+        "end_line": 260
+      }
+    ]
+  },
+  {
+    "path": "E:\\HRMS\\integrations\\bale\\hrms_bale\\store.py",
+    "sha256": "a86e13ae50df20b1dcdfc81b931eae4cf7c13e2a112fcbca51ebc6793aa9dc0a",
+    "lines": 154,
+    "anchors": [
+      {
+        "symbol": "now",
+        "line": 10,
+        "end_line": 11
+      },
+      {
+        "symbol": "Store",
+        "line": 14,
+        "end_line": 154
+      },
+      {
+        "symbol": "__init__",
+        "line": 15,
+        "end_line": 42
+      },
+      {
+        "symbol": "db",
+        "line": 45,
+        "end_line": 52
+      },
+      {
+        "symbol": "allowed",
+        "line": 54,
+        "end_line": 57
+      },
+      {
+        "symbol": "access",
+        "line": 59,
+        "end_line": 66
+      },
+      {
+        "symbol": "users",
+        "line": 68,
+        "end_line": 70
+      },
+      {
+        "symbol": "offset",
+        "line": 72,
+        "end_line": 75
+      },
+      {
+        "symbol": "receive",
+        "line": 77,
+        "end_line": 84
+      },
+      {
+        "symbol": "pending_updates",
+        "line": 86,
+        "end_line": 88
+      },
+      {
+        "symbol": "handled",
+        "line": 90,
+        "end_line": 92
+      },
+      {
+        "symbol": "add_job",
+        "line": 94,
+        "end_line": 105
+      },
+      {
+        "symbol": "next_job",
+        "line": 107,
+        "end_line": 112
+      },
+      {
+        "symbol": "finish_job",
+        "line": 114,
+        "end_line": 117
+      },
+      {
+        "symbol": "latest_job",
+        "line": 119,
+        "end_line": 123
+      },
+      {
+        "symbol": "ready_jobs",
+        "line": 125,
+        "end_line": 127
+      },
+      {
+        "symbol": "enqueue",
+        "line": 129,
+        "end_line": 132
+      },
+      {
+        "symbol": "next_delivery",
+        "line": 134,
+        "end_line": 139
+      },
+      {
+        "symbol": "delivered",
+        "line": 141,
+        "end_line": 144
+      },
+      {
+        "symbol": "recover",
+        "line": 146,
+        "end_line": 149
+      },
+      {
+        "symbol": "status",
+        "line": 151,
+        "end_line": 154
+      }
+    ]
+  },
+  {
+    "path": "E:\\HRMS\\integrations\\bale\\hrms_bale\\supervisor.py",
+    "sha256": "8ed53a42423f42ec5017a654879a00d4f05c7fd6937affee6b95a3cec935a1e8",
+    "lines": 99,
+    "anchors": [
+      {
+        "symbol": "supervise",
+        "line": 14,
+        "end_line": 23
+      },
+      {
+        "symbol": "_run",
+        "line": 26,
+        "end_line": 99
+      },
+      {
+        "symbol": "record",
+        "line": 38,
+        "end_line": 50
+      }
+    ]
+  },
+  {
+    "path": "C:\\Users\\win-10\\AppData\\Local\\hermes\\scripts\\mine_file_sync.py",
+    "sha256": "dc7e9140cfe61f28679f2f7793eea624452262b5c1878217bcedbc5c80ec0a3e",
+    "lines": 903
+  },
+  {
+    "path": "C:\\Users\\win-10\\AppData\\Local\\hermes\\plugins\\komatso-bale-registry\\__init__.py",
+    "sha256": "268e8edb1b6311209531e861437ddf3704987ab73193ea08304da4858974c456",
+    "lines": 1888
+  },
+  {
+    "path": "E:\\KomatsoAI\\integrations\\hermes\\plugins\\komatso-bale-registry\\__init__.py",
+    "sha256": "268e8edb1b6311209531e861437ddf3704987ab73193ea08304da4858974c456",
+    "lines": 1888
+  }
+]

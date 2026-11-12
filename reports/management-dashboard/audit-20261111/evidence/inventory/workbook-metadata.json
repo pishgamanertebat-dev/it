@@ -1,0 +1,50 @@
+{
+  "observed_utc": "2026-11-11T09:01:29.380695+00:00",
+  "sources": [
+    {
+      "path": "E:\\Function\\سرریز روزانه.xlsx",
+      "bytes": 1074840,
+      "modified_utc": "2026-11-11T03:46:19.333852+00:00",
+      "sha256": "d6423d0926994c414f3570924d2c19a4692b00002db8cabaa9430f8fe2e0713e",
+      "observation": "two_equal_reads_not_writer_coordinated_snapshot",
+      "sheet_count": 321,
+      "has_external_links": false
+    },
+    {
+      "path": "E:\\Function\\گزارش روزانه رانندگان2.xlsx",
+      "bytes": 806671,
+      "modified_utc": "2026-11-11T03:46:45.290534+00:00",
+      "sha256": "08a42282afa77993feba1a0b148678c6edf3d402ca1a526f735bf059e9ff5d5b",
+      "observation": "two_equal_reads_not_writer_coordinated_snapshot",
+      "sheet_count": 208,
+      "has_external_links": false
+    },
+    {
+      "path": "E:\\Function\\تعمیرات 1405.xlsx",
+      "bytes": 191186,
+      "modified_utc": "2026-11-10T08:40:19.792814+00:00",
+      "sha256": "78fe91effe2d463a679167c583b11cf94649a9916c983133f6294de18adc3ae0",
+      "observation": "two_equal_reads_not_writer_coordinated_snapshot",
+      "sheet_count": 63,
+      "has_external_links": false
+    },
+    {
+      "path": "E:\\Function\\موازنه روغن مصرفی.xlsx",
+      "bytes": 16016,
+      "modified_utc": "2026-11-10T14:29:08.530017+00:00",
+      "sha256": "198a9f151d0fbf015af1bbd6ad7155eaa0279c49a6079e40808a26d429fb89c8",
+      "observation": "two_equal_reads_not_writer_coordinated_snapshot",
+      "sheet_count": 1,
+      "has_external_links": false
+    },
+    {
+      "path": "E:\\Function\\عملکرد ماشین آلات.xlsx",
+      "bytes": 105503,
+      "modified_utc": "2026-11-11T06:15:34.228702+00:00",
+      "sha256": "4a7c7d4c332de7a94ed2d60e8063d3f92ffccdf95b9b8ccc550c2aacdda4b6aa",
+      "observation": "two_equal_reads_not_writer_coordinated_snapshot",
+      "sheet_count": 1,
+      "has_external_links": false
+    }
+  ]
+}

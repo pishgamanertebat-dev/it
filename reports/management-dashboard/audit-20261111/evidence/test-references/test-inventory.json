@@ -1,0 +1,294 @@
+{
+  "historical_results": [
+    {
+      "path": "E:\\KomatsoAI\\runtime\\two-step-entry-20261111\\acceptance.json",
+      "sha256": "d48b69c773ce421e301e8979669a8c9f1b73990b35c347adfdcccc4360e31ad7",
+      "modified_utc": "2026-11-11T07:48:18.629297+00:00",
+      "keys": [
+        "blocked_network_attempts",
+        "errors",
+        "failures",
+        "passed",
+        "skipped",
+        "tests_run"
+      ],
+      "scalar_results": {
+        "passed": true,
+        "tests_run": 161,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "path": "E:\\KomatsoAI\\reports\\scheduler\\ready-delivery-20261110\\acceptance.json",
+      "sha256": "388cfcddcb633e2d31f0ab9b6c0b7f8dc3a0395d491f629355b70a1064531a84",
+      "modified_utc": "2026-11-10T12:10:02.240635+00:00",
+      "keys": [
+        "error_ids",
+        "errors",
+        "excluded_native_tests",
+        "external_attempts",
+        "failed_ids",
+        "failures",
+        "modules",
+        "native_status",
+        "passed",
+        "skipped",
+        "tests_run"
+      ],
+      "scalar_results": {
+        "passed": false,
+        "tests_run": 353,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "path": "E:\\HRMS\\reports\\validation\\G03_CUTOFF_20261108\\acceptance.json",
+      "sha256": "f93e5be791bff66986e4bb47cf89e405073e9ead88c919d9996e2ad70faeb2cf",
+      "modified_utc": "2026-11-08T11:16:27.965179+00:00",
+      "keys": [
+        "completed_at_utc",
+        "effective_from",
+        "effective_to",
+        "fresh_user_upload_verified",
+        "health",
+        "process",
+        "receipt_tables_unchanged",
+        "status",
+        "supervisor",
+        "test_messages_sent",
+        "version"
+      ],
+      "scalar_results": {
+        "receipt_tables_unchanged": true,
+        "test_messages_sent": false,
+        "fresh_user_upload_verified": false
+      }
+    },
+    {
+      "path": "E:\\HRMS\\reports\\validation\\G03_CUTOFF_20261108\\full_suite_comparison.json",
+      "sha256": "95b43ad3d665fe684763a3d8459059d8fdec1e6730a66e9a4e8df0b2d620783a",
+      "modified_utc": "2026-11-08T11:13:35.121372+00:00",
+      "keys": [
+        "bale_tests_passed",
+        "baseline_errors",
+        "baseline_failures",
+        "baseline_skips",
+        "baseline_tests",
+        "candidate_completed_log_entries",
+        "candidate_suite_complete",
+        "focused_tests_passed",
+        "full_suite_green_claimed",
+        "new_failure_or_error_ids_observed",
+        "replay_rows_verified",
+        "stopped_at_user_request"
+      ],
+      "scalar_results": {
+        "candidate_suite_complete": false,
+        "stopped_at_user_request": true,
+        "baseline_tests": 1062,
+        "baseline_failures": 2,
+        "baseline_errors": 9,
+        "baseline_skips": 1,
+        "candidate_completed_log_entries": 1037,
+        "focused_tests_passed": 82,
+        "bale_tests_passed": 93,
+        "replay_rows_verified": 3976,
+        "full_suite_green_claimed": false
+      }
+    },
+    {
+      "path": "E:\\HRMS\\reports\\validation\\G03_CUTOFF_20261108\\c_focused_tests.json",
+      "sha256": "586dc25ff7b36ba5ab36db887b2905eadbf26b609774b476905e63fdd86a0bde",
+      "modified_utc": "2026-11-08T10:49:01.963391+00:00",
+      "keys": [
+        "errors",
+        "failures",
+        "skipped",
+        "success",
+        "tests"
+      ],
+      "scalar_results": {
+        "tests": 82,
+        "success": true,
+        "failures": [],
+        "errors": [],
+        "skipped": []
+      }
+    }
+  ],
+  "not_executed_in_this_audit": true,
+  "files": [
+    {
+      "path": "E:\\KomatsoAI\\tools\\scheduler\\test_access_diagnostics.py",
+      "sha256": "4399300367b7f1ce32e3525a7aa892bd3d0a35f4b747743f54b5a36917d0e306"
+    },
+    {
+      "path": "E:\\KomatsoAI\\tools\\scheduler\\test_completion_reminder.py",
+      "sha256": "481fd23e61e1aca45c700e00a71331bd78cc828fb4c9eefbd830ef2815daa40d"
+    },
+    {
+      "path": "E:\\KomatsoAI\\tools\\scheduler\\test_control.py",
+      "sha256": "5c87262083a20aad4efe31c005b9bacfd18537ce0986b47deede45e00dd2f689"
+    },
+    {
+      "path": "E:\\KomatsoAI\\tools\\scheduler\\test_daily_summary.py",
+      "sha256": "2901e07f6f9824e76c37bbddd15af1b0889e7b5377037a231d2161ebc99d44fb"
+    },
+    {
+      "path": "E:\\KomatsoAI\\tools\\scheduler\\test_delivery_alert.py",
+      "sha256": "37814a9ea122200c409b875e7f5502f3f8931f65307d89a2075c454ebbe5b017"
+    },
+    {
+      "path": "E:\\KomatsoAI\\tools\\scheduler\\test_driver_pdf_gate.py",
+      "sha256": "5cd243aaf5c1036a3fa75a4c0280e7446dbd995277a56d5c2a21ddad4d6a036c"
+    },
+    {
+      "path": "E:\\KomatsoAI\\tools\\scheduler\\test_machinery_performance.py",
+      "sha256": "d2ce34844d2474e6f71a596990215ef8843fc8a205e9d65f5aff3ecef712b443"
+    },
+    {
+      "path": "E:\\KomatsoAI\\tools\\scheduler\\test_maintenance_reminder.py",
+      "sha256": "f843dec0d78ffb66876e41102d98f62018ff828dc93e660e90a4c0e10aca3965"
+    },
+    {
+      "path": "E:\\KomatsoAI\\tools\\scheduler\\test_misfire.py",
+      "sha256": "10592208dbbff567c711defd128403d084559e99c7a45c12bfaeeedce6411dfb"
+    },
+    {
+      "path": "E:\\KomatsoAI\\tools\\scheduler\\test_no_data.py",
+      "sha256": "a11438df10311f5cc0a9c6e5a8a955f494dd88772c25ec54047247e7b6f4bbd4"
+    },
+    {
+      "path": "E:\\KomatsoAI\\tools\\scheduler\\test_occurrence_recipients.py",
+      "sha256": "0e6223867f837cd844841a2aa906b8e4f15d4529be4cd378ed15b9b91809d502"
+    },
+    {
+      "path": "E:\\KomatsoAI\\tools\\scheduler\\test_office_delivery.py",
+      "sha256": "7a896fd3cca392ed68ff7545b301a627ef7292522d3cd412f3d51dc06c071212"
+    },
+    {
+      "path": "E:\\KomatsoAI\\tools\\scheduler\\test_oil_balance.py",
+      "sha256": "182ba4e22700ef69a4e9a80f59c9a548eca9befb802c4495a3e660262e382659"
+    },
+    {
+      "path": "E:\\KomatsoAI\\tools\\scheduler\\test_preflight.py",
+      "sha256": "c323ec0eec59c7359d9358d094bf1c22baa7845e019658b68966746e3c499258"
+    },
+    {
+      "path": "E:\\KomatsoAI\\tools\\scheduler\\test_receipt_immutability.py",
+      "sha256": "0a15bef1b167e8bcfa395f605c4f8ab013debb99d29432199a92feb56a86f7f5"
+    },
+    {
+      "path": "E:\\KomatsoAI\\tools\\scheduler\\test_recovery_delivery.py",
+      "sha256": "f86030a593e61f5730dfd7d914a5741d53ea52a91f3fcf7624dfb2ceb5fb7878"
+    },
+    {
+      "path": "E:\\KomatsoAI\\tools\\scheduler\\test_recovery_review.py",
+      "sha256": "0cbca3d3ffe59d4e5a35b5afe4a68425cb6b4ec4282a4450bb36bb035795345c"
+    },
+    {
+      "path": "E:\\KomatsoAI\\tools\\scheduler\\test_report_errors.py",
+      "sha256": "f093f84ddd4289721a4b667f36ac9d8f708bbb273c6f23050bf2020ea88b6311"
+    },
+    {
+      "path": "E:\\KomatsoAI\\tools\\scheduler\\test_runner.py",
+      "sha256": "249460c68de0a776093d3acbbacdd4d07b569158f92076160a6ce4e5664b1c82"
+    },
+    {
+      "path": "E:\\KomatsoAI\\tools\\scheduler\\test_source_notice_alert.py",
+      "sha256": "18030bfb6206b30d7798170366c6961efe31b5b5fd4773edf009c377b49599f0"
+    },
+    {
+      "path": "E:\\KomatsoAI\\tools\\scheduler\\test_source_wakeup.py",
+      "sha256": "90fcaa4d33871eed030f360d029d8d6c8e6a1b159f5c7632c0d6e9edbb14ac11"
+    },
+    {
+      "path": "E:\\HRMS\\tests\\test_g08_20261102.py",
+      "sha256": "a247aa34e6e532436e8420db8867c66d302f45811bbc788a3e66cd305d8d9fae"
+    },
+    {
+      "path": "E:\\HRMS\\tests\\test_g08_accounting_20261103.py",
+      "sha256": "fefda166242e1bbeb22af88a8caef951b59b1a492746404c79dc5f9b8df754f5"
+    },
+    {
+      "path": "E:\\HRMS\\tests\\test_g08_deduction_20261103.py",
+      "sha256": "4c0e3ae0d7d5992898462541cb970f2d3d552c5ea71b259575c4e1e7d0d7c607"
+    },
+    {
+      "path": "E:\\HRMS\\tests\\test_g09.py",
+      "sha256": "7d7f15c5f2a9eaff955d34ee0be4ffd0ea5b70b5e4a17d1f893014734a4b0087"
+    },
+    {
+      "path": "E:\\HRMS\\tests\\test_g09_all_fridays_20261105.py",
+      "sha256": "0c06c97eece65315d54fe01691a757d7380c8b9a07182aa34391fcb730f3e1c4"
+    },
+    {
+      "path": "E:\\HRMS\\tests\\test_g09_authorized.py",
+      "sha256": "6102c03a45017f6615e01341d6c771de37a6c5dba6066e7cf7a07188d3ad6880"
+    },
+    {
+      "path": "E:\\HRMS\\tests\\test_g09_calendar_20261102.py",
+      "sha256": "d2a21ac7adf0f7b10706e000c499d9ada2e7a439eec75af9612898727fed7de0"
+    },
+    {
+      "path": "E:\\HRMS\\tests\\test_g09_early_20261102.py",
+      "sha256": "c464ace1626b06d92d3475a9e4c376a4987aafc6796e11e22bf77cf8a7653a06"
+    },
+    {
+      "path": "E:\\HRMS\\tests\\test_g09_kazemi_no_leave_20261101.py",
+      "sha256": "0e6379afedd2220f780041c7163b9216e378c96e5df2bbbdf005bc0db89ccbc4"
+    },
+    {
+      "path": "E:\\HRMS\\tests\\test_g09_owner_20261101.py",
+      "sha256": "48edba44a1063dda1ddfe98acb6ae0db30ac99a28b7c34d22557b86d7f258252"
+    },
+    {
+      "path": "E:\\HRMS\\tests\\test_g09_pooled_leave.py",
+      "sha256": "a93a985199e9cbd9a9a604be0ca8ab999cd65de772046c20382f8cbfc3bb0074"
+    },
+    {
+      "path": "E:\\HRMS\\tests\\test_g09_simple_form.py",
+      "sha256": "cecf343c786b41f8d6d0df3973fe74f4fdee03f1a58e84ad8c94dc8254cb7bf3"
+    },
+    {
+      "path": "E:\\HRMS\\tests\\test_g09_status_presence.py",
+      "sha256": "b601fa6c8b961fd89c228ffb38bc33455b650be8e6631ee45ae2a9fc578b410b"
+    },
+    {
+      "path": "E:\\HRMS\\tests\\test_personnel_aliases.py",
+      "sha256": "6bbbe88f8cc7485672b09e314ff21cfc176f6442d3b43a9135d2b696d350eac8"
+    },
+    {
+      "path": "E:\\HRMS\\tests\\test_personnel_corrections_20261031.py",
+      "sha256": "768c9f8bae5bc00ff5e5597cc2c9cda978e7ae945e260ea9b1afe09afce64914"
+    },
+    {
+      "path": "E:\\HRMS\\tests\\test_personnel_identity.py",
+      "sha256": "081edcb7f03b3986a617cfb82ff6e5c4d4c26c5e987914d77a5ba633e63d8af8"
+    },
+    {
+      "path": "E:\\HRMS\\tests\\test_personnel_ignore.py",
+      "sha256": "40433d2ccd79115e7dec6692c6ae76980ff593d84b02dc4b3670b9976cc7f84d"
+    },
+    {
+      "path": "E:\\HRMS\\tests\\test_personnel_management.py",
+      "sha256": "a8fdc603799de4f51ec5a99b7a1ef4c3b50bdb4c3d93e01e439241c8ac4ba893"
+    },
+    {
+      "path": "E:\\HRMS\\tests\\test_personnel_name_month.py",
+      "sha256": "d22da56176ef34e975edfc2192ea3859265762eaacb269d18ce2c370ac1f797d"
+    },
+    {
+      "path": "E:\\HRMS\\tests\\test_personnel_registry.py",
+      "sha256": "972895d82f04aad49d450ed80bdafe9f05b5fe2c263f8556343acd1a457a6931"
+    },
+    {
+      "path": "E:\\HRMS\\tests\\test_personnel_versioned_fixtures.py",
+      "sha256": "296790f4c9128874f33977aaf373124b4c353985c78085b0985ab52f73bccb8d"
+    }
+  ]
+}

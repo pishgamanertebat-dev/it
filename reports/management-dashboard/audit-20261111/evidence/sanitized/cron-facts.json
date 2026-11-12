@@ -1,0 +1,23 @@
+{
+  "observed_utc": "2026-11-11T08:59:04.977790+00:00",
+  "jobs": [
+    {
+      "id": "3ccb658aed3c",
+      "name": "mine-file-sync",
+      "script": "mine_file_sync.py",
+      "no_agent": true,
+      "schedule": {
+        "kind": "cron",
+        "expr": "*/2 * * * *",
+        "display": "*/2 * * * *"
+      },
+      "enabled": true,
+      "state": "scheduled",
+      "last_run_at": "2026-11-11T12:27:19.800957+03:30",
+      "last_status": "error",
+      "last_error": "Script exited with code 1",
+      "failure_streak": 3,
+      "next_run_at": "2026-11-11T12:30:00+03:30"
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+[
+  {
+    "schedule_id": "manual-driver-metalwork-correction-1405-08-17-3f67e80867f0",
+    "due": "2026-11-09T13:13:27.957863+00:00",
+    "recipient_id": "397185913",
+    "artifact_id": "metalwork-correction",
+    "status": "sent",
+    "message_id": "7347",
+    "sha256": "3f67e80867f0654b0e69d0d1575e473b51dc56032f6ae4218a30a66e959d8267"
+  },
+  {
+    "schedule_id": "manual-driver-metalwork-correction-1405-08-17-3f67e80867f0",
+    "due": "2026-11-09T13:13:27.957863+00:00",
+    "recipient_id": "514458396",
+    "artifact_id": "metalwork-correction",
+    "status": "sent",
+    "message_id": "7348",
+    "sha256": "3f67e80867f0654b0e69d0d1575e473b51dc56032f6ae4218a30a66e959d8267"
+  },
+  {
+    "schedule_id": "manual-maintenance-recovery-1405-08-17-61b92d5dcef7",
+    "due": "2026-11-09T08:30:00+00:00",
+    "recipient_id": "397185913",
+    "artifact_id": "d6f8f4f75bd65e5eacecf08e4772d919",
+    "status": "sent",
+    "message_id": "7417",
+    "sha256": "61b92d5dcef76b55ed0a2b7990b832149ca52ddca0e594ccbce6a52c639fe9de"
+  },
+  {
+    "schedule_id": "manual-maintenance-recovery-1405-08-17-61b92d5dcef7",
+    "due": "2026-11-09T08:30:00+00:00",
+    "recipient_id": "514458396",
+    "artifact_id": "38b37b4e949e5eb7b906280ea54e4487",
+    "status": "sent",
+    "message_id": "7418",
+    "sha256": "61b92d5dcef76b55ed0a2b7990b832149ca52ddca0e594ccbce6a52c639fe9de"
+  },
+  {
+    "schedule_id": "manual-maintenance-recovery-1405-08-18-9e53446078f1",
+    "due": "2026-11-10T08:30:00+00:00",
+    "recipient_id": "397185913",
+    "artifact_id": "77ef651b80bb56c68216267e119d96fa",
+    "status": "sent",
+    "message_id": "7419",
+    "sha256": "9e53446078f1a84ea4db50179ed6acc1b80fa0f4a5d5a7272d49eae660f77fbb"
+  },
+  {
+    "schedule_id": "manual-maintenance-recovery-1405-08-18-9e53446078f1",
+    "due": "2026-11-10T08:30:00+00:00",
+    "recipient_id": "514458396",
+    "artifact_id": "d24c5f7fe66b5f14aa533aca0805ee1b",
+    "status": "sent",
+    "message_id": "7420",
+    "sha256": "9e53446078f1a84ea4db50179ed6acc1b80fa0f4a5d5a7272d49eae660f77fbb"
+  }
+]

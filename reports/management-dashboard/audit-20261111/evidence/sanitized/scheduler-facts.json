@@ -1,0 +1,922 @@
+{
+  "observed_utc": "2026-11-11T08:59:04.977790+00:00",
+  "registry_path": "E:\\KomatsoAI\\settings\\schedules.yaml",
+  "registry_sha256": "689196a7c3357eb0a6f6a3484beea3a5d440fb8e19cd12ddb849968a92418481",
+  "jobs": [
+    {
+      "id": "overflow_daily_test",
+      "enabled": true,
+      "task": "overflow",
+      "recipient_capability": "reports.overflow.daily_receive",
+      "timezone": "Asia/Tehran",
+      "misfire": {
+        "policy": "replay",
+        "horizon_days": 7
+      },
+      "trigger": {
+        "type": "cron",
+        "hour": 7,
+        "minute": 45
+      },
+      "params": {},
+      "eligible_recipients": [
+        {
+          "user_id": "397185913",
+          "role": "office_supervisor"
+        },
+        {
+          "user_id": "514458396",
+          "role": "office_daily_report_recipient"
+        }
+      ],
+      "run_statuses": [
+        {
+          "status": "failed",
+          "count": 1
+        },
+        {
+          "status": "no_data_final",
+          "count": 1
+        },
+        {
+          "status": "succeeded",
+          "count": 52
+        },
+        {
+          "status": "uncertain",
+          "count": 1
+        }
+      ],
+      "latest_run": [
+        {
+          "schedule_id": "overflow_daily_test",
+          "due": "2026-11-11T04:15:00+00:00",
+          "status": "succeeded",
+          "attempt": 1,
+          "started": "2026-11-11T04:15:02+00:00",
+          "finished": "2026-11-11T04:15:10.245516+00:00",
+          "error": null,
+          "data_state": "ready",
+          "notice_delivery_state": null,
+          "next_attempt_at": null
+        }
+      ],
+      "range": {
+        "first_due": "2026-09-16T05:30:00+00:00",
+        "last_due": "2026-11-11T04:15:00+00:00",
+        "count": 55
+      },
+      "receipt_statuses": [
+        {
+          "delivery_kind": "notice",
+          "status": "sent",
+          "count": 6,
+          "with_message_id": 6
+        },
+        {
+          "delivery_kind": "report",
+          "status": "pending",
+          "count": 2,
+          "with_message_id": 0
+        },
+        {
+          "delivery_kind": "report",
+          "status": "sent",
+          "count": 66,
+          "with_message_id": 2
+        },
+        {
+          "delivery_kind": "report",
+          "status": "uncertain",
+          "count": 2,
+          "with_message_id": 0
+        }
+      ],
+      "artifact_statuses": [
+        {
+          "artifact_id": "page:0",
+          "status": "sent",
+          "count": 64,
+          "with_message_id": 64,
+          "with_hash": 64
+        },
+        {
+          "artifact_id": "page:0",
+          "status": "uncertain",
+          "count": 2,
+          "with_message_id": 0,
+          "with_hash": 2
+        },
+        {
+          "artifact_id": "page:1",
+          "status": "sent",
+          "count": 45,
+          "with_message_id": 45,
+          "with_hash": 45
+        },
+        {
+          "artifact_id": "page:1",
+          "status": "uncertain",
+          "count": 1,
+          "with_message_id": 0,
+          "with_hash": 1
+        }
+      ]
+    },
+    {
+      "id": "driver_daily_office_supervisor",
+      "enabled": true,
+      "task": "driver_daily",
+      "recipient_capability": "reports.driver_daily.daily_receive",
+      "timezone": "Asia/Tehran",
+      "misfire": {
+        "policy": "replay",
+        "horizon_days": 7
+      },
+      "trigger": {
+        "type": "cron",
+        "hour": 9,
+        "minute": 0
+      },
+      "params": {},
+      "eligible_recipients": [
+        {
+          "user_id": "397185913",
+          "role": "office_supervisor"
+        },
+        {
+          "user_id": "514458396",
+          "role": "office_daily_report_recipient"
+        }
+      ],
+      "run_statuses": [
+        {
+          "status": "no_data_final",
+          "count": 3
+        },
+        {
+          "status": "succeeded",
+          "count": 35
+        }
+      ],
+      "latest_run": [
+        {
+          "schedule_id": "driver_daily_office_supervisor",
+          "due": "2026-11-11T05:30:00+00:00",
+          "status": "succeeded",
+          "attempt": 1,
+          "started": "2026-11-11T05:30:01+00:00",
+          "finished": "2026-11-11T05:32:29.678067+00:00",
+          "error": null,
+          "data_state": "ready",
+          "notice_delivery_state": null,
+          "next_attempt_at": null
+        }
+      ],
+      "range": {
+        "first_due": "2026-10-05T06:30:00+00:00",
+        "last_due": "2026-11-11T05:30:00+00:00",
+        "count": 38
+      },
+      "receipt_statuses": [
+        {
+          "delivery_kind": "notice",
+          "status": "sent",
+          "count": 9,
+          "with_message_id": 8
+        },
+        {
+          "delivery_kind": "report",
+          "status": "pending",
+          "count": 6,
+          "with_message_id": 0
+        },
+        {
+          "delivery_kind": "report",
+          "status": "sent",
+          "count": 64,
+          "with_message_id": 2
+        }
+      ],
+      "artifact_statuses": [
+        {
+          "artifact_id": "mechanical",
+          "status": "sent",
+          "count": 62,
+          "with_message_id": 62,
+          "with_hash": 62
+        },
+        {
+          "artifact_id": "metalwork",
+          "status": "sent",
+          "count": 62,
+          "with_message_id": 62,
+          "with_hash": 62
+        }
+      ]
+    },
+    {
+      "id": "overflow_daily_mechanical",
+      "enabled": true,
+      "task": "mechanical_overflow",
+      "recipient_capability": "reports.overflow.mechanical_daily_receive",
+      "timezone": "Asia/Tehran",
+      "misfire": {
+        "policy": "replay",
+        "horizon_days": 7
+      },
+      "trigger": {
+        "type": "cron",
+        "hour": 7,
+        "minute": 45
+      },
+      "params": {},
+      "eligible_recipients": [
+        {
+          "user_id": "1732374823",
+          "role": "mechanical_manager_deputy"
+        },
+        {
+          "user_id": "654806764",
+          "role": "mechanical_manager"
+        }
+      ],
+      "run_statuses": [
+        {
+          "status": "no_data_final",
+          "count": 1
+        },
+        {
+          "status": "succeeded",
+          "count": 36
+        }
+      ],
+      "latest_run": [
+        {
+          "schedule_id": "overflow_daily_mechanical",
+          "due": "2026-11-11T04:15:00+00:00",
+          "status": "succeeded",
+          "attempt": 1,
+          "started": "2026-11-11T04:15:02+00:00",
+          "finished": "2026-11-11T04:15:16.936182+00:00",
+          "error": null,
+          "data_state": "ready",
+          "notice_delivery_state": null,
+          "next_attempt_at": null
+        }
+      ],
+      "range": {
+        "first_due": "2026-10-06T05:30:00+00:00",
+        "last_due": "2026-11-11T04:15:00+00:00",
+        "count": 37
+      },
+      "receipt_statuses": [
+        {
+          "delivery_kind": "notice",
+          "status": "sent",
+          "count": 6,
+          "with_message_id": 6
+        },
+        {
+          "delivery_kind": "report",
+          "status": "pending",
+          "count": 2,
+          "with_message_id": 0
+        },
+        {
+          "delivery_kind": "report",
+          "status": "sent",
+          "count": 70,
+          "with_message_id": 70
+        }
+      ],
+      "artifact_statuses": []
+    },
+    {
+      "id": "driver_daily_mechanical",
+      "enabled": true,
+      "task": "mechanical_driver_daily",
+      "recipient_capability": "reports.driver_daily.mechanical_daily_receive",
+      "timezone": "Asia/Tehran",
+      "misfire": {
+        "policy": "replay",
+        "horizon_days": 7
+      },
+      "trigger": {
+        "type": "cron",
+        "hour": 9,
+        "minute": 0
+      },
+      "params": {},
+      "eligible_recipients": [
+        {
+          "user_id": "1732374823",
+          "role": "mechanical_manager_deputy"
+        },
+        {
+          "user_id": "654806764",
+          "role": "mechanical_manager"
+        }
+      ],
+      "run_statuses": [
+        {
+          "status": "no_data_final",
+          "count": 3
+        },
+        {
+          "status": "succeeded",
+          "count": 33
+        },
+        {
+          "status": "uncertain",
+          "count": 1
+        }
+      ],
+      "latest_run": [
+        {
+          "schedule_id": "driver_daily_mechanical",
+          "due": "2026-11-11T05:30:00+00:00",
+          "status": "succeeded",
+          "attempt": 1,
+          "started": "2026-11-11T05:30:01+00:00",
+          "finished": "2026-11-11T05:33:45.400568+00:00",
+          "error": null,
+          "data_state": "ready",
+          "notice_delivery_state": null,
+          "next_attempt_at": null
+        }
+      ],
+      "range": {
+        "first_due": "2026-10-06T06:30:00+00:00",
+        "last_due": "2026-11-11T05:30:00+00:00",
+        "count": 37
+      },
+      "receipt_statuses": [
+        {
+          "delivery_kind": "notice",
+          "status": "sent",
+          "count": 8,
+          "with_message_id": 8
+        },
+        {
+          "delivery_kind": "report",
+          "status": "pending",
+          "count": 6,
+          "with_message_id": 0
+        },
+        {
+          "delivery_kind": "report",
+          "status": "sent",
+          "count": 64,
+          "with_message_id": 64
+        },
+        {
+          "delivery_kind": "report",
+          "status": "uncertain",
+          "count": 2,
+          "with_message_id": 0
+        }
+      ],
+      "artifact_statuses": []
+    },
+    {
+      "id": "driver_daily_metalwork",
+      "enabled": true,
+      "task": "metalwork_driver_daily",
+      "recipient_capability": "reports.driver_daily.metalwork_daily_receive",
+      "timezone": "Asia/Tehran",
+      "misfire": {
+        "policy": "replay",
+        "horizon_days": 7
+      },
+      "trigger": {
+        "type": "cron",
+        "hour": 9,
+        "minute": 0
+      },
+      "params": {},
+      "eligible_recipients": [
+        {
+          "user_id": "387679249",
+          "role": "metalwork_staff"
+        }
+      ],
+      "run_statuses": [
+        {
+          "status": "no_data_final",
+          "count": 3
+        },
+        {
+          "status": "succeeded",
+          "count": 33
+        }
+      ],
+      "latest_run": [
+        {
+          "schedule_id": "driver_daily_metalwork",
+          "due": "2026-11-11T05:30:00+00:00",
+          "status": "succeeded",
+          "attempt": 1,
+          "started": "2026-11-11T05:30:01+00:00",
+          "finished": "2026-11-11T05:35:02.332314+00:00",
+          "error": null,
+          "data_state": "ready",
+          "notice_delivery_state": null,
+          "next_attempt_at": null
+        }
+      ],
+      "range": {
+        "first_due": "2026-10-07T05:30:00+00:00",
+        "last_due": "2026-11-11T05:30:00+00:00",
+        "count": 36
+      },
+      "receipt_statuses": [
+        {
+          "delivery_kind": "notice",
+          "status": "sent",
+          "count": 6,
+          "with_message_id": 6
+        },
+        {
+          "delivery_kind": "report",
+          "status": "pending",
+          "count": 3,
+          "with_message_id": 0
+        },
+        {
+          "delivery_kind": "report",
+          "status": "sent",
+          "count": 33,
+          "with_message_id": 33
+        }
+      ],
+      "artifact_statuses": []
+    },
+    {
+      "id": "maintenance_daily_report",
+      "enabled": true,
+      "task": "maintenance_daily_report",
+      "recipient_capability": "reports.maintenance.daily_receive",
+      "timezone": "Asia/Tehran",
+      "misfire": {
+        "policy": "replay",
+        "horizon_days": 7
+      },
+      "trigger": {
+        "type": "cron",
+        "hour": 12,
+        "minute": 0
+      },
+      "params": {},
+      "eligible_recipients": [
+        {
+          "user_id": "397185913",
+          "role": "maintenance_daily_report_recipient"
+        },
+        {
+          "user_id": "514458396",
+          "role": "maintenance_daily_report_recipient"
+        }
+      ],
+      "run_statuses": [
+        {
+          "status": "no_data_final",
+          "count": 1
+        },
+        {
+          "status": "retry_wait",
+          "count": 1
+        },
+        {
+          "status": "succeeded",
+          "count": 32
+        },
+        {
+          "status": "waiting_for_data",
+          "count": 2
+        }
+      ],
+      "latest_run": [
+        {
+          "schedule_id": "maintenance_daily_report",
+          "due": "2026-11-11T08:30:00+00:00",
+          "status": "retry_wait",
+          "attempt": 5,
+          "started": "2026-11-11T08:49:01+00:00",
+          "finished": "2026-11-11T08:49:04.798510+00:00",
+          "error": "source_stale",
+          "data_state": "source_stale",
+          "notice_delivery_state": null,
+          "next_attempt_at": "2026-11-11T09:04:01+00:00"
+        }
+      ],
+      "range": {
+        "first_due": "2026-10-07T05:30:00+00:00",
+        "last_due": "2026-11-11T08:30:00+00:00",
+        "count": 36
+      },
+      "receipt_statuses": [
+        {
+          "delivery_kind": "notice",
+          "status": "sent",
+          "count": 14,
+          "with_message_id": 14
+        },
+        {
+          "delivery_kind": "report",
+          "status": "pending",
+          "count": 8,
+          "with_message_id": 0
+        },
+        {
+          "delivery_kind": "report",
+          "status": "sent",
+          "count": 64,
+          "with_message_id": 64
+        }
+      ],
+      "artifact_statuses": []
+    },
+    {
+      "id": "oil_balance_daily_report",
+      "enabled": true,
+      "task": "oil_balance_daily_report",
+      "recipient_capability": "reports.oil_balance.daily_receive",
+      "timezone": "Asia/Tehran",
+      "misfire": {
+        "policy": "replay",
+        "horizon_days": 7
+      },
+      "trigger": {
+        "type": "cron",
+        "hour": 15,
+        "minute": 0,
+        "start_date": "2026-11-03T00:00:00+03:30"
+      },
+      "params": {},
+      "eligible_recipients": [
+        {
+          "user_id": "397185913",
+          "role": "oil_balance_daily_recipient"
+        }
+      ],
+      "run_statuses": [
+        {
+          "status": "no_data_final",
+          "count": 1
+        },
+        {
+          "status": "succeeded",
+          "count": 6
+        },
+        {
+          "status": "waiting_for_data",
+          "count": 1
+        }
+      ],
+      "latest_run": [
+        {
+          "schedule_id": "oil_balance_daily_report",
+          "due": "2026-11-10T11:30:00+00:00",
+          "status": "succeeded",
+          "attempt": 1,
+          "started": "2026-11-10T11:30:02+00:00",
+          "finished": "2026-11-10T11:30:18.186165+00:00",
+          "error": null,
+          "data_state": "ready",
+          "notice_delivery_state": null,
+          "next_attempt_at": null
+        }
+      ],
+      "range": {
+        "first_due": "2026-11-03T11:30:00+00:00",
+        "last_due": "2026-11-10T11:30:00+00:00",
+        "count": 8
+      },
+      "receipt_statuses": [
+        {
+          "delivery_kind": "report",
+          "status": "pending",
+          "count": 2,
+          "with_message_id": 0
+        },
+        {
+          "delivery_kind": "report",
+          "status": "sent",
+          "count": 6,
+          "with_message_id": 6
+        }
+      ],
+      "artifact_statuses": []
+    },
+    {
+      "id": "machinery_performance_daily_report",
+      "enabled": true,
+      "task": "machinery_performance_daily_report",
+      "recipient_capability": "reports.machinery_performance.daily_receive",
+      "timezone": "Asia/Tehran",
+      "misfire": {
+        "policy": "replay",
+        "horizon_days": 7
+      },
+      "trigger": {
+        "type": "cron",
+        "hour": 15,
+        "minute": 0,
+        "start_date": "2026-11-03T00:00:00+03:30"
+      },
+      "params": {},
+      "eligible_recipients": [
+        {
+          "user_id": "397185913",
+          "role": "machinery_performance_daily_recipient"
+        },
+        {
+          "user_id": "641220453",
+          "role": "machinery_performance_daily_recipient"
+        }
+      ],
+      "run_statuses": [
+        {
+          "status": "no_data_final",
+          "count": 2
+        },
+        {
+          "status": "succeeded",
+          "count": 6
+        }
+      ],
+      "latest_run": [
+        {
+          "schedule_id": "machinery_performance_daily_report",
+          "due": "2026-11-10T11:30:00+00:00",
+          "status": "succeeded",
+          "attempt": 9,
+          "started": "2026-11-10T12:49:02+00:00",
+          "finished": "2026-11-10T12:49:19.227187+00:00",
+          "error": null,
+          "data_state": "ready",
+          "notice_delivery_state": "suppressed",
+          "next_attempt_at": null
+        }
+      ],
+      "range": {
+        "first_due": "2026-11-03T11:30:00+00:00",
+        "last_due": "2026-11-10T11:30:00+00:00",
+        "count": 8
+      },
+      "receipt_statuses": [
+        {
+          "delivery_kind": "report",
+          "status": "pending",
+          "count": 4,
+          "with_message_id": 0
+        },
+        {
+          "delivery_kind": "report",
+          "status": "sent",
+          "count": 12,
+          "with_message_id": 12
+        }
+      ],
+      "artifact_statuses": []
+    }
+  ],
+  "all_receipt_statuses": [
+    {
+      "delivery_kind": "notice",
+      "status": "sent",
+      "count": 49,
+      "with_message_id": 48
+    },
+    {
+      "delivery_kind": "report",
+      "status": "pending",
+      "count": 33,
+      "with_message_id": 0
+    },
+    {
+      "delivery_kind": "report",
+      "status": "sent",
+      "count": 383,
+      "with_message_id": 257
+    },
+    {
+      "delivery_kind": "report",
+      "status": "uncertain",
+      "count": 4,
+      "with_message_id": 0
+    }
+  ],
+  "run_success_without_report_proof": [
+    {
+      "schedule_id": "driver_daily_mechanical",
+      "count": 1
+    },
+    {
+      "schedule_id": "driver_daily_office_supervisor",
+      "count": 33
+    },
+    {
+      "schedule_id": "metalwork_daily",
+      "count": 14
+    },
+    {
+      "schedule_id": "overflow_daily_mechanical",
+      "count": 1
+    },
+    {
+      "schedule_id": "overflow_daily_test",
+      "count": 50
+    },
+    {
+      "schedule_id": "repairs_daily",
+      "count": 14
+    }
+  ],
+  "office_artifacts_sent_without_message_id": [],
+  "recoveries": [
+    {
+      "operation_id": "d6f8f4f75bd65e5eacecf08e4772d919",
+      "original_schedule": "maintenance_daily_report",
+      "original_due": "2026-11-09T08:30:00+00:00",
+      "target_date": "1405/08/17",
+      "recipient_id": "397185913",
+      "sha256": "61b92d5dcef76b55ed0a2b7990b832149ca52ddca0e594ccbce6a52c639fe9de",
+      "source_sha256": "78fe91effe2d463a679167c583b11cf94649a9916c983133f6294de18adc3ae0",
+      "status": "sent",
+      "message_id": "7417",
+      "updated": "2026-11-10T11:46:53.470707+00:00",
+      "receipt_chain_matches": 1
+    },
+    {
+      "operation_id": "38b37b4e949e5eb7b906280ea54e4487",
+      "original_schedule": "maintenance_daily_report",
+      "original_due": "2026-11-09T08:30:00+00:00",
+      "target_date": "1405/08/17",
+      "recipient_id": "514458396",
+      "sha256": "61b92d5dcef76b55ed0a2b7990b832149ca52ddca0e594ccbce6a52c639fe9de",
+      "source_sha256": "78fe91effe2d463a679167c583b11cf94649a9916c983133f6294de18adc3ae0",
+      "status": "sent",
+      "message_id": "7418",
+      "updated": "2026-11-10T11:46:55.595405+00:00",
+      "receipt_chain_matches": 1
+    },
+    {
+      "operation_id": "77ef651b80bb56c68216267e119d96fa",
+      "original_schedule": "maintenance_daily_report",
+      "original_due": "2026-11-10T08:30:00+00:00",
+      "target_date": "1405/08/18",
+      "recipient_id": "397185913",
+      "sha256": "9e53446078f1a84ea4db50179ed6acc1b80fa0f4a5d5a7272d49eae660f77fbb",
+      "source_sha256": "78fe91effe2d463a679167c583b11cf94649a9916c983133f6294de18adc3ae0",
+      "status": "sent",
+      "message_id": "7419",
+      "updated": "2026-11-10T11:46:56.511878+00:00",
+      "receipt_chain_matches": 1
+    },
+    {
+      "operation_id": "d24c5f7fe66b5f14aa533aca0805ee1b",
+      "original_schedule": "maintenance_daily_report",
+      "original_due": "2026-11-10T08:30:00+00:00",
+      "target_date": "1405/08/18",
+      "recipient_id": "514458396",
+      "sha256": "9e53446078f1a84ea4db50179ed6acc1b80fa0f4a5d5a7272d49eae660f77fbb",
+      "source_sha256": "78fe91effe2d463a679167c583b11cf94649a9916c983133f6294de18adc3ae0",
+      "status": "sent",
+      "message_id": "7420",
+      "updated": "2026-11-10T11:46:57.506418+00:00",
+      "receipt_chain_matches": 1
+    }
+  ],
+  "holds": [
+    {
+      "schedule_id": "driver_daily_mechanical",
+      "status": "held",
+      "reason": "owner_review_required_for_historical_delivery",
+      "count": 5
+    },
+    {
+      "schedule_id": "driver_daily_metalwork",
+      "status": "held",
+      "reason": "owner_review_required_for_historical_delivery",
+      "count": 3
+    },
+    {
+      "schedule_id": "driver_daily_office_supervisor",
+      "status": "held",
+      "reason": "owner_review_required_for_historical_delivery",
+      "count": 7
+    },
+    {
+      "schedule_id": "machinery_performance_daily_report",
+      "status": "held",
+      "reason": "owner_review_required_for_historical_delivery",
+      "count": 2
+    },
+    {
+      "schedule_id": "maintenance_daily_report",
+      "status": "held",
+      "reason": "owner_review_required_for_historical_delivery",
+      "count": 1
+    },
+    {
+      "schedule_id": "maintenance_daily_report",
+      "status": "recovered",
+      "reason": "owner_review_required_for_historical_delivery",
+      "count": 2
+    },
+    {
+      "schedule_id": "oil_balance_daily_report",
+      "status": "held",
+      "reason": "owner_review_required_for_historical_delivery",
+      "count": 2
+    },
+    {
+      "schedule_id": "overflow_daily_mechanical",
+      "status": "held",
+      "reason": "owner_review_required_for_historical_delivery",
+      "count": 2
+    },
+    {
+      "schedule_id": "overflow_daily_test",
+      "status": "held",
+      "reason": "owner_review_required_for_historical_delivery",
+      "count": 23
+    }
+  ],
+  "closures": [
+    {
+      "schedule_id": "driver_daily_metalwork",
+      "due": "2026-11-07T05:30:00+00:00",
+      "deadline": "2026-11-08T17:30:00+00:00",
+      "closed_at": "2026-11-10T08:30:38.568593+00:00",
+      "policy": "independent-36h-v1"
+    },
+    {
+      "schedule_id": "driver_daily_metalwork",
+      "due": "2026-11-08T05:30:00+00:00",
+      "deadline": "2026-11-09T17:30:00+00:00",
+      "closed_at": "2026-11-10T08:30:38.568593+00:00",
+      "policy": "independent-36h-v1"
+    }
+  ],
+  "corrections": [
+    {
+      "schedule_id": "driver_daily_office_supervisor",
+      "due": "2026-11-09T05:30:00+00:00",
+      "recipient_id": "397185913",
+      "artifact_id": "metalwork",
+      "status": "sent",
+      "reason": "Validated independent correction; initial receipt preserved",
+      "updated": "2026-11-10T08:30:38.568593+00:00"
+    },
+    {
+      "schedule_id": "driver_daily_office_supervisor",
+      "due": "2026-11-09T05:30:00+00:00",
+      "recipient_id": "514458396",
+      "artifact_id": "metalwork",
+      "status": "sent",
+      "reason": "Validated independent correction; initial receipt preserved",
+      "updated": "2026-11-10T08:30:38.568593+00:00"
+    },
+    {
+      "schedule_id": "driver_daily_metalwork",
+      "due": "2026-11-09T05:30:00+00:00",
+      "recipient_id": "387679249",
+      "artifact_id": "metalwork",
+      "status": "needs_content_review",
+      "reason": "Original 7321 payload and recipient-specific hash not retained; content defect unverified",
+      "updated": "2026-11-10T08:30:38.568593+00:00"
+    }
+  ],
+  "alerts": [
+    {
+      "exception_status": "failed",
+      "recovery_status": "closed",
+      "count": 2
+    },
+    {
+      "exception_status": "failed",
+      "recovery_status": "none",
+      "count": 1
+    },
+    {
+      "exception_status": "sent",
+      "recovery_status": "none",
+      "count": 45
+    },
+    {
+      "exception_status": "sent",
+      "recovery_status": "sent",
+      "count": 19
+    }
+  ],
+  "latest_manager_snapshot": [
+    {
+      "day": "2026-11-10",
+      "captured": "2026-11-10T14:00:01+00:00",
+      "sha256": "047d35eac05e947bab285d9c8ef74c965d91da2a750f5b38eca3a528e91801ea"
+    }
+  ]
+}

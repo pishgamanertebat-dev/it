@@ -303,7 +303,7 @@ def combine(base_data, local_data, incoming_data):
             book.close()
 
 
-def sync_from_baseline(db, source, original, incoming, runtime):
+def sync_from_baseline(db, source, original, incoming, runtime, *, reviewed_change=None):
     """Caller holds the existing Writer lock and deny-write source handle."""
     state = baseline(db, source, runtime)
     if state is None:
@@ -313,6 +313,7 @@ def sync_from_baseline(db, source, original, incoming, runtime):
     recover_prepared(db, source, current_hash)
     latest, mine_hash = state['initial_hash'], state['mine_hash']
     protected = []
+    report_batches = []
     rows = db.execute('SELECT rowid,* FROM edits WHERE source=? COLLATE NOCASE AND rowid>? '
                       'ORDER BY rowid', (str(source), state['cutoff'])).fetchall()
     for row in rows:
@@ -331,6 +332,11 @@ def sync_from_baseline(db, source, original, incoming, runtime):
         if request.get('_kind') == KIND:
             mine_hash = result['mine_hash']
             snapshot(runtime, mine_hash)
+        elif request.get('_kind') == 'maintenance_report_batch_v1':
+            from .maintenance_report import verify_operation
+            verify_operation(request, result)
+            protected.append(row['operation'])
+            report_batches.append((row['operation'], result['records']))
         else:
             if (not row['operation'] or result.get('sheet') != request.get('sheet')
                     or not all(field in request for field in ('canonical', 'mechanic', 'description', 'parts'))):
@@ -355,14 +361,99 @@ def sync_from_baseline(db, source, original, incoming, runtime):
     if current_hash == mine_hash:
         base, mine = validate_workbook(base_data), validate_workbook(incoming)
         try:
-            changed = additions(base, mine)
+            if reviewed_change is None:
+                changed = additions(base, mine)
+            else:
+                if (reviewed_change['local_hash'] != current_hash
+                        or reviewed_change['incoming_hash'] != incoming_hash):
+                    raise EntryError('MAINTENANCE_REVIEWED_IMPORT_CHANGED')
+                if base.sheetnames != mine.sheetnames:
+                    raise EntryError('MAINTENANCE_REVIEWED_IMPORT_SHEET_LIST_CHANGED')
+                before, after = states(base), states(mine)
+                changed = [title for title in before if before[title] != after[title]]
         finally:
             base.close()
             mine.close()
         candidate = incoming  # Preserve exact upstream bytes when no local branch exists.
     else:
-        candidate, changed = combine(base_data, original, incoming)
+        if reviewed_change is not None:
+            raise EntryError('MAINTENANCE_REVIEWED_IMPORT_LOCAL_BRANCH: explicit reconciliation required')
+        if report_batches and len(report_batches) == len(protected):
+            candidate, changed, positions = combine_report_batches(base_data, original, incoming, report_batches)
+        else:
+            candidate, changed = combine(base_data, original, incoming)
     result = dict(status='imported' if current_hash == mine_hash else 'merged', mine_hash=incoming_hash,
                   changed_sheets=changed, protected_operations=protected, baseline=state['event_id'])
+    if reviewed_change is not None:
+        result['reviewed_change'] = reviewed_change
+    if current_hash != mine_hash and report_batches and len(report_batches) == len(protected):
+        result.update(merge_strategy='journalled_report_append_v1',report_positions=positions)
     return publish_candidate(source, original, candidate, db, 'mine-file-sync',
                              dict(_kind=KIND, operation=uuid.uuid4().hex), result, runtime=runtime)
+
+
+def combine_report_batches(base_data, local_data, incoming_data, batches):
+    """Carry only UUID-proven new reports across appended upstream records.
+
+    Rebuilding Local from the upstream baseline and the complete ordered report
+    journal must reproduce every cell/style/row/print setting. No text matching
+    or inferred event equivalence is used; distinct upstream rows remain distinct.
+    """
+    from .maintenance_report import apply_records
+    base, local, incoming = [validate_workbook(data) for data in (base_data, local_data, incoming_data)]
+    try:
+        changed = additions(base, incoming)
+        if local.sheetnames != base.sheetnames:
+            raise EntryError('MAINTENANCE_SYNC_LOCAL_STRUCTURE_CONFLICT')
+        for _, saved in batches:
+            apply_records(base, [item['record'] for item in saved])
+        if states(base) != states(local):
+            raise EntryError('MAINTENANCE_SYNC_REPORT_REPLAY_NOT_EXACT: unverified local change')
+        positions = {}
+        for operation, saved in batches:
+            positions[operation] = apply_records(incoming, [item['record'] for item in saved])
+        expected = states(incoming)
+        output = io.BytesIO()
+        incoming.save(output)
+        candidate = output.getvalue()
+        check = validate_workbook(candidate)
+        try:
+            if states(check) != expected:
+                raise EntryError('MAINTENANCE_SYNC_MERGE_VALIDATION_FAILED')
+        finally:
+            check.close()
+        return candidate, changed, positions
+    finally:
+        for book in (base, local, incoming):
+            book.close()
+
+
+def accept_reviewed_upstream(upstream, *, local_hash, incoming_hash, decision,
+                             approved_by, config=CONFIG, runtime=RUNTIME):
+    """One administrative, hash-bound import after review; ordinary Sync stays strict.
+
+    No Bale route calls this. Preserve the immutable original baseline and every
+    edit. The ordinary journal chain records the accepted upstream transition.
+    Never overwrite a branch containing local Writer changes.
+    """
+    if (approved_by != 'project-owner' or not isinstance(decision, str) or not decision.strip()
+            or any(not isinstance(value, str) or not re.fullmatch('[0-9a-f]{64}', value)
+                   for value in (local_hash, incoming_hash))):
+        raise PermissionError('MAINTENANCE_REVIEWED_IMPORT_OWNER_APPROVAL_REQUIRED')
+    from .entry_service import source_reader
+    settings = json.loads(Path(config).read_text('utf8'))
+    source = Path(settings['source']).resolve(strict=True)
+    runtime = Path(runtime)
+    with writer_lock(runtime), baseline_reader(upstream) as mine:
+        if not (runtime / 'audit.sqlite3').is_file():
+            raise EntryError('MAINTENANCE_SYNC_JOURNAL_MISSING')
+        with closing(open_audit(runtime)) as db, source_reader(source) as local:
+            original, incoming = local.read(), mine.read()
+            if digest(original) != local_hash or digest(incoming) != incoming_hash:
+                raise EntryError('MAINTENANCE_REVIEWED_IMPORT_CHANGED')
+            review = dict(local_hash=local_hash, incoming_hash=incoming_hash,
+                          approved_by=approved_by, decision=decision)
+            result = sync_from_baseline(db, source, original, incoming, runtime, reviewed_change=review)
+            if result is None:
+                raise EntryError('MAINTENANCE_REVIEWED_IMPORT_BASELINE_REQUIRED')
+            return result

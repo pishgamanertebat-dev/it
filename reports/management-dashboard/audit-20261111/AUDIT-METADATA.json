@@ -1,0 +1,19 @@
+{
+  "schema_version": "management-dashboard-audit-1",
+  "compiled_at_utc": "2026-11-11T09:31:31.408718+00:00",
+  "compiled_at_tehran": "2026-11-11T13:01:31.408718+03:30",
+  "operational_date": "1405/08/20",
+  "komatso_reviewed_commit": "75b712cd531bc08aed566014e9a1d7e2e0d15e69",
+  "komatso_installed_commit": "component-specific; entry deployment 39892553; gateway code e7208cd0",
+  "hrms_reviewed_commit": null,
+  "hrms_reason": "not a git repository; use code-index SHA256",
+  "sources": [
+    "E:/KomatsoAI",
+    "E:/HRMS",
+    "E:/Function",
+    "C:/Users/win-10/AppData/Local/hermes"
+  ],
+  "live_hrms_database_access": "SQLITE_CANTOPEN; code schema only",
+  "confidence": "mixed: VERIFIED / PARTIAL / UNKNOWN / PROPOSED per finding",
+  "source_observation_policy": "per-evidence timestamps; not a cross-system atomic snapshot"
+}

@@ -63,6 +63,9 @@ def source_proof(digest,*,runtime=None,source=None):
                 snapshot(runtime,row['before_hash']);snapshot(runtime,row['after_hash'])
                 if request.get('_kind')==KIND:
                     snapshot(runtime,result['mine_hash'])
+                elif request.get('_kind')=='maintenance_report_batch_v1':
+                    from tools.fleet.repairs.maintenance_report import verify_operation
+                    verify_operation(request,result)
                 elif (result.get('sheet')!=request.get('sheet') or
                       not all(field in request for field in ('canonical','mechanic','description','parts'))):
                     raise ValueError('Unverified writer identity')

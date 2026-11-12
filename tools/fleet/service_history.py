@@ -21,7 +21,11 @@ def get_operational_year(cur):
 
 
 def normalize_code(value):
-    return str(value).strip().upper()
+    try:
+        from .equipment_codes import canonical_input
+    except ImportError:
+        from equipment_codes import canonical_input
+    return canonical_input(value).strip().upper()
 
 
 def main():

@@ -1,0 +1,42 @@
+{
+  "pid": 36740,
+  "gateway_state": "running",
+  "restart_requested": false,
+  "active_agents": 0,
+  "platforms": {
+    "telegram": {
+      "state": "retrying",
+      "error_code": "telegram_connect_error",
+      "error_message": "Telegram startup failed: httpx.ConnectError: All connection attempts failed",
+      "updated_at": "2026-11-11T08:55:51.114426+00:00",
+      "writer_pid": 36740,
+      "writer_start_time": 179438344937,
+      "needs_attention": false,
+      "retrying_since": null
+    },
+    "bale": {
+      "state": "connected",
+      "error_code": null,
+      "error_message": null,
+      "updated_at": "2026-11-11T07:51:47.586941+00:00",
+      "writer_pid": 36740,
+      "writer_start_time": 179438344937,
+      "needs_attention": false,
+      "retrying_since": null
+    }
+  },
+  "updated_at": "2026-11-11T08:59:02.646745+00:00",
+  "code_sha": "e7208cd01179d21494b7f46478cd7db85481ed90",
+  "code_version": "0.21.4",
+  "served_profiles": [
+    "default",
+    "admin",
+    "maintenance",
+    "net"
+  ],
+  "session_store": {
+    "status": "ok"
+  },
+  "source": "C:\\Users\\win-10\\AppData\\Local\\hermes\\gateway_state.json",
+  "observed_utc": "2026-11-11T08:59:04.977790+00:00"
+}

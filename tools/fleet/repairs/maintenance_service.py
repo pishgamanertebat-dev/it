@@ -26,15 +26,27 @@ def permission(actor, config=CONFIG):
 
 
 def layout(sheet):
+    # The current miscellaneous sheet uses a department instead of a unit code.
+    # Do not accept that label on machine sheets: a missing unit-code header is
+    # still an invalid layout there.
+    fields = dict(FIELDS)
+    if key(sheet.title) == key('متفرقه'):
+        fields['code'] = (*fields['code'], 'قسمت')
     for row in sheet.iter_rows(max_row=min(10, sheet.max_row)):
         columns = {}
-        for field, labels in FIELDS.items():
+        for field, labels in fields.items():
             matches = [c.column for c in row if key(c.value) in {key(v) for v in labels}]
             if len(matches) == 1:
                 columns[field] = matches[0]
         if len(columns) == len(FIELDS):
+            from .maintenance_schema import inspected_rule
+            inspected = inspected_rule(sheet)
+            if inspected and inspected['header_row'] == row[0].row:
+                mapped = inspected['report_columns']
+                semantic = [mapped[0], mapped[1], *mapped[3:]] if 'recorder_column' in inspected else mapped
+                columns = dict(zip(('date', 'code', 'mechanic', 'description', 'parts'), semantic))
             return row[0].row, columns
-    raise EntryError('ستون‌های شیت دستگاه شناخته نشدند؛ فایل باید بررسی شود.')
+    raise EntryError(f'ستون‌های شیت «{sheet.title}» شناخته نشدند؛ فایل باید بررسی شود.')
 
 
 def machines(book):
@@ -52,6 +64,8 @@ def machines(book):
 
 
 def machine(book, entered):
+    from tools.fleet.equipment_codes import canonical_input
+    entered = canonical_input(entered)
     entered = key(entered)
     if not entered or len(entered) > 60:
         raise EntryError('کد دستگاه معتبر نیست.')
@@ -80,12 +94,26 @@ def validate_text(value, limit=1800):
     return value.strip()
 
 
-def append_record(book, request):
+def append_record(book, request, *, recorder=None):
     selected = machine(book, request['canonical'])
     if selected['sheet'] != request['sheet'] or selected['code'] != request['code']:
         raise EntryError('شیت دستگاه تغییر کرده است؛ «تعمیرات» را دوباره باز کنید.')
     sheet = book[selected['sheet']]
     header, columns = layout(sheet)
+    recorded = [c.column for c in sheet[header] if key(c.value) == key('ثبت کننده')]
+    if not recorded:
+        from .maintenance_schema import inspected_rule
+        inspected = inspected_rule(sheet)
+        if inspected and 'recorder_column' in inspected:
+            recorded = [inspected['recorder_column']]
+    if len(recorded) > 1:
+        raise EntryError('ستون ثبت‌کننده تکراری است؛ قالب شیت باید بررسی شود.')
+    if not recorded and any(key(c.value) == key('ثبت کننده') for other in book if other is not sheet
+                            for cells in other.iter_rows(max_row=min(10, other.max_row)) for c in cells):
+        raise EntryError(f'عنوان ستون ثبت‌کننده در شیت «{sheet.title}» خالی است؛ ابتدا سربرگ فایل اصلاح شود.')
+    if recorded:
+        validate_text(recorder, 200)
+        columns = dict(columns, recorder=recorded[0])
     occupied = [r for r in range(header + 1, sheet.max_row + 1)
                 if any(c.value is not None for c in sheet[r])]
     row = max(occupied, default=header) + 1
@@ -96,9 +124,10 @@ def append_record(book, request):
     for field, col in columns.items():
         cell = sheet.cell(row, col)
         copy_style(sheet.cell(template, col), cell)
-        value = request[field]
-        cell.value = value
-        cell.data_type = 's'
+        value = (recorder if field == 'recorder' else request.get('department', request[field])
+                 if field == 'code' and key(sheet.title) == key('متفرقه') else request[field])
+        cell.value = None if value == '' else value
+        cell.data_type = 'n' if value == '' else 's'
         cell.alignment = copy(cell.alignment)
         cell.alignment = openpyxl.styles.Alignment(horizontal=cell.alignment.horizontal or 'right',
                             vertical='center', wrap_text=True, readingOrder=2)
@@ -123,16 +152,24 @@ def append_record(book, request):
         # Keep existing print ranges and extend only their bottom edge.
         sheet.print_area = re.sub(r'(\$[A-Z]+\$)(\d+)(?=,|$)',
                                  lambda m: m[1] + str(max(int(m[2]), row)), str(sheet.print_area))
-    return {**selected, 'date': request['date'], 'row': row}
+    result = {**selected, 'date': request['date'], 'row': row}
+    if recorded:
+        result['recorder'] = recorder
+    return result
 
 
 def commit(actor, request, *, config=CONFIG, runtime=RUNTIME, day=None):
     settings = permission(actor, config)
     for field in ('mechanic', 'description', 'parts'):
         validate_text(request.get(field), 200 if field == 'mechanic' else 1800)
-    return commit_workbook(actor, request, settings, lambda book: append_record(book, request),
+    def authorized():
+        current = permission(actor, config)
+        if current.get('recorder') != settings.get('recorder'):
+            raise EntryError('نام تأییدشدهٔ ثبت‌کننده تغییر کرده است؛ ثبت را دوباره بررسی کنید.')
+    return commit_workbook(actor, request, settings,
+                           lambda book: append_record(book, request, recorder=settings.get('recorder')),
                            runtime=runtime, day=day, command='تعمیرات',
-                           authorization_check=lambda: permission(actor, config), replay_check=verify_replay)
+                           authorization_check=authorized, replay_check=verify_replay)
 
 
 def verify_replay(db, source, current_hash, previous):

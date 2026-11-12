@@ -1,0 +1,3061 @@
+openapi: 3.1.0
+info:
+  title: Management Dashboard Read API — DESIGN ONLY
+  version: 0.1.0-draft
+  description: پیشنهاد قرارداد؛هیچ endpoint پیاده‌سازی یا راه‌اندازی نشده است. Unknown/null/stale وsource lineage الزامی‌اند. Auth lifecycle
+    فقطدرذخیرهخودداشبورددرمرحلهتوسعهطراحیمی‌شود؛domainwriteایننسخهندارد.
+servers:
+- url: https://dashboard.invalid
+  description: Placeholder فقط؛hostواقعیتصویبنشده
+paths:
+  /api/v1/me:
+    get:
+      operationId: getMe
+      summary: مشخصات session وscope مرورگر
+      tags:
+      - Dashboard
+      parameters: []
+      responses:
+        '200':
+          description: نسخه خواندنی؛stale/partial درmeta الزامی
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeResponse'
+              example:
+                data:
+                  actor_ref: SYNTHETIC
+                  roles: []
+                  permissions: []
+                  expires_at: '2026-11-11T09:00:00+00:00'
+                  operational_timezone: Asia/Tehran
+                meta:
+                  contract_version: dashboard-read-model-1
+                  served_at: '2026-11-11T09:00:00+00:00'
+                  snapshot_version: SYNTHETIC
+                  operational_timezone: Asia/Tehran
+                  availability: complete
+                  freshness: unknown
+                  age_seconds: null
+                  sources: []
+                  warnings: []
+        '401':
+          description: ورود لازم یا session منقضی
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: scope/field permission ناکافی
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: شناسه ناموجود یا نامجاز
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: snapshot cursor/version conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '410':
+          description: artifact retained bytes no longer available
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: ورودی/تاریخ/بازه نامعتبر
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: rate limited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: منبع قابل اعتماد وcacheسالموجودندارد
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '304':
+          description: ETag برابر است؛بعدازauthorization دوباره
+      security:
+      - cookieAuth: []
+      x-required-permissions:
+      - session.read
+      x-source-of-truth: dashboard auth
+      x-counting-unit: session
+      x-cache-policy: ۳۰ثانیه؛permission هرrequest
+      x-read-cost: کم،بدونخواندنsource
+      x-acceptance: login/expiry/rolechange
+  /api/v1/overview:
+    get:
+      operationId: getOverview
+      summary: کارت‌های مدیر برای یک تاریخ داده
+      tags:
+      - Dashboard
+      parameters:
+      - name: data_date
+        required: true
+        schema: &id001
+          type: string
+          pattern: ^1405/(0[1-9]|1[0-2])/(0[1-9]|[12][0-9]|3[01])$
+          description: Persian operational date; server validates actual month/day
+        description: تاریخ داده انتخابی
+        in: query
+      responses:
+        '200':
+          description: نسخه خواندنی؛stale/partial درmeta الزامی
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OverviewResponse'
+              example:
+                data:
+                  data_date: 1405/08/17
+                  counts:
+                    occurrences: 1
+                    logical_artifacts: 2
+                    recipient_deliveries: 4
+                    sent_with_receipt: 3
+                    ready_artifacts: null
+                    needs_review: null
+                    unknown: null
+                    complete_denominator: true
+                  components: []
+                meta:
+                  contract_version: dashboard-read-model-1
+                  served_at: '2026-11-11T09:00:00+00:00'
+                  snapshot_version: SYNTHETIC
+                  operational_timezone: Asia/Tehran
+                  availability: complete
+                  freshness: unknown
+                  age_seconds: null
+                  sources: []
+                  warnings: []
+        '401':
+          description: ورود لازم یا session منقضی
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: scope/field permission ناکافی
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: شناسه ناموجود یا نامجاز
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: snapshot cursor/version conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '410':
+          description: artifact retained bytes no longer available
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: ورودی/تاریخ/بازه نامعتبر
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: rate limited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: منبع قابل اعتماد وcacheسالموجودندارد
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '304':
+          description: ETag برابر است؛بعدازauthorization دوباره
+      security:
+      - cookieAuth: []
+      x-required-permissions:
+      - reports.read
+      x-source-of-truth: K-SCHED,K-SYNC,K-GATEWAY,H-HEALTH
+      x-counting-unit: نوبت/فایل/ارسال جدا
+      x-cache-policy: cache۶۰ثانیه
+      x-read-cost: SQLsnapshotcache
+      x-acceptance: کارت با reports reconcile شود
+  /api/v1/reports:
+    get:
+      operationId: listReports
+      summary: فهرست نوبت‌های گزارش
+      tags:
+      - Dashboard
+      parameters:
+      - &id008
+        name: data_date_from
+        required: false
+        schema: *id001
+        description: ابتدای تاریخ داده، شامل مرز
+        in: query
+      - &id009
+        name: data_date_to
+        required: false
+        schema: *id001
+        description: انتهای تاریخ داده، شامل مرز؛حداکثر۹۲روز
+        in: query
+      - name: schedule_id
+        required: false
+        schema: &id002
+          type: string
+        description: شناسه واقعی برنامه
+        in: query
+      - name: status
+        required: false
+        schema:
+          type: string
+          enum: &id012
+          - sent_with_receipt
+          - partial
+          - ready
+          - waiting_for_data
+          - source_unavailable
+          - source_stale
+          - technical_error
+          - closed_without_send
+          - awaiting_review
+          - recovered
+          - uncertain
+          - correction_required
+          - correction_sent
+          - not_due
+          - stale
+          - unknown
+        description: وضعیت نمایشی
+        in: query
+      - name: recipient_ref
+        required: false
+        schema: *id002
+        description: شناسه opaque گیرنده مجاز
+        in: query
+      - name: attention_only
+        required: false
+        schema: &id003
+          type: boolean
+        description: فقط موارد فعال نیازمند اقدام
+        in: query
+      - name: include_closed
+        required: false
+        schema:
+          type: boolean
+          default: false
+        description: نمایش آرشیو بسته
+        in: query
+      - name: corrected_only
+        required: false
+        schema: *id003
+        description: اصلاحیه‌ها
+        in: query
+      - name: sort
+        required: false
+        schema:
+          type: string
+          enum:
+          - data_date
+          - -data_date
+          - original_due
+          - -original_due
+          default: -data_date
+        description: sort whitelist
+        in: query
+      - &id006
+        name: limit
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 50
+        description: حد صفحه
+        in: query
+      - &id007
+        name: cursor
+        required: false
+        schema: *id002
+        description: opaque signed cursor bound to snapshot/filter/permission
+        in: query
+      responses:
+        '200':
+          description: نسخه خواندنی؛stale/partial درmeta الزامی
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportsResponse'
+              example:
+                data:
+                - &id004
+                  id: synthetic_id_001
+                  schedule_id: driver_daily_office_supervisor
+                  title_fa: گزارش نمونه مصنوعی دفتر
+                  data_date: 1405/08/17
+                  original_due: '2026-11-11T09:00:00+00:00'
+                  primary_status: partial
+                  disposition: unknown
+                  source_state: SYNTHETIC
+                  data_state: SYNTHETIC
+                  artifact_state: SYNTHETIC
+                  delivery_state: SYNTHETIC
+                  recovery_state: SYNTHETIC
+                  correction_state: SYNTHETIC
+                  expected_artifacts: 2
+                  expected_deliveries: 4
+                  recipient_set_provenance: historical_reservation
+                  attention_required: true
+                  attempt:
+                    last_attempt_at: null
+                    last_success_at: null
+                    attempt_count: null
+                    last_checked_at: null
+                    next_attempt_at: null
+                    reason_code: null
+                    reason_fa: null
+                  allowed_next_step_fa: null
+                  artifact_ids: []
+                  evidence: []
+                meta:
+                  contract_version: dashboard-read-model-1
+                  served_at: '2026-11-11T09:00:00+00:00'
+                  snapshot_version: SYNTHETIC
+                  operational_timezone: Asia/Tehran
+                  availability: complete
+                  freshness: unknown
+                  age_seconds: null
+                  sources: []
+                  warnings: []
+                page:
+                  next_cursor: null
+                  limit: 1
+                  snapshot_version: SYNTHETIC
+        '401':
+          description: ورود لازم یا session منقضی
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: scope/field permission ناکافی
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: شناسه ناموجود یا نامجاز
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: snapshot cursor/version conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '410':
+          description: artifact retained bytes no longer available
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: ورودی/تاریخ/بازه نامعتبر
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: rate limited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: منبع قابل اعتماد وcacheسالموجودندارد
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '304':
+          description: ETag برابر است؛بعدازauthorization دوباره
+      security:
+      - cookieAuth: []
+      x-required-permissions:
+      - reports.read
+      x-source-of-truth: K-SCHEDULE,K-SCHED
+      x-counting-unit: occurrence
+      x-cache-policy: ۶۰ثانیه
+      x-read-cost: index query رویread model
+      x-acceptance: fixture۱/۲/۴ وhistorical unknown
+  /api/v1/reports/{id}:
+    get:
+      operationId: getReport
+      summary: جزئیات،علت،تلاش وlineage نوبت
+      tags:
+      - Dashboard
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: &id005
+          type: string
+          pattern: ^[A-Za-z0-9_-]{12,128}$
+        description: opaque resource id؛filepath نیست
+      responses:
+        '200':
+          description: نسخه خواندنی؛stale/partial درmeta الزامی
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportResponse'
+              example:
+                data: *id004
+                meta:
+                  contract_version: dashboard-read-model-1
+                  served_at: '2026-11-11T09:00:00+00:00'
+                  snapshot_version: SYNTHETIC
+                  operational_timezone: Asia/Tehran
+                  availability: complete
+                  freshness: unknown
+                  age_seconds: null
+                  sources: []
+                  warnings: []
+        '401':
+          description: ورود لازم یا session منقضی
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: scope/field permission ناکافی
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: شناسه ناموجود یا نامجاز
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: snapshot cursor/version conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '410':
+          description: artifact retained bytes no longer available
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: ورودی/تاریخ/بازه نامعتبر
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: rate limited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: منبع قابل اعتماد وcacheسالموجودندارد
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '304':
+          description: ETag برابر است؛بعدازauthorization دوباره
+      security:
+      - cookieAuth: []
+      x-required-permissions:
+      - reports.read
+      x-source-of-truth: K-SCHED,K-ART-*
+      x-counting-unit: occurrence
+      x-cache-policy: ۶۰ثانیه
+      x-read-cost: lookup read model
+      x-acceptance: due/data_date وrecovery linkage
+  /api/v1/reports/{id}/deliveries:
+    get:
+      operationId: listDeliveries
+      summary: ارسال‌هایrecipient/artifact باproofscope
+      tags:
+      - Dashboard
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id005
+        description: opaque resource id؛filepath نیست
+      - *id006
+      - *id007
+      responses:
+        '200':
+          description: نسخه خواندنی؛stale/partial درmeta الزامی
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliveriesResponse'
+              example:
+                data: []
+                meta:
+                  contract_version: dashboard-read-model-1
+                  served_at: '2026-11-11T09:00:00+00:00'
+                  snapshot_version: SYNTHETIC
+                  operational_timezone: Asia/Tehran
+                  availability: complete
+                  freshness: unknown
+                  age_seconds: null
+                  sources: []
+                  warnings: []
+                page:
+                  next_cursor: null
+                  limit: 1
+                  snapshot_version: SYNTHETIC
+        '401':
+          description: ورود لازم یا session منقضی
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: scope/field permission ناکافی
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: شناسه ناموجود یا نامجاز
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: snapshot cursor/version conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '410':
+          description: artifact retained bytes no longer available
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: ورودی/تاریخ/بازه نامعتبر
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: rate limited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: منبع قابل اعتماد وcacheسالموجودندارد
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '304':
+          description: ETag برابر است؛بعدازauthorization دوباره
+      security:
+      - cookieAuth: []
+      x-required-permissions:
+      - reports.read
+      x-source-of-truth: K-SCHED receipts/artifacts/recovery
+      x-counting-unit: recipient delivery
+      x-cache-policy: ۶۰ثانیه
+      x-read-cost: bounded indexed join
+      x-acceptance: notice مستقل؛sent بدونproof سبز نشود
+  /api/v1/reports/{id}/artifacts:
+    get:
+      operationId: listArtifacts
+      summary: فایل ونسخه‌هایگزارش
+      tags:
+      - Dashboard
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id005
+        description: opaque resource id؛filepath نیست
+      - *id006
+      - *id007
+      responses:
+        '200':
+          description: نسخه خواندنی؛stale/partial درmeta الزامی
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArtifactsResponse'
+              example:
+                data: []
+                meta:
+                  contract_version: dashboard-read-model-1
+                  served_at: '2026-11-11T09:00:00+00:00'
+                  snapshot_version: SYNTHETIC
+                  operational_timezone: Asia/Tehran
+                  availability: complete
+                  freshness: unknown
+                  age_seconds: null
+                  sources: []
+                  warnings: []
+                page:
+                  next_cursor: null
+                  limit: 1
+                  snapshot_version: SYNTHETIC
+        '401':
+          description: ورود لازم یا session منقضی
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: scope/field permission ناکافی
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: شناسه ناموجود یا نامجاز
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: snapshot cursor/version conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '410':
+          description: artifact retained bytes no longer available
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: ورودی/تاریخ/بازه نامعتبر
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: rate limited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: منبع قابل اعتماد وcacheسالموجودندارد
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '304':
+          description: ETag برابر است؛بعدازauthorization دوباره
+      security:
+      - cookieAuth: []
+      x-required-permissions:
+      - reports.read
+      x-source-of-truth: K-SCHED+retained manifests
+      x-counting-unit: logical artifact version
+      x-cache-policy: event/hash +۶۰ثانیه
+      x-read-cost: metadata only
+      x-acceptance: retained=false دانلودنساختگی
+  /api/v1/artifacts/{id}/content:
+    get:
+      operationId: downloadArtifact
+      summary: خواندن فایل معتبر موجود
+      tags:
+      - Dashboard
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id005
+        description: opaque resource id؛filepath نیست
+      responses:
+        '200':
+          description: فایل ثابت و مجاز باhashتطبیق‌داده‌شده
+          headers:
+            ETag:
+              schema: *id002
+            Content-Disposition:
+              schema: *id002
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '401':
+          description: ورود لازم یا session منقضی
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: scope/field permission ناکافی
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: شناسه ناموجود یا نامجاز
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: snapshot cursor/version conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '410':
+          description: artifact retained bytes no longer available
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: ورودی/تاریخ/بازه نامعتبر
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: rate limited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: منبع قابل اعتماد وcacheسالموجودندارد
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - cookieAuth: []
+      x-required-permissions:
+      - reports.artifacts.download
+      x-source-of-truth: ArtifactResolver +exact hash+scope
+      x-counting-unit: bytes of one artifact version
+      x-cache-policy: no-store؛hashهرdownload
+      x-read-cost: فقطreadفایلمجاز،بدونexport
+      x-acceptance: traversal/reparse/IDOR/hashfail
+  /api/v1/operations:
+    get:
+      operationId: listOperations
+      summary: caseهایواقعاًفعال یا آرشیوی
+      tags:
+      - Dashboard
+      parameters:
+      - name: domain
+        required: false
+        schema: *id002
+        description: komatsoai|hrms|sync
+        in: query
+      - name: include_closed
+        required: false
+        schema:
+          type: boolean
+          default: false
+        description: بسته‌ها
+        in: query
+      - *id008
+      - *id009
+      - *id006
+      - *id007
+      responses:
+        '200':
+          description: نسخه خواندنی؛stale/partial درmeta الزامی
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationsResponse'
+              example:
+                data: []
+                meta:
+                  contract_version: dashboard-read-model-1
+                  served_at: '2026-11-11T09:00:00+00:00'
+                  snapshot_version: SYNTHETIC
+                  operational_timezone: Asia/Tehran
+                  availability: complete
+                  freshness: unknown
+                  age_seconds: null
+                  sources: []
+                  warnings: []
+                page:
+                  next_cursor: null
+                  limit: 1
+                  snapshot_version: SYNTHETIC
+        '401':
+          description: ورود لازم یا session منقضی
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: scope/field permission ناکافی
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: شناسه ناموجود یا نامجاز
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: snapshot cursor/version conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '410':
+          description: artifact retained bytes no longer available
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: ورودی/تاریخ/بازه نامعتبر
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: rate limited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: منبع قابل اعتماد وcacheسالموجودندارد
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '304':
+          description: ETag برابر است؛بعدازauthorization دوباره
+      security:
+      - cookieAuth: []
+      x-required-permissions:
+      - operations.read
+      x-source-of-truth: K-SCHED,K-SYNC,K-ENTRY,H-OUTPUT
+      x-counting-unit: case
+      x-cache-policy: ۶۰ثانیه
+      x-read-cost: readmodelgrouping
+      x-acceptance: D23تکرارattemptیکcaseبماند
+  /api/v1/sync/status:
+    get:
+      operationId: getSyncStatus
+      summary: سلامت جزئی منبع،guard وlastgood
+      tags:
+      - Dashboard
+      parameters: []
+      responses:
+        '200':
+          description: نسخه خواندنی؛stale/partial درmeta الزامی
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SyncResponse'
+              example:
+                data:
+                  component:
+                    id: synthetic_id_001
+                    state: unknown
+                    reported_state: null
+                    last_heartbeat_at: null
+                    last_success_at: null
+                    last_error_code: null
+                    reason_fa: null
+                    age_seconds: null
+                  health_status: SYNTHETIC
+                  source_enumerated: null
+                  sync_healthy: null
+                  last_completed_scan_at: null
+                  next_attempt_at: null
+                  guards: []
+                meta:
+                  contract_version: dashboard-read-model-1
+                  served_at: '2026-11-11T09:00:00+00:00'
+                  snapshot_version: SYNTHETIC
+                  operational_timezone: Asia/Tehran
+                  availability: complete
+                  freshness: unknown
+                  age_seconds: null
+                  sources: []
+                  warnings: []
+        '401':
+          description: ورود لازم یا session منقضی
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: scope/field permission ناکافی
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: شناسه ناموجود یا نامجاز
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: snapshot cursor/version conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '410':
+          description: artifact retained bytes no longer available
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: ورودی/تاریخ/بازه نامعتبر
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: rate limited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: منبع قابل اعتماد وcacheسالموجودندارد
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '304':
+          description: ETag برابر است؛بعدازauthorization دوباره
+      security:
+      - cookieAuth: []
+      x-required-permissions:
+      - system.health.read
+      x-source-of-truth: K-SYNC+K-MAINT-ENTRY
+      x-counting-unit: source/guard
+      x-cache-policy: ۶۰ثانیه
+      x-read-cost: JSONcache
+      x-acceptance: partial باcron0سبزنشود
+  /api/v1/system/health:
+    get:
+      operationId: getSystemHealth
+      summary: وضعیتGateway/کانال/Scheduler/HRworker
+      tags:
+      - Dashboard
+      parameters: []
+      responses:
+        '200':
+          description: نسخه خواندنی؛stale/partial درmeta الزامی
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+              example:
+                data: []
+                meta:
+                  contract_version: dashboard-read-model-1
+                  served_at: '2026-11-11T09:00:00+00:00'
+                  snapshot_version: SYNTHETIC
+                  operational_timezone: Asia/Tehran
+                  availability: complete
+                  freshness: unknown
+                  age_seconds: null
+                  sources: []
+                  warnings: []
+        '401':
+          description: ورود لازم یا session منقضی
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: scope/field permission ناکافی
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: شناسه ناموجود یا نامجاز
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: snapshot cursor/version conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '410':
+          description: artifact retained bytes no longer available
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: ورودی/تاریخ/بازه نامعتبر
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: rate limited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: منبع قابل اعتماد وcacheسالموجودندارد
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '304':
+          description: ETag برابر است؛بعدازauthorization دوباره
+      security:
+      - cookieAuth: []
+      x-required-permissions:
+      - system.health.read
+      x-source-of-truth: K-GATEWAY,K-CRON,H-HEALTH,K-SCHED
+      x-counting-unit: component
+      x-cache-policy: ۳۰ثانیه
+      x-read-cost: فایلکوچکcache
+      x-acceptance: Baleonline مستقلTelegramretrying
+  /api/v1/audit:
+    get:
+      operationId: listAudit
+      summary: تاریخچه باredaction وscope
+      tags:
+      - Dashboard
+      parameters:
+      - name: domain
+        required: false
+        schema: *id002
+        description: دامنه مجاز
+        in: query
+      - name: object_ref
+        required: false
+        schema: *id002
+        description: هویت رخداد
+        in: query
+      - *id006
+      - *id007
+      responses:
+        '200':
+          description: نسخه خواندنی؛stale/partial درmeta الزامی
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditResponse'
+              example:
+                data: []
+                meta:
+                  contract_version: dashboard-read-model-1
+                  served_at: '2026-11-11T09:00:00+00:00'
+                  snapshot_version: SYNTHETIC
+                  operational_timezone: Asia/Tehran
+                  availability: complete
+                  freshness: unknown
+                  age_seconds: null
+                  sources: []
+                  warnings: []
+                page:
+                  next_cursor: null
+                  limit: 1
+                  snapshot_version: SYNTHETIC
+        '401':
+          description: ورود لازم یا session منقضی
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: scope/field permission ناکافی
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: شناسه ناموجود یا نامجاز
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: snapshot cursor/version conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '410':
+          description: artifact retained bytes no longer available
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: ورودی/تاریخ/بازه نامعتبر
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: rate limited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: منبع قابل اعتماد وcacheسالموجودندارد
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '304':
+          description: ETag برابر است؛بعدازauthorization دوباره
+      security:
+      - cookieAuth: []
+      x-required-permissions:
+      - audit.operational.read
+      x-source-of-truth: domain journals +dashboard accessaudit
+      x-counting-unit: event
+      x-cache-policy: ۶۰ثانیه
+      x-read-cost: boundedprojection
+      x-acceptance: privacy/roleobjectchecks
+  /api/v1/hrms/overview:
+    get:
+      operationId: getHROverview
+      summary: شاخص‌هاینسخهثابتدوره
+      tags:
+      - HRMS
+      parameters:
+      - &id010
+        name: period
+        required: true
+        schema: &id013
+          type: string
+          pattern: ^1405/(0[1-9]|1[0-2])$
+        description: ماه شمسی
+        in: query
+      - name: processing_id
+        required: false
+        schema: *id005
+        description: runانتخابی
+        in: query
+      responses:
+        '200':
+          description: نسخه خواندنی؛stale/partial درmeta الزامی
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HROverviewResponse'
+              example:
+                data:
+                  period: 1405/08
+                  selected_processing_id: null
+                  personnel_revision: null
+                  total_people: null
+                  active_people: null
+                  without_valid_group: null
+                  forms_generated: null
+                  last_verified_processing_at: null
+                  work:
+                    known_minutes: null
+                    provisional_minutes: null
+                    final_minutes: null
+                    unknown_days: null
+                  overtime:
+                    known_minutes: null
+                    provisional_minutes: null
+                    final_minutes: null
+                    unknown_days: null
+                  deduction:
+                    known_minutes: null
+                    provisional_minutes: null
+                    final_minutes: null
+                    unknown_days: null
+                  approval_state: SYNTHETIC
+                meta:
+                  contract_version: dashboard-read-model-1
+                  served_at: '2026-11-11T09:00:00+00:00'
+                  snapshot_version: SYNTHETIC
+                  operational_timezone: Asia/Tehran
+                  availability: complete
+                  freshness: unknown
+                  age_seconds: null
+                  sources: []
+                  warnings: []
+        '401':
+          description: ورود لازم یا session منقضی
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: scope/field permission ناکافی
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: شناسه ناموجود یا نامجاز
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: snapshot cursor/version conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '410':
+          description: artifact retained bytes no longer available
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: ورودی/تاریخ/بازه نامعتبر
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: rate limited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: منبع قابل اعتماد وcacheسالموجودندارد
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '304':
+          description: ETag برابر است؛بعدازauthorization دوباره
+      security:
+      - cookieAuth: []
+      x-required-permissions:
+      - hrms.overview.read
+      x-source-of-truth: H-PERSONNEL,H-BOT,H-OUTPUT
+      x-counting-unit: person/run/metric جدا
+      x-cache-policy: personnel۵دقیقه،job۶۰ثانیه
+      x-read-cost: projectioncache
+      x-acceptance: null≠zero؛approval مستقل
+  /api/v1/hrms/personnel:
+    get:
+      operationId: listPersonnel
+      summary: فهرستپرسنل باrevision/asof
+      tags:
+      - HRMS
+      parameters:
+      - name: as_of
+        required: true
+        schema: *id001
+        description: تاریخ مبنا
+        in: query
+      - name: group
+        required: false
+        schema: *id002
+        description: G01..G09
+        in: query
+      - name: processing_state
+        required: false
+        schema: *id002
+        description: وضعیت پردازش
+        in: query
+      - name: search
+        required: false
+        schema:
+          type: string
+          maxLength: 80
+        description: جست‌وجو؛درaccesslog ثبت نشود
+        in: query
+      - *id006
+      - *id007
+      responses:
+        '200':
+          description: نسخه خواندنی؛stale/partial درmeta الزامی
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonnelResponse'
+              example:
+                data: []
+                meta:
+                  contract_version: dashboard-read-model-1
+                  served_at: '2026-11-11T09:00:00+00:00'
+                  snapshot_version: SYNTHETIC
+                  operational_timezone: Asia/Tehran
+                  availability: complete
+                  freshness: unknown
+                  age_seconds: null
+                  sources: []
+                  warnings: []
+                page:
+                  next_cursor: null
+                  limit: 1
+                  snapshot_version: SYNTHETIC
+        '401':
+          description: ورود لازم یا session منقضی
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: scope/field permission ناکافی
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: شناسه ناموجود یا نامجاز
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: snapshot cursor/version conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '410':
+          description: artifact retained bytes no longer available
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: ورودی/تاریخ/بازه نامعتبر
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: rate limited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: منبع قابل اعتماد وcacheسالموجودندارد
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '304':
+          description: ETag برابر است؛بعدازauthorization دوباره
+      security:
+      - cookieAuth: []
+      x-required-permissions:
+      - hrms.personnel.read
+      x-source-of-truth: H-PERSONNEL revision projection
+      x-counting-unit: unique person
+      x-cache-policy: ۵دقیقه یاrevision
+      x-read-cost: pinned BLOB projection once
+      x-acceptance: aliases تکرارنشود؛بدونcodeملی
+  /api/v1/hrms/personnel/{id}:
+    get:
+      operationId: getPerson
+      summary: پروفایلمجاز فرد
+      tags:
+      - HRMS
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id005
+        description: opaque resource id؛filepath نیست
+      - name: as_of
+        required: true
+        schema: *id001
+        description: تاریخ مبنا
+        in: query
+      responses:
+        '200':
+          description: نسخه خواندنی؛stale/partial درmeta الزامی
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonResponse'
+              example:
+                data:
+                  id: synthetic_id_001
+                  display_name: SYNTHETIC
+                  job_title: null
+                  processing_state: unknown
+                  as_of: 1405/08/17
+                  revision: SYNTHETIC
+                  groups: []
+                  group_state: SYNTHETIC
+                meta:
+                  contract_version: dashboard-read-model-1
+                  served_at: '2026-11-11T09:00:00+00:00'
+                  snapshot_version: SYNTHETIC
+                  operational_timezone: Asia/Tehran
+                  availability: complete
+                  freshness: unknown
+                  age_seconds: null
+                  sources: []
+                  warnings: []
+        '401':
+          description: ورود لازم یا session منقضی
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: scope/field permission ناکافی
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: شناسه ناموجود یا نامجاز
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: snapshot cursor/version conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '410':
+          description: artifact retained bytes no longer available
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: ورودی/تاریخ/بازه نامعتبر
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: rate limited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: منبع قابل اعتماد وcacheسالموجودندارد
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '304':
+          description: ETag برابر است؛بعدازauthorization دوباره
+      security:
+      - cookieAuth: []
+      x-required-permissions:
+      - hrms.personnel.read
+      x-source-of-truth: H-PERSONNEL
+      x-counting-unit: unique person
+      x-cache-policy: revision-bound
+      x-read-cost: cached projection
+      x-acceptance: role/fieldscope
+  /api/v1/hrms/processing:
+    get:
+      operationId: listProcessing
+      summary: وضعیتImport/پردازش/تولید/ارسال
+      tags:
+      - HRMS
+      parameters:
+      - *id010
+      - *id006
+      - *id007
+      responses:
+        '200':
+          description: نسخه خواندنی؛stale/partial درmeta الزامی
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HRProcessingListResponse'
+              example:
+                data: []
+                meta:
+                  contract_version: dashboard-read-model-1
+                  served_at: '2026-11-11T09:00:00+00:00'
+                  snapshot_version: SYNTHETIC
+                  operational_timezone: Asia/Tehran
+                  availability: complete
+                  freshness: unknown
+                  age_seconds: null
+                  sources: []
+                  warnings: []
+                page:
+                  next_cursor: null
+                  limit: 1
+                  snapshot_version: SYNTHETIC
+        '401':
+          description: ورود لازم یا session منقضی
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: scope/field permission ناکافی
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: شناسه ناموجود یا نامجاز
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: snapshot cursor/version conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '410':
+          description: artifact retained bytes no longer available
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: ورودی/تاریخ/بازه نامعتبر
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: rate limited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: منبع قابل اعتماد وcacheسالموجودندارد
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '304':
+          description: ETag برابر است؛بعدازauthorization دوباره
+      security:
+      - cookieAuth: []
+      x-required-permissions:
+      - hrms.attendance.read
+      x-source-of-truth: H-BOT+H-OUTPUT
+      x-counting-unit: processing request/run
+      x-cache-policy: ۶۰ثانیه
+      x-read-cost: job-bound manifests
+      x-acceptance: runtimefixture jobواقعی نشود
+  /api/v1/hrms/processing/{id}:
+    get:
+      operationId: getProcessing
+      summary: نتیجهوهویتنسخهپردازش
+      tags:
+      - HRMS
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id005
+        description: opaque resource id؛filepath نیست
+      responses:
+        '200':
+          description: نسخه خواندنی؛stale/partial درmeta الزامی
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HRProcessingResponse'
+              example:
+                data:
+                  id: synthetic_id_001
+                  period: 1405/08
+                  state: SYNTHETIC
+                  content_id: SYNTHETIC
+                  run_id: SYNTHETIC
+                  source_snapshot_ref: SYNTHETIC
+                  personnel_revision: null
+                  started_at: null
+                  finished_at: null
+                  forms_generated: null
+                  calculation_state: SYNTHETIC
+                  publication_state: SYNTHETIC
+                  hr_approval_state: SYNTHETIC
+                  outbox_delivery_state: SYNTHETIC
+                  rule_versions: []
+                  issue_counts: {}
+                meta:
+                  contract_version: dashboard-read-model-1
+                  served_at: '2026-11-11T09:00:00+00:00'
+                  snapshot_version: SYNTHETIC
+                  operational_timezone: Asia/Tehran
+                  availability: complete
+                  freshness: unknown
+                  age_seconds: null
+                  sources: []
+                  warnings: []
+        '401':
+          description: ورود لازم یا session منقضی
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: scope/field permission ناکافی
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: شناسه ناموجود یا نامجاز
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: snapshot cursor/version conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '410':
+          description: artifact retained bytes no longer available
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: ورودی/تاریخ/بازه نامعتبر
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: rate limited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: منبع قابل اعتماد وcacheسالموجودندارد
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '304':
+          description: ETag برابر است؛بعدازauthorization دوباره
+      security:
+      - cookieAuth: []
+      x-required-permissions:
+      - hrms.attendance.read
+      x-source-of-truth: H-BOT+H-OUTPUT
+      x-counting-unit: run
+      x-cache-policy: immutable content +۶۰ثانیهreceipt
+      x-read-cost: cached structured result
+      x-acceptance: قواعدامروزرویگذشتهاجرا نشود
+  /api/v1/hrms/rules:
+    get:
+      operationId: listRules
+      summary: نسخه‌هایقانون وسندمرجع محاسبه
+      tags:
+      - HRMS
+      parameters:
+      - name: as_of
+        required: true
+        schema: *id001
+        description: تاریخ اثر
+        in: query
+      - name: group
+        required: false
+        schema: *id002
+        description: گروه
+        in: query
+      - *id006
+      - *id007
+      responses:
+        '200':
+          description: نسخه خواندنی؛stale/partial درmeta الزامی
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RulesResponse'
+              example:
+                data: []
+                meta:
+                  contract_version: dashboard-read-model-1
+                  served_at: '2026-11-11T09:00:00+00:00'
+                  snapshot_version: SYNTHETIC
+                  operational_timezone: Asia/Tehran
+                  availability: complete
+                  freshness: unknown
+                  age_seconds: null
+                  sources: []
+                  warnings: []
+                page:
+                  next_cursor: null
+                  limit: 1
+                  snapshot_version: SYNTHETIC
+        '401':
+          description: ورود لازم یا session منقضی
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: scope/field permission ناکافی
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: شناسه ناموجود یا نامجاز
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: snapshot cursor/version conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '410':
+          description: artifact retained bytes no longer available
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: ورودی/تاریخ/بازه نامعتبر
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: rate limited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: منبع قابل اعتماد وcacheسالموجودندارد
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '304':
+          description: ETag برابر است؛بعدازauthorization دوباره
+      security:
+      - cookieAuth: []
+      x-required-permissions:
+      - hrms.overview.read
+      x-source-of-truth: H-RULE+revision_extra
+      x-counting-unit: rule release
+      x-cache-policy: bundlehash/revision
+      x-read-cost: smallJSON/CSV
+      x-acceptance: currentG09calculated/historyimport
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: dashboard_session
+  schemas:
+    SourceWatermark:
+      type: object
+      properties:
+        source_id: *id002
+        availability:
+          type: string
+          enum:
+          - available
+          - partial
+          - unavailable
+          - unknown
+        source_modified_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        source_observed_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        last_verified_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        schema_fingerprint:
+          type:
+          - string
+          - 'null'
+        snapshot_version:
+          type:
+          - string
+          - 'null'
+        reason_code:
+          type:
+          - string
+          - 'null'
+      required:
+      - source_id
+      - availability
+      - source_modified_at
+      - source_observed_at
+      - last_verified_at
+      - schema_fingerprint
+      - snapshot_version
+      - reason_code
+      additionalProperties: false
+    Meta:
+      type: object
+      properties:
+        contract_version:
+          type: string
+          const: dashboard-read-model-1
+        served_at: &id011
+          type: string
+          format: date-time
+        snapshot_version: *id002
+        operational_timezone:
+          type: string
+          const: Asia/Tehran
+        availability:
+          type: string
+          enum:
+          - complete
+          - partial
+          - unavailable
+        freshness:
+          type: string
+          enum:
+          - fresh
+          - stale
+          - unknown
+        age_seconds:
+          type:
+          - integer
+          - 'null'
+          minimum: 0
+        sources:
+          type: array
+          items:
+            $ref: '#/components/schemas/SourceWatermark'
+        warnings:
+          type: array
+          items: *id002
+      required:
+      - contract_version
+      - served_at
+      - snapshot_version
+      - operational_timezone
+      - availability
+      - freshness
+      - age_seconds
+      - sources
+      - warnings
+      additionalProperties: false
+    EvidenceRef:
+      type: object
+      properties:
+        source_id: *id002
+        evidence_id: *id002
+        proof_scope:
+          type: string
+          enum:
+          - artifact_delivery
+          - recipient_aggregate
+          - recovery_chain
+          - run_only
+          - source_health
+          - code_only
+          - unknown
+      required:
+      - source_id
+      - evidence_id
+      - proof_scope
+      additionalProperties: false
+    Delivery:
+      type: object
+      properties:
+        id: *id005
+        artifact_id:
+          type:
+          - string
+          - 'null'
+        recipient_ref: *id002
+        recipient_label:
+          type:
+          - string
+          - 'null'
+        delivery_kind:
+          type: string
+          enum:
+          - report
+          - notice
+          - correction
+          - recovery
+        status:
+          type: string
+          enum:
+          - sent_with_receipt
+          - pending
+          - failed
+          - revoked
+          - uncertain
+          - unknown
+        message_ids:
+          type: array
+          items: *id002
+        sent_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        sha256:
+          type:
+          - string
+          - 'null'
+          pattern: ^[0-9a-f]{64}$
+        proof_scope: *id002
+        bytes_verified:
+          type:
+          - boolean
+          - 'null'
+        human_read:
+          type: string
+          const: unknown
+        evidence:
+          type: array
+          items:
+            $ref: '#/components/schemas/EvidenceRef'
+      required:
+      - id
+      - artifact_id
+      - recipient_ref
+      - recipient_label
+      - delivery_kind
+      - status
+      - message_ids
+      - sent_at
+      - sha256
+      - proof_scope
+      - bytes_verified
+      - human_read
+      - evidence
+      additionalProperties: false
+    Artifact:
+      type: object
+      properties:
+        id: *id005
+        occurrence_id: *id005
+        kind: *id002
+        revision_ref: *id002
+        revision_of:
+          type:
+          - string
+          - 'null'
+        sha256:
+          type:
+          - string
+          - 'null'
+          pattern: ^[0-9a-f]{64}$
+        source_sha256:
+          type:
+          - string
+          - 'null'
+          pattern: ^[0-9a-f]{64}$
+        target_data_date: *id001
+        state:
+          type: string
+          enum:
+          - ready
+          - invalid
+          - missing
+          - unknown
+        content_validation:
+          type: string
+          enum:
+          - verified
+          - failed
+          - unknown
+        retained: *id003
+        download_allowed: *id003
+        evidence:
+          type: array
+          items:
+            $ref: '#/components/schemas/EvidenceRef'
+      required:
+      - id
+      - occurrence_id
+      - kind
+      - revision_ref
+      - revision_of
+      - sha256
+      - source_sha256
+      - target_data_date
+      - state
+      - content_validation
+      - retained
+      - download_allowed
+      - evidence
+      additionalProperties: false
+    AttemptSummary:
+      type: object
+      properties:
+        last_attempt_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        last_success_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        attempt_count:
+          type:
+          - integer
+          - 'null'
+          minimum: 0
+        last_checked_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        next_attempt_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        reason_code:
+          type:
+          - string
+          - 'null'
+        reason_fa:
+          type:
+          - string
+          - 'null'
+      required:
+      - last_attempt_at
+      - last_success_at
+      - attempt_count
+      - last_checked_at
+      - next_attempt_at
+      - reason_code
+      - reason_fa
+      additionalProperties: false
+    Occurrence:
+      type: object
+      properties:
+        id: *id005
+        schedule_id: *id002
+        title_fa: *id002
+        data_date: *id001
+        original_due: *id011
+        primary_status:
+          type: string
+          enum: *id012
+        disposition:
+          type: string
+          enum:
+          - active
+          - held
+          - closed_owner
+          - closed_expiry
+          - unknown
+        source_state: *id002
+        data_state: *id002
+        artifact_state: *id002
+        delivery_state: *id002
+        recovery_state: *id002
+        correction_state: *id002
+        expected_artifacts:
+          type:
+          - integer
+          - 'null'
+          minimum: 0
+        expected_deliveries:
+          type:
+          - integer
+          - 'null'
+          minimum: 0
+        recipient_set_provenance:
+          type: string
+          enum:
+          - historical_receipts
+          - historical_reservation
+          - current_registry_for_future
+          - unknown
+        attention_required: *id003
+        attempt:
+          $ref: '#/components/schemas/AttemptSummary'
+        allowed_next_step_fa:
+          type:
+          - string
+          - 'null'
+        artifact_ids:
+          type: array
+          items: *id005
+        evidence:
+          type: array
+          items:
+            $ref: '#/components/schemas/EvidenceRef'
+      required:
+      - id
+      - schedule_id
+      - title_fa
+      - data_date
+      - original_due
+      - primary_status
+      - disposition
+      - source_state
+      - data_state
+      - artifact_state
+      - delivery_state
+      - recovery_state
+      - correction_state
+      - expected_artifacts
+      - expected_deliveries
+      - recipient_set_provenance
+      - attention_required
+      - attempt
+      - allowed_next_step_fa
+      - artifact_ids
+      - evidence
+      additionalProperties: false
+    Counts:
+      type: object
+      properties:
+        occurrences:
+          type:
+          - integer
+          - 'null'
+          minimum: 0
+        logical_artifacts:
+          type:
+          - integer
+          - 'null'
+          minimum: 0
+        recipient_deliveries:
+          type:
+          - integer
+          - 'null'
+          minimum: 0
+        sent_with_receipt:
+          type:
+          - integer
+          - 'null'
+          minimum: 0
+        ready_artifacts:
+          type:
+          - integer
+          - 'null'
+          minimum: 0
+        needs_review:
+          type:
+          - integer
+          - 'null'
+          minimum: 0
+        unknown:
+          type:
+          - integer
+          - 'null'
+          minimum: 0
+        complete_denominator: *id003
+      required:
+      - occurrences
+      - logical_artifacts
+      - recipient_deliveries
+      - sent_with_receipt
+      - ready_artifacts
+      - needs_review
+      - unknown
+      - complete_denominator
+      additionalProperties: false
+    HealthComponent:
+      type: object
+      properties:
+        id: *id002
+        state:
+          type: string
+          enum:
+          - online
+          - offline
+          - degraded
+          - unknown
+        reported_state:
+          type:
+          - string
+          - 'null'
+        last_heartbeat_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        last_success_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        last_error_code:
+          type:
+          - string
+          - 'null'
+        reason_fa:
+          type:
+          - string
+          - 'null'
+        age_seconds:
+          type:
+          - integer
+          - 'null'
+          minimum: 0
+      required:
+      - id
+      - state
+      - reported_state
+      - last_heartbeat_at
+      - last_success_at
+      - last_error_code
+      - reason_fa
+      - age_seconds
+      additionalProperties: false
+    Overview:
+      type: object
+      properties:
+        data_date: *id001
+        counts:
+          $ref: '#/components/schemas/Counts'
+        components:
+          type: array
+          items:
+            $ref: '#/components/schemas/HealthComponent'
+      required:
+      - data_date
+      - counts
+      - components
+      additionalProperties: false
+    SyncStatus:
+      type: object
+      properties:
+        component:
+          $ref: '#/components/schemas/HealthComponent'
+        health_status: *id002
+        source_enumerated:
+          type:
+          - boolean
+          - 'null'
+        sync_healthy:
+          type:
+          - boolean
+          - 'null'
+        last_completed_scan_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        next_attempt_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        guards:
+          type: array
+          items:
+            type: object
+            properties:
+              source_id: *id002
+              state: *id002
+              reason_code:
+                type:
+                - string
+                - 'null'
+              sheet:
+                type:
+                - string
+                - 'null'
+              cell:
+                type:
+                - string
+                - 'null'
+              local_sha256:
+                type:
+                - string
+                - 'null'
+              incoming_sha256:
+                type:
+                - string
+                - 'null'
+              last_seen_at:
+                type:
+                - string
+                - 'null'
+                format: date-time
+            required:
+            - source_id
+            - state
+            - reason_code
+            - sheet
+            - cell
+            - local_sha256
+            - incoming_sha256
+            - last_seen_at
+            additionalProperties: false
+      required:
+      - component
+      - health_status
+      - source_enumerated
+      - sync_healthy
+      - last_completed_scan_at
+      - next_attempt_at
+      - guards
+      additionalProperties: false
+    OperationCase:
+      type: object
+      properties:
+        id: *id005
+        domain: *id002
+        occurrence_id:
+          type:
+          - string
+          - 'null'
+        status: *id002
+        cause_code: *id002
+        description_fa: *id002
+        operational_effect_fa: *id002
+        proposed_next_step_fa: *id002
+        attention_required: *id003
+        first_seen_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        last_seen_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        evidence:
+          type: array
+          items:
+            $ref: '#/components/schemas/EvidenceRef'
+      required:
+      - id
+      - domain
+      - occurrence_id
+      - status
+      - cause_code
+      - description_fa
+      - operational_effect_fa
+      - proposed_next_step_fa
+      - attention_required
+      - first_seen_at
+      - last_seen_at
+      - evidence
+      additionalProperties: false
+    AuditEvent:
+      type: object
+      properties:
+        id: *id005
+        domain: *id002
+        event_type: *id002
+        occurred_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        actor_ref:
+          type:
+          - string
+          - 'null'
+        object_ref: *id002
+        outcome: *id002
+        revision_ref:
+          type:
+          - string
+          - 'null'
+        evidence:
+          type: array
+          items:
+            $ref: '#/components/schemas/EvidenceRef'
+      required:
+      - id
+      - domain
+      - event_type
+      - occurred_at
+      - actor_ref
+      - object_ref
+      - outcome
+      - revision_ref
+      - evidence
+      additionalProperties: false
+    Personnel:
+      type: object
+      properties:
+        id: *id005
+        display_name: *id002
+        job_title:
+          type:
+          - string
+          - 'null'
+        processing_state:
+          type: string
+          enum:
+          - active
+          - inactive
+          - ignored
+          - unknown
+        as_of: *id001
+        revision: *id002
+        groups:
+          type: array
+          items: *id002
+        group_state: *id002
+      required:
+      - id
+      - display_name
+      - job_title
+      - processing_state
+      - as_of
+      - revision
+      - groups
+      - group_state
+      additionalProperties: false
+    RuleRelease:
+      type: object
+      properties:
+        group: *id002
+        version: *id002
+        effective_from: *id001
+        effective_to:
+          type:
+          - string
+          - 'null'
+        state:
+          type: string
+          enum:
+          - implemented
+          - pending
+          - unknown
+        scope_kind:
+          type: string
+          enum:
+          - general
+          - personnel_scoped
+          - revision_extra
+          - unknown
+        calculation_authority: *id002
+        rule_sha256:
+          type:
+          - string
+          - 'null'
+      required:
+      - group
+      - version
+      - effective_from
+      - effective_to
+      - state
+      - scope_kind
+      - calculation_authority
+      - rule_sha256
+      additionalProperties: false
+    MetricValue:
+      type: object
+      properties:
+        known_minutes:
+          type:
+          - integer
+          - 'null'
+          minimum: 0
+        provisional_minutes:
+          type:
+          - integer
+          - 'null'
+          minimum: 0
+        final_minutes:
+          type:
+          - integer
+          - 'null'
+          minimum: 0
+        unknown_days:
+          type:
+          - integer
+          - 'null'
+          minimum: 0
+      required:
+      - known_minutes
+      - provisional_minutes
+      - final_minutes
+      - unknown_days
+      additionalProperties: false
+    HROverview:
+      type: object
+      properties:
+        period: *id013
+        selected_processing_id:
+          type:
+          - string
+          - 'null'
+        personnel_revision:
+          type:
+          - string
+          - 'null'
+        total_people:
+          type:
+          - integer
+          - 'null'
+          minimum: 0
+        active_people:
+          type:
+          - integer
+          - 'null'
+          minimum: 0
+        without_valid_group:
+          type:
+          - integer
+          - 'null'
+          minimum: 0
+        forms_generated:
+          type:
+          - integer
+          - 'null'
+          minimum: 0
+        last_verified_processing_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        work:
+          $ref: '#/components/schemas/MetricValue'
+        overtime:
+          $ref: '#/components/schemas/MetricValue'
+        deduction:
+          $ref: '#/components/schemas/MetricValue'
+        approval_state: *id002
+      required:
+      - period
+      - selected_processing_id
+      - personnel_revision
+      - total_people
+      - active_people
+      - without_valid_group
+      - forms_generated
+      - last_verified_processing_at
+      - work
+      - overtime
+      - deduction
+      - approval_state
+      additionalProperties: false
+    HRProcessing:
+      type: object
+      properties:
+        id: *id005
+        period: *id013
+        state: *id002
+        content_id: *id002
+        run_id: *id002
+        source_snapshot_ref: *id002
+        personnel_revision:
+          type:
+          - string
+          - 'null'
+        started_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        finished_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        forms_generated:
+          type:
+          - integer
+          - 'null'
+          minimum: 0
+        calculation_state: *id002
+        publication_state: *id002
+        hr_approval_state: *id002
+        outbox_delivery_state: *id002
+        rule_versions:
+          type: array
+          items: *id002
+        issue_counts:
+          type: object
+          additionalProperties:
+            type: integer
+            minimum: 0
+      required:
+      - id
+      - period
+      - state
+      - content_id
+      - run_id
+      - source_snapshot_ref
+      - personnel_revision
+      - started_at
+      - finished_at
+      - forms_generated
+      - calculation_state
+      - publication_state
+      - hr_approval_state
+      - outbox_delivery_state
+      - rule_versions
+      - issue_counts
+      additionalProperties: false
+    Me:
+      type: object
+      properties:
+        actor_ref: *id002
+        roles:
+          type: array
+          items: *id002
+        permissions:
+          type: array
+          items: *id002
+        expires_at: *id011
+        operational_timezone:
+          type: string
+          const: Asia/Tehran
+      required:
+      - actor_ref
+      - roles
+      - permissions
+      - expires_at
+      - operational_timezone
+      additionalProperties: false
+    Error:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code: *id002
+            message_fa: *id002
+            request_id: *id002
+            retryable: *id003
+          required:
+          - code
+          - message_fa
+          - request_id
+          - retryable
+          additionalProperties: false
+        meta:
+          $ref: '#/components/schemas/Meta'
+      required:
+      - error
+      - meta
+      additionalProperties: false
+    OverviewResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Overview'
+        meta:
+          $ref: '#/components/schemas/Meta'
+      required:
+      - data
+      - meta
+      additionalProperties: false
+    ReportsResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Occurrence'
+        meta:
+          $ref: '#/components/schemas/Meta'
+        page:
+          type: object
+          properties:
+            next_cursor:
+              type:
+              - string
+              - 'null'
+            limit:
+              type: integer
+              minimum: 1
+              maximum: 100
+            snapshot_version: *id002
+          required:
+          - next_cursor
+          - limit
+          - snapshot_version
+          additionalProperties: false
+      required:
+      - data
+      - meta
+      - page
+      additionalProperties: false
+    ReportResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Occurrence'
+        meta:
+          $ref: '#/components/schemas/Meta'
+      required:
+      - data
+      - meta
+      additionalProperties: false
+    DeliveriesResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Delivery'
+        meta:
+          $ref: '#/components/schemas/Meta'
+        page:
+          type: object
+          properties:
+            next_cursor:
+              type:
+              - string
+              - 'null'
+            limit:
+              type: integer
+              minimum: 1
+              maximum: 100
+            snapshot_version: *id002
+          required:
+          - next_cursor
+          - limit
+          - snapshot_version
+          additionalProperties: false
+      required:
+      - data
+      - meta
+      - page
+      additionalProperties: false
+    ArtifactsResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Artifact'
+        meta:
+          $ref: '#/components/schemas/Meta'
+        page:
+          type: object
+          properties:
+            next_cursor:
+              type:
+              - string
+              - 'null'
+            limit:
+              type: integer
+              minimum: 1
+              maximum: 100
+            snapshot_version: *id002
+          required:
+          - next_cursor
+          - limit
+          - snapshot_version
+          additionalProperties: false
+      required:
+      - data
+      - meta
+      - page
+      additionalProperties: false
+    OperationsResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/OperationCase'
+        meta:
+          $ref: '#/components/schemas/Meta'
+        page:
+          type: object
+          properties:
+            next_cursor:
+              type:
+              - string
+              - 'null'
+            limit:
+              type: integer
+              minimum: 1
+              maximum: 100
+            snapshot_version: *id002
+          required:
+          - next_cursor
+          - limit
+          - snapshot_version
+          additionalProperties: false
+      required:
+      - data
+      - meta
+      - page
+      additionalProperties: false
+    AuditResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuditEvent'
+        meta:
+          $ref: '#/components/schemas/Meta'
+        page:
+          type: object
+          properties:
+            next_cursor:
+              type:
+              - string
+              - 'null'
+            limit:
+              type: integer
+              minimum: 1
+              maximum: 100
+            snapshot_version: *id002
+          required:
+          - next_cursor
+          - limit
+          - snapshot_version
+          additionalProperties: false
+      required:
+      - data
+      - meta
+      - page
+      additionalProperties: false
+    HealthResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/HealthComponent'
+        meta:
+          $ref: '#/components/schemas/Meta'
+      required:
+      - data
+      - meta
+      additionalProperties: false
+    SyncResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/SyncStatus'
+        meta:
+          $ref: '#/components/schemas/Meta'
+      required:
+      - data
+      - meta
+      additionalProperties: false
+    HROverviewResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/HROverview'
+        meta:
+          $ref: '#/components/schemas/Meta'
+      required:
+      - data
+      - meta
+      additionalProperties: false
+    PersonnelResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Personnel'
+        meta:
+          $ref: '#/components/schemas/Meta'
+        page:
+          type: object
+          properties:
+            next_cursor:
+              type:
+              - string
+              - 'null'
+            limit:
+              type: integer
+              minimum: 1
+              maximum: 100
+            snapshot_version: *id002
+          required:
+          - next_cursor
+          - limit
+          - snapshot_version
+          additionalProperties: false
+      required:
+      - data
+      - meta
+      - page
+      additionalProperties: false
+    PersonResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Personnel'
+        meta:
+          $ref: '#/components/schemas/Meta'
+      required:
+      - data
+      - meta
+      additionalProperties: false
+    HRProcessingListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/HRProcessing'
+        meta:
+          $ref: '#/components/schemas/Meta'
+        page:
+          type: object
+          properties:
+            next_cursor:
+              type:
+              - string
+              - 'null'
+            limit:
+              type: integer
+              minimum: 1
+              maximum: 100
+            snapshot_version: *id002
+          required:
+          - next_cursor
+          - limit
+          - snapshot_version
+          additionalProperties: false
+      required:
+      - data
+      - meta
+      - page
+      additionalProperties: false
+    HRProcessingResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/HRProcessing'
+        meta:
+          $ref: '#/components/schemas/Meta'
+      required:
+      - data
+      - meta
+      additionalProperties: false
+    RulesResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/RuleRelease'
+        meta:
+          $ref: '#/components/schemas/Meta'
+        page:
+          type: object
+          properties:
+            next_cursor:
+              type:
+              - string
+              - 'null'
+            limit:
+              type: integer
+              minimum: 1
+              maximum: 100
+            snapshot_version: *id002
+          required:
+          - next_cursor
+          - limit
+          - snapshot_version
+          additionalProperties: false
+      required:
+      - data
+      - meta
+      - page
+      additionalProperties: false
+    MeResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Me'
+        meta:
+          $ref: '#/components/schemas/Meta'
+      required:
+      - data
+      - meta
+      additionalProperties: false
+security:
+- cookieAuth: []
+x-audit-metadata:
+  schema_version: management-dashboard-audit-1
+  compiled_at_utc: '2026-11-11T09:21:57.757254+00:00'
+  compiled_at_tehran: '2026-11-11T12:51:57.757254+03:30'
+  operational_date: 1405/08/20
+  komatso_reviewed_commit: 75b712cd531bc08aed566014e9a1d7e2e0d15e69
+  komatso_installed_commit: component-specific; entry deployment 39892553; gateway code e7208cd0
+  hrms_reviewed_commit: null
+  hrms_reason: not a git repository; use code-index SHA256
+  sources:
+  - E:/KomatsoAI
+  - E:/HRMS
+  - E:/Function
+  - C:/Users/win-10/AppData/Local/hermes
+  live_hrms_database_access: SQLITE_CANTOPEN; code schema only
+  confidence: 'mixed: VERIFIED / PARTIAL / UNKNOWN / PROPOSED per finding'
+  source_observation_policy: per-evidence timestamps; not a cross-system atomic snapshot

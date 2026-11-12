@@ -1,0 +1,4885 @@
+{
+  "K-SCHED": {
+    "path": "E:\\KomatsoAI\\runtime\\scheduler\\runs.sqlite3",
+    "bytes": 761856,
+    "modified_utc": "2026-11-11T08:49:04.814135+00:00",
+    "user_version": 0,
+    "schema_version": 1,
+    "tables": {
+      "completion_reminder_receipts": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "schedule_id",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "slot",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 2
+          },
+          {
+            "cid": 2,
+            "name": "target_date",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "recipient_id",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 3
+          },
+          {
+            "cid": 4,
+            "name": "status",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 5,
+            "name": "message_id",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 6,
+            "name": "error",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 7,
+            "name": "updated",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 8,
+            "name": "next_attempt_at",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          }
+        ],
+        "count": 128,
+        "ddl": "CREATE TABLE completion_reminder_receipts (\n            schedule_id TEXT NOT NULL, slot TEXT NOT NULL, target_date TEXT NOT NULL,\n            recipient_id TEXT NOT NULL, status TEXT NOT NULL, message_id TEXT,\n            error TEXT, updated TEXT NOT NULL, next_attempt_at TEXT,\n            PRIMARY KEY(schedule_id,slot,recipient_id))"
+      },
+      "delivery_alert_case": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "schedule_id",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "due",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 2
+          },
+          {
+            "cid": 2,
+            "name": "episode",
+            "type": "INTEGER",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 3
+          },
+          {
+            "cid": 3,
+            "name": "fingerprint",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 4,
+            "name": "exception_status",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 5,
+            "name": "recovery_status",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 6,
+            "name": "exception_text",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 7,
+            "name": "recovery_text",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 8,
+            "name": "created",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 9,
+            "name": "updated",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          }
+        ],
+        "count": 67,
+        "ddl": "CREATE TABLE delivery_alert_case (\n        schedule_id TEXT NOT NULL, due TEXT NOT NULL, episode INTEGER NOT NULL,\n        fingerprint TEXT NOT NULL, exception_status TEXT NOT NULL,\n        recovery_status TEXT NOT NULL, exception_text TEXT NOT NULL,\n        recovery_text TEXT, created TEXT NOT NULL, updated TEXT NOT NULL,\n        PRIMARY KEY (schedule_id, due, episode))"
+      },
+      "delivery_alert_receipt": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "schedule_id",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "due",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 2
+          },
+          {
+            "cid": 2,
+            "name": "episode",
+            "type": "INTEGER",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 3
+          },
+          {
+            "cid": 3,
+            "name": "alert_kind",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 4
+          },
+          {
+            "cid": 4,
+            "name": "operator_id",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 5
+          },
+          {
+            "cid": 5,
+            "name": "status",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 6,
+            "name": "message_id",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 7,
+            "name": "error",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 8,
+            "name": "updated",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          }
+        ],
+        "count": 90,
+        "ddl": "CREATE TABLE delivery_alert_receipt (\n        schedule_id TEXT NOT NULL, due TEXT NOT NULL, episode INTEGER NOT NULL,\n        alert_kind TEXT NOT NULL, operator_id TEXT NOT NULL, status TEXT NOT NULL,\n        message_id TEXT, error TEXT, updated TEXT NOT NULL,\n        PRIMARY KEY (schedule_id, due, episode, alert_kind, operator_id))"
+      },
+      "delivery_failure_watch": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "schedule_id",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "due",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 2
+          },
+          {
+            "cid": 2,
+            "name": "recipient_id",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 3
+          },
+          {
+            "cid": 3,
+            "name": "delivery_kind",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 4
+          },
+          {
+            "cid": 4,
+            "name": "first_seen",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          }
+        ],
+        "count": 20,
+        "ddl": "CREATE TABLE delivery_failure_watch (\n        schedule_id TEXT NOT NULL, due TEXT NOT NULL, recipient_id TEXT NOT NULL,\n        delivery_kind TEXT NOT NULL, first_seen TEXT NOT NULL,\n        PRIMARY KEY (schedule_id, due, recipient_id, delivery_kind))"
+      },
+      "manager_daily_receipt": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "day",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "part",
+            "type": "INTEGER",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 2
+          },
+          {
+            "cid": 2,
+            "name": "operator_id",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 3
+          },
+          {
+            "cid": 3,
+            "name": "status",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 4,
+            "name": "message_id",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 5,
+            "name": "error",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 6,
+            "name": "updated",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          }
+        ],
+        "count": 4,
+        "ddl": "CREATE TABLE manager_daily_receipt (\n            day TEXT NOT NULL, part INTEGER NOT NULL, operator_id TEXT NOT NULL,\n            status TEXT NOT NULL, message_id TEXT, error TEXT, updated TEXT NOT NULL,\n            PRIMARY KEY(day,part,operator_id))"
+      },
+      "manager_daily_snapshot": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "day",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "captured",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "sha256",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "payload",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 4,
+            "name": "messages",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          }
+        ],
+        "count": 1,
+        "ddl": "CREATE TABLE manager_daily_snapshot (\n            day TEXT PRIMARY KEY, captured TEXT NOT NULL, sha256 TEXT NOT NULL,\n            payload TEXT NOT NULL, messages TEXT NOT NULL)"
+      },
+      "missing_data_closures": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "schedule_id",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "due",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 2
+          },
+          {
+            "cid": 2,
+            "name": "deadline",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "closed_at",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 4,
+            "name": "policy",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 5,
+            "name": "previous_run",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          }
+        ],
+        "count": 2,
+        "ddl": "CREATE TABLE missing_data_closures (\n        schedule_id TEXT NOT NULL, due TEXT NOT NULL, deadline TEXT NOT NULL,\n        closed_at TEXT NOT NULL, policy TEXT NOT NULL, previous_run TEXT NOT NULL,\n        PRIMARY KEY(schedule_id,due))"
+      },
+      "notifier_baseline_receipt": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "schedule_id",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "due",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 2
+          },
+          {
+            "cid": 2,
+            "name": "recipient_id",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 3
+          },
+          {
+            "cid": 3,
+            "name": "delivery_kind",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 4
+          },
+          {
+            "cid": 4,
+            "name": "status",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          }
+        ],
+        "count": 2,
+        "ddl": "CREATE TABLE notifier_baseline_receipt (\n        schedule_id TEXT NOT NULL, due TEXT NOT NULL, recipient_id TEXT NOT NULL,\n        delivery_kind TEXT NOT NULL, status TEXT NOT NULL,\n        PRIMARY KEY (schedule_id, due, recipient_id, delivery_kind))"
+      },
+      "notifier_baseline_run": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "schedule_id",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "due",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 2
+          },
+          {
+            "cid": 2,
+            "name": "status",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          }
+        ],
+        "count": 4,
+        "ddl": "CREATE TABLE notifier_baseline_run (\n        schedule_id TEXT NOT NULL, due TEXT NOT NULL, status TEXT NOT NULL,\n        PRIMARY KEY (schedule_id, due))"
+      },
+      "notifier_meta": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "key",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "value",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          }
+        ],
+        "count": 3,
+        "ddl": "CREATE TABLE notifier_meta (\n        key TEXT PRIMARY KEY, value TEXT NOT NULL)"
+      },
+      "office_artifact_receipts": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "schedule_id",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "due",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 2
+          },
+          {
+            "cid": 2,
+            "name": "recipient_id",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 3
+          },
+          {
+            "cid": 3,
+            "name": "artifact_id",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 4
+          },
+          {
+            "cid": 4,
+            "name": "status",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 5,
+            "name": "message_id",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 6,
+            "name": "sha256",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 7,
+            "name": "updated",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          }
+        ],
+        "count": 242,
+        "ddl": "CREATE TABLE office_artifact_receipts (\n        schedule_id TEXT NOT NULL, due TEXT NOT NULL, recipient_id TEXT NOT NULL,\n        artifact_id TEXT NOT NULL, status TEXT NOT NULL, message_id TEXT, sha256 TEXT,\n        updated TEXT NOT NULL, PRIMARY KEY(schedule_id,due,recipient_id,artifact_id))"
+      },
+      "receipts": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "schedule_id",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "due",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 2
+          },
+          {
+            "cid": 2,
+            "name": "recipient_id",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 3
+          },
+          {
+            "cid": 3,
+            "name": "delivery_kind",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 4
+          },
+          {
+            "cid": 4,
+            "name": "status",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 5,
+            "name": "message_id",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 6,
+            "name": "updated",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          }
+        ],
+        "count": 469,
+        "ddl": "CREATE TABLE receipts (\n            schedule_id TEXT NOT NULL, due TEXT NOT NULL, recipient_id TEXT NOT NULL,\n            delivery_kind TEXT NOT NULL CHECK(delivery_kind IN ('notice','report')),\n            status TEXT NOT NULL, message_id TEXT, updated TEXT NOT NULL,\n            PRIMARY KEY(schedule_id, due, recipient_id, delivery_kind))"
+      },
+      "report_correction_review": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "schedule_id",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "due",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 2
+          },
+          {
+            "cid": 2,
+            "name": "recipient_id",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 3
+          },
+          {
+            "cid": 3,
+            "name": "artifact_id",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 4
+          },
+          {
+            "cid": 4,
+            "name": "status",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 5,
+            "name": "reason",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 6,
+            "name": "evidence",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 7,
+            "name": "updated",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          }
+        ],
+        "count": 3,
+        "ddl": "CREATE TABLE report_correction_review (\n            schedule_id TEXT NOT NULL, due TEXT NOT NULL, recipient_id TEXT NOT NULL,\n            artifact_id TEXT NOT NULL, status TEXT NOT NULL, reason TEXT NOT NULL,\n            evidence TEXT NOT NULL, updated TEXT NOT NULL,\n            PRIMARY KEY(schedule_id,due,recipient_id,artifact_id))"
+      },
+      "report_preflight_runs": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "schedule_id",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "due",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 2
+          },
+          {
+            "cid": 2,
+            "name": "status",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "checked",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 4,
+            "name": "error_code",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 5,
+            "name": "error_detail",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 6,
+            "name": "next_attempt_at",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 7,
+            "name": "sample_date",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          }
+        ],
+        "count": 193,
+        "ddl": "CREATE TABLE report_preflight_runs (\n            schedule_id TEXT NOT NULL,due TEXT NOT NULL,status TEXT NOT NULL,checked TEXT NOT NULL,\n            error_code TEXT,error_detail TEXT,next_attempt_at TEXT,sample_date TEXT,\n            PRIMARY KEY(schedule_id,due))"
+      },
+      "report_recovery_event": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "id",
+            "type": "INTEGER",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "operation_id",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "created",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "event",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 4,
+            "name": "evidence",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          }
+        ],
+        "count": 20,
+        "ddl": "CREATE TABLE report_recovery_event (\n        id INTEGER PRIMARY KEY, operation_id TEXT NOT NULL, created TEXT NOT NULL,\n        event TEXT NOT NULL, evidence TEXT NOT NULL)"
+      },
+      "report_recovery_hold": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "schedule_id",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "due",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 2
+          },
+          {
+            "cid": 2,
+            "name": "status",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "reason",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 4,
+            "name": "created",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 5,
+            "name": "deadline",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 6,
+            "name": "evidence",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 7,
+            "name": "approval_ref",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          }
+        ],
+        "count": 47,
+        "ddl": "CREATE TABLE report_recovery_hold (\n        schedule_id TEXT NOT NULL, due TEXT NOT NULL, status TEXT NOT NULL,\n        reason TEXT NOT NULL, created TEXT NOT NULL, deadline TEXT NOT NULL,\n        evidence TEXT NOT NULL, approval_ref TEXT,\n        PRIMARY KEY(schedule_id,due))"
+      },
+      "report_recovery_operation": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "operation_id",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "original_schedule",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "original_due",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "target_date",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 4,
+            "name": "recipient_id",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 5,
+            "name": "sha256",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 6,
+            "name": "source_sha256",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 7,
+            "name": "receipt_schedule",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 8,
+            "name": "approval_ref",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 9,
+            "name": "status",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 10,
+            "name": "message_id",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 11,
+            "name": "updated",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          }
+        ],
+        "count": 4,
+        "ddl": "CREATE TABLE report_recovery_operation (\n        operation_id TEXT PRIMARY KEY, original_schedule TEXT NOT NULL,\n        original_due TEXT NOT NULL, target_date TEXT NOT NULL, recipient_id TEXT NOT NULL,\n        sha256 TEXT NOT NULL, source_sha256 TEXT NOT NULL, receipt_schedule TEXT NOT NULL,\n        approval_ref TEXT NOT NULL, status TEXT NOT NULL, message_id TEXT, updated TEXT NOT NULL,\n        UNIQUE(original_schedule,original_due,recipient_id,sha256))"
+      },
+      "report_source_wakeup": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "schedule_id",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "source_sha256",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "observed",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "recovery_at",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": "''",
+            "pk": 0
+          }
+        ],
+        "count": 1,
+        "ddl": "CREATE TABLE report_source_wakeup (\n            schedule_id TEXT PRIMARY KEY,source_sha256 TEXT NOT NULL,observed TEXT NOT NULL,\n            recovery_at TEXT NOT NULL DEFAULT '')"
+      },
+      "runs": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "schedule_id",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "due",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 2
+          },
+          {
+            "cid": 2,
+            "name": "recipient",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "task",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 4,
+            "name": "status",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 5,
+            "name": "started",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 6,
+            "name": "finished",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 7,
+            "name": "error",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 8,
+            "name": "attempt",
+            "type": "INTEGER",
+            "notnull": 1,
+            "dflt_value": "0",
+            "pk": 0
+          },
+          {
+            "cid": 9,
+            "name": "next_attempt_at",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 10,
+            "name": "data_state",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 11,
+            "name": "notice_delivery_state",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 12,
+            "name": "error_detail",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          }
+        ],
+        "count": 285,
+        "ddl": "CREATE TABLE runs (\n        schedule_id TEXT NOT NULL, due TEXT NOT NULL, recipient TEXT NOT NULL,\n        task TEXT NOT NULL, status TEXT NOT NULL, started TEXT NOT NULL,\n        finished TEXT, error TEXT, attempt INTEGER NOT NULL DEFAULT 0, next_attempt_at TEXT, data_state TEXT, notice_delivery_state TEXT, error_detail TEXT, PRIMARY KEY(schedule_id, due))"
+      },
+      "source_notice_alert_receipt": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "schedule_id",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "due",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 2
+          },
+          {
+            "cid": 2,
+            "name": "recipient_id",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 3
+          },
+          {
+            "cid": 3,
+            "name": "operator_id",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 4
+          },
+          {
+            "cid": 4,
+            "name": "status",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 5,
+            "name": "message_id",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 6,
+            "name": "error",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 7,
+            "name": "updated",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          }
+        ],
+        "count": 32,
+        "ddl": "CREATE TABLE source_notice_alert_receipt (\n            schedule_id TEXT NOT NULL, due TEXT NOT NULL, recipient_id TEXT NOT NULL,\n            operator_id TEXT NOT NULL, status TEXT NOT NULL, message_id TEXT,\n            error TEXT, updated TEXT NOT NULL,\n            PRIMARY KEY(schedule_id,due,recipient_id,operator_id))"
+      },
+      "source_notice_baseline": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "schedule_id",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "due",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 2
+          },
+          {
+            "cid": 2,
+            "name": "recipient_id",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 3
+          }
+        ],
+        "count": 17,
+        "ddl": "CREATE TABLE source_notice_baseline (\n            schedule_id TEXT NOT NULL, due TEXT NOT NULL, recipient_id TEXT NOT NULL,\n            PRIMARY KEY(schedule_id,due,recipient_id))"
+      }
+    },
+    "integrity_check": "ok",
+    "access": "verified_readonly_memory_snapshot"
+  },
+  "K-AUTH": {
+    "path": "E:\\KomatsoAI\\reports\\telegram_usage\\telegram_users.db",
+    "bytes": 167936,
+    "modified_utc": "2026-11-11T08:46:13.439661+00:00",
+    "user_version": 0,
+    "schema_version": 1,
+    "tables": {
+      "access_events": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "id",
+            "type": "INTEGER",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "request_id",
+            "type": "INTEGER",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "request_code",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "platform",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 4,
+            "name": "user_id",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 5,
+            "name": "actor_type",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 6,
+            "name": "actor_id",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 7,
+            "name": "event_type",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 8,
+            "name": "value",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 9,
+            "name": "created_at",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          }
+        ],
+        "count": 76,
+        "ddl": "CREATE TABLE access_events (id INTEGER PRIMARY KEY AUTOINCREMENT, request_id INTEGER, request_code TEXT, platform TEXT NOT NULL, user_id TEXT NOT NULL, actor_type TEXT NOT NULL, actor_id TEXT, event_type TEXT NOT NULL, value TEXT, created_at TEXT NOT NULL)"
+      },
+      "access_requests": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "id",
+            "type": "INTEGER",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "request_code",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "platform",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "user_id",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 4,
+            "name": "chat_id",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 5,
+            "name": "candidate_name",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 6,
+            "name": "status",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": "'awaiting_name'",
+            "pk": 0
+          },
+          {
+            "cid": 7,
+            "name": "requested_at",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 8,
+            "name": "expires_at",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 9,
+            "name": "approved_at",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 10,
+            "name": "approved_by",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 11,
+            "name": "rejected_at",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 12,
+            "name": "rejected_by",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 13,
+            "name": "updated_at",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          }
+        ],
+        "count": 23,
+        "ddl": "CREATE TABLE access_requests (id INTEGER PRIMARY KEY AUTOINCREMENT, request_code TEXT NOT NULL UNIQUE, platform TEXT NOT NULL, user_id TEXT NOT NULL, chat_id TEXT NOT NULL, candidate_name TEXT, status TEXT NOT NULL DEFAULT 'awaiting_name', requested_at TEXT NOT NULL, expires_at TEXT, approved_at TEXT, approved_by TEXT, rejected_at TEXT, rejected_by TEXT, updated_at TEXT NOT NULL)"
+      },
+      "auth_capabilities": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "capability",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "resource",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          }
+        ],
+        "count": 30,
+        "ddl": "CREATE TABLE auth_capabilities (\n        capability TEXT PRIMARY KEY, resource TEXT NOT NULL)"
+      },
+      "auth_domain_authority": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "platform",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "user_id",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 2
+          },
+          {
+            "cid": 2,
+            "name": "domain",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 3
+          },
+          {
+            "cid": 3,
+            "name": "migrated_at",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 4,
+            "name": "migrated_by",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          }
+        ],
+        "count": 4,
+        "ddl": "CREATE TABLE auth_domain_authority (\n            platform TEXT NOT NULL, user_id TEXT NOT NULL,\n            domain TEXT NOT NULL CHECK(domain IN ('work_orders','repairs.driver_report')),\n            migrated_at TEXT NOT NULL, migrated_by TEXT NOT NULL,\n            PRIMARY KEY(platform,user_id,domain),\n            FOREIGN KEY(platform,user_id) REFERENCES channel_users(platform,user_id))"
+      },
+      "auth_events": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "id",
+            "type": "INTEGER",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "platform",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "user_id",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "role",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 4,
+            "name": "event_type",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 5,
+            "name": "actor",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 6,
+            "name": "created_at",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          }
+        ],
+        "count": 28,
+        "ddl": "CREATE TABLE auth_events (\n        id INTEGER PRIMARY KEY AUTOINCREMENT, platform TEXT NOT NULL,\n        user_id TEXT NOT NULL, role TEXT NOT NULL, event_type TEXT NOT NULL,\n        actor TEXT NOT NULL, created_at TEXT NOT NULL)"
+      },
+      "auth_extensions": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "name",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "applied_at",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          }
+        ],
+        "count": 10,
+        "ddl": "CREATE TABLE auth_extensions (\n                name TEXT PRIMARY KEY, applied_at TEXT NOT NULL)"
+      },
+      "auth_migrations": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "version",
+            "type": "INTEGER",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "applied_at",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          }
+        ],
+        "count": 2,
+        "ddl": "CREATE TABLE auth_migrations (\n        version INTEGER PRIMARY KEY, applied_at TEXT NOT NULL)"
+      },
+      "auth_role_capabilities": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "role",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "capability",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 2
+          }
+        ],
+        "count": 54,
+        "ddl": "CREATE TABLE auth_role_capabilities (\n        role TEXT NOT NULL REFERENCES auth_roles(role),\n        capability TEXT NOT NULL REFERENCES auth_capabilities(capability),\n        PRIMARY KEY(role, capability))"
+      },
+      "auth_role_profiles": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "role",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "profile",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "priority",
+            "type": "INTEGER",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "active",
+            "type": "INTEGER",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          }
+        ],
+        "count": 7,
+        "ddl": "CREATE TABLE auth_role_profiles (\n                role TEXT PRIMARY KEY REFERENCES auth_roles(role),\n                profile TEXT NOT NULL, priority INTEGER NOT NULL CHECK(typeof(priority)='integer'),\n                active INTEGER NOT NULL CHECK(active IN (0,1)))"
+      },
+      "auth_roles": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "role",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "display_name",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          }
+        ],
+        "count": 17,
+        "ddl": "CREATE TABLE auth_roles (\n        role TEXT PRIMARY KEY, display_name TEXT NOT NULL)"
+      },
+      "auth_user_roles": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "platform",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "user_id",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 2
+          },
+          {
+            "cid": 2,
+            "name": "role",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 3
+          },
+          {
+            "cid": 3,
+            "name": "active",
+            "type": "INTEGER",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 4,
+            "name": "assigned_at",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 5,
+            "name": "assigned_by",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 6,
+            "name": "updated_at",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          }
+        ],
+        "count": 24,
+        "ddl": "CREATE TABLE auth_user_roles (\n        platform TEXT NOT NULL, user_id TEXT NOT NULL,\n        role TEXT NOT NULL REFERENCES auth_roles(role),\n        active INTEGER NOT NULL CHECK(active IN (0,1)),\n        assigned_at TEXT NOT NULL, assigned_by TEXT NOT NULL,\n        updated_at TEXT NOT NULL,\n        PRIMARY KEY(platform,user_id,role),\n        FOREIGN KEY(platform,user_id) REFERENCES channel_users(platform,user_id))"
+      },
+      "bale_chat_messages": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "id",
+            "type": "INTEGER",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "user_id",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "chat_id",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "verified_name",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 4,
+            "name": "display_name",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 5,
+            "name": "message_text",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 6,
+            "name": "message_type",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": "'text'",
+            "pk": 0
+          },
+          {
+            "cid": 7,
+            "name": "source_message_id",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 8,
+            "name": "created_at",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          }
+        ],
+        "count": 0,
+        "ddl": "CREATE TABLE bale_chat_messages (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id TEXT NOT NULL, chat_id TEXT NOT NULL, verified_name TEXT, display_name TEXT, message_text TEXT NOT NULL, message_type TEXT NOT NULL DEFAULT 'text', source_message_id TEXT, created_at TEXT NOT NULL)"
+      },
+      "channel_users": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "platform",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "user_id",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 2
+          },
+          {
+            "cid": 2,
+            "name": "chat_id",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "display_name",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 4,
+            "name": "verified_name",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 5,
+            "name": "registration_status",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": "'none'",
+            "pk": 0
+          },
+          {
+            "cid": 6,
+            "name": "first_seen_at",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 7,
+            "name": "verified_at",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 8,
+            "name": "updated_at",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          }
+        ],
+        "count": 24,
+        "ddl": "CREATE TABLE channel_users (platform TEXT NOT NULL, user_id TEXT NOT NULL, chat_id TEXT, display_name TEXT, verified_name TEXT, registration_status TEXT NOT NULL DEFAULT 'none', first_seen_at TEXT NOT NULL, verified_at TEXT, updated_at TEXT NOT NULL, PRIMARY KEY (platform, user_id))"
+      },
+      "registration_events": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "id",
+            "type": "INTEGER",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "telegram_id",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "event_type",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "value",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 4,
+            "name": "created_at",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          }
+        ],
+        "count": 63,
+        "ddl": "CREATE TABLE registration_events (\n            id INTEGER PRIMARY KEY AUTOINCREMENT,\n            telegram_id TEXT NOT NULL,\n            event_type TEXT NOT NULL,\n            value TEXT,\n            created_at TEXT NOT NULL\n        )"
+      },
+      "users": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "telegram_id",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "telegram_display_name",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "verified_name",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "candidate_name",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 4,
+            "name": "registration_status",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": "none",
+            "pk": 0
+          },
+          {
+            "cid": 5,
+            "name": "requested_at",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 6,
+            "name": "verified_at",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 7,
+            "name": "updated_at",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          }
+        ],
+        "count": 16,
+        "ddl": "CREATE TABLE users (telegram_id TEXT PRIMARY KEY, telegram_display_name TEXT, verified_name TEXT, candidate_name TEXT, registration_status TEXT NOT NULL DEFAULT none, requested_at TEXT, verified_at TEXT, updated_at TEXT)"
+      }
+    },
+    "integrity_check": "ok",
+    "access": "verified_readonly_memory_snapshot"
+  },
+  "K-FLEET": {
+    "path": "E:\\KomatsoAI\\data\\fleet\\db\\fleet_ops.db",
+    "bytes": 22814720,
+    "modified_utc": "2026-11-11T08:47:05.936073+00:00",
+    "user_version": 0,
+    "schema_version": 1,
+    "tables": {
+      "daily_fault_report_identity": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "daily_fault_report_id",
+            "type": "INTEGER",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "machine_id",
+            "type": "INTEGER",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "resolution_method",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "resolved_at",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          }
+        ],
+        "count": 6246,
+        "ddl": "CREATE TABLE daily_fault_report_identity (\n            daily_fault_report_id INTEGER PRIMARY KEY,\n\n            machine_id INTEGER NOT NULL,\n\n            resolution_method TEXT NOT NULL,\n            resolved_at TEXT NOT NULL,\n\n            FOREIGN KEY (daily_fault_report_id)\n                REFERENCES daily_fault_reports(id),\n\n            FOREIGN KEY (machine_id)\n                REFERENCES machines(id)\n        )"
+      },
+      "daily_fault_reports": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "id",
+            "type": "INTEGER",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "raw_excel_row_id",
+            "type": "INTEGER",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "ingest_source_id",
+            "type": "INTEGER",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "parser_version",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 4,
+            "name": "report_date",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 5,
+            "name": "sheet_name",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 6,
+            "name": "sheet_index",
+            "type": "INTEGER",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 7,
+            "name": "excel_row",
+            "type": "INTEGER",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 8,
+            "name": "row_no",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 9,
+            "name": "machine_type_raw",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 10,
+            "name": "machine_code_raw",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 11,
+            "name": "mechanical_raw",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 12,
+            "name": "fabrication_raw",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 13,
+            "name": "general_raw",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 14,
+            "name": "normalized_at",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          }
+        ],
+        "count": 6246,
+        "ddl": "CREATE TABLE daily_fault_reports (\n            id INTEGER PRIMARY KEY AUTOINCREMENT,\n\n            raw_excel_row_id INTEGER NOT NULL UNIQUE,\n            ingest_source_id INTEGER NOT NULL,\n\n            parser_version TEXT NOT NULL,\n\n            report_date TEXT NOT NULL,\n            sheet_name TEXT NOT NULL,\n            sheet_index INTEGER NOT NULL,\n            excel_row INTEGER NOT NULL,\n\n            row_no TEXT,\n\n            machine_type_raw TEXT,\n            machine_code_raw TEXT NOT NULL,\n\n            mechanical_raw TEXT,\n            fabrication_raw TEXT,\n            general_raw TEXT,\n\n            normalized_at TEXT NOT NULL,\n\n            FOREIGN KEY (raw_excel_row_id)\n                REFERENCES raw_excel_rows(id),\n\n            FOREIGN KEY (ingest_source_id)\n                REFERENCES ingest_sources(id)\n        )"
+      },
+      "final_copy_meta": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "key",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "value",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          }
+        ],
+        "count": 1,
+        "ddl": "CREATE TABLE final_copy_meta (\n        key TEXT PRIMARY KEY, value TEXT NOT NULL)"
+      },
+      "fleet_settings": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "setting_key",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "setting_value",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "updated_at",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          }
+        ],
+        "count": 1,
+        "ddl": "CREATE TABLE fleet_settings (\n            setting_key TEXT PRIMARY KEY,\n            setting_value TEXT NOT NULL,\n            updated_at TEXT NOT NULL\n        )"
+      },
+      "ingest_sources": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "id",
+            "type": "INTEGER",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "source_type",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "original_filename",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "original_path",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 4,
+            "name": "sha256",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 5,
+            "name": "file_size",
+            "type": "INTEGER",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 6,
+            "name": "source_modified_at",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 7,
+            "name": "imported_at",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 8,
+            "name": "raw_path",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          }
+        ],
+        "count": 4,
+        "ddl": "CREATE TABLE ingest_sources (\n            id INTEGER PRIMARY KEY AUTOINCREMENT,\n            source_type TEXT NOT NULL,\n            original_filename TEXT NOT NULL,\n            original_path TEXT NOT NULL,\n            sha256 TEXT NOT NULL UNIQUE,\n            file_size INTEGER NOT NULL,\n            source_modified_at TEXT,\n            imported_at TEXT NOT NULL,\n            raw_path TEXT NOT NULL\n        )"
+      },
+      "issue_mentions": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "id",
+            "type": "INTEGER",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "daily_fault_report_id",
+            "type": "INTEGER",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "machine_id",
+            "type": "INTEGER",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "report_date",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 4,
+            "name": "field_name",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 5,
+            "name": "fragment_index",
+            "type": "INTEGER",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 6,
+            "name": "raw_fragment",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 7,
+            "name": "issue_family",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 8,
+            "name": "issue_label",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 9,
+            "name": "classification_status",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 10,
+            "name": "parser_version",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 11,
+            "name": "classified_at",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          }
+        ],
+        "count": 20365,
+        "ddl": "CREATE TABLE issue_mentions (\n            id INTEGER PRIMARY KEY AUTOINCREMENT,\n\n            daily_fault_report_id INTEGER NOT NULL,\n            machine_id INTEGER NOT NULL,\n\n            report_date TEXT NOT NULL,\n\n            field_name TEXT NOT NULL,\n            fragment_index INTEGER NOT NULL,\n\n            raw_fragment TEXT NOT NULL,\n\n            issue_family TEXT,\n            issue_label TEXT,\n\n            classification_status TEXT NOT NULL,\n            parser_version TEXT NOT NULL,\n\n            classified_at TEXT NOT NULL,\n\n            UNIQUE (\n                daily_fault_report_id,\n                field_name,\n                fragment_index\n            ),\n\n            FOREIGN KEY (daily_fault_report_id)\n                REFERENCES daily_fault_reports(id),\n\n            FOREIGN KEY (machine_id)\n                REFERENCES machines(id)\n        )"
+      },
+      "issue_state_current": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "machine_id",
+            "type": "INTEGER",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "issue_family",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 2
+          },
+          {
+            "cid": 2,
+            "name": "issue_label",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "first_seen",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 4,
+            "name": "last_seen",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 5,
+            "name": "days_detected",
+            "type": "INTEGER",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 6,
+            "name": "mention_count",
+            "type": "INTEGER",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 7,
+            "name": "repeated",
+            "type": "INTEGER",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 8,
+            "name": "present_on_latest_fleet_date",
+            "type": "INTEGER",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 9,
+            "name": "status",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 10,
+            "name": "fleet_latest_report_date",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 11,
+            "name": "state_version",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 12,
+            "name": "updated_at",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          }
+        ],
+        "count": 89,
+        "ddl": "CREATE TABLE issue_state_current (\n            machine_id INTEGER NOT NULL,\n            issue_family TEXT NOT NULL,\n\n            issue_label TEXT NOT NULL,\n\n            first_seen TEXT NOT NULL,\n            last_seen TEXT NOT NULL,\n\n            days_detected INTEGER NOT NULL,\n            mention_count INTEGER NOT NULL,\n\n            repeated INTEGER NOT NULL,\n            present_on_latest_fleet_date INTEGER NOT NULL,\n\n            status TEXT NOT NULL,\n\n            fleet_latest_report_date TEXT NOT NULL,\n\n            state_version TEXT NOT NULL,\n            updated_at TEXT NOT NULL,\n\n            PRIMARY KEY (\n                machine_id,\n                issue_family\n            ),\n\n            FOREIGN KEY (machine_id)\n                REFERENCES machines(id)\n        )"
+      },
+      "machine_aliases": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "id",
+            "type": "INTEGER",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "machine_id",
+            "type": "INTEGER",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "alias_code",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "alias_type_raw",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": "''",
+            "pk": 0
+          },
+          {
+            "cid": 4,
+            "name": "source_type",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 5,
+            "name": "verified",
+            "type": "INTEGER",
+            "notnull": 1,
+            "dflt_value": "0",
+            "pk": 0
+          },
+          {
+            "cid": 6,
+            "name": "created_at",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          }
+        ],
+        "count": 82,
+        "ddl": "CREATE TABLE machine_aliases (\n            id INTEGER PRIMARY KEY AUTOINCREMENT,\n\n            machine_id INTEGER NOT NULL,\n\n            alias_code TEXT NOT NULL,\n            alias_type_raw TEXT NOT NULL DEFAULT '',\n\n            source_type TEXT NOT NULL,\n\n            verified INTEGER NOT NULL DEFAULT 0,\n\n            created_at TEXT NOT NULL,\n\n            UNIQUE (\n                alias_code,\n                alias_type_raw,\n                source_type\n            ),\n\n            FOREIGN KEY (machine_id)\n                REFERENCES machines(id)\n        )"
+      },
+      "machine_identity_observations": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "raw_code",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "raw_type",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 2
+          },
+          {
+            "cid": 2,
+            "name": "report_count",
+            "type": "INTEGER",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "first_seen",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 4,
+            "name": "last_seen",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 5,
+            "name": "resolution_status",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          }
+        ],
+        "count": 69,
+        "ddl": "CREATE TABLE machine_identity_observations (\n            raw_code TEXT NOT NULL,\n            raw_type TEXT NOT NULL,\n\n            report_count INTEGER NOT NULL,\n            first_seen TEXT,\n            last_seen TEXT,\n\n            resolution_status TEXT NOT NULL,\n\n            PRIMARY KEY (\n                raw_code,\n                raw_type\n            )\n        )"
+      },
+      "machines": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "id",
+            "type": "INTEGER",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "canonical_code",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "machine_type_hint",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "model_key",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 4,
+            "name": "identity_status",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": "'PROVISIONAL'",
+            "pk": 0
+          },
+          {
+            "cid": 5,
+            "name": "created_at",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 6,
+            "name": "updated_at",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          }
+        ],
+        "count": 59,
+        "ddl": "CREATE TABLE machines (\n            id INTEGER PRIMARY KEY AUTOINCREMENT,\n\n            canonical_code TEXT NOT NULL UNIQUE,\n\n            machine_type_hint TEXT,\n            model_key TEXT,\n\n            identity_status TEXT NOT NULL DEFAULT 'PROVISIONAL',\n\n            created_at TEXT NOT NULL,\n            updated_at TEXT NOT NULL\n        )"
+      },
+      "maintenance_event_identity": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "maintenance_event_id",
+            "type": "INTEGER",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "machine_id",
+            "type": "INTEGER",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "resolution_status",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "resolution_method",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 4,
+            "name": "canonical_code_candidate",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 5,
+            "name": "resolved_at",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          }
+        ],
+        "count": 570,
+        "ddl": "CREATE TABLE maintenance_event_identity (\n            maintenance_event_id INTEGER PRIMARY KEY,\n\n            machine_id INTEGER,\n\n            resolution_status TEXT NOT NULL,\n            resolution_method TEXT NOT NULL,\n\n            canonical_code_candidate TEXT,\n\n            resolved_at TEXT NOT NULL,\n\n            FOREIGN KEY (maintenance_event_id)\n                REFERENCES maintenance_events(id),\n\n            FOREIGN KEY (machine_id)\n                REFERENCES machines(id)\n        )"
+      },
+      "maintenance_events": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "id",
+            "type": "INTEGER",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "raw_excel_row_id",
+            "type": "INTEGER",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "ingest_source_id",
+            "type": "INTEGER",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "parser_version",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 4,
+            "name": "event_date_raw",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 5,
+            "name": "machine_code_raw",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 6,
+            "name": "mechanic_raw",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 7,
+            "name": "action_raw",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 8,
+            "name": "parts_raw",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 9,
+            "name": "sheet_name",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 10,
+            "name": "sheet_index",
+            "type": "INTEGER",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 11,
+            "name": "excel_row",
+            "type": "INTEGER",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 12,
+            "name": "normalized_at",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          }
+        ],
+        "count": 570,
+        "ddl": "CREATE TABLE maintenance_events (\n            id INTEGER PRIMARY KEY AUTOINCREMENT,\n\n            raw_excel_row_id INTEGER NOT NULL UNIQUE,\n            ingest_source_id INTEGER NOT NULL,\n\n            parser_version TEXT NOT NULL,\n\n            event_date_raw TEXT,\n\n            machine_code_raw TEXT,\n            mechanic_raw TEXT,\n\n            action_raw TEXT,\n            parts_raw TEXT,\n\n            sheet_name TEXT NOT NULL,\n            sheet_index INTEGER NOT NULL,\n            excel_row INTEGER NOT NULL,\n\n            normalized_at TEXT NOT NULL,\n\n            FOREIGN KEY (raw_excel_row_id)\n                REFERENCES raw_excel_rows(id),\n\n            FOREIGN KEY (ingest_source_id)\n                REFERENCES ingest_sources(id)\n        )"
+      },
+      "raw_excel_rows": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "id",
+            "type": "INTEGER",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "ingest_source_id",
+            "type": "INTEGER",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "source_type",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "original_filename",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 4,
+            "name": "source_imported_at",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 5,
+            "name": "sheet_name",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 6,
+            "name": "sheet_index",
+            "type": "INTEGER",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 7,
+            "name": "excel_row",
+            "type": "INTEGER",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 8,
+            "name": "row_sha256",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 9,
+            "name": "row_json",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 10,
+            "name": "stored_at",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          }
+        ],
+        "count": 14065,
+        "ddl": "CREATE TABLE raw_excel_rows (\n            id INTEGER PRIMARY KEY AUTOINCREMENT,\n\n            ingest_source_id INTEGER NOT NULL,\n\n            source_type TEXT NOT NULL,\n            original_filename TEXT NOT NULL,\n            source_imported_at TEXT NOT NULL,\n\n            sheet_name TEXT NOT NULL,\n            sheet_index INTEGER NOT NULL,\n            excel_row INTEGER NOT NULL,\n\n            row_sha256 TEXT NOT NULL,\n            row_json TEXT NOT NULL,\n\n            stored_at TEXT NOT NULL,\n\n            UNIQUE (\n                ingest_source_id,\n                sheet_index,\n                excel_row\n            ),\n\n            FOREIGN KEY (\n                ingest_source_id\n            )\n            REFERENCES ingest_sources(id)\n        )"
+      },
+      "service_pm_snapshots": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "id",
+            "type": "INTEGER",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "ingest_source_id",
+            "type": "INTEGER",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "machine_id",
+            "type": "INTEGER",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "canonical_code",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 4,
+            "name": "jalali_asof_date",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 5,
+            "name": "next_service_hour",
+            "type": "REAL",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 6,
+            "name": "current_meter_hour",
+            "type": "REAL",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 7,
+            "name": "remaining_hours",
+            "type": "REAL",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 8,
+            "name": "pm_issue_raw",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 9,
+            "name": "oil_analysis_raw",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 10,
+            "name": "source_sheet",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 11,
+            "name": "source_row",
+            "type": "INTEGER",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 12,
+            "name": "created_at",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": "CURRENT_TIMESTAMP",
+            "pk": 0
+          }
+        ],
+        "count": 56,
+        "ddl": "CREATE TABLE service_pm_snapshots (\n    id INTEGER PRIMARY KEY AUTOINCREMENT,\n\n    ingest_source_id INTEGER NOT NULL,\n\n    machine_id INTEGER,\n    canonical_code TEXT NOT NULL,\n\n    jalali_asof_date TEXT,\n\n    next_service_hour REAL,\n    current_meter_hour REAL,\n    remaining_hours REAL,\n\n    pm_issue_raw TEXT,\n    oil_analysis_raw TEXT,\n\n    source_sheet TEXT NOT NULL,\n    source_row INTEGER NOT NULL,\n\n    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,\n\n    UNIQUE (\n        ingest_source_id,\n        source_sheet,\n        source_row\n    )\n)"
+      },
+      "service_shift_hours": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "id",
+            "type": "INTEGER",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "ingest_source_id",
+            "type": "INTEGER",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "machine_id",
+            "type": "INTEGER",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "canonical_code",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 4,
+            "name": "jalali_date",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 5,
+            "name": "shift",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 6,
+            "name": "work_hours",
+            "type": "REAL",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 7,
+            "name": "note",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 8,
+            "name": "raw_value",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 9,
+            "name": "source_sheet",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 10,
+            "name": "source_row",
+            "type": "INTEGER",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 11,
+            "name": "source_col",
+            "type": "INTEGER",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 12,
+            "name": "created_at",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": "CURRENT_TIMESTAMP",
+            "pk": 0
+          }
+        ],
+        "count": 31649,
+        "ddl": "CREATE TABLE service_shift_hours (\n    id INTEGER PRIMARY KEY AUTOINCREMENT,\n\n    ingest_source_id INTEGER NOT NULL,\n\n    machine_id INTEGER,\n    canonical_code TEXT NOT NULL,\n\n    jalali_date TEXT NOT NULL,\n    shift TEXT NOT NULL,\n\n    work_hours REAL,\n    note TEXT,\n    raw_value TEXT,\n\n    source_sheet TEXT NOT NULL,\n    source_row INTEGER NOT NULL,\n    source_col INTEGER NOT NULL,\n\n    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,\n\n    UNIQUE (\n        ingest_source_id,\n        source_sheet,\n        source_row,\n        source_col\n    )\n)"
+      },
+      "service_staff": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "id",
+            "type": "INTEGER",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "display_name",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "bale_id",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "service_role",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 4,
+            "name": "active",
+            "type": "INTEGER",
+            "notnull": 1,
+            "dflt_value": "1",
+            "pk": 0
+          },
+          {
+            "cid": 5,
+            "name": "notes",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 6,
+            "name": "created_at",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": "CURRENT_TIMESTAMP",
+            "pk": 0
+          },
+          {
+            "cid": 7,
+            "name": "updated_at",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": "CURRENT_TIMESTAMP",
+            "pk": 0
+          }
+        ],
+        "count": 7,
+        "ddl": "CREATE TABLE service_staff (\n        id INTEGER PRIMARY KEY AUTOINCREMENT,\n\n        display_name TEXT NOT NULL,\n\n        bale_id TEXT UNIQUE,\n\n        service_role TEXT NOT NULL,\n\n        active INTEGER NOT NULL DEFAULT 1,\n\n        notes TEXT,\n\n        created_at TEXT NOT NULL\n            DEFAULT CURRENT_TIMESTAMP,\n\n        updated_at TEXT NOT NULL\n            DEFAULT CURRENT_TIMESTAMP\n    )"
+      },
+      "service_staff_roster": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "id",
+            "type": "INTEGER",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "display_name",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "staff_id",
+            "type": "INTEGER",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "active",
+            "type": "INTEGER",
+            "notnull": 1,
+            "dflt_value": "1",
+            "pk": 0
+          }
+        ],
+        "count": 4,
+        "ddl": "CREATE TABLE service_staff_roster (\n        id INTEGER PRIMARY KEY, display_name TEXT NOT NULL,\n        staff_id INTEGER NOT NULL REFERENCES service_staff(id), active INTEGER NOT NULL DEFAULT 1\n    )"
+      },
+      "service_work_order_conversation": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "actor",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "chat",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 2
+          },
+          {
+            "cid": 2,
+            "name": "role",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 3
+          },
+          {
+            "cid": 3,
+            "name": "number",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 4,
+            "name": "stage",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          }
+        ],
+        "count": 4,
+        "ddl": "CREATE TABLE service_work_order_conversation (\n                actor TEXT NOT NULL, chat TEXT NOT NULL, role TEXT NOT NULL,\n                number TEXT NOT NULL, stage TEXT NOT NULL,\n                PRIMARY KEY(actor, chat, role))"
+      },
+      "service_work_order_delivery_attempts": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "id",
+            "type": "INTEGER",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "work_order_no",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "state",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "claimed_at",
+            "type": "REAL",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 4,
+            "name": "transfer_started_at",
+            "type": "REAL",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 5,
+            "name": "finished_at",
+            "type": "REAL",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 6,
+            "name": "error",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 7,
+            "name": "decision",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 8,
+            "name": "decided_by",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 9,
+            "name": "decided_at",
+            "type": "REAL",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 10,
+            "name": "decision_reason",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 11,
+            "name": "artifact_path",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          }
+        ],
+        "count": 46,
+        "ddl": "CREATE TABLE service_work_order_delivery_attempts (\n        id INTEGER PRIMARY KEY AUTOINCREMENT,\n        work_order_no TEXT NOT NULL REFERENCES service_work_orders(work_order_no),\n        state TEXT NOT NULL, claimed_at REAL NOT NULL, transfer_started_at REAL,\n        finished_at REAL, error TEXT, decision TEXT, decided_by TEXT,\n        decided_at REAL, decision_reason TEXT, artifact_path TEXT)"
+      },
+      "service_work_order_dispatch": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "work_order_no",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "manager_chat_id",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "recipient_id",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "state",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": "'READY'",
+            "pk": 0
+          },
+          {
+            "cid": 4,
+            "name": "notified_at",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 5,
+            "name": "roster_id",
+            "type": "INTEGER",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 6,
+            "name": "staff_name",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 7,
+            "name": "attempt_id",
+            "type": "INTEGER",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 8,
+            "name": "claimed_at",
+            "type": "REAL",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 9,
+            "name": "transfer_started_at",
+            "type": "REAL",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 10,
+            "name": "updated_at",
+            "type": "REAL",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          }
+        ],
+        "count": 67,
+        "ddl": "CREATE TABLE service_work_order_dispatch (\n        work_order_no TEXT PRIMARY KEY REFERENCES service_work_orders(work_order_no),\n        manager_chat_id TEXT NOT NULL, recipient_id TEXT NOT NULL,\n        state TEXT NOT NULL DEFAULT 'READY', notified_at TEXT\n    , roster_id INTEGER, staff_name TEXT, attempt_id INTEGER, claimed_at REAL, transfer_started_at REAL, updated_at REAL)"
+      },
+      "service_work_order_items": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "id",
+            "type": "INTEGER",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "work_order_id",
+            "type": "INTEGER",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "item_no",
+            "type": "INTEGER",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "machine_id",
+            "type": "INTEGER",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 4,
+            "name": "machine_code",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 5,
+            "name": "machine_name",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 6,
+            "name": "action_code",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 7,
+            "name": "action_text",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 8,
+            "name": "item_status",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": "'PENDING'",
+            "pk": 0
+          },
+          {
+            "cid": 9,
+            "name": "note",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 10,
+            "name": "created_at",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": "CURRENT_TIMESTAMP",
+            "pk": 0
+          },
+          {
+            "cid": 11,
+            "name": "updated_at",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": "CURRENT_TIMESTAMP",
+            "pk": 0
+          }
+        ],
+        "count": 460,
+        "ddl": "CREATE TABLE service_work_order_items (\n        id INTEGER PRIMARY KEY AUTOINCREMENT,\n\n        work_order_id INTEGER NOT NULL,\n\n        item_no INTEGER NOT NULL,\n\n        machine_id INTEGER,\n\n        machine_code TEXT NOT NULL,\n\n        machine_name TEXT,\n\n        action_code TEXT,\n\n        action_text TEXT NOT NULL,\n\n        item_status TEXT NOT NULL\n            DEFAULT 'PENDING',\n\n        note TEXT,\n\n        created_at TEXT NOT NULL\n            DEFAULT CURRENT_TIMESTAMP,\n\n        updated_at TEXT NOT NULL\n            DEFAULT CURRENT_TIMESTAMP,\n\n        FOREIGN KEY (\n            work_order_id\n        )\n        REFERENCES service_work_orders(id)\n        ON UPDATE CASCADE\n        ON DELETE CASCADE,\n\n        FOREIGN KEY (\n            machine_id\n        )\n        REFERENCES machines(id)\n        ON UPDATE CASCADE\n        ON DELETE SET NULL,\n\n        UNIQUE (\n            work_order_id,\n            item_no\n        )\n    )"
+      },
+      "service_work_order_users": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "bale_id",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "role",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "active",
+            "type": "INTEGER",
+            "notnull": 1,
+            "dflt_value": "0",
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "created_at",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": "CURRENT_TIMESTAMP",
+            "pk": 0
+          },
+          {
+            "cid": 4,
+            "name": "updated_at",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": "CURRENT_TIMESTAMP",
+            "pk": 0
+          }
+        ],
+        "count": 3,
+        "ddl": "CREATE TABLE service_work_order_users (\n            bale_id TEXT PRIMARY KEY NOT NULL,\n            role TEXT NOT NULL,\n            active INTEGER NOT NULL DEFAULT 0 CHECK (active IN (0, 1)),\n            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,\n            updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP\n        )"
+      },
+      "service_work_orders": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "id",
+            "type": "INTEGER",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "work_order_no",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "work_order_type",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "jalali_date",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 4,
+            "name": "shift",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 5,
+            "name": "status",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": "'DRAFT'",
+            "pk": 0
+          },
+          {
+            "cid": 6,
+            "name": "assigned_staff_id",
+            "type": "INTEGER",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 7,
+            "name": "template_key",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 8,
+            "name": "excel_path",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 9,
+            "name": "pdf_path",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 10,
+            "name": "notes",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 11,
+            "name": "created_by",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 12,
+            "name": "approved_by",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 13,
+            "name": "send_attempts",
+            "type": "INTEGER",
+            "notnull": 1,
+            "dflt_value": "0",
+            "pk": 0
+          },
+          {
+            "cid": 14,
+            "name": "last_send_error",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 15,
+            "name": "sent_at",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 16,
+            "name": "acknowledged_at",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 17,
+            "name": "created_at",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": "CURRENT_TIMESTAMP",
+            "pk": 0
+          },
+          {
+            "cid": 18,
+            "name": "approved_at",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 19,
+            "name": "finalized_at",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 20,
+            "name": "updated_at",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": "CURRENT_TIMESTAMP",
+            "pk": 0
+          },
+          {
+            "cid": 21,
+            "name": "operation_key",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 22,
+            "name": "oil_service_key",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 23,
+            "name": "revision_of",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 24,
+            "name": "superseded_by",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 25,
+            "name": "reissue_reason",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          }
+        ],
+        "count": 120,
+        "ddl": "CREATE TABLE service_work_orders (\n        id INTEGER PRIMARY KEY AUTOINCREMENT,\n\n        work_order_no TEXT NOT NULL UNIQUE,\n\n        work_order_type TEXT NOT NULL,\n\n        jalali_date TEXT NOT NULL,\n\n        shift TEXT,\n\n        status TEXT NOT NULL\n            DEFAULT 'DRAFT',\n\n        assigned_staff_id INTEGER,\n\n        template_key TEXT,\n\n        excel_path TEXT,\n\n        pdf_path TEXT,\n\n        notes TEXT,\n\n        created_by TEXT,\n\n        approved_by TEXT,\n\n        send_attempts INTEGER NOT NULL\n            DEFAULT 0,\n\n        last_send_error TEXT,\n\n        sent_at TEXT,\n\n        acknowledged_at TEXT,\n\n        created_at TEXT NOT NULL\n            DEFAULT CURRENT_TIMESTAMP,\n\n        approved_at TEXT,\n\n        finalized_at TEXT,\n\n        updated_at TEXT NOT NULL\n            DEFAULT CURRENT_TIMESTAMP, operation_key TEXT, oil_service_key TEXT, revision_of TEXT, superseded_by TEXT, reissue_reason TEXT,\n\n        FOREIGN KEY (\n            assigned_staff_id\n        )\n        REFERENCES service_staff(id)\n        ON UPDATE CASCADE\n        ON DELETE SET NULL\n    )"
+      },
+      "service_year_imports": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "ingest_source_id",
+            "type": "INTEGER",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "jalali_year",
+            "type": "INTEGER",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 2
+          },
+          {
+            "cid": 2,
+            "name": "cycle_start",
+            "type": "INTEGER",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "cycle_end",
+            "type": "INTEGER",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          }
+        ],
+        "count": 2,
+        "ddl": "CREATE TABLE service_year_imports (\n            ingest_source_id INTEGER NOT NULL,\n            jalali_year INTEGER NOT NULL,\n            cycle_start INTEGER NOT NULL,\n            cycle_end INTEGER NOT NULL,\n            PRIMARY KEY (ingest_source_id, jalali_year)\n        )"
+      },
+      "work_order_final_copy": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "work_order_id",
+            "type": "INTEGER",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "artifact_sha256",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 2
+          },
+          {
+            "cid": 2,
+            "name": "recipient_id",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 3
+          },
+          {
+            "cid": 3,
+            "name": "delivery_kind",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 4
+          },
+          {
+            "cid": 4,
+            "name": "artifact_path",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 5,
+            "name": "file_name",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 6,
+            "name": "caption",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 7,
+            "name": "status",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 8,
+            "name": "attempts",
+            "type": "INTEGER",
+            "notnull": 1,
+            "dflt_value": "0",
+            "pk": 0
+          },
+          {
+            "cid": 9,
+            "name": "next_attempt",
+            "type": "REAL",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 10,
+            "name": "claimed_at",
+            "type": "REAL",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 11,
+            "name": "message_id",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 12,
+            "name": "last_error",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 13,
+            "name": "created_at",
+            "type": "REAL",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 14,
+            "name": "updated_at",
+            "type": "REAL",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          }
+        ],
+        "count": 45,
+        "ddl": "CREATE TABLE work_order_final_copy (\n        work_order_id INTEGER NOT NULL REFERENCES service_work_orders(id),\n        artifact_sha256 TEXT NOT NULL, recipient_id TEXT NOT NULL,\n        delivery_kind TEXT NOT NULL CHECK(delivery_kind='final_approved_copy'),\n        artifact_path TEXT, file_name TEXT NOT NULL, caption TEXT NOT NULL,\n        status TEXT NOT NULL, attempts INTEGER NOT NULL DEFAULT 0,\n        next_attempt REAL, claimed_at REAL, message_id TEXT, last_error TEXT,\n        created_at REAL NOT NULL, updated_at REAL NOT NULL,\n        PRIMARY KEY(work_order_id,artifact_sha256,recipient_id,delivery_kind))"
+      }
+    },
+    "integrity_check": "ok",
+    "access": "verified_readonly_memory_snapshot"
+  },
+  "K-ENTRY": {
+    "path": "E:\\KomatsoAI\\runtime\\repairs-entry\\audit.sqlite3",
+    "bytes": 225280,
+    "modified_utc": "2026-11-11T07:43:35.896264+00:00",
+    "user_version": 0,
+    "schema_version": 1,
+    "tables": {
+      "edits": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "operation",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "fingerprint",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "actor",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "source",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 4,
+            "name": "request",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 5,
+            "name": "before_hash",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 6,
+            "name": "after_hash",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 7,
+            "name": "backup",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 8,
+            "name": "status",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 9,
+            "name": "result",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 10,
+            "name": "created",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          }
+        ],
+        "count": 43,
+        "ddl": "CREATE TABLE edits (operation TEXT PRIMARY KEY, fingerprint TEXT,\n                actor TEXT, source TEXT, request TEXT, before_hash TEXT, after_hash TEXT, backup TEXT,\n                status TEXT, result TEXT, created TEXT)"
+      },
+      "entry_correction_reviews": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "operation",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "date",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "section",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "status",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 4,
+            "name": "evidence",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          }
+        ],
+        "count": 0,
+        "ddl": "CREATE TABLE entry_correction_reviews (\n        operation TEXT PRIMARY KEY, date TEXT, section TEXT, status TEXT, evidence TEXT)"
+      },
+      "entry_draft_events": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "id",
+            "type": "INTEGER",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "draft",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "actor",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "chat",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 4,
+            "name": "version",
+            "type": "INTEGER",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 5,
+            "name": "hash",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 6,
+            "name": "event",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 7,
+            "name": "evidence",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 8,
+            "name": "created",
+            "type": "REAL",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          }
+        ],
+        "count": 5,
+        "ddl": "CREATE TABLE entry_draft_events (\n            id INTEGER PRIMARY KEY, draft TEXT, actor TEXT, chat TEXT, version INTEGER,\n            hash TEXT, event TEXT, evidence TEXT, created REAL)"
+      },
+      "entry_drafts": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "id",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "actor",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "chat",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "version",
+            "type": "INTEGER",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 4,
+            "name": "hash",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 5,
+            "name": "payload",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 6,
+            "name": "status",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 7,
+            "name": "text_ok",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 8,
+            "name": "write_ok",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 9,
+            "name": "binding",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 10,
+            "name": "results",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          }
+        ],
+        "count": 1,
+        "ddl": "CREATE TABLE entry_drafts (\n            id TEXT PRIMARY KEY, actor TEXT, chat TEXT, version INTEGER, hash TEXT,\n            payload TEXT, status TEXT, text_ok TEXT, write_ok TEXT, binding TEXT, results TEXT)"
+      },
+      "fault_sync_failures": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "id",
+            "type": "INTEGER",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "source",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "upstream_hash",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "created",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 4,
+            "name": "error",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          }
+        ],
+        "count": 367,
+        "ddl": "CREATE TABLE fault_sync_failures (\n        id INTEGER PRIMARY KEY, source TEXT, upstream_hash TEXT,\n        created TEXT, error TEXT)"
+      },
+      "fault_sync_sources": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "source",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "start_rowid",
+            "type": "INTEGER",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "initial_hash",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "upstream_hash",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 4,
+            "name": "enabled_at",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          }
+        ],
+        "count": 1,
+        "ddl": "CREATE TABLE fault_sync_sources (\n        source TEXT PRIMARY KEY, start_rowid INTEGER NOT NULL,\n        initial_hash TEXT NOT NULL, upstream_hash TEXT NOT NULL, enabled_at TEXT NOT NULL)"
+      }
+    },
+    "integrity_check": "ok",
+    "access": "verified_readonly_memory_snapshot"
+  },
+  "K-MAINT-ENTRY": {
+    "path": "E:\\KomatsoAI\\runtime\\maintenance-entry\\audit.sqlite3",
+    "bytes": 40960,
+    "modified_utc": "2026-11-11T08:55:19.020963+00:00",
+    "user_version": 0,
+    "schema_version": 1,
+    "tables": {
+      "edits": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "operation",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "fingerprint",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "actor",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "source",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 4,
+            "name": "request",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 5,
+            "name": "before_hash",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 6,
+            "name": "after_hash",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 7,
+            "name": "backup",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 8,
+            "name": "status",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 9,
+            "name": "result",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 10,
+            "name": "created",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          }
+        ],
+        "count": 2,
+        "ddl": "CREATE TABLE edits (operation TEXT PRIMARY KEY, fingerprint TEXT,\n                actor TEXT, source TEXT, request TEXT, before_hash TEXT, after_hash TEXT, backup TEXT,\n                status TEXT, result TEXT, created TEXT)"
+      },
+      "entry_correction_reviews": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "operation",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "date",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "section",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "status",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 4,
+            "name": "evidence",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 0
+          }
+        ],
+        "count": 0,
+        "ddl": "CREATE TABLE entry_correction_reviews (\n        operation TEXT PRIMARY KEY, date TEXT, section TEXT, status TEXT, evidence TEXT)"
+      },
+      "maintenance_baseline_events": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "event_id",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "source",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "kind",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "payload",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 4,
+            "name": "sha256",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 5,
+            "name": "created",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          }
+        ],
+        "count": 1,
+        "ddl": "CREATE TABLE maintenance_baseline_events (\n            event_id TEXT PRIMARY KEY, source TEXT NOT NULL UNIQUE, kind TEXT NOT NULL,\n            payload TEXT NOT NULL, sha256 TEXT NOT NULL, created TEXT NOT NULL)"
+      },
+      "maintenance_sync_failures": {
+        "columns": [
+          {
+            "cid": 0,
+            "name": "identity",
+            "type": "TEXT",
+            "notnull": 0,
+            "dflt_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "source",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "local_hash",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "incoming_hash",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 4,
+            "name": "local_snapshot",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 5,
+            "name": "incoming_snapshot",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 6,
+            "name": "reason",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 7,
+            "name": "operations",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 8,
+            "name": "first_seen",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 9,
+            "name": "last_seen",
+            "type": "TEXT",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 10,
+            "name": "attempts",
+            "type": "INTEGER",
+            "notnull": 1,
+            "dflt_value": null,
+            "pk": 0
+          }
+        ],
+        "count": 4,
+        "ddl": "CREATE TABLE maintenance_sync_failures (\n                    identity TEXT PRIMARY KEY, source TEXT NOT NULL,\n                    local_hash TEXT NOT NULL, incoming_hash TEXT NOT NULL,\n                    local_snapshot TEXT NOT NULL, incoming_snapshot TEXT NOT NULL,\n                    reason TEXT NOT NULL, operations TEXT NOT NULL,\n                    first_seen TEXT NOT NULL, last_seen TEXT NOT NULL, attempts INTEGER NOT NULL)"
+      }
+    },
+    "integrity_check": "ok",
+    "access": "verified_readonly_memory_snapshot"
+  },
+  "H-PERSONNEL": {
+    "path": "E:\\HRMS\\data\\personnel\\personnel.sqlite3",
+    "bytes": 876544,
+    "modified_utc": "2026-11-09T07:00:27.580770+00:00",
+    "access": "unavailable",
+    "error_type": "OperationalError",
+    "error_code": "SQLITE_CANTOPEN",
+    "error_message": "unable to open database file"
+  },
+  "H-BOT": {
+    "path": "E:\\HRMS\\integrations\\bale\\.local\\bot.sqlite3",
+    "bytes": 565248,
+    "modified_utc": "2026-11-10T08:29:34.652002+00:00",
+    "access": "unavailable",
+    "error_type": "OperationalError",
+    "error_code": "SQLITE_CANTOPEN",
+    "error_message": "unable to open database file"
+  }
+}
