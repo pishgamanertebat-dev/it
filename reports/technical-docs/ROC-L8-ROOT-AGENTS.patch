@@ -1,0 +1,20 @@
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -70,6 +70,9 @@
+ - R330LC-9S:
+   E:\KomatsoAI\R330LC-9S
+ 
++- ROC-L8 / ROC L8 / ROCL8 (Atlas Copco; documented L830 training variant):
++  E:\KomatsoAI\ROC-L8
++
+ ## Routing
+ 
+ Determine the machine model from the current user message or the previous
+@@ -92,6 +95,7 @@
+ 5)WA600-6
+ 6)HD785-5
+ 7)R330LC-9S
++8)ROC-L8
+ 
+ After the user identifies the model, remember it for the current session.
+ 

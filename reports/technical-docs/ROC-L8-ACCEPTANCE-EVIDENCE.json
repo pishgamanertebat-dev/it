@@ -1,0 +1,1290 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-15",
+  "timezone": "Asia/Tehran",
+  "baseline_head": "ae0466e16478e6e0d43bdd6629bb947cf444e3f2",
+  "acceptance": {
+    "legacy_preservation": {
+      "HD465-7R": true,
+      "HD785-5": true,
+      "HD785-7-B1": true,
+      "HD785-7-B2": true,
+      "PC1250SP-8R": true,
+      "PC800-8": true,
+      "WA600-6-2010": true
+    },
+    "book_stats": {
+      "ROC-L8-D2": {
+        "book_id": "ROC-L8-D2",
+        "pages": 1023,
+        "list_pages": 446,
+        "rows": 5973,
+        "figures": 418,
+        "page_kinds": {
+          "front_or_blank": 25,
+          "unclassified": 1,
+          "identity_only": 45,
+          "contents": 17,
+          "cross_reference": 111,
+          "illustration": 378,
+          "table": 446
+        },
+        "rows_with_pn": 5871,
+        "flagged_rows": 309,
+        "ambiguous_rows": 0,
+        "flags": {
+          "ref_not_printed": 214,
+          "source_part_number_symbol": 102,
+          "part_number_not_readable_or_reference_only": 102,
+          "ref_marker_only": 5
+        },
+        "unlinked_table_pages": [
+          25,
+          47,
+          84,
+          85,
+          86,
+          102,
+          109,
+          174,
+          191,
+          316,
+          317,
+          318,
+          319,
+          320,
+          321,
+          327,
+          451,
+          494,
+          511,
+          516,
+          542,
+          617,
+          635,
+          639,
+          675,
+          680,
+          681,
+          682,
+          683,
+          684,
+          685,
+          686,
+          687,
+          688,
+          689,
+          690,
+          691,
+          692,
+          693,
+          694,
+          705,
+          715,
+          718,
+          725,
+          747,
+          771,
+          837,
+          847,
+          893,
+          908
+        ],
+        "unresolved_see_page": 0,
+        "unclassified_pages": [
+          3
+        ],
+        "ambiguous_header_pages": [],
+        "coverage_complete": false,
+        "verification_status": "INDEXED_PARTIAL_ROUTING_ONLY",
+        "seconds": 12.88,
+        "peak_process_working_set_mib": 100.54
+      },
+      "ROC-L8-LF-D3": {
+        "book_id": "ROC-L8-LF-D3",
+        "pages": 1440,
+        "list_pages": 641,
+        "rows": 7264,
+        "figures": 619,
+        "page_kinds": {
+          "unclassified": 3,
+          "identity_only": 29,
+          "front_or_blank": 20,
+          "contents": 17,
+          "illustration": 598,
+          "table": 641,
+          "cross_reference": 132
+        },
+        "rows_with_pn": 6564,
+        "flagged_rows": 875,
+        "ambiguous_rows": 0,
+        "flags": {
+          "ref_not_printed": 226,
+          "source_part_number_symbol": 700,
+          "part_number_not_readable_or_reference_only": 700,
+          "ref_marker_only": 2
+        },
+        "unlinked_table_pages": [
+          54,
+          142,
+          148,
+          168,
+          194,
+          258,
+          291,
+          472,
+          514,
+          744,
+          832,
+          852,
+          939,
+          940,
+          941,
+          942,
+          943,
+          944,
+          945,
+          946,
+          947,
+          948,
+          949,
+          950,
+          951,
+          952,
+          953,
+          964,
+          965,
+          966,
+          990,
+          1078,
+          1268,
+          1280,
+          1281,
+          1316
+        ],
+        "unresolved_see_page": 0,
+        "unclassified_pages": [
+          1,
+          2,
+          1440
+        ],
+        "ambiguous_header_pages": [],
+        "coverage_complete": false,
+        "verification_status": "INDEXED_PARTIAL_ROUTING_ONLY",
+        "seconds": 25.3,
+        "peak_process_working_set_mib": 126.55
+      }
+    },
+    "source_samples": [
+      {
+        "book_id": "ROC-L8-D2",
+        "part_number": "3222 3138 50",
+        "figure": "3222306420:013K:p377",
+        "item_ref": "38",
+        "pdf_page": 379,
+        "verified": true
+      },
+      {
+        "book_id": "ROC-L8-D2",
+        "part_number": "0211 1480 00",
+        "figure": "3222011488:003K:p45",
+        "item_ref": "23",
+        "pdf_page": 46,
+        "verified": true
+      },
+      {
+        "book_id": "ROC-L8-D2",
+        "part_number": "0574 2276 11",
+        "figure": "3316100104:006D:p665",
+        "item_ref": "P41",
+        "pdf_page": 671,
+        "verified": true
+      },
+      {
+        "book_id": "ROC-L8-D2",
+        "part_number": "3222 3157 59",
+        "figure": "3222315764:005K:p891",
+        "item_ref": "2",
+        "pdf_page": 892,
+        "verified": true
+      },
+      {
+        "book_id": "ROC-L8-D2",
+        "part_number": "0147 1483 03",
+        "figure": "3222306481:001K:p819",
+        "item_ref": "7",
+        "pdf_page": 820,
+        "verified": true
+      },
+      {
+        "book_id": "ROC-L8-D2",
+        "part_number": "3222 3047 12",
+        "figure": "3222308533:011K:p745",
+        "item_ref": "7",
+        "pdf_page": 746,
+        "verified": true
+      },
+      {
+        "book_id": "ROC-L8-D2",
+        "part_number": "3128 3020 18",
+        "figure": "3128301081:010K:p209",
+        "item_ref": "23",
+        "pdf_page": 210,
+        "verified": true
+      },
+      {
+        "book_id": "ROC-L8-D2",
+        "part_number": "0663 6113 00",
+        "figure": "9121740200:003K:p453",
+        "item_ref": "4",
+        "pdf_page": 454,
+        "verified": true
+      },
+      {
+        "book_id": "ROC-L8-D2",
+        "part_number": "0147 1961 01",
+        "figure": "3222063582:019K:p243",
+        "item_ref": "21",
+        "pdf_page": 244,
+        "verified": true
+      },
+      {
+        "book_id": "ROC-L8-D2",
+        "part_number": "3222 3263 01",
+        "figure": "3222309490:004K:p877",
+        "item_ref": "19",
+        "pdf_page": 878,
+        "verified": true
+      },
+      {
+        "book_id": "ROC-L8-D2",
+        "part_number": "3222 3263 48",
+        "figure": "3222309706:007K:p887",
+        "item_ref": "9",
+        "pdf_page": 888,
+        "verified": true
+      },
+      {
+        "book_id": "ROC-L8-D2",
+        "part_number": "3176 6862 00",
+        "figure": "3222318918:001K:p655",
+        "item_ref": "T48",
+        "pdf_page": 656,
+        "verified": true
+      },
+      {
+        "book_id": "ROC-L8-D2",
+        "part_number": "3222 3122 32",
+        "figure": "3222308713:003D:p769",
+        "item_ref": "10",
+        "pdf_page": 770,
+        "verified": true
+      },
+      {
+        "book_id": "ROC-L8-D2",
+        "part_number": "9126 4237 55",
+        "figure": "8232300126:003K:p259",
+        "item_ref": "2",
+        "pdf_page": 260,
+        "verified": true
+      },
+      {
+        "book_id": "ROC-L8-D2",
+        "part_number": "3217 9206 54",
+        "figure": "3217920610:002K:p123",
+        "item_ref": "3",
+        "pdf_page": 124,
+        "verified": true
+      },
+      {
+        "book_id": "ROC-L8-D2",
+        "part_number": "3222 3029 48",
+        "figure": "3222163271:027K:p71",
+        "item_ref": "41",
+        "pdf_page": 73,
+        "verified": true
+      },
+      {
+        "book_id": "ROC-L8-D2",
+        "part_number": "0211 1326 03",
+        "figure": "UNKNOWN:UNKNOWN:p317",
+        "item_ref": "55",
+        "pdf_page": 317,
+        "verified": true
+      },
+      {
+        "book_id": "ROC-L8-D2",
+        "part_number": "3177 3132 00",
+        "figure": "UNKNOWN:UNKNOWN:p685",
+        "item_ref": "19",
+        "pdf_page": 685,
+        "verified": true
+      },
+      {
+        "book_id": "ROC-L8-D2",
+        "part_number": "0371 1100 07",
+        "figure": "3222307474:004K:p855",
+        "item_ref": "14",
+        "pdf_page": 856,
+        "verified": true
+      },
+      {
+        "book_id": "ROC-L8-D2",
+        "part_number": "0335 1122 00",
+        "figure": "3222310602:006K:p253",
+        "item_ref": "16",
+        "pdf_page": 254,
+        "verified": true
+      },
+      {
+        "book_id": "ROC-L8-D2",
+        "part_number": "0147 1398 03",
+        "figure": "3222309928:013K:p197",
+        "item_ref": "15",
+        "pdf_page": 198,
+        "verified": true
+      },
+      {
+        "book_id": "ROC-L8-D2",
+        "part_number": "1616 7098 91",
+        "figure": "8162133402:008K:p102",
+        "item_ref": "60",
+        "pdf_page": 102,
+        "verified": true
+      },
+      {
+        "book_id": "ROC-L8-D2",
+        "part_number": "0570 5160 05",
+        "figure": "1260100123:002K:p692",
+        "item_ref": "47",
+        "pdf_page": 692,
+        "verified": true
+      },
+      {
+        "book_id": "ROC-L8-D2",
+        "part_number": "3176 7341 00",
+        "figure": "1260100123:002K:p680",
+        "item_ref": "4",
+        "pdf_page": 680,
+        "verified": true
+      },
+      {
+        "book_id": "ROC-L8-D2",
+        "part_number": "0196 1552 24",
+        "figure": "9122182603:005K:p207",
+        "item_ref": "13",
+        "pdf_page": 208,
+        "verified": true
+      },
+      {
+        "book_id": "ROC-L8-D2",
+        "part_number": "3176 3051 00",
+        "figure": "1260100123:002K:p684",
+        "item_ref": "18",
+        "pdf_page": 684,
+        "verified": true
+      },
+      {
+        "book_id": "ROC-L8-D2",
+        "part_number": "0697 9803 00",
+        "figure": "3222319261:002K:p909",
+        "item_ref": "16",
+        "pdf_page": 910,
+        "verified": true
+      },
+      {
+        "book_id": "ROC-L8-D2",
+        "part_number": "9106 1071 39",
+        "figure": "3222306489:010K:p433",
+        "item_ref": "6",
+        "pdf_page": 434,
+        "verified": true
+      },
+      {
+        "book_id": "ROC-L8-D2",
+        "part_number": "3216 5295 00",
+        "figure": "3222093782:009K:p437",
+        "item_ref": "13",
+        "pdf_page": 438,
+        "verified": true
+      },
+      {
+        "book_id": "ROC-L8-D2",
+        "part_number": "0291 1128 22",
+        "figure": "3222120081:024K:p183",
+        "item_ref": "35",
+        "pdf_page": 184,
+        "verified": true
+      },
+      {
+        "book_id": "ROC-L8-D2",
+        "part_number": "0661 1026 00",
+        "figure": "3222307546:003K:p477",
+        "item_ref": "12",
+        "pdf_page": 478,
+        "verified": true
+      },
+      {
+        "book_id": "ROC-L8-D2",
+        "part_number": "0574 0330 11",
+        "figure": "3316100104:006D:p665",
+        "item_ref": "DSU2",
+        "pdf_page": 667,
+        "verified": true
+      },
+      {
+        "book_id": "ROC-L8-LF-D3",
+        "part_number": "3222 3056 12",
+        "figure": "3222328495:002K:p630",
+        "item_ref": "6",
+        "pdf_page": 631,
+        "verified": true
+      },
+      {
+        "book_id": "ROC-L8-LF-D3",
+        "part_number": "3222 9860 58",
+        "figure": "3222332005:009K:p988",
+        "item_ref": "17",
+        "pdf_page": 989,
+        "verified": true
+      },
+      {
+        "book_id": "ROC-L8-LF-D3",
+        "part_number": "0147 1481 03",
+        "figure": "3222323649:012K:p306",
+        "item_ref": "16",
+        "pdf_page": 307,
+        "verified": true
+      },
+      {
+        "book_id": "ROC-L8-LF-D3",
+        "part_number": "3176 6521 00",
+        "figure": "UNKNOWN:UNKNOWN:p940",
+        "item_ref": "7",
+        "pdf_page": 940,
+        "verified": true
+      },
+      {
+        "book_id": "ROC-L8-LF-D3",
+        "part_number": "0686 6442 07",
+        "figure": "3222332027:007K:p70",
+        "item_ref": "32",
+        "pdf_page": 72,
+        "verified": true
+      },
+      {
+        "book_id": "ROC-L8-LF-D3",
+        "part_number": "5112 3043 15",
+        "figure": "UNKNOWN:UNKNOWN:p966",
+        "item_ref": "F31",
+        "pdf_page": 966,
+        "verified": true
+      },
+      {
+        "book_id": "ROC-L8-LF-D3",
+        "part_number": "3217 6513 05",
+        "figure": "3222319897:005K:p728",
+        "item_ref": "3",
+        "pdf_page": 729,
+        "verified": true
+      },
+      {
+        "book_id": "ROC-L8-LF-D3",
+        "part_number": "9106 1596 69",
+        "figure": "3222330374:001K:p20",
+        "item_ref": "28",
+        "pdf_page": 21,
+        "verified": true
+      },
+      {
+        "book_id": "ROC-L8-LF-D3",
+        "part_number": "0277 1311 00",
+        "figure": "3222329802:003K:p616",
+        "item_ref": "90",
+        "pdf_page": 618,
+        "verified": true
+      },
+      {
+        "book_id": "ROC-L8-LF-D3",
+        "part_number": "3176 8043 00",
+        "figure": "UNKNOWN:UNKNOWN:p942",
+        "item_ref": "14",
+        "pdf_page": 942,
+        "verified": true
+      },
+      {
+        "book_id": "ROC-L8-LF-D3",
+        "part_number": "0160 6047 00",
+        "figure": "3222328790:004K:p516",
+        "item_ref": "12",
+        "pdf_page": 517,
+        "verified": true
+      },
+      {
+        "book_id": "ROC-L8-LF-D3",
+        "part_number": "3222 3306 00",
+        "figure": "UNKNOWN:UNKNOWN:p1268",
+        "item_ref": "39",
+        "pdf_page": 1268,
+        "verified": true
+      },
+      {
+        "book_id": "ROC-L8-LF-D3",
+        "part_number": "3222 3284 94",
+        "figure": "3222328400:004K:p1252",
+        "item_ref": "5",
+        "pdf_page": 1253,
+        "verified": true
+      },
+      {
+        "book_id": "ROC-L8-LF-D3",
+        "part_number": "3176 0004 12",
+        "figure": "3222326511:004K:p548",
+        "item_ref": "WC10..",
+        "pdf_page": 549,
+        "verified": true
+      },
+      {
+        "book_id": "ROC-L8-LF-D3",
+        "part_number": "0570 5191 09",
+        "figure": "1260100123:002K:p953",
+        "item_ref": "52B",
+        "pdf_page": 953,
+        "verified": true
+      },
+      {
+        "book_id": "ROC-L8-LF-D3",
+        "part_number": "3222 3236 48",
+        "figure": "3222329802:003K:p616",
+        "item_ref": "8",
+        "pdf_page": 617,
+        "verified": true
+      },
+      {
+        "book_id": "ROC-L8-LF-D3",
+        "part_number": "9106 1071 43",
+        "figure": "3222329677:002K:p648",
+        "item_ref": "8",
+        "pdf_page": 649,
+        "verified": true
+      },
+      {
+        "book_id": "ROC-L8-LF-D3",
+        "part_number": "3176 0004 06",
+        "figure": "3222326511:004K:p548",
+        "item_ref": "WC8...",
+        "pdf_page": 549,
+        "verified": true
+      },
+      {
+        "book_id": "ROC-L8-LF-D3",
+        "part_number": "3222 3313 35",
+        "figure": "3222324237:009K:p146",
+        "item_ref": "25",
+        "pdf_page": 147,
+        "verified": true
+      },
+      {
+        "book_id": "ROC-L8-LF-D3",
+        "part_number": "0301 2335 00",
+        "figure": "3222332788:002K:p1200",
+        "item_ref": "5",
+        "pdf_page": 1201,
+        "verified": true
+      },
+      {
+        "book_id": "ROC-L8-LF-D3",
+        "part_number": "0544 2562 00",
+        "figure": "3222323239:011K:p364",
+        "item_ref": "15",
+        "pdf_page": 365,
+        "verified": true
+      },
+      {
+        "book_id": "ROC-L8-LF-D3",
+        "part_number": "0147 1398 03",
+        "figure": "3222330489:003K:p1266",
+        "item_ref": "25",
+        "pdf_page": 1267,
+        "verified": true
+      },
+      {
+        "book_id": "ROC-L8-LF-D3",
+        "part_number": "0147 1323 03",
+        "figure": "3222327065:005K:p158",
+        "item_ref": "8",
+        "pdf_page": 159,
+        "verified": true
+      },
+      {
+        "book_id": "ROC-L8-LF-D3",
+        "part_number": "0147 1485 03",
+        "figure": "3222332699:003K:p60",
+        "item_ref": "4",
+        "pdf_page": 61,
+        "verified": true
+      },
+      {
+        "book_id": "ROC-L8-LF-D3",
+        "part_number": "3217 9204 26",
+        "figure": "3222311156:004K:p702",
+        "item_ref": "16",
+        "pdf_page": 703,
+        "verified": true
+      },
+      {
+        "book_id": "ROC-L8-LF-D3",
+        "part_number": "3176 0004 06",
+        "figure": "3222326511:004K:p1006",
+        "item_ref": "WC8...",
+        "pdf_page": 1007,
+        "verified": true
+      },
+      {
+        "book_id": "ROC-L8-LF-D3",
+        "part_number": "0301 2321 00",
+        "figure": "3222327063:004K:p154",
+        "item_ref": "32",
+        "pdf_page": 156,
+        "verified": true
+      },
+      {
+        "book_id": "ROC-L8-LF-D3",
+        "part_number": "3222 3117 87",
+        "figure": "3222325702:002K:p784",
+        "item_ref": "",
+        "pdf_page": 785,
+        "verified": true
+      },
+      {
+        "book_id": "ROC-L8-LF-D3",
+        "part_number": "3222 9895 61",
+        "figure": "3222328784:004K:p998",
+        "item_ref": "4",
+        "pdf_page": 999,
+        "verified": true
+      },
+      {
+        "book_id": "ROC-L8-LF-D3",
+        "part_number": "3222 3175 65",
+        "figure": "3222311469:003K:p790",
+        "item_ref": "4",
+        "pdf_page": 791,
+        "verified": true
+      },
+      {
+        "book_id": "ROC-L8-LF-D3",
+        "part_number": "3222 3289 51",
+        "figure": "3222324583:002K:p596",
+        "item_ref": "2",
+        "pdf_page": 597,
+        "verified": true
+      },
+      {
+        "book_id": "ROC-L8-LF-D3",
+        "part_number": "0291 1128 15",
+        "figure": "3222323770:006K:p1202",
+        "item_ref": "2",
+        "pdf_page": 1203,
+        "verified": true
+      }
+    ],
+    "sample_passed": 64,
+    "sample_count": 64,
+    "manual_performance": [
+      {
+        "model": "ROC-L8",
+        "question": "feed",
+        "seconds": 0.3696,
+        "searched_pages": 22,
+        "evidence_pages": [
+          118,
+          137,
+          119,
+          120,
+          134
+        ],
+        "full_fallback": false
+      },
+      {
+        "model": "ROC-L8",
+        "question": "compressor",
+        "seconds": 0.0799,
+        "searched_pages": 15,
+        "evidence_pages": [
+          96,
+          94,
+          95,
+          98,
+          93
+        ],
+        "full_fallback": false
+      },
+      {
+        "model": "ROC-L8",
+        "question": "hydraulic",
+        "seconds": 0.2705,
+        "searched_pages": 9,
+        "evidence_pages": [
+          12,
+          11,
+          13,
+          15,
+          14
+        ],
+        "full_fallback": false
+      },
+      {
+        "model": "ROC-L8",
+        "question": "PLC",
+        "seconds": 0.0547,
+        "searched_pages": 12,
+        "evidence_pages": [
+          294,
+          292,
+          298,
+          296,
+          297
+        ],
+        "full_fallback": false
+      },
+      {
+        "model": "PC800-8R",
+        "question": "engine starting",
+        "seconds": 0.4474,
+        "searched_pages": 46,
+        "evidence_pages": [
+          89,
+          307,
+          792,
+          90,
+          311
+        ],
+        "full_fallback": false
+      }
+    ],
+    "part_query_performance": [
+      {
+        "books": [
+          "ROC-L8-D2"
+        ],
+        "part_number": "3222 3115 62",
+        "queries_per_lookup": 1.0,
+        "mean_ms": 2.1083,
+        "min_ms": 1.9234,
+        "max_ms": 5.0314,
+        "rows": 1,
+        "book_ids_in_results": [
+          "ROC-L8-D2"
+        ]
+      },
+      {
+        "books": [
+          "ROC-L8-D2"
+        ],
+        "part_number": "0147 1405 03",
+        "queries_per_lookup": 1.0,
+        "mean_ms": 1.9812,
+        "min_ms": 1.9653,
+        "max_ms": 2.0148,
+        "rows": 3,
+        "book_ids_in_results": [
+          "ROC-L8-D2"
+        ]
+      },
+      {
+        "books": [
+          "ROC-L8-D2",
+          "ROC-L8-LF-D3"
+        ],
+        "part_number": "3222 3115 62",
+        "queries_per_lookup": 1.0,
+        "mean_ms": 7.569,
+        "min_ms": 6.4372,
+        "max_ms": 7.8396,
+        "rows": 2,
+        "book_ids_in_results": [
+          "ROC-L8-D2",
+          "ROC-L8-LF-D3"
+        ]
+      },
+      {
+        "books": [
+          "ROC-L8-D2",
+          "ROC-L8-LF-D3"
+        ],
+        "part_number": "0147 1405 03",
+        "queries_per_lookup": 1.0,
+        "mean_ms": 12.5287,
+        "min_ms": 7.6543,
+        "max_ms": 15.6037,
+        "rows": 6,
+        "book_ids_in_results": [
+          "ROC-L8-D2",
+          "ROC-L8-LF-D3"
+        ]
+      },
+      {
+        "books": [
+          "PC800-8"
+        ],
+        "part_number": "209-01-42232",
+        "queries_per_lookup": 1.0,
+        "mean_ms": 10.339,
+        "min_ms": 9.577,
+        "max_ms": 20.1287,
+        "rows": 1,
+        "book_ids_in_results": [
+          "PC800-8"
+        ]
+      }
+    ],
+    "all_rows_verified": false,
+    "all_machine_fit_verified": false,
+    "header_crosscheck": [
+      {
+        "book_id": "ROC-L8-D2",
+        "independently_detected_header_pages": 446,
+        "recorded_table_pages": 446,
+        "tables_with_rows": 446,
+        "tables_without_rows": [],
+        "source_no_parts_available": [],
+        "unaccounted_headers": []
+      },
+      {
+        "book_id": "ROC-L8-LF-D3",
+        "independently_detected_header_pages": 641,
+        "recorded_table_pages": 641,
+        "tables_with_rows": 633,
+        "tables_without_rows": [
+          245,
+          247,
+          249,
+          251,
+          903,
+          905,
+          907,
+          909
+        ],
+        "source_no_parts_available": [
+          245,
+          247,
+          249,
+          251,
+          903,
+          905,
+          907,
+          909
+        ],
+        "unaccounted_headers": []
+      }
+    ]
+  },
+  "focused_tests": [
+    {
+      "suite": "roc",
+      "folder": "tools",
+      "pattern": "test_roc_l8.py",
+      "exit_code": 0,
+      "seconds": 22.41,
+      "output": "Tool maintenance_manual_evidence returned image content for non-vision model text-fixture/text-fixture; falling back to text summary\r\n----------------------------------------------------------------------\r\nRan 27 tests in 21.142s\r\n\r\nOK\r\n"
+    },
+    {
+      "suite": "manual",
+      "folder": "tools",
+      "pattern": "test_manual_evidence_probe.py",
+      "exit_code": 0,
+      "seconds": 64.22,
+      "output": "----------------------------------------------------------------------\r\nRan 18 tests in 63.106s\r\n\r\nOK\r\n"
+    },
+    {
+      "suite": "preparation",
+      "folder": "tools",
+      "pattern": "test_manual_preparation.py",
+      "exit_code": 0,
+      "seconds": 1.35,
+      "output": "----------------------------------------------------------------------\r\nRan 14 tests in 0.378s\r\n\r\nOK\r\n"
+    },
+    {
+      "suite": "worker",
+      "folder": "tools",
+      "pattern": "test_manual_worker_batch.py",
+      "exit_code": 0,
+      "seconds": 1.27,
+      "output": "----------------------------------------------------------------------\r\nRan 5 tests in 0.162s\r\n\r\nOK\r\n"
+    },
+    {
+      "suite": "render",
+      "folder": "tools/security",
+      "pattern": "test_pdf_region.py",
+      "exit_code": 0,
+      "seconds": 16.55,
+      "output": "Technical image preparation failed: ValueError\r\nTechnical image preparation failed: ValueError\r\nTechnical image preparation failed: ValueError\r\n----------------------------------------------------------------------\r\nRan 18 tests in 15.113s\r\n\r\nOK\r\n"
+    }
+  ],
+  "legacy_baseline_failures": {
+    "tests": 7,
+    "failures": [
+      "test_closed_serial_range_filters_without_dropping_the_raw_note (test_partbook_hd785_5.HD7855PartBook.test_closed_serial_range_filters_without_dropping_the_raw_note)",
+      "test_abbreviated_serial_range (test_partbook_lookup.PartbookB1.test_abbreviated_serial_range)",
+      "test_engine_serial (test_partbook_lookup.PartbookB1.test_engine_serial)",
+      "test_machine_serial_split (test_partbook_lookup.PartbookB1.test_machine_serial_split)",
+      "test_applicability_ranges_and_suffix_ar (test_partbook_pc1250sp.PC1250SPPartBook.test_applicability_ranges_and_suffix_ar)",
+      "test_closed_range_wide_page_and_blank_pn (test_partbook_pc800.PC800PartBook.test_closed_range_wide_page_and_blank_pn)",
+      "test_serial_split_keeps_both_quantities_and_source_ranges (test_partbook_wa600.WA600PartBook.test_serial_split_keeps_both_quantities_and_source_ranges)"
+    ],
+    "errors": [],
+    "source": "pristine git HEAD ae0466e"
+  },
+  "shared_regression": {
+    "tests": 7,
+    "failures": [
+      "test_aliases_come_from_curated_models_and_fail_closed_on_collisions (test_shared_technical.SharedTechnicalTests.test_aliases_come_from_curated_models_and_fail_closed_on_collisions)"
+    ],
+    "errors": [],
+    "pristine_baseline_failures": [
+      "test_aliases_come_from_curated_models_and_fail_closed_on_collisions (test_shared_technical.SharedTechnicalTests.test_aliases_come_from_curated_models_and_fail_closed_on_collisions)"
+    ]
+  },
+  "deployment": {
+    "timestamp_tehran": "20261115T132603",
+    "production": "E:\\KomatsoAI\\runtime\\partbook\\partbook_index.sqlite",
+    "candidate": "E:\\KomatsoAI\\runtime\\roc-l8-onboarding\\acceptance-final.sqlite",
+    "backup": "E:\\KomatsoAI\\runtime\\roc-l8-onboarding\\production-before-ROC-20261115T130855.sqlite",
+    "before_sha256": "51cc20ebff9d471e33acfbe6f877c23e027112acc526bed07c42e174b1bd90ba",
+    "backup_sha256": "64815c762c81875d3c761058aad4902cf2d3984c036926f5b3acf3e4751a2ef9",
+    "candidate_sha256": "6b18429dffeca3d20df5e192cd6a46923bb38207f1d58be97ad1579a231d3a81",
+    "immediate_before_backup": "E:\\KomatsoAI\\runtime\\roc-l8-onboarding\\production-before-ROC-20261115T132603.sqlite",
+    "immediate_before_backup_sha256": "8c6fd4170b2fce73b69f6263bfbd4750c05dcb95cd8886c51643ba914a0abccc",
+    "legacy_preserved": [
+      "HD465-7R",
+      "HD785-5",
+      "HD785-7-B1",
+      "HD785-7-B2",
+      "PC1250SP-8R",
+      "PC800-8",
+      "WA600-6-2010"
+    ],
+    "added_books": [
+      "ROC-L8-D2",
+      "ROC-L8-LF-D3"
+    ],
+    "rollback_rehearsal": "VERIFIED",
+    "gateway_reloaded": false,
+    "gateway_restarted": false,
+    "operational_messages_sent": false,
+    "status": "INDEX_INSTALLED_ACTIVATION_PENDING",
+    "installed_sha256": "6b18429dffeca3d20df5e192cd6a46923bb38207f1d58be97ad1579a231d3a81"
+  },
+  "post_install": {
+    "legacy_meta_keys_preserved": 20,
+    "legacy_figures_fts_rows_preserved": 3848,
+    "production_integrity": "ok",
+    "installed_sha256_matches": true
+  },
+  "final_sources": [
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "unchanged": true
+    },
+    {
+      "document_id": "roc-l8-parts-9853647820d",
+      "unchanged": true
+    },
+    {
+      "document_id": "roc-l8-lf-parts-9853678620",
+      "unchanged": true
+    },
+    {
+      "document_id": "roc-l8-cabin-9840042409",
+      "unchanged": true
+    },
+    {
+      "document_id": "roc-l8-electrical-9840042418",
+      "unchanged": true
+    }
+  ],
+  "media": {
+    "status": "VERIFIED_OFFLINE_ADAPTER",
+    "document_id": "roc-l8-cabin-9840042409",
+    "pdf_page": 2,
+    "bytes": 63625,
+    "photo_bytes_preserved": true,
+    "document_bytes_preserved": true,
+    "real_transport_sent": false,
+    "client_receipt": "UNKNOWN"
+  },
+  "render_performance": [
+    {
+      "image_width": 2859,
+      "image_height": 2021,
+      "image_bytes": 314239,
+      "image_validated": true,
+      "media": "E:/KomatsoAI/artifacts/roc-l8-final-render-benchmark/manual_evidence-p30-crop-12603e235b-b76163bc487040e8a346228f7ae3f466.png",
+      "pdf_page": 30,
+      "region": null,
+      "dpi": 172.79999999999998,
+      "case": "D5 full",
+      "seconds": 0.72
+    },
+    {
+      "image_width": 4533,
+      "image_height": 819,
+      "image_bytes": 164315,
+      "image_validated": true,
+      "media": "E:/KomatsoAI/artifacts/roc-l8-final-render-benchmark/manual_evidence-p30-crop-12603e235b-c6441354453a4f90ac1c714d0fe61168.png",
+      "pdf_page": 30,
+      "region": [
+        0.26,
+        0.185,
+        0.945,
+        0.36
+      ],
+      "dpi": 400.0,
+      "case": "D5 B362 crop",
+      "seconds": 0.4089
+    },
+    {
+      "image_width": 1469,
+      "image_height": 1901,
+      "image_bytes": 321595,
+      "image_validated": true,
+      "media": "E:/KomatsoAI/artifacts/roc-l8-final-render-benchmark/partbook-p2.png",
+      "pdf_page": 2,
+      "region": null,
+      "dpi": 172.79999999999998,
+      "case": "PC800 part page",
+      "seconds": 0.312
+    }
+  ],
+  "agents": {
+    "feed": {
+      "case": "feed",
+      "question": "فید دستگاه ROC-L8 چطور کار می‌کند؟ توضیح عمومی بده و اگر تنظیمات به نسخه وابسته است، محدودیت را بگو.",
+      "model": "gpt-6.1-sol",
+      "session_id": "20261115_125414_61da06",
+      "seconds": 50.92,
+      "api_calls": 3,
+      "tool_calls": [
+        {
+          "name": "maintenance_manual_evidence",
+          "arguments": {
+            "phase": "retrieve",
+            "model": "ROC-L8",
+            "question": "فید دستگاه ROC-L8 چطور کار می‌کند؟ توضیح عمومی بده و اگر تنظیمات به نسخه وابسته است، محدودیت را بگو.",
+            "keywords": "feed system operating principle feed beam hydraulic feed drilling feed force feed speed version differences",
+            "part_query": "feed system"
+          }
+        },
+        {
+          "name": "maintenance_manual_evidence",
+          "arguments": {
+            "phase": "finish",
+            "request_id": "41af101e8a057305164bac89",
+            "render_pages": [
+              119,
+              120
+            ],
+            "web_url": "https://pdfcoffee.com/9852-1670-01-maintenance-instructions-roc-l6-l6h-l8-pdf-free.html"
+          }
+        }
+      ],
+      "final_answer": "**فید، بخش پیشروی و عقب‌کشی مجموعه حفاری روی دکل است.** وظیفه‌اش این است که هنگام حفاری، ابزار را با نیروی کنترل‌شده به سنگ فشار دهد و هنگام نیاز آن را عقب بکشد؛ با دوران ابزار فرق دارد.\n\n### اصول کار\nدر متن آموزشی خانواده ROC L، عملکرد مدار این‌طور توضیح داده شده است:\n\n- **تأمین توان:** روغن مدار فید از پمپ اصلی می‌آید.\n- **فرمان حرکت:** اهرم حفاری، فشار فرمان هیدرولیکی را برای پیشروی یا عقب‌کشی هدایت می‌کند. شیر جهت‌دهنده، روغن را به سیلندر فید می‌فرستد.\n- **کنترل نیروی پیشروی:** مدار تنظیم فشار، فشار کاری فید را کنترل و محدود می‌کند؛ بنابراین فید صرفاً حرکت دادن ابزار نیست، بلکه اعمال فشار کنترل‌شده هنگام حفاری هم هست.\n- **شروع چال و حفاری عادی:** در مدار شرح‌داده‌شده، فشار فید کم برای شروع چال و فشار بالاتر برای حفاری پیش‌بینی شده است.\n- **نگه‌داشتن بار:** شیر نگهدارنده بار روی بلوک سیلندر، در وضعیت توصیف‌شده برای پیشروی، به مهار حرکت ناخواسته ناشی از بار کمک می‌کند.\n- **ضدگیرکردن:** مدار ضدگیر می‌تواند جهت فید را تغییر دهد تا ابزار عقب کشیده شود.\n\n### محدودیت نسخه و تنظیمات\n**این توضیح، اصول عمومی است؛ دستور تنظیم قطعی برای همه ROC-L8ها نیست.** صفحات مربوط به مدار فید در منبع موجود، آموزش مشترک خانواده ROC L هستند. بعضی صفحات مجاور نیز صراحتاً برای **L740CR و L830** برچسب خورده‌اند؛ نباید جزئیات اهرم‌ها و فرمان‌های آن‌ها را بدون تطبیق به L8 تعمیم داد.\n\nبنابراین فشارها، سرعت‌ها، شناسه شیرها و رفتار دقیق کلیدها باید با **شماره سریال و نقشه هیدرولیک/دفترچه همان نسخه دستگاه** تطبیق داده شوند. اعداد درج‌شده در آموزش مشترک را نمی‌توان تنظیم مجاز دستگاه شما دانست.\n\nمبنای توضیح: سند آموزشی **9852 9600 01**، صفحات PDF **۱۱۹ و ۱۲۰**، بخش «Drilling functions».\n\nMEDIA:E:/KomatsoAI/artifacts/20261115_125414_61da06/manual_evidence-p119-crop-08e65c6907-d35437b5e2ce4f55bc254cd5a1eac071.png\nMEDIA:E:/KomatsoAI/artifacts/20261115_125414_61da06/manual_evidence-p120-crop-08e65c6907-86f5f1ac834d47069497328af0eac0c1.png",
+      "transport_sent": false,
+      "operational_session_db": false
+    },
+    "cabin": {
+      "case": "cabin",
+      "question": "نقشه برق کابین ROC-L8 برای X50 و Power board را نشان بده. تصویر واقعی مرتبط بفرست؛ درباره پین‌ها بدون دیدن تصویر حکم نده.",
+      "model": "gpt-6.1-sol",
+      "session_id": "20261115_125702_ee3f8e",
+      "seconds": 28.42,
+      "api_calls": 3,
+      "tool_calls": [
+        {
+          "name": "maintenance_manual_evidence",
+          "arguments": {
+            "phase": "retrieve",
+            "model": "ROC-L8",
+            "question": "نقشه برق کابین ROC-L8 برای X50 و Power board را نشان بده. تصویر واقعی مرتبط بفرست؛ درباره پین‌ها بدون دیدن تصویر حکم نده.",
+            "document_id": "roc-l8-cabin-9840042409",
+            "keywords": "cabin electrical wiring diagram X50 Power board"
+          }
+        },
+        {
+          "name": "maintenance_manual_evidence",
+          "arguments": {
+            "phase": "finish",
+            "request_id": "27f5ad9fef90ef6ca87ac999",
+            "render_pages": [
+              2,
+              4
+            ]
+          }
+        }
+      ],
+      "final_answer": "**تصاویر واقعی نقشه برق کابین** از سند Atlas Copco شماره **9840 0424 09**:\n\n**برگ ۰۲ — چیدمان Power board / Touch panel و X50**\nMEDIA:E:/KomatsoAI/artifacts/20261115_125702_ee3f8e/manual_evidence-p2-crop-538b5a2f68-5d53232d05c741baaec7bc2f9add9cc3.png\n\n**برگ ۰۴ — اتصالات X50**\nMEDIA:E:/KomatsoAI/artifacts/20261115_125702_ee3f8e/manual_evidence-p4-crop-538b5a2f68-9df0d798d37f4ba0b7de8a75eed5ac89.png\n\nدامنه این سند **ROC L MKII با کابین Bosal** است؛ انطباق آن با دستگاه شما هنوز تأیید نشده است. درباره شماره پین‌ها، ولتاژ یا مسیر سیم‌ها بدون بررسی خوانای خود تصویر حکمی نمی‌دهم.",
+      "transport_sent": false,
+      "operational_session_db": false
+    },
+    "part": {
+      "case": "part",
+      "question": "در پارت‌بوک اصلی ROC-L8، شماره 0147 1405 03 را بررسی کن. شماره، تعداد و محدودیت تطابق با دستگاه واقعی را بگو.",
+      "model": "gpt-6.1-sol",
+      "session_id": "20261115_125414_a2899b",
+      "seconds": 17.57,
+      "api_calls": 2,
+      "tool_calls": [
+        {
+          "name": "maintenance_partbook_lookup",
+          "arguments": {
+            "model": "ROC-L8",
+            "question": "در پارت‌بوک اصلی ROC-L8، شماره 0147 1405 03 را بررسی کن. شماره، تعداد و محدودیت تطابق با دستگاه واقعی را بگو.",
+            "part_number": "0147 1405 03"
+          }
+        }
+      ],
+      "final_answer": "شماره **0147 1405 03** در پارت‌بوک اصلی **ROC-L8-D2**، با عنوان روی جلد **ROC L8**، در ردیف‌های واقعی PDF تأیید شد.\n\n**شرح قطعه:** پیچ سرشش‌گوش — مشخصات درج‌شده: `M 12 X 50 - 8.8 FZB`\n\n| مجموعه | شماره مجموعه / ویرایش | آیتم | تعداد درج‌شده | صفحه PDF |\n|---|---|---:|---:|---:|\n| شاسی واگن — WAGON FRAME | `3222 3060 41 / 008K` | ۴ | ۶ | ۱۲ |\n| خشاب — MAGAZINE | `3222 3106 02 / 006K` | ۱۰ | ۵ | ۲۵۴ |\n| خشاب — MAGAZINE | `3222 3106 03 / 005K` | ۱۴ | ۸ | ۲۶۲ |\n\n**محدودیت تطابق با دستگاه واقعی:** وجود قطعه در کتاب تأیید شده، اما **تطابق برای سفارش یا نصب روی دستگاه شما تأیید نشده است**. مدل درخواستی و خانواده دستگاه شناسایی‌شده ROC-L8 است؛ بااین‌حال، کتاب D2 صرفاً منبع اصلی تعیین‌شده است و انطباق آن با دستگاه واقعی هنوز احراز نشده (`OWNER_DEFAULT_SOURCE_FIT_UNCONFIRMED`). شماره سریال دستگاه و بازه سریال تحت پوشش کتاب نیز مشخص نیست.\n\nتعدادهای جدول مربوط به هر مجموعه‌اند؛ **نباید آن‌ها را تعداد کل موردنیاز یک دستگاه فرض کرد**. برای تأیید نهایی، سریال دستگاه و شماره/ویرایش مجموعه نصب‌شده باید تطبیق داده شود. همچنین نمایه کتاب پوشش جزئی دارد؛ این جدول موارد یافت‌شده و تأییدشده است، نه تضمین تمام کاربردهای این شماره در کل کتاب.",
+      "transport_sent": false,
+      "operational_session_db": false
+    },
+    "unknown": {
+      "case": "unknown",
+      "question": "برای ROC-L8 تلرانس دقیق بازسازی میل‌لنگ موتور و گشتاور پیچ یاتاقان اصلی را فقط اگر در منابع موجود واقعاً پیدا می‌شود بگو؛ اگر سند کافی نیست، صریح اعلام کن.",
+      "model": "gpt-6.1-sol",
+      "session_id": "20261115_125702_ba820d",
+      "seconds": 45.0,
+      "api_calls": 3,
+      "tool_calls": [
+        {
+          "name": "maintenance_manual_evidence",
+          "arguments": {
+            "phase": "retrieve",
+            "model": "ROC L8",
+            "question": "برای ROC-L8 تلرانس دقیق بازسازی میل‌لنگ موتور و گشتاور پیچ یاتاقان اصلی را فقط اگر در منابع موجود واقعاً پیدا می‌شود بگو؛ اگر سند کافی نیست، صریح اعلام کن.",
+            "keywords": "engine crankshaft reconditioning grinding tolerances journal undersize main bearing cap bolt tightening torque",
+            "part_query": "engine crankshaft"
+          }
+        },
+        {
+          "name": "maintenance_manual_evidence",
+          "arguments": {
+            "phase": "finish",
+            "request_id": "fddd777584dcc2dde3fc01f8",
+            "render_pages": [],
+            "web_url": "https://pdfcoffee.com/9852-1670-01-maintenance-instructions-roc-l6-l6h-l8-pdf-free.html"
+          }
+        }
+      ],
+      "final_answer": "**در منابع بررسی‌شده، سند کافی برای اعلام هیچ‌یک از این دو مقدار پیدا نشد:**\n\n| مورد | نتیجه |\n|---|---|\n| تلرانس دقیق بازسازی/سنگ‌زنی میل‌لنگ، حدود قطر ژورنال‌ها و سایزهای تعمیراتی مجاز | مقدار مستند و قابل‌اعمال به موتور دستگاه شما یافت نشد. |\n| گشتاور پیچ کپه یاتاقان اصلی، همراه با مراحل و زاویه احتمالی سفت‌کردن | دستور مستند و قابل‌اعمال یافت نشد. |\n\nبخش موتورِ سند آموزشی موجود **ROC-L8_ShopManual.pdf** درباره راه‌اندازی، کنترل و حفاظت موتور است؛ مدرک تعمیر اساسی میل‌لنگ نیست. معرفی موتور در صفحه ۴۰ نیز مشخصاً به **L740، L740CR و L830** مربوط است و نمی‌توان آن را مبنای تعیین موتور ROC-L8 شما قرار داد. [دستور نگهداری ROC L6/L6H/L8](https://pdfcoffee.com/9852-1670-01-maintenance-instructions-roc-l6-l6h-l8-pdf-free.html) بررسی‌شده هم شاهد کافی برای این دو مشخصه فراهم نکرد؛ جدول عمومی گشتاور پیچ‌ها جایگزین دستور اختصاصی یاتاقان اصلی نیست.\n\nبرای تعیین اعداد معتبر، **مدل و شماره‌سریال موتور از روی پلاک، و دفترچه تعمیر اساسی منطبق با همان موتور** لازم است. تا آن زمان، عددی برای سنگ‌زنی یا بستن پیچ‌های یاتاقان پیشنهاد نمی‌کنم.",
+      "transport_sent": false,
+      "operational_session_db": false
+    },
+    "compare": {
+      "case": "compare",
+      "question": "در کتاب اصلی ROC-L8، Ref 4 مجموعه 3222 3060 41 را با Ref 4 مجموعه 3222 3288 28 در کتاب ROC L8(30)LF مقایسه کن. هر منبع را جدا بررسی کن و درباره تطابق با دستگاه واقعی ادعای قطعی نکن.",
+      "model": "gpt-6.1-sol",
+      "session_id": "20261115_130334_7a73c6",
+      "seconds": 33.69,
+      "api_calls": 2,
+      "tool_calls": [
+        {
+          "name": "maintenance_partbook_lookup",
+          "arguments": {
+            "model": "ROC-L8",
+            "question": "در کتاب اصلی ROC-L8، Ref 4 مجموعه 3222 3060 41 را با Ref 4 مجموعه 3222 3288 28 در کتاب ROC L8(30)LF مقایسه کن. هر منبع را جدا بررسی کن و درباره تطابق با دستگاه واقعی ادعای قطعی نکن.",
+            "figure": "3222 3060 41",
+            "item_ref": "4",
+            "book_id": "ROC-L8-D2"
+          }
+        },
+        {
+          "name": "maintenance_partbook_lookup",
+          "arguments": {
+            "model": "ROC-L8",
+            "question": "در کتاب اصلی ROC-L8، Ref 4 مجموعه 3222 3060 41 را با Ref 4 مجموعه 3222 3288 28 در کتاب ROC L8(30)LF مقایسه کن. هر منبع را جدا بررسی کن و درباره تطابق با دستگاه واقعی ادعای قطعی نکن.",
+            "figure": "3222 3288 28",
+            "item_ref": "4",
+            "book_id": "ROC-L8-LF-D3"
+          }
+        }
+      ],
+      "final_answer": "**Ref 4 در دو کتاب، شماره‌قطعه و مشخصات طول متفاوت دارد.** ردیف هر منبع جداگانه در PDF بررسی و تأیید شد:\n\n### ۱) کتاب اصلی ROC-L8 — منبع D2\n- **مجموعه:** `3222 3060 41` — WAGON FRAME / شاسی\n- **ویرایش:** `008K`\n- **Ref:** `4`\n- **شماره‌قطعه:** `0147 1405 03`\n- **شرح:** پیچ سرشش‌گوش — `SCREW, HEX HEAD`\n- **تعداد در مجموعه:** `6`\n- **مشخصات عین منبع:** `M 12 X 50 - 8.8 FZB`\n- **ارجاع:** جدول صفحه PDF **۱۲**، صفحه چاپی **۱۱**؛ نقشه صفحه PDF **۱۱**، شماره نقشه `B0013128`.\n\nMEDIA:E:/KomatsoAI/artifacts/20261115_130334_7a73c6/partbook-p11-crop-98e05cd03a-af789f69c21d4ef3a04cff567cbcbd8e.png\n\n### ۲) کتاب ROC L8(30)LF — منبع مستقل D3\n- **مجموعه:** `3222 3288 28` — WAGON FRAME / شاسی\n- **ویرایش:** `012K`\n- **Ref:** `4`\n- **شماره‌قطعه:** `0147 1960 69`\n- **شرح:** پیچ سرشش‌گوش — `SCREW, HEX HEAD`\n- **تعداد در مجموعه:** `6`\n- **مشخصات عین منبع:** `M 12 X 55 - 8.8 FZB`\n- **ارجاع:** جدول صفحه PDF و چاپی **۳۳**؛ نقشه صفحه PDF و چاپی **۳۲**، شماره نقشه `B0050679`.\n\nMEDIA:E:/KomatsoAI/artifacts/20261115_130334_7a73c6/partbook-p32-crop-6105a5cb1c-e080ea08b4594a3db3917b7d30c1d6fc.png\n\n### نتیجه مقایسه\nشرح، تعداد و مشخصات `M 12`، `8.8` و `FZB` در هر دو ردیف یکسان است؛ اما **شماره‌قطعه و طول درج‌شده متفاوت‌اند: `50` در D2 و `55` در D3.** یکسان بودن Ref به‌معنای یکسان بودن قطعه یا قابلیت جایگزینی نیست؛ Ref فقط در چارچوب مجموعه همان کتاب معنا دارد.\n\n**وجود هر دو قطعه در منبع تأیید شده، ولی تطابق با دستگاه واقعی تأیید نشده است.** D2 منبع پیش‌فرض ROC-L8 است و D3 کتاب مستقل گونه LF؛ سریال دستگاه و دامنه سریال منابع مشخص نیست. بنابراین این مقایسه، تأیید نصب، سفارش یا جایگزینی این دو پیچ با یکدیگر نیست.",
+      "transport_sent": false,
+      "operational_session_db": false
+    },
+    "legacy": {
+      "case": "legacy",
+      "question": "در پارت‌بوک PC800-8R شماره 209-01-42232 را بررسی کن؛ شماره، تعداد و محدودیت تطابق کتاب با دستگاه واقعی را بگو.",
+      "model": "gpt-6.1-sol",
+      "session_id": "20261115_130335_12622a",
+      "seconds": 18.79,
+      "api_calls": 2,
+      "tool_calls": [
+        {
+          "name": "maintenance_partbook_lookup",
+          "arguments": {
+            "model": "PC800-8R",
+            "question": "در پارت‌بوک PC800-8R شماره 209-01-42232 را بررسی کن؛ شماره، تعداد و محدودیت تطابق کتاب با دستگاه واقعی را بگو.",
+            "part_number": "209-01-42232"
+          }
+        }
+      ],
+      "final_answer": "شماره **209-01-42232** در ردیف واقعی PDF تأیید شد:\n\n| مشخصه | اطلاعات پارت‌بوک |\n|---|---|\n| نام قطعه | **BRACKET — براکت / پایه نگهدارنده** |\n| تعداد در مجموعه | **۱ عدد** |\n| مجموعه | برداشت توان — لوله‌کشی روغن‌کاری |\n| شکل / آیتم | **B0600-03A0 / 1** |\n| محدوده سریال درج‌شده | **50001 به بالا** |\n| منبع | `KOMATSU PC800-8 PART BOOK.pdf`، صفحه PDF **۲** |\n\n**محدودیت تطابق:** مدل درخواستی شما **PC800-8R** است، اما کتاب موجود مربوط به **PC800-8** است. بنابراین **وجود شماره و تعداد در کتاب قطعی است؛ مناسب‌بودن آن برای دستگاه واقعی شما هنوز تأیید نشده است.** سریال دستگاه هم مشخص نیست؛ پیش از سفارش یا نصب، تطابق مدل و سریال روی پلاک دستگاه باید بررسی شود.\n\nتصویر صفحه منبع:\nMEDIA:E:/KomatsoAI/artifacts/20261115_130335_12622a/partbook-p2.png",
+      "transport_sent": false,
+      "operational_session_db": false
+    },
+    "b362": {
+      "case": "b362",
+      "question": "از نقشه اصلی برق ROC-L8، اتصال سنسور B362 را از روی تصویر واقعی بخوان: به کدام CPU و ورودی می‌رود، شماره پایه‌های روی سنسور و رنگ سیم خروجی چیست؟ ابتدا شیت واقعی را با inspect_images=true ببین؛ اگر جزئیات خوانا نبود Crop بگیر، بدون شاهد حدس نزن. تصویر مرتبط را هم بده.",
+      "model": "gpt-6.1-sol",
+      "session_id": "20261115_132000_d91f1c",
+      "seconds": 38.09,
+      "api_calls": 4,
+      "tool_calls": [
+        {
+          "name": "maintenance_manual_evidence",
+          "arguments": {
+            "phase": "retrieve",
+            "model": "ROC-L8",
+            "question": "از نقشه اصلی برق ROC-L8، اتصال سنسور B362 را از روی تصویر واقعی بخوان: به کدام CPU و ورودی می‌رود، شماره پایه‌های روی سنسور و رنگ سیم خروجی چیست؟ ابتدا شیت واقعی را با inspect_images=true ببین؛ اگر جزئیات خوانا نبود Crop بگیر، بدون شاهد حدس نزن. تصویر مرتبط را هم بده.",
+            "document_id": "roc-l8-electrical-9840042418",
+            "keywords": "B362 sensor main wiring diagram CPU input sensor pin wire color"
+          }
+        },
+        {
+          "name": "maintenance_manual_evidence",
+          "arguments": {
+            "phase": "finish",
+            "request_id": "f5cc59a4903d7a8830adbdcb",
+            "render_pages": [
+              30
+            ],
+            "inspect_images": true
+          }
+        },
+        {
+          "name": "technical_render_region",
+          "arguments": {
+            "model": "ROC-L8",
+            "source": "shop_manual",
+            "document_id": "roc-l8-electrical-9840042418",
+            "page": 30,
+            "region": [
+              0.26,
+              0.185,
+              0.945,
+              0.36
+            ],
+            "dpi": 400,
+            "inspect_images": true
+          }
+        }
+      ],
+      "final_answer": "از روی **تصویر واقعی شیت ۳۰ از ۴۷** و برش بزرگ‌شدهٔ آن، اتصال **B362 — سنسور دمای روغن هیدرولیک** به این صورت خوانده می‌شود:\n\n| مورد | اتصال درج‌شده در نقشه |\n|---|---|\n| مقصد سیگنال | **CPU3، ورودی/پایهٔ 10** |\n| کانکتور میانی | **X16، پایهٔ 5** |\n| پایهٔ خروجی سنسور | **4**؛ از مسیر **X36:5-1، پایهٔ 4** |\n| رنگ سیم خروجی به سمت CPU | **PK — صورتی** |\n| پایهٔ تغذیهٔ سنسور | **1**؛ متصل به خط **24V/X36** |\n| پایهٔ صفر ولت سنسور | **3**؛ متصل به خط **0V/X36** |\n\nمسیر سیگنال در تصویر:\n**B362/4 → X36:5-1/4 → X16/5 → CPU3/10**\n\n**منبع:** نقشهٔ اصلی برق **9840 0424 18**، عنوان شیت **CPU INPUTS -X36**، مدل درج‌شده روی نقشه **ROC L MKII BOSAL CABIN**. تطبیق این نسخه با دستگاه مشخص شما بدون اطلاعات دستگاه تأیید نشده است.\n\nبرش واقعی مسیر سنسور:\n[[as_document]]\nMEDIA:E:/KomatsoAI/artifacts/20261115_132000_d91f1c/manual_evidence-p30-crop-12603e235b-a6f599712ce64a8ebe0117c1d7f851f7.png",
+      "transport_sent": false,
+      "operational_session_db": false
+    }
+  },
+  "live_gateway_verified": false
+}

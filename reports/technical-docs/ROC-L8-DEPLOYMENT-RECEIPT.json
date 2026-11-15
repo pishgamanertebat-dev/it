@@ -1,0 +1,30 @@
+{
+  "timestamp_tehran": "20261115T132603",
+  "production": "E:\\KomatsoAI\\runtime\\partbook\\partbook_index.sqlite",
+  "candidate": "E:\\KomatsoAI\\runtime\\roc-l8-onboarding\\acceptance-final.sqlite",
+  "backup": "E:\\KomatsoAI\\runtime\\roc-l8-onboarding\\production-before-ROC-20261115T130855.sqlite",
+  "before_sha256": "51cc20ebff9d471e33acfbe6f877c23e027112acc526bed07c42e174b1bd90ba",
+  "backup_sha256": "64815c762c81875d3c761058aad4902cf2d3984c036926f5b3acf3e4751a2ef9",
+  "candidate_sha256": "6b18429dffeca3d20df5e192cd6a46923bb38207f1d58be97ad1579a231d3a81",
+  "immediate_before_backup": "E:\\KomatsoAI\\runtime\\roc-l8-onboarding\\production-before-ROC-20261115T132603.sqlite",
+  "immediate_before_backup_sha256": "8c6fd4170b2fce73b69f6263bfbd4750c05dcb95cd8886c51643ba914a0abccc",
+  "legacy_preserved": [
+    "HD465-7R",
+    "HD785-5",
+    "HD785-7-B1",
+    "HD785-7-B2",
+    "PC1250SP-8R",
+    "PC800-8",
+    "WA600-6-2010"
+  ],
+  "added_books": [
+    "ROC-L8-D2",
+    "ROC-L8-LF-D3"
+  ],
+  "rollback_rehearsal": "VERIFIED",
+  "gateway_reloaded": false,
+  "gateway_restarted": false,
+  "operational_messages_sent": false,
+  "status": "INDEX_INSTALLED_ACTIVATION_PENDING",
+  "installed_sha256": "6b18429dffeca3d20df5e192cd6a46923bb38207f1d58be97ad1579a231d3a81"
+}
