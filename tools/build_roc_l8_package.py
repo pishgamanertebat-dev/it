@@ -64,7 +64,7 @@ def build():
             filename=path.name,sha256=sha,page_count=count,manufacturer='Atlas Copco',
             document_type=['technical_training','parts_book','parts_book','cabin_electrical_diagram','electrical_diagram'][i],
             document_number=['9852 9600 01','9853 6478 20D','9853 6786 20','9840 0424 09','9840 0424 18'][i],
-            revision='D' if i==1 else 'UNKNOWN',copyright_year=[2008,2004,2011,'UNKNOWN','UNKNOWN'][i],
+            revision='UNKNOWN',copyright_year=[2008,2004,2011,'UNKNOWN','UNKNOWN'][i],
             applicable_models=[['L740','L740CR','L830','L630'],['ROC L8'],['ROC L8(30)LF'],['ROC L MKII'],['ROC L MKII']][i],
             model_scope=['Multi-model; per-page applicability required','ROC L8, actual fleet fit UNKNOWN','ROC L8(30)LF only','ROC L MKII, actual rig fit UNKNOWN','ROC L MKII, actual rig fit UNKNOWN'][i],
             cabin_scope='Bosal' if i in (0,3,4) else 'UNKNOWN',serial_scope='UNKNOWN',options_scope='UNKNOWN',
@@ -73,6 +73,7 @@ def build():
             related_documents=([IDS[4]] if i==3 else [IDS[3],IDS[0]] if i==4 else []),
             limitations=['Applicability to actual machine unconfirmed; metadata routes, PDF evidence required']+
                 (['Training binder, not demonstrated complete repair manual','PDF 369 excluded; no OCR'] if i==0 else
+                 ['Document number suffix 20D is preserved; its revision semantics are UNKNOWN'] if i==1 else
                  ['8992 0074 37 --> retained as unclassified cover identifier, not a machine serial'] if i==2 else [])))
     manifest=dict(schema_version=1,model='ROC-L8',page_numbering='one_based_pdf',documents=docs)
     write(folder/'document_manifest.json',manifest)

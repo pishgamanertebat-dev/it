@@ -44,7 +44,7 @@
       "manufacturer": "Atlas Copco",
       "document_type": "parts_book",
       "document_number": "9853 6478 20D",
-      "revision": "D",
+      "revision": "UNKNOWN",
       "copyright_year": 2004,
       "applicable_models": [
         "ROC L8"
@@ -57,7 +57,8 @@
       "source_priority": "owner_default_parts",
       "related_documents": [],
       "limitations": [
-        "Applicability to actual machine unconfirmed; metadata routes, PDF evidence required"
+        "Applicability to actual machine unconfirmed; metadata routes, PDF evidence required",
+        "Document number suffix 20D is preserved; its revision semantics are UNKNOWN"
       ]
     },
     {

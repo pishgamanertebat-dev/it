@@ -15,7 +15,7 @@ Backup کامل پیش از ROC: `E:\KomatsoAI\runtime\roc-l8-onboarding\product
 # پس از هماهنگی بازگشت، همان فرمان با --apply
 ```
 
-فرمان اول فقط اعتبارسنجی است. اگر هش فایل جاری با installed_sha256 برابر نباشد، بازگشت می‌ایستد تا داده جدید بازنویسی نشود. برای خود کد، Commitهای همین شاخه در `ROC-L8-COMMITS.json` ثبت می‌شوند؛ revert باید به‌ترتیب معکوس و با حفظ کارهای بعدی انجام شود.
+فرمان اول فقط اعتبارسنجی است. اگر هش فایل جاری با installed_sha256 برابر نباشد، بازگشت می‌ایستد تا داده جدید بازنویسی نشود. برای خود کد، Commitهای همین شاخه در `ROC-L8-COMMITS.json` ثبت شده‌اند؛ revert باید به‌ترتیب معکوس (اصلاح هویت Revision، تحویل، پیاده‌سازی) و با حفظ کارهای بعدی انجام شود.
 
 AGENTS ریشه از قبل gitignored بود. فقط دو افزودن مسیریابی انجام شد؛ patch در `ROC-L8-ROOT-AGENTS.patch` و Backup/هش در `runtime/roc-l8-onboarding/root-agents-receipt.json` است. کل AGENTS قدیمی به Git وارد نشد. پیش از معکوس‌کردن patch، هش فعلی کنترل شود. AGENTS مستقل ROC در بسته versioned است.
 

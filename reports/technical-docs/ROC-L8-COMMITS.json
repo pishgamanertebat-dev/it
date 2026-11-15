@@ -6,7 +6,7 @@
   "files_sha256": {
     "ROC-L8/AGENTS.md": "dfb507bb06b458c29125ae07852ddd77014e671fdb99d0b4cc458c24d585b3e1",
     "ROC-L8/diagram_index.json": "c679179c56294099b1f1478050dfec84028f684103edf54b8d0e02e6f25fc835",
-    "ROC-L8/document_manifest.json": "d6f5840fcc8f9237dfe74a53f507f46c0c9accc91948e4f54470281e739b792f",
+    "ROC-L8/document_manifest.json": "b08ba18d354c7425e313b657f148d7ed3bc1cce79fc5caf54d3e7badaaf1f8ab",
     "ROC-L8/manual_sections.json": "67a74ffa75b8f94fbe4d365fb3638e7658b19bd4d60c6f4ebd53203de8697007",
     "integrations/hermes/pdf_region.py": "ee593f12b2275c709b761a442812e95629117efed28e9b63b04e242d23c55aac",
     "integrations/hermes/plugins/komatso-technical-docs/ROUTING.md": "41dbd5b5c6235695bc4edab9a81a338a285d244210247fb739c93e49b8705c2f",
@@ -15,7 +15,7 @@
     "reports/technical-docs/ROC-L8-audit-20261115.evidence.json": "c31980fd77c1f2bc54fa636baf006f3901598d341928dd4c457518f40ebf4ab1",
     "tools/bench_roc_l8_agent.py": "148b0ae0c4af004c770dc41766a0b9cea7c4c23aa8a64f77f4e0fb388eaf1788",
     "tools/build_roc_l8_diagrams.py": "86e875dec462729225a731d7c64ae85891cefced5af6a81498bc473aa6b8b579",
-    "tools/build_roc_l8_package.py": "12861c58b640211e2c0c7abeeff0b60a94cd5d82d2f0654c84dcc8ef87cd97ce",
+    "tools/build_roc_l8_package.py": "fc78b1fdacb214cbd7e66a6a4c2a8d198b24c18d3cbaad4341345c83b1f05787",
     "tools/deploy_roc_l8_index.py": "e4e3e6cf719c3c67226bfca1b1967f545eafffd42a3f2dd9c7c5ccf844cf07d8",
     "tools/fleet/partbook_fleet_registry.json": "f27183e95e381045612c84a7d3e216d8c09cba7dcf97abeed0d6a36d3c48e577",
     "tools/fleet/partbook_lookup.py": "a29534a40ee60135a3e96f3d24519903ca6b7b9c6629478bd1b59a902066ea38",
@@ -33,7 +33,10 @@
   "production_index_sha256": "6b18429dffeca3d20df5e192cd6a46923bb38207f1d58be97ad1579a231d3a81",
   "root_agents_patch": "reports/technical-docs/ROC-L8-ROOT-AGENTS.patch",
   "rollback_index": "tools/deploy_roc_l8_index.py --rollback runtime/roc-l8-onboarding/deployment-receipt.json; add --apply only after coordination",
-  "rollback_code": "Revert the handoff and implementation commits in reverse order after checking later work; coordinate any live process change separately.",
+  "rollback_code": "Revert the source-identity correction, handoff and implementation commits in reverse order after checking later work; coordinate any live process change separately.",
   "restart_or_reload_performed": false,
-  "live_verified": false
+  "live_verified": false,
+  "handoff_commit": "af4ca6954e942a650182fa36fbbf4c2448abe7c4",
+  "source_identity_correction": "The commit containing this updated receipt keeps D2 revision UNKNOWN: cover states PM No. 9853 6478 20D without an independently labelled revision.",
+  "correction_commit_reference": "git log -1 --format=%H -- tools/build_roc_l8_package.py"
 }
