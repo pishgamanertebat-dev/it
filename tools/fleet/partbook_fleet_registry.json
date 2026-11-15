@@ -10,10 +10,14 @@
     {"asset_id": "model:HD605-7R", "display_model": "HD605-7R", "identity_scope": "model_group", "aliases": ["HD605-7R", "605-7R", "HD605", "605"], "source_aliases": {}, "book_ids": [], "verified_serial": null},
     {"asset_id": "model:WA600-6", "display_model": "WA600-6", "identity_scope": "model_group", "aliases": ["WA600-6", "600-6", "WA600", "600"], "source_aliases": {}, "book_ids": ["WA600-6-2010"], "verified_serial": null},
     {"asset_id": "model:R330LC-9S", "display_model": "R330LC-9S", "identity_scope": "model_group", "aliases": ["R330LC-9S", "R330", "330"], "source_aliases": {}, "book_ids": [], "verified_serial": null},
-    {"asset_id": "model:PC850-8R", "display_model": "PC850-8R", "identity_scope": "model_group", "aliases": ["PC850-8R", "850-8R", "PC850", "850"], "source_aliases": {}, "book_ids": [], "verified_serial": null}
+    {"asset_id": "model:PC850-8R", "display_model": "PC850-8R", "identity_scope": "model_group", "aliases": ["PC850-8R", "850-8R", "PC850", "850"], "source_aliases": {}, "book_ids": [], "verified_serial": null},
+    {"asset_id": "model:ROC-L8", "display_model": "ROC-L8", "identity_scope": "owner_designated_source_family", "aliases": ["ROC-L8", "ROC L8", "ROCL8", "L830"], "source_aliases": {}, "book_ids": ["ROC-L8-D2"], "default_book_ids": ["ROC-L8-D2"], "verified_serial": null, "supplemental_book_ids": ["ROC-L8-LF-D3"]},
+    {"asset_id": "model:ROC-L8-LF", "display_model": "ROC-L8", "identity_scope": "explicit_independent_lf_source", "aliases": [], "source_aliases": {"ROC L8(30)LF": "ROC-L8-LF-D3", "ROC-L8-LF": "ROC-L8-LF-D3", "ROC L8 LF": "ROC-L8-LF-D3"}, "book_ids": ["ROC-L8-LF-D3"], "default_book_ids": ["ROC-L8-LF-D3"], "verified_serial": null}
   ],
   "sources": {
     "PC1250SP-8R": {"expected_model": "PC1250SP-8R", "cover_model": "PC1250-8R", "identity_status": "COVER_INTERNAL_MODEL_DISCREPANCY", "applicability_evidence": null, "note": "Cover PC1250-8R, 35001-UP; internal indexed banners PC1250SP-8R. Preserve both; do not rename the fleet asset to SP."},
-    "PC800-8": {"expected_model": "PC800-8", "cover_model": "PC800-8", "identity_status": "BOOK_VARIANT_DIFFERS_FROM_FLEET", "applicability_evidence": null, "note": "PC800-8, 50001-UP is a linked source for the approved PC800 family. Fit to PC800-8R remains unconfirmed."}
+    "PC800-8": {"expected_model": "PC800-8", "cover_model": "PC800-8", "identity_status": "BOOK_VARIANT_DIFFERS_FROM_FLEET", "applicability_evidence": null, "note": "PC800-8, 50001-UP is a linked source for the approved PC800 family. Fit to PC800-8R remains unconfirmed."},
+    "ROC-L8-D2": {"expected_model": "ROC-L8", "cover_model": "ROC L8", "document_id": "roc-l8-parts-9853647820d", "document_manifest": "ROC-L8/document_manifest.json", "identity_status": "OWNER_DEFAULT_SOURCE_FIT_UNCONFIRMED", "applicability_evidence": null, "default_search_enabled": true},
+    "ROC-L8-LF-D3": {"expected_model": "ROC L8(30)LF", "cover_model": "ROC L8(30)LF", "document_id": "roc-l8-lf-parts-9853678620", "document_manifest": "ROC-L8/document_manifest.json", "identity_status": "INDEPENDENT_LF_VARIANT_FIT_UNCONFIRMED", "applicability_evidence": null, "default_search_enabled": false}
   }
 }

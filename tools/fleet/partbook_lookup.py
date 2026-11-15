@@ -17,6 +17,7 @@ Examples (native Windows):
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import re
@@ -139,9 +140,15 @@ def search(con, a):
         where.append("o.pn_norm >= ? AND o.pn_norm < ?"); params += [p, p + "\uffff"]
     if a.figure:
         f = a.figure.upper().replace("FIG.", "").strip()
-        where.append("(o.fig_no = ? OR o.fig_no = ?)"); params += [f, "RAW:" + f]
+        if any(b.startswith('ROC-L8') for b in getattr(a,'resolved_book_ids',[])):
+            where.append("(o.fig_no = ? COLLATE NOCASE OR o.fig_no IN (SELECT fig_no FROM atlas_pages WHERE book_id=o.book_id AND replace(assembly_number,' ','')=?))")
+            params += [f, norm_pn(f)]
+        else:
+            where.append("(o.fig_no = ? OR o.fig_no = ?)"); params += [f, "RAW:" + f]
     if a.item is not None:
         where.append("o.item_no = ?"); params.append(a.item)
+    if getattr(a, "item_ref", None):
+        where.append("upper(o.item_raw) = ?"); params.append(a.item_ref.strip().upper())
     if a.group:
         where.append("o.fig_no IN (SELECT fig_no FROM figures WHERE group_code = ? AND book_id=o.book_id)")
         params.append(a.group.upper())
@@ -171,6 +178,9 @@ def verify_rows(cands, con):
         by_pdf.setdefault(c["_source_pdf"], []).append(c)
     pages_read = set()
     for pdf, cs in by_pdf.items():
+        expected={c.get('source_sha256') for c in cs if c.get('document_id')}
+        if expected and expected!={hashlib.sha256((ROOT/pdf).read_bytes()).hexdigest()}:
+            raise ValueError('Registered Parts Book changed; source review and reindex required')
         with pymupdf.open(ROOT / pdf) as doc:
             for c in cs:
                 page = doc[c["pdf_pages"][0] - 1]
@@ -180,8 +190,20 @@ def verify_rows(cands, con):
                 text = " ".join(w[4] for w in sorted(
                     page.get_text("words", clip=r.normalize()),
                     key=lambda w: (w[0], w[1])))
+                if c.get('document_id'):
+                    # Atlas pages are rotated 90 degrees. Verify the row in
+                    # displayed reading order; unrotated x/y reverses spaced PNs.
+                    words=[]
+                    for w in page.get_text('words',clip=r.normalize()):
+                        box=pymupdf.Rect(w[:4])*page.rotation_matrix
+                        words.append((*box,w[4]))
+                    if str(ROOT/'tools') not in sys.path:sys.path.insert(0,str(ROOT/'tools'))
+                    from partbook_index import cluster_rows
+                    text=' '.join(w[4] for line in cluster_rows(words) for w in line)
                 toks = set(text.split())
                 checks = {}
+                if c.get('document_id'):
+                    checks['extraction_unambiguous']=not any(str(flag).startswith('ambiguous') for flag in c.get('flags',[]))
                 if c["part_number_raw"]:
                     checks["part_number"] = (c["part_number_raw"] in toks or
                                               (" " in c["part_number_raw"] and
@@ -214,7 +236,7 @@ def verified_view_candidates(cands):
         return []
     def referenced_figure(candidate):
         return re.search(r"SEE\s+FIG\.?\s*([A-Z0-9-]+)",
-                         candidate.get("description", "").upper())
+                         (candidate.get("description") or "").upper())
 
     primary = [c for c in cands if not referenced_figure(c)]
     primary_figures = {c["figure"].upper() for c in primary}
@@ -244,10 +266,15 @@ def render(cands, label):
             if key not in pages:
                 pages.append(key)
     for pdf, p in pages[:3]:
-        r = subprocess.run([str(PYTHON), str(RENDERER), str(ROOT / pdf), str(p), label],
+        document_id=next((c.get('document_id') for c in cands if c['_source_pdf']==pdf),None)
+        command=[str(PYTHON), str(RENDERER), str(ROOT/pdf), str(p),label]
+        if document_id:command+=['--document-id',document_id]
+        r = subprocess.run(command,
                            capture_output=True, text=True, env=os.environ.copy())
         line = (r.stdout.strip().splitlines() or [""])[-1]
-        out.append({"pdf_page": p, "ok": r.returncode == 0, "output": line or r.stderr.strip()[-300:]})
+        item={"pdf_page": p, "ok": r.returncode == 0, "output": line or r.stderr.strip()[-300:]}
+        if document_id:item['document_id']=document_id
+        out.append(item)
     return out
 
 
@@ -262,6 +289,7 @@ def main(argv=None):
     ap.add_argument("--group")
     ap.add_argument("--figure")
     ap.add_argument("--item", type=int)
+    ap.add_argument("--item-ref", help="Exact printed Ref, including E01 or AIRGR1; preserves --item")
     ap.add_argument("--serial", help="machine serial, e.g. N10050")
     ap.add_argument("--engine-serial", help="engine serial as printed, e.g. 500090")
     ap.add_argument("--book")
@@ -313,6 +341,7 @@ def main(argv=None):
                     any(match is None for match in matches))
         rows.sort(key=serial_priority)
     cands = []
+    atlas_page_cache = {}
     engine_matches = []
     for r in rows:
         ap_rows = apps.get(r["occ_id"], [])
@@ -354,6 +383,21 @@ def main(argv=None):
             "coverage_complete": False, "requires_pdf_verification": True,
             "_source_pdf": book_pdf[r["book_id"]], "_row_bbox": r["row_bbox"],
         })
+        if r["extraction_method"].startswith("atlas-"):
+            detail = con.execute("SELECT * FROM atlas_rows WHERE occ_id=?", (r["occ_id"],)).fetchone()
+            source = registry.get("sources", {}).get(r["book_id"], {})
+            cands[-1].update(document_id=source.get("document_id"),item_ref=r["item_raw"],
+                source_sha256=book_by_id[r['book_id']]['pdf_sha256'],
+                assembly_number=detail[5],revision=detail[6],benamning=detail[1],
+                see_page_raw=detail[2],see_page_targets=json.loads(detail[3]),remarks=detail[4],
+                table_pages=[p["pdf_page"] for p in vp if not p["has_view"]],
+                table_bbox_is_illustration_location=False,fit_status="UNKNOWN")
+            key=(r['book_id'],r['fig_no'])
+            if key not in atlas_page_cache:
+                atlas_page_cache[key]=[dict(p) for p in con.execute(
+                    'SELECT pdf_page,printed_page,drawing,table_sheet,table_sheets,revision,page_kind FROM atlas_pages WHERE book_id=? AND fig_no=? ORDER BY pdf_page',key)]
+            cands[-1]['illustration_references']=[p for p in atlas_page_cache[key] if p['page_kind']=='illustration']
+            cands[-1]['table_references']=[p for p in atlas_page_cache[key] if p['page_kind']=='table']
         engine_matches.append(m)
         if len(cands) >= a.limit:
             break
@@ -364,6 +408,10 @@ def main(argv=None):
     for candidate, engine_match in zip(cands, engine_matches):
         candidate.update(candidate_provenance(candidate, book_by_id[candidate["book_id"]],
                                               resolution, serial, engine_match))
+        if candidate.get("document_id"):
+            candidate["document_verification_status"] = (
+                "VERIFIED_IN_DOCUMENT" if candidate.get("pdf_verification", {}).get("status")=="VERIFIED"
+                else "UNVERIFIED")
     t_verify = time.perf_counter() - t0
     if a.auto_render_verified and not a.verify:
         ap.error("--auto-render-verified requires --verify")

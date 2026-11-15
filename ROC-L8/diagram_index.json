@@ -1,0 +1,3106 @@
+{
+  "schema_version": 1,
+  "page_numbering": "one_based_pdf",
+  "sheets": [
+    {
+      "document_id": "roc-l8-cabin-9840042409",
+      "pdf_page": 1,
+      "printed_sheet_number": "01",
+      "sheet_total": 16,
+      "drawing_number": "9840 0424 09",
+      "drawing_title": "24VDC POWER SUPPLY",
+      "revision": "D",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "کابین",
+        "سیم‌کشی",
+        "مدار"
+      ],
+      "notes": "Title block and sheet visually verified. Pin/wire/component completeness NOT verified; inspect actual sheet. Actual machine fit UNKNOWN.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/sheets-1.png"
+    },
+    {
+      "document_id": "roc-l8-cabin-9840042409",
+      "pdf_page": 2,
+      "printed_sheet_number": "02",
+      "sheet_total": 16,
+      "drawing_number": "9840 0424 09",
+      "drawing_title": "Power board / Touch panel - X50 layout",
+      "revision": "B",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [
+        "X50"
+      ],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "کابین",
+        "سیم‌کشی",
+        "کانکتور"
+      ],
+      "notes": "Title block and sheet visually verified. Pin/wire/component completeness NOT verified; inspect actual sheet. Actual machine fit UNKNOWN.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/sheets-1.png"
+    },
+    {
+      "document_id": "roc-l8-cabin-9840042409",
+      "pdf_page": 3,
+      "printed_sheet_number": "03",
+      "sheet_total": 16,
+      "drawing_number": "9840 0424 09",
+      "drawing_title": "Power connection",
+      "revision": "B",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "کابین",
+        "سیم‌کشی",
+        "مدار"
+      ],
+      "notes": "Title block and sheet visually verified. Pin/wire/component completeness NOT verified; inspect actual sheet. Actual machine fit UNKNOWN.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/sheets-1.png"
+    },
+    {
+      "document_id": "roc-l8-cabin-9840042409",
+      "pdf_page": 4,
+      "printed_sheet_number": "04",
+      "sheet_total": 16,
+      "drawing_number": "9840 0424 09",
+      "drawing_title": "X50 connection",
+      "revision": "B",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [
+        "X50"
+      ],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "کابین",
+        "سیم‌کشی",
+        "کانکتور"
+      ],
+      "notes": "Title block and sheet visually verified. Pin/wire/component completeness NOT verified; inspect actual sheet. Actual machine fit UNKNOWN.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/sheets-1.png"
+    },
+    {
+      "document_id": "roc-l8-cabin-9840042409",
+      "pdf_page": 5,
+      "printed_sheet_number": "05",
+      "sheet_total": 16,
+      "drawing_number": "9840 0424 09",
+      "drawing_title": "AC system and heater connection",
+      "revision": "B",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "کابین",
+        "سیم‌کشی",
+        "مدار"
+      ],
+      "notes": "Title block and sheet visually verified. Pin/wire/component completeness NOT verified; inspect actual sheet. Actual machine fit UNKNOWN.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/sheets-1.png"
+    },
+    {
+      "document_id": "roc-l8-cabin-9840042409",
+      "pdf_page": 6,
+      "printed_sheet_number": "06",
+      "sheet_total": 16,
+      "drawing_number": "9840 0424 09",
+      "drawing_title": "Wiper, sprinkler and chair heat connection",
+      "revision": "B",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "کابین",
+        "سیم‌کشی",
+        "مدار"
+      ],
+      "notes": "Title block and sheet visually verified. Pin/wire/component completeness NOT verified; inspect actual sheet. Actual machine fit UNKNOWN.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/sheets-1.png"
+    },
+    {
+      "document_id": "roc-l8-cabin-9840042409",
+      "pdf_page": 7,
+      "printed_sheet_number": "07",
+      "sheet_total": 16,
+      "drawing_number": "9840 0424 09",
+      "drawing_title": "Radio, WORKING LIGHT, 12V out connection",
+      "revision": "C",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "کابین",
+        "سیم‌کشی",
+        "مدار"
+      ],
+      "notes": "Title block and sheet visually verified. Pin/wire/component completeness NOT verified; inspect actual sheet. Actual machine fit UNKNOWN.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/sheets-2.png"
+    },
+    {
+      "document_id": "roc-l8-cabin-9840042409",
+      "pdf_page": 8,
+      "printed_sheet_number": "08",
+      "sheet_total": 16,
+      "drawing_number": "9840 0424 09",
+      "drawing_title": "Cab. light, ignition-emergency stop connection",
+      "revision": "C",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "کابین",
+        "سیم‌کشی",
+        "مدار"
+      ],
+      "notes": "Title block and sheet visually verified. Pin/wire/component completeness NOT verified; inspect actual sheet. Actual machine fit UNKNOWN.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/sheets-2.png"
+    },
+    {
+      "document_id": "roc-l8-cabin-9840042409",
+      "pdf_page": 9,
+      "printed_sheet_number": "09",
+      "sheet_total": 16,
+      "drawing_number": "9840 0424 09",
+      "drawing_title": "Switch layout DTH",
+      "revision": "C",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "کابین",
+        "سیم‌کشی",
+        "مدار"
+      ],
+      "notes": "Title block and sheet visually verified. Pin/wire/component completeness NOT verified; inspect actual sheet. Actual machine fit UNKNOWN.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/sheets-2.png"
+    },
+    {
+      "document_id": "roc-l8-cabin-9840042409",
+      "pdf_page": 10,
+      "printed_sheet_number": "10",
+      "sheet_total": 16,
+      "drawing_number": "9840 0424 09",
+      "drawing_title": "Switch layout TH",
+      "revision": "C",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "کابین",
+        "سیم‌کشی",
+        "مدار"
+      ],
+      "notes": "Title block and sheet visually verified. Pin/wire/component completeness NOT verified; inspect actual sheet. Actual machine fit UNKNOWN.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/sheets-2.png"
+    },
+    {
+      "document_id": "roc-l8-cabin-9840042409",
+      "pdf_page": 11,
+      "printed_sheet_number": "11",
+      "sheet_total": 16,
+      "drawing_number": "9840 0424 09",
+      "drawing_title": "Switch layout CR",
+      "revision": "C",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "کابین",
+        "سیم‌کشی",
+        "مدار"
+      ],
+      "notes": "Title block and sheet visually verified. Pin/wire/component completeness NOT verified; inspect actual sheet. Actual machine fit UNKNOWN.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/sheets-2.png"
+    },
+    {
+      "document_id": "roc-l8-cabin-9840042409",
+      "pdf_page": 12,
+      "printed_sheet_number": "12",
+      "sheet_total": 16,
+      "drawing_number": "9840 0424 09",
+      "drawing_title": "Switch connection",
+      "revision": "C",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "کابین",
+        "سیم‌کشی",
+        "مدار"
+      ],
+      "notes": "Title block and sheet visually verified. Pin/wire/component completeness NOT verified; inspect actual sheet. Actual machine fit UNKNOWN.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/sheets-2.png"
+    },
+    {
+      "document_id": "roc-l8-cabin-9840042409",
+      "pdf_page": 13,
+      "printed_sheet_number": "13",
+      "sheet_total": 16,
+      "drawing_number": "9840 0424 09",
+      "drawing_title": "Drill Stick connection",
+      "revision": "C",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "کابین",
+        "سیم‌کشی",
+        "مدار"
+      ],
+      "notes": "Title block and sheet visually verified. Pin/wire/component completeness NOT verified; inspect actual sheet. Actual machine fit UNKNOWN.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/sheets-3.png"
+    },
+    {
+      "document_id": "roc-l8-cabin-9840042409",
+      "pdf_page": 14,
+      "printed_sheet_number": "14",
+      "sheet_total": 16,
+      "drawing_number": "9840 0424 09",
+      "drawing_title": "Switch connection",
+      "revision": "D",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "کابین",
+        "سیم‌کشی",
+        "مدار"
+      ],
+      "notes": "Title block and sheet visually verified. Pin/wire/component completeness NOT verified; inspect actual sheet. Actual machine fit UNKNOWN.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/sheets-3.png"
+    },
+    {
+      "document_id": "roc-l8-cabin-9840042409",
+      "pdf_page": 15,
+      "printed_sheet_number": "15",
+      "sheet_total": 16,
+      "drawing_number": "9840 0424 09",
+      "drawing_title": "Cable connection",
+      "revision": "C",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "کابین",
+        "سیم‌کشی",
+        "مدار"
+      ],
+      "notes": "Title block and sheet visually verified. Pin/wire/component completeness NOT verified; inspect actual sheet. Actual machine fit UNKNOWN.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/sheets-3.png"
+    },
+    {
+      "document_id": "roc-l8-cabin-9840042409",
+      "pdf_page": 16,
+      "printed_sheet_number": "16",
+      "sheet_total": 16,
+      "drawing_number": "9840 0424 09",
+      "drawing_title": "Cable connection",
+      "revision": "C",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "کابین",
+        "سیم‌کشی",
+        "مدار"
+      ],
+      "notes": "Title block and sheet visually verified. Pin/wire/component completeness NOT verified; inspect actual sheet. Actual machine fit UNKNOWN.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/sheets-3.png"
+    },
+    {
+      "document_id": "roc-l8-electrical-9840042418",
+      "pdf_page": 1,
+      "printed_sheet_number": "01",
+      "sheet_total": 47,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CROSS REFERENCES LIST",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [
+        "B362"
+      ],
+      "connector_identifiers": [],
+      "referenced_sheets": [
+        {
+          "document_id": "roc-l8-electrical-9840042418",
+          "sheet": 30,
+          "basis": "B362 30 visually read on cross references list"
+        }
+      ],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "اصلی",
+        "سیم‌کشی",
+        "مدار"
+      ],
+      "notes": "Title block and sheet visually verified. Pin/wire/component completeness NOT verified; inspect actual sheet. Actual machine fit UNKNOWN.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/sheets-3.png"
+    },
+    {
+      "document_id": "roc-l8-electrical-9840042418",
+      "pdf_page": 2,
+      "printed_sheet_number": "02",
+      "sheet_total": 47,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "GENERAL INFORMATION",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "اصلی",
+        "سیم‌کشی",
+        "مدار"
+      ],
+      "notes": "Title block and sheet visually verified. Pin/wire/component completeness NOT verified; inspect actual sheet. Actual machine fit UNKNOWN.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/sheets-3.png"
+    },
+    {
+      "document_id": "roc-l8-electrical-9840042418",
+      "pdf_page": 3,
+      "printed_sheet_number": "03",
+      "sheet_total": 47,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "24VDC POWER SUPPLY",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "اصلی",
+        "سیم‌کشی",
+        "مدار"
+      ],
+      "notes": "Title block and sheet visually verified. Pin/wire/component completeness NOT verified; inspect actual sheet. Actual machine fit UNKNOWN.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/sheets-4.png"
+    },
+    {
+      "document_id": "roc-l8-electrical-9840042418",
+      "pdf_page": 4,
+      "printed_sheet_number": "04",
+      "sheet_total": 47,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "24VDC POWER SUPPLY",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "اصلی",
+        "سیم‌کشی",
+        "مدار"
+      ],
+      "notes": "Title block and sheet visually verified. Pin/wire/component completeness NOT verified; inspect actual sheet. Actual machine fit UNKNOWN.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/sheets-4.png"
+    },
+    {
+      "document_id": "roc-l8-electrical-9840042418",
+      "pdf_page": 5,
+      "printed_sheet_number": "05",
+      "sheet_total": 47,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "24VDC POWER SUPPLY",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "اصلی",
+        "سیم‌کشی",
+        "مدار"
+      ],
+      "notes": "Title block and sheet visually verified. Pin/wire/component completeness NOT verified; inspect actual sheet. Actual machine fit UNKNOWN.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/sheets-4.png"
+    },
+    {
+      "document_id": "roc-l8-electrical-9840042418",
+      "pdf_page": 6,
+      "printed_sheet_number": "06",
+      "sheet_total": 47,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "IGNITION KEY, EMERGENCY STOP",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [
+        {
+          "document_id": "roc-l8-cabin-9840042409",
+          "sheet": "UNKNOWN",
+          "basis": "Visible SEE DRAWING 9840 0424 09"
+        }
+      ],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "اصلی",
+        "سیم‌کشی",
+        "مدار"
+      ],
+      "notes": "Title block and sheet visually verified. Pin/wire/component completeness NOT verified; inspect actual sheet. Actual machine fit UNKNOWN.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/sheets-4.png"
+    },
+    {
+      "document_id": "roc-l8-electrical-9840042418",
+      "pdf_page": 7,
+      "printed_sheet_number": "07",
+      "sheet_total": 47,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "ECM (ELECTRONIC CONTROL MODULE)",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "اصلی",
+        "سیم‌کشی",
+        "مدار"
+      ],
+      "notes": "Title block and sheet visually verified. Pin/wire/component completeness NOT verified; inspect actual sheet. Actual machine fit UNKNOWN.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/sheets-4.png"
+    },
+    {
+      "document_id": "roc-l8-electrical-9840042418",
+      "pdf_page": 8,
+      "printed_sheet_number": "08",
+      "sheet_total": 47,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "WORKLIGHTS",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "اصلی",
+        "سیم‌کشی",
+        "مدار"
+      ],
+      "notes": "Title block and sheet visually verified. Pin/wire/component completeness NOT verified; inspect actual sheet. Actual machine fit UNKNOWN.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/sheets-4.png"
+    },
+    {
+      "document_id": "roc-l8-electrical-9840042418",
+      "pdf_page": 9,
+      "printed_sheet_number": "09",
+      "sheet_total": 47,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "0V IN CABIN, SPARE WIRING",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "اصلی",
+        "سیم‌کشی",
+        "مدار"
+      ],
+      "notes": "Title block and sheet visually verified. Pin/wire/component completeness NOT verified; inspect actual sheet. Actual machine fit UNKNOWN.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/sheets-5.png"
+    },
+    {
+      "document_id": "roc-l8-electrical-9840042418",
+      "pdf_page": 10,
+      "printed_sheet_number": "10",
+      "sheet_total": 47,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "A1 LIGHT, M20, H226, 24V TO X-BOXES",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [
+        "A1",
+        "M20",
+        "H226"
+      ],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "اصلی",
+        "سیم‌کشی",
+        "مدار"
+      ],
+      "notes": "Title block and sheet visually verified. Pin/wire/component completeness NOT verified; inspect actual sheet. Actual machine fit UNKNOWN.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/sheets-5.png"
+    },
+    {
+      "document_id": "roc-l8-electrical-9840042418",
+      "pdf_page": 11,
+      "printed_sheet_number": "11",
+      "sheet_total": 47,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CLIMATE CONTROL SYSTEM",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "اصلی",
+        "سیم‌کشی",
+        "مدار"
+      ],
+      "notes": "Title block and sheet visually verified. Pin/wire/component completeness NOT verified; inspect actual sheet. Actual machine fit UNKNOWN.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/sheets-5.png"
+    },
+    {
+      "document_id": "roc-l8-electrical-9840042418",
+      "pdf_page": 12,
+      "printed_sheet_number": "12",
+      "sheet_total": 47,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CLIMATE CONTROL SYSTEM",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "اصلی",
+        "سیم‌کشی",
+        "مدار"
+      ],
+      "notes": "Title block and sheet visually verified. Pin/wire/component completeness NOT verified; inspect actual sheet. Actual machine fit UNKNOWN.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/sheets-5.png"
+    },
+    {
+      "document_id": "roc-l8-electrical-9840042418",
+      "pdf_page": 13,
+      "printed_sheet_number": "13",
+      "sheet_total": 47,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CPU PROGRAM. CONNECTORS X31 AND X32 (A1)",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [
+        "A1"
+      ],
+      "connector_identifiers": [
+        "X31",
+        "X32"
+      ],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "اصلی",
+        "سیم‌کشی",
+        "کانکتور"
+      ],
+      "notes": "Title block and sheet visually verified. Pin/wire/component completeness NOT verified; inspect actual sheet. Actual machine fit UNKNOWN.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/sheets-5.png"
+    },
+    {
+      "document_id": "roc-l8-electrical-9840042418",
+      "pdf_page": 14,
+      "printed_sheet_number": "14",
+      "sheet_total": 47,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CPU PROGRAMMING CONNECTOR X33 (INSIDE A1)",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [
+        "A1"
+      ],
+      "connector_identifiers": [
+        "X33"
+      ],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "اصلی",
+        "سیم‌کشی",
+        "کانکتور"
+      ],
+      "notes": "Title block and sheet visually verified. Pin/wire/component completeness NOT verified; inspect actual sheet. Actual machine fit UNKNOWN.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/sheets-5.png"
+    },
+    {
+      "document_id": "roc-l8-electrical-9840042418",
+      "pdf_page": 15,
+      "printed_sheet_number": "15",
+      "sheet_total": 47,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CABIN MODULE D550",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [
+        "D550"
+      ],
+      "connector_identifiers": [],
+      "referenced_sheets": [
+        {
+          "document_id": "roc-l8-cabin-9840042409",
+          "sheet": "UNKNOWN",
+          "basis": "Visible SEE DRAWING 9840 0424 09"
+        }
+      ],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "اصلی",
+        "سیم‌کشی",
+        "مدار"
+      ],
+      "notes": "Title block and sheet visually verified. Pin/wire/component completeness NOT verified; inspect actual sheet. Actual machine fit UNKNOWN.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/sheets-6.png"
+    },
+    {
+      "document_id": "roc-l8-electrical-9840042418",
+      "pdf_page": 16,
+      "printed_sheet_number": "16",
+      "sheet_total": 47,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CABIN MODULE D550",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [
+        "D550"
+      ],
+      "connector_identifiers": [],
+      "referenced_sheets": [
+        {
+          "document_id": "roc-l8-cabin-9840042409",
+          "sheet": "UNKNOWN",
+          "basis": "Visible SEE DRAWING 9840 0424 09"
+        }
+      ],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "اصلی",
+        "سیم‌کشی",
+        "مدار"
+      ],
+      "notes": "Title block and sheet visually verified. Pin/wire/component completeness NOT verified; inspect actual sheet. Actual machine fit UNKNOWN.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/sheets-6.png"
+    },
+    {
+      "document_id": "roc-l8-electrical-9840042418",
+      "pdf_page": 17,
+      "printed_sheet_number": "17",
+      "sheet_total": 47,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CABIN MODULE D551",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [
+        "D551"
+      ],
+      "connector_identifiers": [],
+      "referenced_sheets": [
+        {
+          "document_id": "roc-l8-cabin-9840042409",
+          "sheet": "UNKNOWN",
+          "basis": "Visible SEE DRAWING 9840 0424 09"
+        }
+      ],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "اصلی",
+        "سیم‌کشی",
+        "مدار"
+      ],
+      "notes": "Title block and sheet visually verified. Pin/wire/component completeness NOT verified; inspect actual sheet. Actual machine fit UNKNOWN.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/sheets-6.png"
+    },
+    {
+      "document_id": "roc-l8-electrical-9840042418",
+      "pdf_page": 18,
+      "printed_sheet_number": "18",
+      "sheet_total": 47,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CABIN MODULE D551",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [
+        "D551"
+      ],
+      "connector_identifiers": [],
+      "referenced_sheets": [
+        {
+          "document_id": "roc-l8-cabin-9840042409",
+          "sheet": "UNKNOWN",
+          "basis": "Visible SEE DRAWING 9840 0424 09"
+        }
+      ],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "اصلی",
+        "سیم‌کشی",
+        "مدار"
+      ],
+      "notes": "Title block and sheet visually verified. Pin/wire/component completeness NOT verified; inspect actual sheet. Actual machine fit UNKNOWN.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/sheets-6.png"
+    },
+    {
+      "document_id": "roc-l8-electrical-9840042418",
+      "pdf_page": 19,
+      "printed_sheet_number": "19",
+      "sheet_total": 47,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CABIN MODULE D553",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [
+        "D553"
+      ],
+      "connector_identifiers": [],
+      "referenced_sheets": [
+        {
+          "document_id": "roc-l8-cabin-9840042409",
+          "sheet": "UNKNOWN",
+          "basis": "Visible SEE DRAWING 9840 0424 09"
+        }
+      ],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "اصلی",
+        "سیم‌کشی",
+        "مدار"
+      ],
+      "notes": "Title block and sheet visually verified. Pin/wire/component completeness NOT verified; inspect actual sheet. Actual machine fit UNKNOWN.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/sheets-6.png"
+    },
+    {
+      "document_id": "roc-l8-electrical-9840042418",
+      "pdf_page": 20,
+      "printed_sheet_number": "20",
+      "sheet_total": 47,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CABIN MODULE D553",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [
+        "D553"
+      ],
+      "connector_identifiers": [],
+      "referenced_sheets": [
+        {
+          "document_id": "roc-l8-cabin-9840042409",
+          "sheet": "UNKNOWN",
+          "basis": "Visible SEE DRAWING 9840 0424 09"
+        }
+      ],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "اصلی",
+        "سیم‌کشی",
+        "مدار"
+      ],
+      "notes": "Title block and sheet visually verified. Pin/wire/component completeness NOT verified; inspect actual sheet. Actual machine fit UNKNOWN.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/sheets-6.png"
+    },
+    {
+      "document_id": "roc-l8-electrical-9840042418",
+      "pdf_page": 21,
+      "printed_sheet_number": "21",
+      "sheet_total": 47,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CABIN MODULE D552",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [
+        "D552"
+      ],
+      "connector_identifiers": [],
+      "referenced_sheets": [
+        {
+          "document_id": "roc-l8-cabin-9840042409",
+          "sheet": "UNKNOWN",
+          "basis": "Visible SEE DRAWING 9840 0424 09"
+        }
+      ],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "اصلی",
+        "سیم‌کشی",
+        "مدار"
+      ],
+      "notes": "Title block and sheet visually verified. Pin/wire/component completeness NOT verified; inspect actual sheet. Actual machine fit UNKNOWN.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/sheets-7.png"
+    },
+    {
+      "document_id": "roc-l8-electrical-9840042418",
+      "pdf_page": 22,
+      "printed_sheet_number": "22",
+      "sheet_total": 47,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CABIN MODULE D552",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [
+        "D552"
+      ],
+      "connector_identifiers": [],
+      "referenced_sheets": [
+        {
+          "document_id": "roc-l8-cabin-9840042409",
+          "sheet": "UNKNOWN",
+          "basis": "Visible SEE DRAWING 9840 0424 09"
+        }
+      ],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "اصلی",
+        "سیم‌کشی",
+        "مدار"
+      ],
+      "notes": "Title block and sheet visually verified. Pin/wire/component completeness NOT verified; inspect actual sheet. Actual machine fit UNKNOWN.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/sheets-7.png"
+    },
+    {
+      "document_id": "roc-l8-electrical-9840042418",
+      "pdf_page": 23,
+      "printed_sheet_number": "23",
+      "sheet_total": 47,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CABIN MODULE D554",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [
+        "D554"
+      ],
+      "connector_identifiers": [],
+      "referenced_sheets": [
+        {
+          "document_id": "roc-l8-cabin-9840042409",
+          "sheet": "UNKNOWN",
+          "basis": "Visible SEE DRAWING 9840 0424 09"
+        }
+      ],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "اصلی",
+        "سیم‌کشی",
+        "مدار"
+      ],
+      "notes": "Title block and sheet visually verified. Pin/wire/component completeness NOT verified; inspect actual sheet. Actual machine fit UNKNOWN.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/sheets-7.png"
+    },
+    {
+      "document_id": "roc-l8-electrical-9840042418",
+      "pdf_page": 24,
+      "printed_sheet_number": "24",
+      "sheet_total": 47,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CABIN MODULE D554",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [
+        "D554"
+      ],
+      "connector_identifiers": [],
+      "referenced_sheets": [
+        {
+          "document_id": "roc-l8-cabin-9840042409",
+          "sheet": "UNKNOWN",
+          "basis": "Visible SEE DRAWING 9840 0424 09"
+        }
+      ],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "اصلی",
+        "سیم‌کشی",
+        "مدار"
+      ],
+      "notes": "Title block and sheet visually verified. Pin/wire/component completeness NOT verified; inspect actual sheet. Actual machine fit UNKNOWN.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/sheets-7.png"
+    },
+    {
+      "document_id": "roc-l8-electrical-9840042418",
+      "pdf_page": 25,
+      "printed_sheet_number": "25",
+      "sheet_total": 47,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "DISPLAY D501 (PLACED IN CABIN)",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [
+        "D501"
+      ],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "اصلی",
+        "سیم‌کشی",
+        "مدار"
+      ],
+      "notes": "Title block and sheet visually verified. Pin/wire/component completeness NOT verified; inspect actual sheet. Actual machine fit UNKNOWN.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/sheets-7.png"
+    },
+    {
+      "document_id": "roc-l8-electrical-9840042418",
+      "pdf_page": 26,
+      "printed_sheet_number": "26",
+      "sheet_total": 47,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "D169, D171, D173",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [
+        "D169",
+        "D171",
+        "D173"
+      ],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "اصلی",
+        "سیم‌کشی",
+        "مدار"
+      ],
+      "notes": "Title block and sheet visually verified. Pin/wire/component completeness NOT verified; inspect actual sheet. Actual machine fit UNKNOWN.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/sheets-7.png"
+    },
+    {
+      "document_id": "roc-l8-electrical-9840042418",
+      "pdf_page": 27,
+      "printed_sheet_number": "27",
+      "sheet_total": 47,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CPU INPUTS - X30",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [
+        "X30"
+      ],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "اصلی",
+        "سیم‌کشی",
+        "کانکتور"
+      ],
+      "notes": "Title block and sheet visually verified. Pin/wire/component completeness NOT verified; inspect actual sheet. Actual machine fit UNKNOWN.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/sheets-8.png"
+    },
+    {
+      "document_id": "roc-l8-electrical-9840042418",
+      "pdf_page": 28,
+      "printed_sheet_number": "28",
+      "sheet_total": 47,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CPU INPUTS - X33 - X34 - X35",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [
+        "X33",
+        "X34",
+        "X35"
+      ],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "اصلی",
+        "سیم‌کشی",
+        "کانکتور"
+      ],
+      "notes": "Title block and sheet visually verified. Pin/wire/component completeness NOT verified; inspect actual sheet. Actual machine fit UNKNOWN.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/sheets-8.png"
+    },
+    {
+      "document_id": "roc-l8-electrical-9840042418",
+      "pdf_page": 29,
+      "printed_sheet_number": "29",
+      "sheet_total": 47,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CPU INPUTS - X35",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [
+        "X35"
+      ],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "اصلی",
+        "سیم‌کشی",
+        "کانکتور"
+      ],
+      "notes": "Title block and sheet visually verified. Pin/wire/component completeness NOT verified; inspect actual sheet. Actual machine fit UNKNOWN.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/sheets-8.png"
+    },
+    {
+      "document_id": "roc-l8-electrical-9840042418",
+      "pdf_page": 30,
+      "printed_sheet_number": "30",
+      "sheet_total": 47,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CPU INPUTS - X36",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [
+        "B362"
+      ],
+      "connector_identifiers": [
+        "X36"
+      ],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "اصلی",
+        "سیم‌کشی",
+        "کانکتور"
+      ],
+      "notes": "Title block and sheet visually verified. Pin/wire/component completeness NOT verified; inspect actual sheet. Actual machine fit UNKNOWN.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/sheets-8.png"
+    },
+    {
+      "document_id": "roc-l8-electrical-9840042418",
+      "pdf_page": 31,
+      "printed_sheet_number": "31",
+      "sheet_total": 47,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CPU INPUTS - X40",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [
+        "X40"
+      ],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "اصلی",
+        "سیم‌کشی",
+        "کانکتور"
+      ],
+      "notes": "Title block and sheet visually verified. Pin/wire/component completeness NOT verified; inspect actual sheet. Actual machine fit UNKNOWN.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/sheets-8.png"
+    },
+    {
+      "document_id": "roc-l8-electrical-9840042418",
+      "pdf_page": 32,
+      "printed_sheet_number": "32",
+      "sheet_total": 47,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CPU INPUTS - X40",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [
+        "X40"
+      ],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "اصلی",
+        "سیم‌کشی",
+        "کانکتور"
+      ],
+      "notes": "Title block and sheet visually verified. Pin/wire/component completeness NOT verified; inspect actual sheet. Actual machine fit UNKNOWN.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/sheets-8.png"
+    },
+    {
+      "document_id": "roc-l8-electrical-9840042418",
+      "pdf_page": 33,
+      "printed_sheet_number": "33",
+      "sheet_total": 47,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CPU INPUTS - X43",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [
+        "X43"
+      ],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "اصلی",
+        "سیم‌کشی",
+        "کانکتور"
+      ],
+      "notes": "Title block and sheet visually verified. Pin/wire/component completeness NOT verified; inspect actual sheet. Actual machine fit UNKNOWN.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/sheets-9.png"
+    },
+    {
+      "document_id": "roc-l8-electrical-9840042418",
+      "pdf_page": 34,
+      "printed_sheet_number": "34",
+      "sheet_total": 47,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CPU OUTPUTS - X31",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [
+        "X31"
+      ],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "اصلی",
+        "سیم‌کشی",
+        "کانکتور"
+      ],
+      "notes": "Title block and sheet visually verified. Pin/wire/component completeness NOT verified; inspect actual sheet. Actual machine fit UNKNOWN.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/sheets-9.png"
+    },
+    {
+      "document_id": "roc-l8-electrical-9840042418",
+      "pdf_page": 35,
+      "printed_sheet_number": "35",
+      "sheet_total": 47,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CPU OUTPUTS - X31",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [
+        "X31"
+      ],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "اصلی",
+        "سیم‌کشی",
+        "کانکتور"
+      ],
+      "notes": "Title block and sheet visually verified. Pin/wire/component completeness NOT verified; inspect actual sheet. Actual machine fit UNKNOWN.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/sheets-9.png"
+    },
+    {
+      "document_id": "roc-l8-electrical-9840042418",
+      "pdf_page": 36,
+      "printed_sheet_number": "36",
+      "sheet_total": 47,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CPU OUTPUTS - X32",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [
+        "X32"
+      ],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "اصلی",
+        "سیم‌کشی",
+        "کانکتور"
+      ],
+      "notes": "Title block and sheet visually verified. Pin/wire/component completeness NOT verified; inspect actual sheet. Actual machine fit UNKNOWN.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/sheets-9.png"
+    },
+    {
+      "document_id": "roc-l8-electrical-9840042418",
+      "pdf_page": 37,
+      "printed_sheet_number": "37",
+      "sheet_total": 47,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CPU OUTPUTS - X32",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [
+        "X32"
+      ],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "اصلی",
+        "سیم‌کشی",
+        "کانکتور"
+      ],
+      "notes": "Title block and sheet visually verified. Pin/wire/component completeness NOT verified; inspect actual sheet. Actual machine fit UNKNOWN.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/sheets-9.png"
+    },
+    {
+      "document_id": "roc-l8-electrical-9840042418",
+      "pdf_page": 38,
+      "printed_sheet_number": "38",
+      "sheet_total": 47,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CPU OUTPUTS - X33",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [
+        "X33"
+      ],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "اصلی",
+        "سیم‌کشی",
+        "کانکتور"
+      ],
+      "notes": "Title block and sheet visually verified. Pin/wire/component completeness NOT verified; inspect actual sheet. Actual machine fit UNKNOWN.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/sheets-9.png"
+    },
+    {
+      "document_id": "roc-l8-electrical-9840042418",
+      "pdf_page": 39,
+      "printed_sheet_number": "39",
+      "sheet_total": 47,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CPU OUTPUTS - X34",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [
+        "X34"
+      ],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "اصلی",
+        "سیم‌کشی",
+        "کانکتور"
+      ],
+      "notes": "Title block and sheet visually verified. Pin/wire/component completeness NOT verified; inspect actual sheet. Actual machine fit UNKNOWN.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/sheets-10.png"
+    },
+    {
+      "document_id": "roc-l8-electrical-9840042418",
+      "pdf_page": 40,
+      "printed_sheet_number": "40",
+      "sheet_total": 47,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CPU OUTPUTS - X35, -X36",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [
+        "X35",
+        "X36"
+      ],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "اصلی",
+        "سیم‌کشی",
+        "کانکتور"
+      ],
+      "notes": "Title block and sheet visually verified. Pin/wire/component completeness NOT verified; inspect actual sheet. Actual machine fit UNKNOWN.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/sheets-10.png"
+    },
+    {
+      "document_id": "roc-l8-electrical-9840042418",
+      "pdf_page": 41,
+      "printed_sheet_number": "41",
+      "sheet_total": 47,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CPU OUTPUTS - X41",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [
+        "X41"
+      ],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "اصلی",
+        "سیم‌کشی",
+        "کانکتور"
+      ],
+      "notes": "Title block and sheet visually verified. Pin/wire/component completeness NOT verified; inspect actual sheet. Actual machine fit UNKNOWN.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/sheets-10.png"
+    },
+    {
+      "document_id": "roc-l8-electrical-9840042418",
+      "pdf_page": 42,
+      "printed_sheet_number": "42",
+      "sheet_total": 47,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CPU OUTPUTS - X42",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [
+        "X42"
+      ],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "اصلی",
+        "سیم‌کشی",
+        "کانکتور"
+      ],
+      "notes": "Title block and sheet visually verified. Pin/wire/component completeness NOT verified; inspect actual sheet. Actual machine fit UNKNOWN.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/sheets-10.png"
+    },
+    {
+      "document_id": "roc-l8-electrical-9840042418",
+      "pdf_page": 43,
+      "printed_sheet_number": "43",
+      "sheet_total": 47,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CPU OUTPUTS - X43",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [
+        "X43"
+      ],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "اصلی",
+        "سیم‌کشی",
+        "کانکتور"
+      ],
+      "notes": "Title block and sheet visually verified. Pin/wire/component completeness NOT verified; inspect actual sheet. Actual machine fit UNKNOWN.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/sheets-10.png"
+    },
+    {
+      "document_id": "roc-l8-electrical-9840042418",
+      "pdf_page": 44,
+      "printed_sheet_number": "44",
+      "sheet_total": 47,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CPU OUTPUTS - A1",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [
+        "A1"
+      ],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "اصلی",
+        "سیم‌کشی",
+        "مدار"
+      ],
+      "notes": "Title block and sheet visually verified. Pin/wire/component completeness NOT verified; inspect actual sheet. Actual machine fit UNKNOWN.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/sheets-10.png"
+    },
+    {
+      "document_id": "roc-l8-electrical-9840042418",
+      "pdf_page": 45,
+      "printed_sheet_number": "45",
+      "sheet_total": 47,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "OPTION RC (RIFFLE)",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "اصلی",
+        "سیم‌کشی",
+        "مدار"
+      ],
+      "notes": "Title block and sheet visually verified. Pin/wire/component completeness NOT verified; inspect actual sheet. Actual machine fit UNKNOWN.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/sheets-11.png"
+    },
+    {
+      "document_id": "roc-l8-electrical-9840042418",
+      "pdf_page": 46,
+      "printed_sheet_number": "46",
+      "sheet_total": 47,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "OPTION RC (CONE)",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "اصلی",
+        "سیم‌کشی",
+        "مدار"
+      ],
+      "notes": "Title block and sheet visually verified. Pin/wire/component completeness NOT verified; inspect actual sheet. Actual machine fit UNKNOWN.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/sheets-11.png"
+    },
+    {
+      "document_id": "roc-l8-electrical-9840042418",
+      "pdf_page": 47,
+      "printed_sheet_number": "47",
+      "sheet_total": 47,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "OPTION SCREW SAMPLER (HYD)",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "اصلی",
+        "سیم‌کشی",
+        "مدار"
+      ],
+      "notes": "Title block and sheet visually verified. Pin/wire/component completeness NOT verified; inspect actual sheet. Actual machine fit UNKNOWN.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/sheets-11.png"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 304,
+      "printed_sheet_number": "UNKNOWN",
+      "sheet_total": "UNKNOWN",
+      "drawing_number": "UNKNOWN",
+      "drawing_title": "Hydraulic diagram",
+      "revision": "UNKNOWN",
+      "applicable_model": "L7",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "هیدرولیک",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "PDF_PAGE_REGISTERED_TEXT_MODEL_VERIFIED",
+      "verification_artifact": "actual PDF text and model label"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 305,
+      "printed_sheet_number": "UNKNOWN",
+      "sheet_total": "UNKNOWN",
+      "drawing_number": "UNKNOWN",
+      "drawing_title": "Hydraulic diagram",
+      "revision": "UNKNOWN",
+      "applicable_model": "L7",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "هیدرولیک",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "PDF_PAGE_REGISTERED_TEXT_MODEL_VERIFIED",
+      "verification_artifact": "actual PDF text and model label"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 306,
+      "printed_sheet_number": "UNKNOWN",
+      "sheet_total": "UNKNOWN",
+      "drawing_number": "UNKNOWN",
+      "drawing_title": "Hydraulic diagram",
+      "revision": "UNKNOWN",
+      "applicable_model": "L7",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "هیدرولیک",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "PDF_PAGE_REGISTERED_TEXT_MODEL_VERIFIED",
+      "verification_artifact": "actual PDF text and model label"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 307,
+      "printed_sheet_number": "UNKNOWN",
+      "sheet_total": "UNKNOWN",
+      "drawing_number": "UNKNOWN",
+      "drawing_title": "Hydraulic diagram",
+      "revision": "UNKNOWN",
+      "applicable_model": "L7",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "هیدرولیک",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "PDF_PAGE_REGISTERED_TEXT_MODEL_VERIFIED",
+      "verification_artifact": "actual PDF text and model label"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 308,
+      "printed_sheet_number": "UNKNOWN",
+      "sheet_total": "UNKNOWN",
+      "drawing_number": "UNKNOWN",
+      "drawing_title": "Hydraulic diagram",
+      "revision": "UNKNOWN",
+      "applicable_model": "L7",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "هیدرولیک",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "PDF_PAGE_REGISTERED_TEXT_MODEL_VERIFIED",
+      "verification_artifact": "actual PDF text and model label"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 309,
+      "printed_sheet_number": "UNKNOWN",
+      "sheet_total": "UNKNOWN",
+      "drawing_number": "UNKNOWN",
+      "drawing_title": "Hydraulic diagram",
+      "revision": "UNKNOWN",
+      "applicable_model": "L7",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "هیدرولیک",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "PDF_PAGE_REGISTERED_TEXT_MODEL_VERIFIED",
+      "verification_artifact": "actual PDF text and model label"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 310,
+      "printed_sheet_number": "UNKNOWN",
+      "sheet_total": "UNKNOWN",
+      "drawing_number": "UNKNOWN",
+      "drawing_title": "Hydraulic diagram",
+      "revision": "UNKNOWN",
+      "applicable_model": "L7",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "هیدرولیک",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "PDF_PAGE_REGISTERED_TEXT_MODEL_VERIFIED",
+      "verification_artifact": "actual PDF text and model label"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 311,
+      "printed_sheet_number": "UNKNOWN",
+      "sheet_total": "UNKNOWN",
+      "drawing_number": "UNKNOWN",
+      "drawing_title": "Hydraulic diagram",
+      "revision": "UNKNOWN",
+      "applicable_model": "L7",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "هیدرولیک",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "PDF_PAGE_REGISTERED_TEXT_MODEL_VERIFIED",
+      "verification_artifact": "actual PDF text and model label"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 312,
+      "printed_sheet_number": "UNKNOWN",
+      "sheet_total": "UNKNOWN",
+      "drawing_number": "UNKNOWN",
+      "drawing_title": "Hydraulic diagram",
+      "revision": "UNKNOWN",
+      "applicable_model": "L8",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "هیدرولیک",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "PDF_PAGE_REGISTERED_TEXT_MODEL_VERIFIED",
+      "verification_artifact": "actual PDF text and model label"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 313,
+      "printed_sheet_number": "UNKNOWN",
+      "sheet_total": "UNKNOWN",
+      "drawing_number": "UNKNOWN",
+      "drawing_title": "Hydraulic diagram",
+      "revision": "UNKNOWN",
+      "applicable_model": "L8",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "هیدرولیک",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "PDF_PAGE_REGISTERED_TEXT_MODEL_VERIFIED",
+      "verification_artifact": "actual PDF text and model label"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 314,
+      "printed_sheet_number": "UNKNOWN",
+      "sheet_total": "UNKNOWN",
+      "drawing_number": "UNKNOWN",
+      "drawing_title": "Hydraulic diagram",
+      "revision": "UNKNOWN",
+      "applicable_model": "L8",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "هیدرولیک",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "PDF_PAGE_REGISTERED_TEXT_MODEL_VERIFIED",
+      "verification_artifact": "actual PDF text and model label"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 315,
+      "printed_sheet_number": "UNKNOWN",
+      "sheet_total": "UNKNOWN",
+      "drawing_number": "UNKNOWN",
+      "drawing_title": "Hydraulic diagram",
+      "revision": "UNKNOWN",
+      "applicable_model": "L8",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "هیدرولیک",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "PDF_PAGE_REGISTERED_TEXT_MODEL_VERIFIED",
+      "verification_artifact": "actual PDF text and model label"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 316,
+      "printed_sheet_number": "01",
+      "sheet_total": 44,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CROSS REFERENCES LIST",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/d1-sheets-1.png"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 317,
+      "printed_sheet_number": "02",
+      "sheet_total": 44,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "GENERAL INFORMATION",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/d1-sheets-1.png"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 318,
+      "printed_sheet_number": "03",
+      "sheet_total": 44,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "24VDC POWER SUPPLY",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/d1-sheets-1.png"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 319,
+      "printed_sheet_number": "04",
+      "sheet_total": 44,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "24VDC POWER SUPPLY",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/d1-sheets-1.png"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 320,
+      "printed_sheet_number": "05",
+      "sheet_total": 44,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "24VDC POWER SUPPLY",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/d1-sheets-1.png"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 321,
+      "printed_sheet_number": "06",
+      "sheet_total": 44,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "IGNITION KEY, EMERGENCY STOP",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/d1-sheets-1.png"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 322,
+      "printed_sheet_number": "07",
+      "sheet_total": 44,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "ECM (ELECTRONIC CONTROL MODULE)",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/d1-sheets-1.png"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 323,
+      "printed_sheet_number": "08",
+      "sheet_total": 44,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "WORKLIGHTS",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/d1-sheets-1.png"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 324,
+      "printed_sheet_number": "09",
+      "sheet_total": 44,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "0V IN CABIN, SPARE WIRING",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/d1-sheets-2.png"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 325,
+      "printed_sheet_number": "10",
+      "sheet_total": 44,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "A1 LIGHT, M20, H226, 24V TO X-BOXES",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/d1-sheets-2.png"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 326,
+      "printed_sheet_number": "11",
+      "sheet_total": 44,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CLIMATE CONTROL SYSTEM",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/d1-sheets-2.png"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 327,
+      "printed_sheet_number": "12",
+      "sheet_total": 44,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CLIMATE CONTROL SYSTEM",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/d1-sheets-2.png"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 328,
+      "printed_sheet_number": "13",
+      "sheet_total": 44,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CPU PROGRAM. CONNECTORS X31 AND X32 (A1)",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/d1-sheets-2.png"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 329,
+      "printed_sheet_number": "14",
+      "sheet_total": 44,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CPU PROGRAMMING CONNECTOR X33 (INSIDE A1)",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/d1-sheets-2.png"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 330,
+      "printed_sheet_number": "15",
+      "sheet_total": 44,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CABIN MODULE D550",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/d1-sheets-2.png"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 331,
+      "printed_sheet_number": "16",
+      "sheet_total": 44,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CABIN MODULE D550",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/d1-sheets-2.png"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 332,
+      "printed_sheet_number": "17",
+      "sheet_total": 44,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CABIN MODULE D551",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/d1-sheets-3.png"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 333,
+      "printed_sheet_number": "18",
+      "sheet_total": 44,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CABIN MODULE D551",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/d1-sheets-3.png"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 334,
+      "printed_sheet_number": "19",
+      "sheet_total": 44,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CABIN MODULE D553",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/d1-sheets-3.png"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 335,
+      "printed_sheet_number": "20",
+      "sheet_total": 44,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CABIN MODULE D553",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/d1-sheets-3.png"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 336,
+      "printed_sheet_number": "21",
+      "sheet_total": 44,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CABIN MODULE D552",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/d1-sheets-3.png"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 337,
+      "printed_sheet_number": "22",
+      "sheet_total": 44,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CABIN MODULE D552",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/d1-sheets-3.png"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 338,
+      "printed_sheet_number": "23",
+      "sheet_total": 44,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CABIN MODULE D554",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/d1-sheets-3.png"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 339,
+      "printed_sheet_number": "24",
+      "sheet_total": 44,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CABIN MODULE D554",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/d1-sheets-3.png"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 340,
+      "printed_sheet_number": "25",
+      "sheet_total": 44,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "DISPLAY D501 (PLACED IN CABIN)",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/d1-sheets-4.png"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 341,
+      "printed_sheet_number": "26",
+      "sheet_total": 44,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "D169, D171, D173",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/d1-sheets-4.png"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 342,
+      "printed_sheet_number": "27",
+      "sheet_total": 44,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CPU INPUTS - X30",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/d1-sheets-4.png"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 343,
+      "printed_sheet_number": "28",
+      "sheet_total": 44,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CPU INPUTS - X33 - X34 - X35",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/d1-sheets-4.png"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 344,
+      "printed_sheet_number": "29",
+      "sheet_total": 44,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CPU INPUTS - X35",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/d1-sheets-4.png"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 345,
+      "printed_sheet_number": "30",
+      "sheet_total": 44,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CPU INPUTS - X36",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/d1-sheets-4.png"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 346,
+      "printed_sheet_number": "31",
+      "sheet_total": 44,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CPU INPUTS - X40",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/d1-sheets-4.png"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 347,
+      "printed_sheet_number": "32",
+      "sheet_total": 44,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CPU INPUTS - X40",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/d1-sheets-4.png"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 348,
+      "printed_sheet_number": "33",
+      "sheet_total": 44,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CPU INPUTS - X43",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/d1-sheets-5.png"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 349,
+      "printed_sheet_number": "34",
+      "sheet_total": 44,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CPU OUTPUTS - X31",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/d1-sheets-5.png"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 350,
+      "printed_sheet_number": "35",
+      "sheet_total": 44,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CPU OUTPUTS - X31",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/d1-sheets-5.png"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 351,
+      "printed_sheet_number": "36",
+      "sheet_total": 44,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CPU OUTPUTS - X32",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/d1-sheets-5.png"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 352,
+      "printed_sheet_number": "37",
+      "sheet_total": 44,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CPU OUTPUTS - X32",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/d1-sheets-5.png"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 353,
+      "printed_sheet_number": "38",
+      "sheet_total": 44,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CPU OUTPUTS - X33",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/d1-sheets-5.png"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 354,
+      "printed_sheet_number": "39",
+      "sheet_total": 44,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CPU OUTPUTS - X34",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/d1-sheets-5.png"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 355,
+      "printed_sheet_number": "40",
+      "sheet_total": 44,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CPU OUTPUTS - X35, -X36",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/d1-sheets-5.png"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 356,
+      "printed_sheet_number": "41",
+      "sheet_total": 44,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CPU OUTPUTS - X41",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/d1-sheets-6.png"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 357,
+      "printed_sheet_number": "42",
+      "sheet_total": 44,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CPU OUTPUTS - X42",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/d1-sheets-6.png"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 358,
+      "printed_sheet_number": "43",
+      "sheet_total": 44,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CPU OUTPUTS - X43",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/d1-sheets-6.png"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 359,
+      "printed_sheet_number": "44",
+      "sheet_total": 44,
+      "drawing_number": "9840 0424 18",
+      "drawing_title": "CPU OUTPUTS - A1",
+      "revision": "UNKNOWN",
+      "applicable_model": "ROC L MKII",
+      "cabin": "Bosal",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/d1-sheets-6.png"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 360,
+      "printed_sheet_number": "1",
+      "sheet_total": 3,
+      "drawing_number": "9840 0423 15",
+      "drawing_title": "Air / Pneumatic diagram",
+      "revision": "UNKNOWN",
+      "applicable_model": "L7",
+      "cabin": "UNKNOWN",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "هوا",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/d1-sheets-6.png"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 361,
+      "printed_sheet_number": "2",
+      "sheet_total": 3,
+      "drawing_number": "9840 0423 15",
+      "drawing_title": "Air / Pneumatic diagram",
+      "revision": "UNKNOWN",
+      "applicable_model": "L7",
+      "cabin": "UNKNOWN",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "هوا",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/d1-sheets-6.png"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 362,
+      "printed_sheet_number": "3",
+      "sheet_total": 3,
+      "drawing_number": "9840 0423 15",
+      "drawing_title": "Air / Pneumatic diagram",
+      "revision": "UNKNOWN",
+      "applicable_model": "L7",
+      "cabin": "UNKNOWN",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "هوا",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/d1-sheets-6.png"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 363,
+      "printed_sheet_number": "1",
+      "sheet_total": 3,
+      "drawing_number": "9840 0424 06",
+      "drawing_title": "Air / Pneumatic diagram",
+      "revision": "UNKNOWN",
+      "applicable_model": "L740CR",
+      "cabin": "UNKNOWN",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "هوا",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/d1-sheets-6.png"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 364,
+      "printed_sheet_number": "2",
+      "sheet_total": 3,
+      "drawing_number": "9840 0424 06",
+      "drawing_title": "Air / Pneumatic diagram",
+      "revision": "UNKNOWN",
+      "applicable_model": "L740CR",
+      "cabin": "UNKNOWN",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "هوا",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/d1-sheets-7.png"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 365,
+      "printed_sheet_number": "3",
+      "sheet_total": 3,
+      "drawing_number": "9840 0424 06",
+      "drawing_title": "Air / Pneumatic diagram",
+      "revision": "UNKNOWN",
+      "applicable_model": "L740CR",
+      "cabin": "UNKNOWN",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "هوا",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/d1-sheets-7.png"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 366,
+      "printed_sheet_number": "1",
+      "sheet_total": 3,
+      "drawing_number": "9840 0423 14",
+      "drawing_title": "Air / Pneumatic diagram",
+      "revision": "UNKNOWN",
+      "applicable_model": "L8",
+      "cabin": "UNKNOWN",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "هوا",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/d1-sheets-7.png"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 367,
+      "printed_sheet_number": "2",
+      "sheet_total": 3,
+      "drawing_number": "9840 0423 14",
+      "drawing_title": "Air / Pneumatic diagram",
+      "revision": "UNKNOWN",
+      "applicable_model": "L8",
+      "cabin": "UNKNOWN",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "هوا",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/d1-sheets-7.png"
+    },
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "pdf_page": 368,
+      "printed_sheet_number": "3",
+      "sheet_total": 3,
+      "drawing_number": "9840 0423 14",
+      "drawing_title": "Air / Pneumatic diagram",
+      "revision": "UNKNOWN",
+      "applicable_model": "L8",
+      "cabin": "UNKNOWN",
+      "component_identifiers": [],
+      "connector_identifiers": [],
+      "referenced_sheets": [],
+      "keywords_fa": [
+        "نقشه",
+        "هوا",
+        "پنوماتیک"
+      ],
+      "notes": "PDF page recovery record. Unverified printed identity fields remain UNKNOWN; source not merged with D5.",
+      "verification_status": "VISUAL_TITLE_AND_SHEET_VERIFIED",
+      "verification_artifact": "runtime/roc-l8-onboarding/d1-sheets-7.png"
+    }
+  ]
+}

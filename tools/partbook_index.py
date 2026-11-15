@@ -38,6 +38,7 @@ EXTRACTOR_VERSION = "pb-geom-1"
 # Source-layout choices only. Rows, normalization, SQLite storage, and PDF
 # verification remain shared across text-layer books.
 PROFILES = {
+    "atlas_bilingual": {"groups": "atlas", "item_suffix_letters": True},
     "hd785_raster": {"groups": "toc", "columns": "learned",
                      "figure": "left_heading", "view": "raster",
                      "engine_groups": (), "item_suffix_letters": False},
@@ -111,6 +112,22 @@ PROFILES = {
 }
 
 BOOKS = {
+    "ROC-L8-D2": {
+        "model": "ROC-L8", "profile": "atlas_bilingual",
+        "pdf": "ROC-L8/ROC-L8_PartBook.pdf",
+        "title": "ROC L8 Parts Book 9853 6478 20D (owner default)",
+        "document_id": "roc-l8-parts-9853647820d",
+        "machine_serial_prefix": "", "machine_serial_from": None,
+        "machine_serial_to": None, "engine_serial_raw": None, "text_layer": True,
+    },
+    "ROC-L8-LF-D3": {
+        "model": "ROC L8(30)LF", "profile": "atlas_bilingual",
+        "pdf": "ROC-L8/ilide.info-roc-l8-30-lf-2011-model-9853-6786-20-pdf-pr_89055a09f0f869abf3be39c9e81fca1c.pdf",
+        "title": "ROC L8(30)LF Parts Book 9853 6786 20 (independent LF source)",
+        "document_id": "roc-l8-lf-parts-9853678620",
+        "machine_serial_prefix": "", "machine_serial_from": None,
+        "machine_serial_to": None, "engine_serial_raw": None, "text_layer": True,
+    },
     "HD785-7-B1": {
         "model": "HD785-7",
         "profile": "hd785_raster",
@@ -745,6 +762,9 @@ def book_digest(con: sqlite3.Connection, book_id: str) -> dict:
 
 
 def build(book_id: str, db_path: Path) -> dict:
+    if BOOKS[book_id]["profile"] == "atlas_bilingual":
+        from partbook_atlas import build as atlas_build
+        return atlas_build(book_id, db_path)
     book = BOOKS[book_id]
     profile = PROFILES[book["profile"]]
     item_re = ITEM_SUFFIX_RE if profile["item_suffix_letters"] else ITEM_RE
@@ -1168,6 +1188,9 @@ def build(book_id: str, db_path: Path) -> dict:
         if b["model"] != book["model"]:
             continue
         status = "indexed_partial" if bid == book_id else "not_indexed_scanned"
+        # Preserve an already indexed sibling book of the same model.
+        if bid != book_id and con.execute("SELECT 1 FROM books WHERE book_id=?", (bid,)).fetchone():
+            continue
         con.execute("INSERT OR REPLACE INTO books VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
                     (bid, b["model"], b["title"], b["pdf"], sha if bid == book_id else None,
                      doc.page_count if bid == book_id else None, b["machine_serial_prefix"],

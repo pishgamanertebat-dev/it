@@ -1,0 +1,148 @@
+{
+  "schema_version": 1,
+  "model": "ROC-L8",
+  "page_numbering": "one_based_pdf",
+  "documents": [
+    {
+      "document_id": "roc-l8-trainee-9852960001",
+      "audit_id": "D1",
+      "file_path": "ROC-L8/ROC-L8_ShopManual.pdf",
+      "filename": "ROC-L8_ShopManual.pdf",
+      "sha256": "1216b841239be1eda0b0f5cd4c051bdf66c6024a62aabef5c7d47ec7a6ba766f",
+      "page_count": 369,
+      "manufacturer": "Atlas Copco",
+      "document_type": "technical_training",
+      "document_number": "9852 9600 01",
+      "revision": "UNKNOWN",
+      "copyright_year": 2008,
+      "applicable_models": [
+        "L740",
+        "L740CR",
+        "L830",
+        "L630"
+      ],
+      "model_scope": "Multi-model; per-page applicability required",
+      "cabin_scope": "Bosal",
+      "serial_scope": "UNKNOWN",
+      "options_scope": "UNKNOWN",
+      "text_extraction_mode": "mixed",
+      "source_priority": "primary_technical",
+      "related_documents": [],
+      "limitations": [
+        "Applicability to actual machine unconfirmed; metadata routes, PDF evidence required",
+        "Training binder, not demonstrated complete repair manual",
+        "PDF 369 excluded; no OCR"
+      ]
+    },
+    {
+      "document_id": "roc-l8-parts-9853647820d",
+      "audit_id": "D2",
+      "file_path": "ROC-L8/ROC-L8_PartBook.pdf",
+      "filename": "ROC-L8_PartBook.pdf",
+      "sha256": "0749517569bb35de78d9898e47987b9bee60c5dd7b26104638a522a16806bc56",
+      "page_count": 1023,
+      "manufacturer": "Atlas Copco",
+      "document_type": "parts_book",
+      "document_number": "9853 6478 20D",
+      "revision": "D",
+      "copyright_year": 2004,
+      "applicable_models": [
+        "ROC L8"
+      ],
+      "model_scope": "ROC L8, actual fleet fit UNKNOWN",
+      "cabin_scope": "UNKNOWN",
+      "serial_scope": "UNKNOWN",
+      "options_scope": "UNKNOWN",
+      "text_extraction_mode": "text",
+      "source_priority": "owner_default_parts",
+      "related_documents": [],
+      "limitations": [
+        "Applicability to actual machine unconfirmed; metadata routes, PDF evidence required"
+      ]
+    },
+    {
+      "document_id": "roc-l8-lf-parts-9853678620",
+      "audit_id": "D3",
+      "file_path": "ROC-L8/ilide.info-roc-l8-30-lf-2011-model-9853-6786-20-pdf-pr_89055a09f0f869abf3be39c9e81fca1c.pdf",
+      "filename": "ilide.info-roc-l8-30-lf-2011-model-9853-6786-20-pdf-pr_89055a09f0f869abf3be39c9e81fca1c.pdf",
+      "sha256": "ed143535a1f1f46e651a7186a988e24b85772fb702e102ed88ee9d69b7637cb5",
+      "page_count": 1440,
+      "manufacturer": "Atlas Copco",
+      "document_type": "parts_book",
+      "document_number": "9853 6786 20",
+      "revision": "UNKNOWN",
+      "copyright_year": 2011,
+      "applicable_models": [
+        "ROC L8(30)LF"
+      ],
+      "model_scope": "ROC L8(30)LF only",
+      "cabin_scope": "UNKNOWN",
+      "serial_scope": "UNKNOWN",
+      "options_scope": "UNKNOWN",
+      "text_extraction_mode": "text",
+      "source_priority": "explicit_supplemental_lf",
+      "related_documents": [],
+      "limitations": [
+        "Applicability to actual machine unconfirmed; metadata routes, PDF evidence required",
+        "8992 0074 37 --> retained as unclassified cover identifier, not a machine serial"
+      ]
+    },
+    {
+      "document_id": "roc-l8-cabin-9840042409",
+      "audit_id": "D4",
+      "file_path": "ROC-L8/ilide.info-9840-0424-09-electrical-diagram-cabin-pr_f7a76ce65c3567cd4f68a2c4edf4b85e.pdf",
+      "filename": "ilide.info-9840-0424-09-electrical-diagram-cabin-pr_f7a76ce65c3567cd4f68a2c4edf4b85e.pdf",
+      "sha256": "cf9bdc7db23bb145995b6edae515f50f3248ff7cbc23e235f440e0a8cd646c1a",
+      "page_count": 16,
+      "manufacturer": "Atlas Copco",
+      "document_type": "cabin_electrical_diagram",
+      "document_number": "9840 0424 09",
+      "revision": "UNKNOWN",
+      "copyright_year": "UNKNOWN",
+      "applicable_models": [
+        "ROC L MKII"
+      ],
+      "model_scope": "ROC L MKII, actual rig fit UNKNOWN",
+      "cabin_scope": "Bosal",
+      "serial_scope": "UNKNOWN",
+      "options_scope": "UNKNOWN",
+      "text_extraction_mode": "image",
+      "source_priority": "primary_cabin_electrical",
+      "related_documents": [
+        "roc-l8-electrical-9840042418"
+      ],
+      "limitations": [
+        "Applicability to actual machine unconfirmed; metadata routes, PDF evidence required"
+      ]
+    },
+    {
+      "document_id": "roc-l8-electrical-9840042418",
+      "audit_id": "D5",
+      "file_path": "ROC-L8/ilide.info-9840-0424-18-electrical-diagram-pr_0a0b062345b5137ccb3f8d7935015f42.pdf",
+      "filename": "ilide.info-9840-0424-18-electrical-diagram-pr_0a0b062345b5137ccb3f8d7935015f42.pdf",
+      "sha256": "e32701757674d981742d862730ea9c97698ed2e95785a571adb288ed25090af9",
+      "page_count": 47,
+      "manufacturer": "Atlas Copco",
+      "document_type": "electrical_diagram",
+      "document_number": "9840 0424 18",
+      "revision": "UNKNOWN",
+      "copyright_year": "UNKNOWN",
+      "applicable_models": [
+        "ROC L MKII"
+      ],
+      "model_scope": "ROC L MKII, actual rig fit UNKNOWN",
+      "cabin_scope": "Bosal",
+      "serial_scope": "UNKNOWN",
+      "options_scope": "UNKNOWN",
+      "text_extraction_mode": "image",
+      "source_priority": "primary_main_electrical",
+      "related_documents": [
+        "roc-l8-cabin-9840042409",
+        "roc-l8-trainee-9852960001"
+      ],
+      "limitations": [
+        "Applicability to actual machine unconfirmed; metadata routes, PDF evidence required"
+      ]
+    }
+  ]
+}

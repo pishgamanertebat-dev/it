@@ -5,6 +5,46 @@ from pathlib import Path
 import pymupdf
 
 
+def validate_scoped(data, map_path):
+    """Opt-in document/model map validation; page coverage alone is insufficient."""
+    errors=[]
+    manifest=json.loads((map_path.parent/'document_manifest.json').read_text(encoding='utf-8'))
+    docs={d['document_id']:d for d in manifest['documents']}
+    known=set(data['known_models']);seen=set();covered=set()
+    with pymupdf.open(data['manual']) as pdf:
+        if len(pdf)!=data['pdf_pages']:errors.append('page_count mismatch')
+        def walk(sections,parent=None):
+            ranges=[]
+            for name,item in sections.items():
+                start,end=item.get('pdf_start',0),item.get('pdf_end',0)
+                if not 1<=start<=end<=len(pdf):errors.append(name+': invalid bounds');continue
+                if parent and not parent[0]<=start<=end<=parent[1]:errors.append(name+': outside parent')
+                if item.get('document_id') not in docs:errors.append(name+': unknown document_id')
+                if not set(item.get('applicable_models',[]))<=known:errors.append(name+': invalid model')
+                signature=(item.get('title'),start,end,item.get('document_id'))
+                if signature in seen:errors.append(name+': duplicate section')
+                seen.add(signature);covered.update(range(start,end+1))
+                actual_empty=[p for p in range(start,end+1) if not pdf[p-1].get_text().strip()]
+                if actual_empty!=item.get('textless_pages'):errors.append(name+': textless page mismatch')
+                evidence=item.get('heading_evidence',{})
+                ep=evidence.get('pdf_page',0)
+                if not start<=ep<=end or evidence.get('text')!=pdf[ep-1].get_text()[:400]:
+                    errors.append(name+': heading evidence differs from actual PDF')
+                for previous,ps,pe,pi in ranges:
+                    if start<=pe and ps<=end and not (item.get('overlap_reason') or pi.get('overlap_reason')):
+                        errors.append(name+': overlap without reason: '+previous)
+                ranges.append((name,start,end,item))
+                walk(item.get('subsections',{}),(start,end))
+        walk(data['sections'])
+        if covered!=set(range(1,len(pdf)+1)):errors.append('incomplete page accounting')
+        if set(data['page_models'])!={str(p) for p in range(1,len(pdf)+1)}:errors.append('missing per-page scope')
+        for p,models in data['page_models'].items():
+            if not models or not set(models)<=known:errors.append(p+': invalid page models')
+        for page in data.get('excluded_pages',[]):
+            if data['page_models'].get(str(page))!=['EXCLUDED']:errors.append('excluded page not excluded in model filter')
+    return errors
+
+
 def validate_children(parent_name, parent, errors):
     children = parent.get("subsections")
 
@@ -72,6 +112,11 @@ def main():
     data = json.loads(
         map_path.read_text(encoding="utf-8")
     )
+    if data.get('scope_policy')=='per_page':
+        errors=validate_scoped(data,map_path)
+        print(json.dumps({'map':str(map_path),'errors':errors,'status':'FAIL' if errors else 'PASS',
+            'semantic_review':'Actual heading evidence checked; visual identity review is recorded separately in diagram_index.json. No numerical coverage implies universal applicability.'}))
+        raise SystemExit(bool(errors))
 
     manual_path = Path(data["manual"])
     expected_pages = int(data["pdf_pages"])

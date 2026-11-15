@@ -31,16 +31,19 @@ REGION_DESCRIPTION = (
 
 
 def region_schema():
+    from integrations.hermes.technical_documents import registered_document_ids
     return {"name": REGION_TOOL, "description": REGION_DESCRIPTION, "parameters": {
         "type": "object", "additionalProperties": False,
         "required": ["model", "source", "page", "region"], "properties": {
             "model": {"type": "string", "description": "Verified model; Parts Book accepts approved fleet aliases"},
             "source": {"type": "string", "enum": ["parts_book", "shop_manual"]},
             "book_id": {"type": "string", "description": "parts_book: exact selected_part_books book_id from lookup, required; not a path"},
+            "document_id": {"type": "string", "enum":registered_document_ids(), "description": "Exact registered source ID from retrieval; never shorthand or a filesystem path"},
             "page": {"type": "integer", "minimum": 1, "description": "1-based PDF page, preserve the selected figure/page"},
             "region": {"type": "array", "minItems": 4, "maxItems": 4,
                        "items": {"type": "number", "minimum": 0, "maximum": 1}},
             "dpi": {"type": "number", "minimum": 72, "maximum": 600, "default": 288},
+            "inspect_images": {"type":"boolean", "description":"Attach this validated crop to native model vision for actual sheet inspection. No OCR or generic file access. Default false keeps legacy JSON."},
         }}}
 
 
@@ -80,9 +83,13 @@ def render_region(args, *, session_id, home, resolver):
         if args.get("book_id"):
             raise ValueError("book_id belongs only to Parts Book")
         metadata = json.loads((folder / "manual_sections.json").read_text(encoding="utf-8"))
+        from integrations.hermes.technical_documents import resolve_document, page_allowed
+        metadata = resolve_document(folder,metadata,args.get('document_id'))
+        if not page_allowed(metadata,page,visual=True):
+            raise ValueError('Selected page is excluded or outside the model scope')
         pdf = Path(metadata["manual"]).resolve(strict=True)
         label = "manual_evidence"
-        source_identity = {"model": model, "source": "shop_manual"}
+        source_identity = {"model": model, "source": "shop_manual", "document_id":metadata.get('document_id')}
     elif args.get("source") == "parts_book":
         book_id = args.get("book_id")
         if not isinstance(book_id, str) or not book_id:
@@ -95,10 +102,14 @@ def render_region(args, *, session_id, home, resolver):
         except sqlite3.Error as exc:
             raise ValueError("Parts Book source registry is unavailable") from exc
         book = books[0]
+        document_id=book['source_identity'].get('document_id')
+        if args.get('document_id') and args['document_id']!=document_id:
+            raise ValueError('document_id does not match selected book_id')
         pdf = (ROOT / book["source_pdf"]).resolve(strict=True)
         label = "partbook"
         source_identity = {"model": model, "requested_model": args["model"], "source": "parts_book",
                            "book_id": book_id, "book_model": book["model"],
+                           "document_id": document_id,
                            "source_identity": book["source_identity"],
                            "machine_serial_prefix": book.get("machine_serial_prefix"),
                            "machine_serial_from": book.get("machine_serial_from"),
@@ -110,6 +121,10 @@ def render_region(args, *, session_id, home, resolver):
         raise ValueError("Selected PDF is outside the selected model folder")
     command = [str(ROOT / ".venv/Scripts/python.exe"), "-B", str(ROOT / "tools/render_page.py"),
                str(pdf), str(page), label, "--region", *map(str, region), "--dpi", str(dpi)]
+    if args.get('source')=='shop_manual' and metadata.get('document_id'):
+        command += ['--document-id',metadata['document_id']]
+    elif args.get('source')=='parts_book' and source_identity.get('document_id'):
+        command += ['--document-id',source_identity['document_id']]
     result = subprocess.run(command, capture_output=True, timeout=90, cwd=ROOT,
                             env=dict(os.environ, HERMES_SESSION_ID=session_id, PYTHONIOENCODING="utf-8"),
                             creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))

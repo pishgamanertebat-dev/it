@@ -1,0 +1,2582 @@
+{
+  "machine": "ROC-L8",
+  "manual": "E:\\KomatsoAI\\ROC-L8\\ROC-L8_ShopManual.pdf",
+  "pdf_pages": 369,
+  "document_id": "roc-l8-trainee-9852960001",
+  "scope_policy": "per_page",
+  "allowed_models": [
+    "L830",
+    "L8",
+    "SHARED_ROC_L"
+  ],
+  "known_models": [
+    "L740",
+    "L740CR",
+    "L830",
+    "L630",
+    "L7",
+    "L7TH",
+    "L8",
+    "SHARED_ROC_L",
+    "UNKNOWN",
+    "EXCLUDED"
+  ],
+  "page_models": {
+    "1": [
+      "SHARED_ROC_L"
+    ],
+    "2": [
+      "L7",
+      "L8"
+    ],
+    "3": [
+      "SHARED_ROC_L"
+    ],
+    "4": [
+      "SHARED_ROC_L"
+    ],
+    "5": [
+      "SHARED_ROC_L"
+    ],
+    "6": [
+      "L740",
+      "L740CR",
+      "L830"
+    ],
+    "7": [
+      "L740",
+      "L740CR",
+      "L830"
+    ],
+    "8": [
+      "L740",
+      "L740CR",
+      "L830"
+    ],
+    "9": [
+      "L740",
+      "L740CR",
+      "L830"
+    ],
+    "10": [
+      "L740",
+      "L740CR"
+    ],
+    "11": [
+      "L830"
+    ],
+    "12": [
+      "L740",
+      "L740CR",
+      "L830"
+    ],
+    "13": [
+      "L740",
+      "L740CR",
+      "L830"
+    ],
+    "14": [
+      "SHARED_ROC_L"
+    ],
+    "15": [
+      "L7TH",
+      "L8"
+    ],
+    "16": [
+      "L740",
+      "L740CR",
+      "L830"
+    ],
+    "17": [
+      "SHARED_ROC_L"
+    ],
+    "18": [
+      "SHARED_ROC_L"
+    ],
+    "19": [
+      "SHARED_ROC_L"
+    ],
+    "20": [
+      "SHARED_ROC_L"
+    ],
+    "21": [
+      "SHARED_ROC_L"
+    ],
+    "22": [
+      "SHARED_ROC_L"
+    ],
+    "23": [
+      "SHARED_ROC_L"
+    ],
+    "24": [
+      "SHARED_ROC_L"
+    ],
+    "25": [
+      "SHARED_ROC_L"
+    ],
+    "26": [
+      "SHARED_ROC_L"
+    ],
+    "27": [
+      "SHARED_ROC_L"
+    ],
+    "28": [
+      "L740"
+    ],
+    "29": [
+      "L740CR",
+      "L830"
+    ],
+    "30": [
+      "SHARED_ROC_L"
+    ],
+    "31": [
+      "SHARED_ROC_L"
+    ],
+    "32": [
+      "L7",
+      "L8"
+    ],
+    "33": [
+      "SHARED_ROC_L"
+    ],
+    "34": [
+      "SHARED_ROC_L"
+    ],
+    "35": [
+      "SHARED_ROC_L"
+    ],
+    "36": [
+      "SHARED_ROC_L"
+    ],
+    "37": [
+      "SHARED_ROC_L"
+    ],
+    "38": [
+      "SHARED_ROC_L"
+    ],
+    "39": [
+      "SHARED_ROC_L"
+    ],
+    "40": [
+      "L740",
+      "L740CR",
+      "L830"
+    ],
+    "41": [
+      "L830"
+    ],
+    "42": [
+      "SHARED_ROC_L"
+    ],
+    "43": [
+      "SHARED_ROC_L"
+    ],
+    "44": [
+      "SHARED_ROC_L"
+    ],
+    "45": [
+      "SHARED_ROC_L"
+    ],
+    "46": [
+      "SHARED_ROC_L"
+    ],
+    "47": [
+      "SHARED_ROC_L"
+    ],
+    "48": [
+      "SHARED_ROC_L"
+    ],
+    "49": [
+      "SHARED_ROC_L"
+    ],
+    "50": [
+      "SHARED_ROC_L"
+    ],
+    "51": [
+      "SHARED_ROC_L"
+    ],
+    "52": [
+      "SHARED_ROC_L"
+    ],
+    "53": [
+      "SHARED_ROC_L"
+    ],
+    "54": [
+      "SHARED_ROC_L"
+    ],
+    "55": [
+      "SHARED_ROC_L"
+    ],
+    "56": [
+      "SHARED_ROC_L"
+    ],
+    "57": [
+      "SHARED_ROC_L"
+    ],
+    "58": [
+      "L830"
+    ],
+    "59": [
+      "SHARED_ROC_L"
+    ],
+    "60": [
+      "SHARED_ROC_L"
+    ],
+    "61": [
+      "SHARED_ROC_L"
+    ],
+    "62": [
+      "SHARED_ROC_L"
+    ],
+    "63": [
+      "SHARED_ROC_L"
+    ],
+    "64": [
+      "L740",
+      "L740CR"
+    ],
+    "65": [
+      "L830"
+    ],
+    "66": [
+      "L740",
+      "L740CR"
+    ],
+    "67": [
+      "SHARED_ROC_L"
+    ],
+    "68": [
+      "SHARED_ROC_L"
+    ],
+    "69": [
+      "SHARED_ROC_L"
+    ],
+    "70": [
+      "SHARED_ROC_L"
+    ],
+    "71": [
+      "SHARED_ROC_L"
+    ],
+    "72": [
+      "L7",
+      "L8"
+    ],
+    "73": [
+      "SHARED_ROC_L"
+    ],
+    "74": [
+      "SHARED_ROC_L"
+    ],
+    "75": [
+      "SHARED_ROC_L"
+    ],
+    "76": [
+      "SHARED_ROC_L"
+    ],
+    "77": [
+      "SHARED_ROC_L"
+    ],
+    "78": [
+      "SHARED_ROC_L"
+    ],
+    "79": [
+      "SHARED_ROC_L"
+    ],
+    "80": [
+      "SHARED_ROC_L"
+    ],
+    "81": [
+      "SHARED_ROC_L"
+    ],
+    "82": [
+      "SHARED_ROC_L"
+    ],
+    "83": [
+      "SHARED_ROC_L"
+    ],
+    "84": [
+      "SHARED_ROC_L"
+    ],
+    "85": [
+      "SHARED_ROC_L"
+    ],
+    "86": [
+      "SHARED_ROC_L"
+    ],
+    "87": [
+      "SHARED_ROC_L"
+    ],
+    "88": [
+      "SHARED_ROC_L"
+    ],
+    "89": [
+      "SHARED_ROC_L"
+    ],
+    "90": [
+      "SHARED_ROC_L"
+    ],
+    "91": [
+      "SHARED_ROC_L"
+    ],
+    "92": [
+      "L740",
+      "L740CR"
+    ],
+    "93": [
+      "L830"
+    ],
+    "94": [
+      "L740",
+      "L740CR",
+      "L830"
+    ],
+    "95": [
+      "L830"
+    ],
+    "96": [
+      "L740",
+      "L740CR",
+      "L830"
+    ],
+    "97": [
+      "SHARED_ROC_L"
+    ],
+    "98": [
+      "L8"
+    ],
+    "99": [
+      "L830"
+    ],
+    "100": [
+      "SHARED_ROC_L"
+    ],
+    "101": [
+      "SHARED_ROC_L"
+    ],
+    "102": [
+      "L740",
+      "L740CR",
+      "L830"
+    ],
+    "103": [
+      "SHARED_ROC_L"
+    ],
+    "104": [
+      "SHARED_ROC_L"
+    ],
+    "105": [
+      "L830"
+    ],
+    "106": [
+      "L830"
+    ],
+    "107": [
+      "SHARED_ROC_L"
+    ],
+    "108": [
+      "L740",
+      "L740CR"
+    ],
+    "109": [
+      "L830"
+    ],
+    "110": [
+      "SHARED_ROC_L"
+    ],
+    "111": [
+      "L7"
+    ],
+    "112": [
+      "L7TH"
+    ],
+    "113": [
+      "SHARED_ROC_L"
+    ],
+    "114": [
+      "SHARED_ROC_L"
+    ],
+    "115": [
+      "SHARED_ROC_L"
+    ],
+    "116": [
+      "L740",
+      "L740CR"
+    ],
+    "117": [
+      "L740"
+    ],
+    "118": [
+      "L740CR",
+      "L830"
+    ],
+    "119": [
+      "SHARED_ROC_L"
+    ],
+    "120": [
+      "SHARED_ROC_L"
+    ],
+    "121": [
+      "SHARED_ROC_L"
+    ],
+    "122": [
+      "SHARED_ROC_L"
+    ],
+    "123": [
+      "SHARED_ROC_L"
+    ],
+    "124": [
+      "SHARED_ROC_L"
+    ],
+    "125": [
+      "SHARED_ROC_L"
+    ],
+    "126": [
+      "L740",
+      "L740CR"
+    ],
+    "127": [
+      "L740",
+      "L740CR",
+      "L830"
+    ],
+    "128": [
+      "SHARED_ROC_L"
+    ],
+    "129": [
+      "SHARED_ROC_L"
+    ],
+    "130": [
+      "SHARED_ROC_L"
+    ],
+    "131": [
+      "SHARED_ROC_L"
+    ],
+    "132": [
+      "SHARED_ROC_L"
+    ],
+    "133": [
+      "L740"
+    ],
+    "134": [
+      "L830"
+    ],
+    "135": [
+      "L740CR"
+    ],
+    "136": [
+      "SHARED_ROC_L"
+    ],
+    "137": [
+      "L740",
+      "L740CR",
+      "L830"
+    ],
+    "138": [
+      "SHARED_ROC_L"
+    ],
+    "139": [
+      "SHARED_ROC_L"
+    ],
+    "140": [
+      "SHARED_ROC_L"
+    ],
+    "141": [
+      "SHARED_ROC_L"
+    ],
+    "142": [
+      "SHARED_ROC_L"
+    ],
+    "143": [
+      "SHARED_ROC_L"
+    ],
+    "144": [
+      "SHARED_ROC_L"
+    ],
+    "145": [
+      "SHARED_ROC_L"
+    ],
+    "146": [
+      "SHARED_ROC_L"
+    ],
+    "147": [
+      "SHARED_ROC_L"
+    ],
+    "148": [
+      "L740",
+      "L740CR"
+    ],
+    "149": [
+      "L740",
+      "L740CR"
+    ],
+    "150": [
+      "L830"
+    ],
+    "151": [
+      "L830"
+    ],
+    "152": [
+      "L740",
+      "L740CR"
+    ],
+    "153": [
+      "SHARED_ROC_L"
+    ],
+    "154": [
+      "L8"
+    ],
+    "155": [
+      "SHARED_ROC_L"
+    ],
+    "156": [
+      "L740",
+      "L740CR",
+      "L830"
+    ],
+    "157": [
+      "L740",
+      "L740CR"
+    ],
+    "158": [
+      "L740",
+      "L740CR"
+    ],
+    "159": [
+      "L740",
+      "L740CR"
+    ],
+    "160": [
+      "L740",
+      "L740CR"
+    ],
+    "161": [
+      "L740",
+      "L740CR"
+    ],
+    "162": [
+      "L740",
+      "L740CR",
+      "L830"
+    ],
+    "163": [
+      "L830"
+    ],
+    "164": [
+      "L740",
+      "L740CR"
+    ],
+    "165": [
+      "L830"
+    ],
+    "166": [
+      "L740",
+      "L740CR"
+    ],
+    "167": [
+      "L740",
+      "L740CR"
+    ],
+    "168": [
+      "L740",
+      "L740CR"
+    ],
+    "169": [
+      "SHARED_ROC_L"
+    ],
+    "170": [
+      "L740"
+    ],
+    "171": [
+      "L830"
+    ],
+    "172": [
+      "L740CR"
+    ],
+    "173": [
+      "SHARED_ROC_L"
+    ],
+    "174": [
+      "SHARED_ROC_L"
+    ],
+    "175": [
+      "SHARED_ROC_L"
+    ],
+    "176": [
+      "L740",
+      "L740CR"
+    ],
+    "177": [
+      "L740",
+      "L740CR"
+    ],
+    "178": [
+      "L740",
+      "L740CR"
+    ],
+    "179": [
+      "L740",
+      "L740CR"
+    ],
+    "180": [
+      "L740",
+      "L740CR"
+    ],
+    "181": [
+      "L740",
+      "L740CR"
+    ],
+    "182": [
+      "L740",
+      "L740CR"
+    ],
+    "183": [
+      "L740",
+      "L740CR"
+    ],
+    "184": [
+      "L740",
+      "L740CR"
+    ],
+    "185": [
+      "L740",
+      "L740CR"
+    ],
+    "186": [
+      "L740",
+      "L740CR"
+    ],
+    "187": [
+      "L740",
+      "L740CR"
+    ],
+    "188": [
+      "L740",
+      "L740CR"
+    ],
+    "189": [
+      "SHARED_ROC_L"
+    ],
+    "190": [
+      "L740",
+      "L740CR",
+      "L830"
+    ],
+    "191": [
+      "SHARED_ROC_L"
+    ],
+    "192": [
+      "SHARED_ROC_L"
+    ],
+    "193": [
+      "SHARED_ROC_L"
+    ],
+    "194": [
+      "SHARED_ROC_L"
+    ],
+    "195": [
+      "SHARED_ROC_L"
+    ],
+    "196": [
+      "SHARED_ROC_L"
+    ],
+    "197": [
+      "SHARED_ROC_L"
+    ],
+    "198": [
+      "SHARED_ROC_L"
+    ],
+    "199": [
+      "SHARED_ROC_L"
+    ],
+    "200": [
+      "SHARED_ROC_L"
+    ],
+    "201": [
+      "SHARED_ROC_L"
+    ],
+    "202": [
+      "L740"
+    ],
+    "203": [
+      "L740",
+      "L740CR"
+    ],
+    "204": [
+      "L740",
+      "L740CR"
+    ],
+    "205": [
+      "L740",
+      "L740CR",
+      "L830"
+    ],
+    "206": [
+      "L740"
+    ],
+    "207": [
+      "L740",
+      "L740CR"
+    ],
+    "208": [
+      "SHARED_ROC_L"
+    ],
+    "209": [
+      "L740",
+      "L740CR"
+    ],
+    "210": [
+      "SHARED_ROC_L"
+    ],
+    "211": [
+      "L740",
+      "L740CR",
+      "L830"
+    ],
+    "212": [
+      "SHARED_ROC_L"
+    ],
+    "213": [
+      "L740",
+      "L740CR",
+      "L830"
+    ],
+    "214": [
+      "SHARED_ROC_L"
+    ],
+    "215": [
+      "SHARED_ROC_L"
+    ],
+    "216": [
+      "SHARED_ROC_L"
+    ],
+    "217": [
+      "SHARED_ROC_L"
+    ],
+    "218": [
+      "L740"
+    ],
+    "219": [
+      "L740"
+    ],
+    "220": [
+      "L740"
+    ],
+    "221": [
+      "L740"
+    ],
+    "222": [
+      "L740"
+    ],
+    "223": [
+      "L740"
+    ],
+    "224": [
+      "L740"
+    ],
+    "225": [
+      "L740"
+    ],
+    "226": [
+      "L740"
+    ],
+    "227": [
+      "L740"
+    ],
+    "228": [
+      "L740"
+    ],
+    "229": [
+      "L740"
+    ],
+    "230": [
+      "L740"
+    ],
+    "231": [
+      "SHARED_ROC_L"
+    ],
+    "232": [
+      "L740CR",
+      "L830"
+    ],
+    "233": [
+      "L740CR",
+      "L830"
+    ],
+    "234": [
+      "L740CR",
+      "L830"
+    ],
+    "235": [
+      "L740CR",
+      "L830"
+    ],
+    "236": [
+      "L740CR",
+      "L830"
+    ],
+    "237": [
+      "L740CR",
+      "L830"
+    ],
+    "238": [
+      "L740CR",
+      "L830"
+    ],
+    "239": [
+      "L740CR",
+      "L830"
+    ],
+    "240": [
+      "L740CR",
+      "L830"
+    ],
+    "241": [
+      "L740CR",
+      "L830"
+    ],
+    "242": [
+      "L740CR",
+      "L830"
+    ],
+    "243": [
+      "L740CR",
+      "L830"
+    ],
+    "244": [
+      "L740CR",
+      "L830"
+    ],
+    "245": [
+      "L740CR",
+      "L830"
+    ],
+    "246": [
+      "L740CR",
+      "L830"
+    ],
+    "247": [
+      "L740CR",
+      "L830"
+    ],
+    "248": [
+      "L740CR",
+      "L830"
+    ],
+    "249": [
+      "L740CR",
+      "L830"
+    ],
+    "250": [
+      "L740CR",
+      "L830"
+    ],
+    "251": [
+      "L740CR",
+      "L830"
+    ],
+    "252": [
+      "UNKNOWN"
+    ],
+    "253": [
+      "UNKNOWN"
+    ],
+    "254": [
+      "UNKNOWN"
+    ],
+    "255": [
+      "L740"
+    ],
+    "256": [
+      "SHARED_ROC_L"
+    ],
+    "257": [
+      "L740"
+    ],
+    "258": [
+      "L740"
+    ],
+    "259": [
+      "L740"
+    ],
+    "260": [
+      "L740CR",
+      "L830"
+    ],
+    "261": [
+      "SHARED_ROC_L"
+    ],
+    "262": [
+      "SHARED_ROC_L"
+    ],
+    "263": [
+      "SHARED_ROC_L"
+    ],
+    "264": [
+      "SHARED_ROC_L"
+    ],
+    "265": [
+      "L7",
+      "L740",
+      "L740CR",
+      "L830"
+    ],
+    "266": [
+      "L740"
+    ],
+    "267": [
+      "L740"
+    ],
+    "268": [
+      "L740"
+    ],
+    "269": [
+      "L740"
+    ],
+    "270": [
+      "L740"
+    ],
+    "271": [
+      "L740"
+    ],
+    "272": [
+      "L740"
+    ],
+    "273": [
+      "L740"
+    ],
+    "274": [
+      "L740"
+    ],
+    "275": [
+      "L740"
+    ],
+    "276": [
+      "L740"
+    ],
+    "277": [
+      "L740"
+    ],
+    "278": [
+      "L740CR"
+    ],
+    "279": [
+      "L740CR"
+    ],
+    "280": [
+      "L740CR"
+    ],
+    "281": [
+      "L740CR"
+    ],
+    "282": [
+      "L740CR"
+    ],
+    "283": [
+      "L740CR"
+    ],
+    "284": [
+      "L740CR"
+    ],
+    "285": [
+      "L740CR"
+    ],
+    "286": [
+      "L740CR"
+    ],
+    "287": [
+      "L740CR"
+    ],
+    "288": [
+      "L740CR"
+    ],
+    "289": [
+      "L740CR"
+    ],
+    "290": [
+      "L740CR"
+    ],
+    "291": [
+      "L740CR"
+    ],
+    "292": [
+      "L830",
+      "L630"
+    ],
+    "293": [
+      "L830",
+      "L630"
+    ],
+    "294": [
+      "L830",
+      "L630"
+    ],
+    "295": [
+      "L830",
+      "L630"
+    ],
+    "296": [
+      "L830",
+      "L630"
+    ],
+    "297": [
+      "L830",
+      "L630"
+    ],
+    "298": [
+      "L830",
+      "L630"
+    ],
+    "299": [
+      "L830",
+      "L630"
+    ],
+    "300": [
+      "L830",
+      "L630"
+    ],
+    "301": [
+      "L830",
+      "L630"
+    ],
+    "302": [
+      "L830",
+      "L630"
+    ],
+    "303": [
+      "L830",
+      "L630"
+    ],
+    "304": [
+      "L7"
+    ],
+    "305": [
+      "L7"
+    ],
+    "306": [
+      "L7"
+    ],
+    "307": [
+      "L7"
+    ],
+    "308": [
+      "L7"
+    ],
+    "309": [
+      "L7"
+    ],
+    "310": [
+      "L7"
+    ],
+    "311": [
+      "L7"
+    ],
+    "312": [
+      "L8",
+      "L830"
+    ],
+    "313": [
+      "L8",
+      "L830"
+    ],
+    "314": [
+      "L8",
+      "L830"
+    ],
+    "315": [
+      "L8",
+      "L830"
+    ],
+    "316": [
+      "UNKNOWN"
+    ],
+    "317": [
+      "UNKNOWN"
+    ],
+    "318": [
+      "UNKNOWN"
+    ],
+    "319": [
+      "UNKNOWN"
+    ],
+    "320": [
+      "UNKNOWN"
+    ],
+    "321": [
+      "UNKNOWN"
+    ],
+    "322": [
+      "UNKNOWN"
+    ],
+    "323": [
+      "UNKNOWN"
+    ],
+    "324": [
+      "UNKNOWN"
+    ],
+    "325": [
+      "UNKNOWN"
+    ],
+    "326": [
+      "UNKNOWN"
+    ],
+    "327": [
+      "UNKNOWN"
+    ],
+    "328": [
+      "UNKNOWN"
+    ],
+    "329": [
+      "UNKNOWN"
+    ],
+    "330": [
+      "UNKNOWN"
+    ],
+    "331": [
+      "UNKNOWN"
+    ],
+    "332": [
+      "UNKNOWN"
+    ],
+    "333": [
+      "UNKNOWN"
+    ],
+    "334": [
+      "UNKNOWN"
+    ],
+    "335": [
+      "UNKNOWN"
+    ],
+    "336": [
+      "UNKNOWN"
+    ],
+    "337": [
+      "UNKNOWN"
+    ],
+    "338": [
+      "UNKNOWN"
+    ],
+    "339": [
+      "UNKNOWN"
+    ],
+    "340": [
+      "UNKNOWN"
+    ],
+    "341": [
+      "UNKNOWN"
+    ],
+    "342": [
+      "UNKNOWN"
+    ],
+    "343": [
+      "UNKNOWN"
+    ],
+    "344": [
+      "UNKNOWN"
+    ],
+    "345": [
+      "UNKNOWN"
+    ],
+    "346": [
+      "UNKNOWN"
+    ],
+    "347": [
+      "UNKNOWN"
+    ],
+    "348": [
+      "UNKNOWN"
+    ],
+    "349": [
+      "UNKNOWN"
+    ],
+    "350": [
+      "UNKNOWN"
+    ],
+    "351": [
+      "UNKNOWN"
+    ],
+    "352": [
+      "UNKNOWN"
+    ],
+    "353": [
+      "UNKNOWN"
+    ],
+    "354": [
+      "UNKNOWN"
+    ],
+    "355": [
+      "UNKNOWN"
+    ],
+    "356": [
+      "UNKNOWN"
+    ],
+    "357": [
+      "UNKNOWN"
+    ],
+    "358": [
+      "UNKNOWN"
+    ],
+    "359": [
+      "UNKNOWN"
+    ],
+    "360": [
+      "L7"
+    ],
+    "361": [
+      "L7"
+    ],
+    "362": [
+      "L7"
+    ],
+    "363": [
+      "L740CR"
+    ],
+    "364": [
+      "L740CR"
+    ],
+    "365": [
+      "L740CR"
+    ],
+    "366": [
+      "L8"
+    ],
+    "367": [
+      "L8"
+    ],
+    "368": [
+      "L8"
+    ],
+    "369": [
+      "EXCLUDED"
+    ]
+  },
+  "excluded_pages": [
+    369
+  ],
+  "sections": {
+    "introduction": {
+      "pdf_start": 1,
+      "pdf_end": 9,
+      "title": "General / Introduction",
+      "title_fa": "معرفی و برنامه آموزش",
+      "keywords_en": [
+        "general",
+        "introduction"
+      ],
+      "keywords_fa": [
+        "معرفی",
+        "و",
+        "برنامه",
+        "آموزش"
+      ],
+      "topics": [
+        "general",
+        "introduction"
+      ],
+      "applicable_models": [
+        "L7",
+        "L740",
+        "L740CR",
+        "L8",
+        "L830",
+        "SHARED_ROC_L"
+      ],
+      "content_type": "training",
+      "extraction_mode": "mixed",
+      "document_id": "roc-l8-trainee-9852960001",
+      "textless_pages": [
+        1,
+        3,
+        5
+      ],
+      "heading_evidence": {
+        "pdf_page": 1,
+        "text": ""
+      },
+      "notes": "Per-page model filter is authoritative. Shared pages can contain explicitly labelled variant alternatives.",
+      "limitations": "Exact settings, connections and values require visible variant verification.",
+      "retrieval_enabled": true
+    },
+    "hydraulic_general": {
+      "pdf_start": 10,
+      "pdf_end": 15,
+      "title": "Hydraulic system, general",
+      "title_fa": "هیدرولیک عمومی",
+      "keywords_en": [
+        "hydraulic",
+        "pump"
+      ],
+      "keywords_fa": [
+        "هیدرولیک",
+        "عمومی"
+      ],
+      "topics": [
+        "hydraulic",
+        "pump"
+      ],
+      "applicable_models": [
+        "L740",
+        "L740CR",
+        "L7TH",
+        "L8",
+        "L830",
+        "SHARED_ROC_L"
+      ],
+      "content_type": "training",
+      "extraction_mode": "mixed",
+      "document_id": "roc-l8-trainee-9852960001",
+      "textless_pages": [],
+      "heading_evidence": {
+        "pdf_page": 10,
+        "text": " Hydraulic system, general  \n3 \nHydraulic system, general \nGeneral – L740, L740CR \nThe hydraulic system of the ROC L740 and L740CR is an electrical and pilot pressure \ncontrolled system, with 6 hydraulic pumps. Hydraulic pumps 1, 2, 3 and 4 are in-line \nassembled and direct driven by the diesel engine over a flexible coupling.  \nThe hydraulic pumps 5 and 6 are combined to a double pump with a comm"
+      },
+      "notes": "Per-page model filter is authoritative. Shared pages can contain explicitly labelled variant alternatives.",
+      "limitations": "Exact settings, connections and values require visible variant verification.",
+      "retrieval_enabled": true
+    },
+    "electrical_general": {
+      "pdf_start": 16,
+      "pdf_end": 27,
+      "title": "Electrical system, general",
+      "title_fa": "برق عمومی",
+      "keywords_en": [
+        "electrical",
+        "wiring",
+        "power"
+      ],
+      "keywords_fa": [
+        "برق",
+        "عمومی"
+      ],
+      "topics": [
+        "electrical",
+        "wiring",
+        "power"
+      ],
+      "applicable_models": [
+        "L740",
+        "L740CR",
+        "L830",
+        "SHARED_ROC_L"
+      ],
+      "content_type": "training",
+      "extraction_mode": "mixed",
+      "document_id": "roc-l8-trainee-9852960001",
+      "textless_pages": [
+        19
+      ],
+      "heading_evidence": {
+        "pdf_page": 16,
+        "text": " Electrical system, general \n8 \nElectrical system, general \nGeneral \nROC L740, L740CR, L830 are equipped with a 24-volt electrical system for monitoring and \nfault indication, electric power is also used for controlling a number of hydraulic and \npneumatic valves. The composition of the electrical system is illustrated in the block diagram.  \nBattery charging \nPower supply to the electrical system"
+      },
+      "notes": "Per-page model filter is authoritative. Shared pages can contain explicitly labelled variant alternatives.",
+      "limitations": "Exact settings, connections and values require visible variant verification.",
+      "retrieval_enabled": true
+    },
+    "operating": {
+      "pdf_start": 28,
+      "pdf_end": 33,
+      "title": "Operating",
+      "title_fa": "کاربری و کنترل‌ها",
+      "keywords_en": [
+        "operating",
+        "controls"
+      ],
+      "keywords_fa": [
+        "کاربری",
+        "و",
+        "کنترل‌ها"
+      ],
+      "topics": [
+        "operating",
+        "controls"
+      ],
+      "applicable_models": [
+        "L7",
+        "L740",
+        "L740CR",
+        "L8",
+        "L830",
+        "SHARED_ROC_L"
+      ],
+      "content_type": "training",
+      "extraction_mode": "mixed",
+      "document_id": "roc-l8-trainee-9852960001",
+      "textless_pages": [
+        33
+      ],
+      "heading_evidence": {
+        "pdf_page": 28,
+        "text": "1\n1\nOperating\nCabin heat and AC\n1. Working lights cab, front\n2. Working lights rig, rear\n3. Working lights feeder\n4. Lighting engine compartment\n5. Windscreen washer, upper\n6. Windscreen wiper, upper increases speed in steps.\n7. Windscreen wiper, upper reduces speed in steps. Switch off \nby depressing and holding the button for 2 seconds.\n8. Front windscreen washers\n9. Windscreen wiper, front redu"
+      },
+      "notes": "Per-page model filter is authoritative. Shared pages can contain explicitly labelled variant alternatives.",
+      "limitations": "Exact settings, connections and values require visible variant verification.",
+      "retrieval_enabled": true
+    },
+    "can": {
+      "pdf_start": 34,
+      "pdf_end": 39,
+      "title": "CAN and control panel",
+      "title_fa": "شبکه CAN و پنل کنترل",
+      "keywords_en": [
+        "can",
+        "touch",
+        "panel",
+        "power",
+        "board"
+      ],
+      "keywords_fa": [
+        "شبکه",
+        "CAN",
+        "و",
+        "پنل",
+        "کنترل"
+      ],
+      "topics": [
+        "can",
+        "touch",
+        "panel",
+        "power",
+        "board"
+      ],
+      "applicable_models": [
+        "SHARED_ROC_L"
+      ],
+      "content_type": "training",
+      "extraction_mode": "mixed",
+      "document_id": "roc-l8-trainee-9852960001",
+      "textless_pages": [
+        39
+      ],
+      "heading_evidence": {
+        "pdf_page": 34,
+        "text": " CAN, general  \n11 \nCAN, general \nThis is an overview of the CAN communication \nnetwork. If communication is down in any of \nthe units, the unit will show in red, and a \nwarning for communication breakdown will be \nshown on the status bar.   \n \n \nCAN \nThere are various types of control modules (PLC, ECM, main display, CAN nodes etc.). \nCommon to all of these is that they each contain a separate pr"
+      },
+      "notes": "Per-page model filter is authoritative. Shared pages can contain explicitly labelled variant alternatives.",
+      "limitations": "Exact settings, connections and values require visible variant verification.",
+      "retrieval_enabled": true
+    },
+    "engine": {
+      "pdf_start": 40,
+      "pdf_end": 63,
+      "title": "Diesel engine and starting diagrams",
+      "title_fa": "موتور و مدار راه‌اندازی",
+      "keywords_en": [
+        "engine",
+        "starting",
+        "C13",
+        "C15"
+      ],
+      "keywords_fa": [
+        "موتور",
+        "و",
+        "مدار",
+        "راه‌اندازی"
+      ],
+      "topics": [
+        "engine",
+        "starting",
+        "C13",
+        "C15"
+      ],
+      "applicable_models": [
+        "L740",
+        "L740CR",
+        "L830",
+        "SHARED_ROC_L"
+      ],
+      "content_type": "training",
+      "extraction_mode": "mixed",
+      "document_id": "roc-l8-trainee-9852960001",
+      "textless_pages": [
+        47
+      ],
+      "heading_evidence": {
+        "pdf_page": 40,
+        "text": " Diesel engine \n16 \nDiesel engine \nThe engine on ROC L740, L740CR is a turbocharged, water cooled C13 diesel engine from \nCaterpillar. Rated power at 2000 rpm is 328 kW.  \nThe engine on L830 is a turbocharged, water cooled C15 diesel engine from Caterpillar. Rated \npower at 2000 rpm is 402 kW. \nBattery switch, OFF \nThe diesel fire heater and the timer are connected before the battery switch S300 v"
+      },
+      "notes": "Per-page model filter is authoritative. Shared pages can contain explicitly labelled variant alternatives.",
+      "limitations": "Exact settings, connections and values require visible variant verification.",
+      "retrieval_enabled": true
+    },
+    "pump_pilot": {
+      "pdf_start": 64,
+      "pdf_end": 71,
+      "title": "Pumps & Pilot Pressure",
+      "title_fa": "پمپ و فشار پایلوت",
+      "keywords_en": [
+        "pump",
+        "pilot",
+        "pressure"
+      ],
+      "keywords_fa": [
+        "پمپ",
+        "و",
+        "فشار",
+        "پایلوت"
+      ],
+      "topics": [
+        "pump",
+        "pilot",
+        "pressure"
+      ],
+      "applicable_models": [
+        "L740",
+        "L740CR",
+        "L830",
+        "SHARED_ROC_L"
+      ],
+      "content_type": "training",
+      "extraction_mode": "mixed",
+      "document_id": "roc-l8-trainee-9852960001",
+      "textless_pages": [],
+      "heading_evidence": {
+        "pdf_page": 64,
+        "text": " Pumps & Pilot Pressure  \n23 \nPumps & Pilot Pressure   \nPump 1 – L740, L740CR \nPump 1 is the main pump in the hydraulic system of ROC L740, L740CR. It is an axial piston \npump with a variable displacement. The pump is pressure compensated, which means that the \npressure is maintained constant irrespective of the flow.  \nThe pump pressure can be controlled by either pressure relief valves connected"
+      },
+      "notes": "Per-page model filter is authoritative. Shared pages can contain explicitly labelled variant alternatives.",
+      "limitations": "Exact settings, connections and values require visible variant verification.",
+      "retrieval_enabled": true
+    },
+    "cooling_fans": {
+      "pdf_start": 72,
+      "pdf_end": 73,
+      "title": "Cooling fans",
+      "title_fa": "فن‌های خنک‌کن",
+      "keywords_en": [
+        "cooling",
+        "fans"
+      ],
+      "keywords_fa": [
+        "فن‌های",
+        "خنک‌کن"
+      ],
+      "topics": [
+        "cooling",
+        "fans"
+      ],
+      "applicable_models": [
+        "L7",
+        "L8",
+        "SHARED_ROC_L"
+      ],
+      "content_type": "training",
+      "extraction_mode": "mixed",
+      "document_id": "roc-l8-trainee-9852960001",
+      "textless_pages": [
+        73
+      ],
+      "heading_evidence": {
+        "pdf_page": 72,
+        "text": " Cooling fans \n27 \n50\n510\nmax\n0\nRevolution\nmA\nCooling fans \nThe rig is equipped with two standard fan drives, one for cooling the compressor/hydraulic \noil, and one for cooling the engine water/air inlet. High ambient temperature fan drive for \nwarmer environment is available as an option.  \n \nConditions for starting the compressor/hydraulic oil temperature cooler fan: \n \n• Compressor temperature "
+      },
+      "notes": "Per-page model filter is authoritative. Shared pages can contain explicitly labelled variant alternatives.",
+      "limitations": "Exact settings, connections and values require visible variant verification.",
+      "retrieval_enabled": true
+    },
+    "travel": {
+      "pdf_start": 74,
+      "pdf_end": 81,
+      "title": "Tramming",
+      "title_fa": "حرکت دستگاه",
+      "keywords_en": [
+        "travel",
+        "tramming"
+      ],
+      "keywords_fa": [
+        "حرکت",
+        "دستگاه"
+      ],
+      "topics": [
+        "travel",
+        "tramming"
+      ],
+      "applicable_models": [
+        "SHARED_ROC_L"
+      ],
+      "content_type": "training",
+      "extraction_mode": "mixed",
+      "document_id": "roc-l8-trainee-9852960001",
+      "textless_pages": [],
+      "heading_evidence": {
+        "pdf_page": 74,
+        "text": " Tramming  \n28 \nTramming \nConditions for tramming function: \n \n• Drilling/Tramming switch S130 must be in a tramming position*. => D552-CH2 or \nCH3/ON \n• The hydraulic jack must be fully retracted, sensor B184 activated. => PLC input X10-\n7/ON (Optional equipment) \n• Tramming paddles S174 or/and S175 must be activated. => D553/CH13 or CH14/ON \nResult in: \n• *Y121A/B activated (directly after S130 "
+      },
+      "notes": "Per-page model filter is authoritative. Shared pages can contain explicitly labelled variant alternatives.",
+      "limitations": "Exact settings, connections and values require visible variant verification.",
+      "retrieval_enabled": true
+    },
+    "positioning": {
+      "pdf_start": 82,
+      "pdf_end": 91,
+      "title": "Positioning",
+      "title_fa": "موقعیت‌دهی",
+      "keywords_en": [
+        "positioning",
+        "oscillation"
+      ],
+      "keywords_fa": [
+        "موقعیت‌دهی"
+      ],
+      "topics": [
+        "positioning",
+        "oscillation"
+      ],
+      "applicable_models": [
+        "SHARED_ROC_L"
+      ],
+      "content_type": "training",
+      "extraction_mode": "mixed",
+      "document_id": "roc-l8-trainee-9852960001",
+      "textless_pages": [
+        83,
+        91
+      ],
+      "heading_evidence": {
+        "pdf_page": 82,
+        "text": " Positioning  \n30 \nPositioning \n \nThe positioning circuit is mainly supplied with oil from pump 1. However, since the \ntramming circuit is also supplied from pump 1, it is necessary to use pump 4 for positioning \nduring tramming. Since pump 1 is bigger and operates at higher pressure than pump 4, it \nmeans that positioning is quicker in Drill mode than it is in Tramming mode.  \n \nBoom and feed pos"
+      },
+      "notes": "Per-page model filter is authoritative. Shared pages can contain explicitly labelled variant alternatives.",
+      "limitations": "Exact settings, connections and values require visible variant verification.",
+      "retrieval_enabled": true
+    },
+    "compressor": {
+      "pdf_start": 92,
+      "pdf_end": 107,
+      "title": "Air System & Compressor",
+      "title_fa": "کمپرسور و سیستم هوا",
+      "keywords_en": [
+        "compressor",
+        "air",
+        "flushing"
+      ],
+      "keywords_fa": [
+        "کمپرسور",
+        "و",
+        "سیستم",
+        "هوا"
+      ],
+      "topics": [
+        "compressor",
+        "air",
+        "flushing"
+      ],
+      "applicable_models": [
+        "L740",
+        "L740CR",
+        "L8",
+        "L830",
+        "SHARED_ROC_L"
+      ],
+      "content_type": "training",
+      "extraction_mode": "mixed",
+      "document_id": "roc-l8-trainee-9852960001",
+      "textless_pages": [
+        97,
+        107
+      ],
+      "heading_evidence": {
+        "pdf_page": 92,
+        "text": " Air System & Compressor \n31 \nAir System & Compressor \nAir System \nCompressed air is used for the following rig functions: \n• Flushing air \nFull flushing and reduced flushing air. Transportation of drilled cuttings from the hole \nto the surface. The reduced flushing is mainly used during collaring through fissured \nground, to prevent the air from destroying the hole walls.  \n• ECL, rock drill lubr"
+      },
+      "notes": "Per-page model filter is authoritative. Shared pages can contain explicitly labelled variant alternatives.",
+      "limitations": "Exact settings, connections and values require visible variant verification.",
+      "retrieval_enabled": true
+    },
+    "preheating": {
+      "pdf_start": 108,
+      "pdf_end": 115,
+      "title": "Oil pre-heating",
+      "title_fa": "پیش‌گرمایش روغن",
+      "keywords_en": [
+        "preheating",
+        "oil",
+        "heating"
+      ],
+      "keywords_fa": [
+        "پیش‌گرمایش",
+        "روغن"
+      ],
+      "topics": [
+        "preheating",
+        "oil",
+        "heating"
+      ],
+      "applicable_models": [
+        "L7",
+        "L740",
+        "L740CR",
+        "L7TH",
+        "L830",
+        "SHARED_ROC_L"
+      ],
+      "content_type": "training",
+      "extraction_mode": "mixed",
+      "document_id": "roc-l8-trainee-9852960001",
+      "textless_pages": [
+        115
+      ],
+      "heading_evidence": {
+        "pdf_page": 108,
+        "text": " Oil pre-heating \n36 \nOil pre-heating \n \nOil pre-heating – L740, L740CR \nPump 2 is used for pre-heating the hydraulic oil \nand the rock-drill impact components. Normal \noperating temperature of the hydraulic oil is \n40°C. Before operating the drill rig the oil \nshould be pre-heated to minimum operating \ntemperature, 20°C.  \n \nWhen switch S130 is in the pre-heating position, \nsolenoid valve Y121A a"
+      },
+      "notes": "Per-page model filter is authoritative. Shared pages can contain explicitly labelled variant alternatives.",
+      "limitations": "Exact settings, connections and values require visible variant verification.",
+      "retrieval_enabled": true
+    },
+    "feed": {
+      "pdf_start": 116,
+      "pdf_end": 125,
+      "title": "Drilling functions / Drill feed",
+      "title_fa": "پیشروی حفاری",
+      "keywords_en": [
+        "feed",
+        "drilling"
+      ],
+      "keywords_fa": [
+        "پیشروی",
+        "حفاری"
+      ],
+      "topics": [
+        "feed",
+        "drilling"
+      ],
+      "applicable_models": [
+        "L740",
+        "L740CR",
+        "L830",
+        "SHARED_ROC_L"
+      ],
+      "content_type": "training",
+      "extraction_mode": "mixed",
+      "document_id": "roc-l8-trainee-9852960001",
+      "textless_pages": [
+        121
+      ],
+      "heading_evidence": {
+        "pdf_page": 116,
+        "text": " Drilling functions  \n38 \nDrilling functions \nActivation of drilling functions – L740, L740CR \nWhen S130 is in drilling position, Y121A and Y121B are not activated, Y169 is deactivated \nto let through pilot pressure to the drilling circuits. \n \nDe-activation of Y121A: \n- \nIt allows pump 1 pressure to connect to LS/pump pressure line directly. If impact is \nactivated, the pump pressure will be acco"
+      },
+      "notes": "Per-page model filter is authoritative. Shared pages can contain explicitly labelled variant alternatives.",
+      "limitations": "Exact settings, connections and values require visible variant verification.",
+      "retrieval_enabled": true
+    },
+    "rotation": {
+      "pdf_start": 126,
+      "pdf_end": 131,
+      "title": "Drill rotation",
+      "title_fa": "چرخش حفاری",
+      "keywords_en": [
+        "rotation",
+        "threading"
+      ],
+      "keywords_fa": [
+        "چرخش",
+        "حفاری"
+      ],
+      "topics": [
+        "rotation",
+        "threading"
+      ],
+      "applicable_models": [
+        "L740",
+        "L740CR",
+        "L830",
+        "SHARED_ROC_L"
+      ],
+      "content_type": "training",
+      "extraction_mode": "mixed",
+      "document_id": "roc-l8-trainee-9852960001",
+      "textless_pages": [
+        131
+      ],
+      "heading_evidence": {
+        "pdf_page": 126,
+        "text": " Drilling functions  \n43 \nDrill rotation \n \n• Drill rotation, clockwise/anticlockwise \n \nConditions for drill rotation with magnetic holding: \n \n• Switch S130 in drilling position => D552-CH1/ON \n• Switch S452 in feed/rotation mode, not activated => D550-CH11/OFF \nResult in: \n• Relay K178/OFF \n• Y179A/B activated, H452 activated \n \nNote: When Y179A/B is activated the magnetic holding is obtained w"
+      },
+      "notes": "Per-page model filter is authoritative. Shared pages can contain explicitly labelled variant alternatives.",
+      "limitations": "Exact settings, connections and values require visible variant verification.",
+      "retrieval_enabled": true
+    },
+    "rapid_feed": {
+      "pdf_start": 132,
+      "pdf_end": 147,
+      "title": "Rapid feed / Rod coupling",
+      "title_fa": "پیشروی سریع و اتصال راد",
+      "keywords_en": [
+        "rapid",
+        "feed",
+        "coupling"
+      ],
+      "keywords_fa": [
+        "پیشروی",
+        "سریع",
+        "و",
+        "اتصال",
+        "راد"
+      ],
+      "topics": [
+        "rapid",
+        "feed",
+        "coupling"
+      ],
+      "applicable_models": [
+        "L740",
+        "L740CR",
+        "L830",
+        "SHARED_ROC_L"
+      ],
+      "content_type": "training",
+      "extraction_mode": "mixed",
+      "document_id": "roc-l8-trainee-9852960001",
+      "textless_pages": [],
+      "heading_evidence": {
+        "pdf_page": 132,
+        "text": " Drilling functions  \n45 \nRapid feed \n \n• Rapid feed direction, Up-/Downwards \nWhen the lever is in the rapid feed/threading mode, magnetic holding is not available.  \n \nConditions for rapid feed: \n \n• Switch S130 in drilling position => D552-CH1/ON \n• Switch S452 in rapid feed/threading mode, activated => D550-CH11/ON \nResult in: \n• Relay K178/ON → Y178 activated \n• Y179A/B deactivated \n \nIn rapi"
+      },
+      "notes": "Per-page model filter is authoritative. Shared pages can contain explicitly labelled variant alternatives.",
+      "limitations": "Exact settings, connections and values require visible variant verification.",
+      "retrieval_enabled": true
+    },
+    "impact_flushing": {
+      "pdf_start": 148,
+      "pdf_end": 169,
+      "title": "Impact & Flushing air",
+      "title_fa": "ضربه و هوای فلاشینگ",
+      "keywords_en": [
+        "impact",
+        "flushing",
+        "air"
+      ],
+      "keywords_fa": [
+        "ضربه",
+        "و",
+        "هوای",
+        "فلاشینگ"
+      ],
+      "topics": [
+        "impact",
+        "flushing",
+        "air"
+      ],
+      "applicable_models": [
+        "L740",
+        "L740CR",
+        "L8",
+        "L830",
+        "SHARED_ROC_L"
+      ],
+      "content_type": "training",
+      "extraction_mode": "mixed",
+      "document_id": "roc-l8-trainee-9852960001",
+      "textless_pages": [
+        153,
+        169
+      ],
+      "heading_evidence": {
+        "pdf_page": 148,
+        "text": " Drilling functions  \n51 \nImpact with air flushing – L740, L740CR \nConditions for the impact function: \n \n• Switch S130 in drilling position => D552-CH1/ON \n• Compressor load switch S180 must be on => D552-CH9/ON  \n• Flushing air switch S100 in reduced or full position => D551-CH1/ON or OFF  \n• Sensor B118 activated, RHS arm in carousel =>PLC input X10-5/ON \n• Impact switch S446A or S446B must be "
+      },
+      "notes": "Per-page model filter is authoritative. Shared pages can contain explicitly labelled variant alternatives.",
+      "limitations": "Exact settings, connections and values require visible variant verification.",
+      "retrieval_enabled": true
+    },
+    "ecl_hecl": {
+      "pdf_start": 170,
+      "pdf_end": 175,
+      "title": "ECL / HECL lubrication",
+      "title_fa": "روانکاری ECL و HECL",
+      "keywords_en": [
+        "ecl",
+        "hecl",
+        "lubrication"
+      ],
+      "keywords_fa": [
+        "روانکاری",
+        "ECL",
+        "و",
+        "HECL"
+      ],
+      "topics": [
+        "ecl",
+        "hecl",
+        "lubrication"
+      ],
+      "applicable_models": [
+        "L740",
+        "L740CR",
+        "L830",
+        "SHARED_ROC_L"
+      ],
+      "content_type": "training",
+      "extraction_mode": "mixed",
+      "document_id": "roc-l8-trainee-9852960001",
+      "textless_pages": [
+        173,
+        175
+      ],
+      "heading_evidence": {
+        "pdf_page": 170,
+        "text": " Drilling functions  \n56 \nECL, rock drill lubrication system \n \nFunction \nECL pump Y106 starts to pump as soon as Impact is turned ON. The ECL pump is an \nelectrical piston pump, controlled by the PLC output X17-9 which sends out pulses to the \npump. Lubrication oil is then fed through a small plastic hose inside the air hose to the rock \ndrill, where the oil and air are mixed. A pressure reducing"
+      },
+      "notes": "Per-page model filter is authoritative. Shared pages can contain explicitly labelled variant alternatives.",
+      "limitations": "Exact settings, connections and values require visible variant verification.",
+      "retrieval_enabled": true
+    },
+    "damper": {
+      "pdf_start": 176,
+      "pdf_end": 189,
+      "title": "Damper & DPC-I system",
+      "title_fa": "دمپر و کنترل ضربه",
+      "keywords_en": [
+        "damper",
+        "dpc",
+        "impact"
+      ],
+      "keywords_fa": [
+        "دمپر",
+        "و",
+        "کنترل",
+        "ضربه"
+      ],
+      "topics": [
+        "damper",
+        "dpc",
+        "impact"
+      ],
+      "applicable_models": [
+        "L740",
+        "L740CR",
+        "SHARED_ROC_L"
+      ],
+      "content_type": "training",
+      "extraction_mode": "mixed",
+      "document_id": "roc-l8-trainee-9852960001",
+      "textless_pages": [
+        185,
+        189
+      ],
+      "heading_evidence": {
+        "pdf_page": 176,
+        "text": " Damper & DPC-I system \n59 \nDamper & DPC-I system \nDamper \nThe rock-drill damper circuit is supplied with oil from Pump1 through a constant flow \nregulator. The flow regulator is adjusted to correspond to a pressure of 25 bar at the damper \nhose connection on the rock-drill.   \n \nThe damper pressure during drilling shows the actual feed force on the drill bit. The pressure \ncan be read on the pres"
+      },
+      "notes": "Per-page model filter is authoritative. Shared pages can contain explicitly labelled variant alternatives.",
+      "limitations": "Exact settings, connections and values require visible variant verification.",
+      "retrieval_enabled": true
+    },
+    "dct": {
+      "pdf_start": 190,
+      "pdf_end": 201,
+      "title": "Dust collector, DCT",
+      "title_fa": "غبارگیر DCT",
+      "keywords_en": [
+        "dct",
+        "dust",
+        "collector"
+      ],
+      "keywords_fa": [
+        "غبارگیر",
+        "DCT"
+      ],
+      "topics": [
+        "dct",
+        "dust",
+        "collector"
+      ],
+      "applicable_models": [
+        "L740",
+        "L740CR",
+        "L830",
+        "SHARED_ROC_L"
+      ],
+      "content_type": "training",
+      "extraction_mode": "mixed",
+      "document_id": "roc-l8-trainee-9852960001",
+      "textless_pages": [
+        201
+      ],
+      "heading_evidence": {
+        "pdf_page": 190,
+        "text": " Dust collector, DCT \n68 \nDust collector, DCT \nConditions for the DCT suction functions: \n \n• Switch S130 in drilling position => D552-CH1/ON \n• Sensor B118 activated, RHS arm in carousel => PLC input X10-5/ON \n• Compressor load switch S180 must be on => D552-CH9/ON   \n• Flushing/Impact switch S446A or S446B must be activated, in either flushing or \nimpact mode => D550-CH9/10/ON \n• Switch S181 mus"
+      },
+      "notes": "Per-page model filter is authoritative. Shared pages can contain explicitly labelled variant alternatives.",
+      "limitations": "Exact settings, connections and values require visible variant verification.",
+      "retrieval_enabled": true
+    },
+    "protection": {
+      "pdf_start": 202,
+      "pdf_end": 215,
+      "title": "Protective functions",
+      "title_fa": "حفاظت و ضدگیر",
+      "keywords_en": [
+        "protection",
+        "anti",
+        "jamming",
+        "rpcf"
+      ],
+      "keywords_fa": [
+        "حفاظت",
+        "و",
+        "ضدگیر"
+      ],
+      "topics": [
+        "protection",
+        "anti",
+        "jamming",
+        "rpcf"
+      ],
+      "applicable_models": [
+        "L740",
+        "L740CR",
+        "L830",
+        "SHARED_ROC_L"
+      ],
+      "content_type": "training",
+      "extraction_mode": "mixed",
+      "document_id": "roc-l8-trainee-9852960001",
+      "textless_pages": [
+        215
+      ],
+      "heading_evidence": {
+        "pdf_page": 202,
+        "text": " Protective functions  \n70 \nProtective functions \nRPC-F system – L740 \nRPC-F, Rotation Pressure Controlled Feed.  \nWhen drilling, the drill string must have a certain rotation torque in order to keep all the rod \ncouplings tightened. Loosened joints increases the loss of impact energy transmitted to the \ndrill bit and leads to damage of the threads with drill steel breakage as a possible result. \n"
+      },
+      "notes": "Per-page model filter is authoritative. Shared pages can contain explicitly labelled variant alternatives.",
+      "limitations": "Exact settings, connections and values require visible variant verification.",
+      "retrieval_enabled": true
+    },
+    "length_measurement": {
+      "pdf_start": 216,
+      "pdf_end": 217,
+      "title": "Length measurement",
+      "title_fa": "اندازه‌گیری طول",
+      "keywords_en": [
+        "length",
+        "measurement",
+        "depth"
+      ],
+      "keywords_fa": [
+        "اندازه‌گیری",
+        "طول"
+      ],
+      "topics": [
+        "length",
+        "measurement",
+        "depth"
+      ],
+      "applicable_models": [
+        "SHARED_ROC_L"
+      ],
+      "content_type": "training",
+      "extraction_mode": "mixed",
+      "document_id": "roc-l8-trainee-9852960001",
+      "textless_pages": [],
+      "heading_evidence": {
+        "pdf_page": 216,
+        "text": " Length measurement \n74 \nLength measurement \nHole depth measurement \nData from pulse sensor B172 is handled for measuring \nhole length, with stop signal for drilling when set length \nis reached. A choice can be made between hole depth \nand hole length which stops the drilling.  \n \nThe first row in the menu view to the right (figure 2, 3)   \nshows actual length/depth of the hole. \n• Hole length is "
+      },
+      "notes": "Per-page model filter is authoritative. Shared pages can contain explicitly labelled variant alternatives.",
+      "limitations": "Exact settings, connections and values require visible variant verification.",
+      "retrieval_enabled": true
+    },
+    "rhs_102": {
+      "pdf_start": 218,
+      "pdf_end": 231,
+      "title": "Rod Handling System, RHS 102",
+      "title_fa": "رادگیر RHS 102",
+      "keywords_en": [
+        "rhs",
+        "rod",
+        "handling"
+      ],
+      "keywords_fa": [
+        "رادگیر",
+        "RHS",
+        "102"
+      ],
+      "topics": [
+        "rhs",
+        "rod",
+        "handling"
+      ],
+      "applicable_models": [
+        "L740",
+        "SHARED_ROC_L"
+      ],
+      "content_type": "training",
+      "extraction_mode": "mixed",
+      "document_id": "roc-l8-trainee-9852960001",
+      "textless_pages": [
+        231
+      ],
+      "heading_evidence": {
+        "pdf_page": 218,
+        "text": " Rod Handling System, RHS 102  \n76 \nRod Handling System, RHS 102                                                                 \n \nConditions common for all RHS functions: \n \n• Switch S130 in drilling position => D552-CH1/ON \n• Switch B379 (operator in chair) must be activated => \nD550-CH1/ON \n• The impact control switch S446A/B must be OFF => \nD550-CH9/10/OFF \n \nThe functions of the different ro"
+      },
+      "notes": "Per-page model filter is authoritative. Shared pages can contain explicitly labelled variant alternatives.",
+      "limitations": "Exact settings, connections and values require visible variant verification.",
+      "retrieval_enabled": true
+    },
+    "rhs_140": {
+      "pdf_start": 232,
+      "pdf_end": 251,
+      "title": "Rod Handling System, RHS 140",
+      "title_fa": "رادگیر RHS 140",
+      "keywords_en": [
+        "rhs",
+        "rod",
+        "handling",
+        "tube"
+      ],
+      "keywords_fa": [
+        "رادگیر",
+        "RHS",
+        "140"
+      ],
+      "topics": [
+        "rhs",
+        "rod",
+        "handling",
+        "tube"
+      ],
+      "applicable_models": [
+        "L740CR",
+        "L830"
+      ],
+      "content_type": "training",
+      "extraction_mode": "mixed",
+      "document_id": "roc-l8-trainee-9852960001",
+      "textless_pages": [
+        241
+      ],
+      "heading_evidence": {
+        "pdf_page": 232,
+        "text": " Rod Handling System, RHS 140 \n82 \nRod Handling System, RHS 140 \n \nConditions common for all RHS functions: \n \n• Switch S130 in drilling position => D552-CH1/ON \n• Switch B379 (operator in chair) must be activated => \nD550-CH1/ON \n• The impact control switch S446A/B must be OFF => \nD550-CH9/10/OFF \n \nThe functions of the different rod handling movements are \nelectrically operated by the RHS contro"
+      },
+      "notes": "Per-page model filter is authoritative. Shared pages can contain explicitly labelled variant alternatives.",
+      "limitations": "Exact settings, connections and values require visible variant verification.",
+      "retrieval_enabled": true
+    },
+    "options": {
+      "pdf_start": 252,
+      "pdf_end": 263,
+      "title": "Options",
+      "title_fa": "آپشن‌ها",
+      "keywords_en": [
+        "extractor",
+        "water",
+        "mist",
+        "greasing",
+        "laser"
+      ],
+      "keywords_fa": [
+        "آپشن‌ها"
+      ],
+      "topics": [
+        "extractor",
+        "water",
+        "mist",
+        "greasing",
+        "laser"
+      ],
+      "applicable_models": [
+        "L740",
+        "L740CR",
+        "L830",
+        "SHARED_ROC_L",
+        "UNKNOWN"
+      ],
+      "content_type": "training",
+      "extraction_mode": "mixed",
+      "document_id": "roc-l8-trainee-9852960001",
+      "textless_pages": [],
+      "heading_evidence": {
+        "pdf_page": 252,
+        "text": " Extractor unit (Option) \n91 \nExtractor unit (Option) \nThe extractor function of the rock-drill consists of a hydraulic piston in the front part of the \nrock-drill and a logic valve for the activation of it, the unit is also known as the back hammer. \nThe hydraulic power is supplied from Pump 1. \n \nThe extractor unit is used when the rock conditions vary a lot and there is a large risk of \njamming"
+      },
+      "notes": "Per-page model filter is authoritative. Shared pages can contain explicitly labelled variant alternatives.",
+      "limitations": "Exact settings, connections and values require visible variant verification.",
+      "retrieval_enabled": true
+    },
+    "settings": {
+      "pdf_start": 264,
+      "pdf_end": 265,
+      "title": "Adjustment/calibration",
+      "title_fa": "تنظیم و کالیبراسیون",
+      "keywords_en": [
+        "settings",
+        "adjustment",
+        "calibration"
+      ],
+      "keywords_fa": [
+        "تنظیم",
+        "و",
+        "کالیبراسیون"
+      ],
+      "topics": [
+        "settings",
+        "adjustment",
+        "calibration"
+      ],
+      "applicable_models": [
+        "L7",
+        "L740",
+        "L740CR",
+        "L830",
+        "SHARED_ROC_L"
+      ],
+      "content_type": "training",
+      "extraction_mode": "mixed",
+      "document_id": "roc-l8-trainee-9852960001",
+      "textless_pages": [],
+      "heading_evidence": {
+        "pdf_page": 264,
+        "text": " Adjustment/calibration \n101 \nAdjustment/calibration \nCalibrating of positioning instruments \n \nCalibration of laser sensor \nThe manually measured length value between the \ndrill bit and laser sensor when the drill bit is \napplied to the ground. This value is entered in the \nmenu for calibrating the laser sensor.  \n \nCalibration of aiming device \nThe aiming device is set in straight-forward \nposit"
+      },
+      "notes": "Per-page model filter is authoritative. Shared pages can contain explicitly labelled variant alternatives.",
+      "limitations": "Exact settings, connections and values require visible variant verification.",
+      "retrieval_enabled": true
+    },
+    "plc_l740": {
+      "pdf_start": 266,
+      "pdf_end": 277,
+      "title": "PLC Programme ROC L740",
+      "title_fa": "برنامه PLC مدل L740",
+      "keywords_en": [
+        "plc",
+        "programme"
+      ],
+      "keywords_fa": [
+        "برنامه",
+        "PLC",
+        "مدل",
+        "L740"
+      ],
+      "topics": [
+        "plc",
+        "programme"
+      ],
+      "applicable_models": [
+        "L740"
+      ],
+      "content_type": "training",
+      "extraction_mode": "mixed",
+      "document_id": "roc-l8-trainee-9852960001",
+      "textless_pages": [
+        277
+      ],
+      "heading_evidence": {
+        "pdf_page": 266,
+        "text": "2008-10-21 PLC Programme, ROC L740 (Bosal cabin) \n \n \nPage 1 of 11 \n \nPLC-PROGRAMME EXPLANATION \n \nDRILLRIG TYPE: ROC L740  \nPLC TYPE: IFM CR0200/CR0020 \nPLC PART NUMBER: 3176 0001 50/3176 0001 55 \nINDEX \nINDEX.........................................................................................................................................................................................1 \n1."
+      },
+      "notes": "Per-page model filter is authoritative. Shared pages can contain explicitly labelled variant alternatives.",
+      "limitations": "Exact settings, connections and values require visible variant verification.",
+      "retrieval_enabled": true
+    },
+    "plc_l740cr": {
+      "pdf_start": 278,
+      "pdf_end": 291,
+      "title": "PLC Programme ROC L740CR",
+      "title_fa": "برنامه PLC مدل L740CR",
+      "keywords_en": [
+        "plc",
+        "programme"
+      ],
+      "keywords_fa": [
+        "برنامه",
+        "PLC",
+        "مدل",
+        "L740CR"
+      ],
+      "topics": [
+        "plc",
+        "programme"
+      ],
+      "applicable_models": [
+        "L740CR"
+      ],
+      "content_type": "training",
+      "extraction_mode": "mixed",
+      "document_id": "roc-l8-trainee-9852960001",
+      "textless_pages": [],
+      "heading_evidence": {
+        "pdf_page": 278,
+        "text": "2008-10-21 PLC Programme, ROC L740CR (Bosal cabin) \n \n \nPage 1 of 14 \n \nPLC-PROGRAMME EXPLANATION \n \nDRILLRIG TYPE: ROC L740CR  \nPLC TYPE: IFM CR0200/CR0020 \nPLC PART NUMBER: 3176 0001 50/3176 0001 55 \nINDEX \nINDEX.........................................................................................................................................................................................1"
+      },
+      "notes": "Per-page model filter is authoritative. Shared pages can contain explicitly labelled variant alternatives.",
+      "limitations": "Exact settings, connections and values require visible variant verification.",
+      "retrieval_enabled": true
+    },
+    "plc_l830": {
+      "pdf_start": 292,
+      "pdf_end": 303,
+      "title": "PLC Programme ROC L830 and L630",
+      "title_fa": "برنامه PLC مدل L830 و L630",
+      "keywords_en": [
+        "plc",
+        "programme"
+      ],
+      "keywords_fa": [
+        "برنامه",
+        "PLC",
+        "مدل",
+        "L830",
+        "و",
+        "L630"
+      ],
+      "topics": [
+        "plc",
+        "programme"
+      ],
+      "applicable_models": [
+        "L630",
+        "L830"
+      ],
+      "content_type": "training",
+      "extraction_mode": "mixed",
+      "document_id": "roc-l8-trainee-9852960001",
+      "textless_pages": [],
+      "heading_evidence": {
+        "pdf_page": 292,
+        "text": "2008-10-21 PLC Programme, ROC L830 and ROC L630 (Bosal cabin) \n \n \nPage 1 of 12 \n \nPLC-PROGRAMME EXPLANATION \n \nDRILLRIG TYPE: ROC L830 and ROC L630  \nPLC TYPE: IFM CR0200/CR0020 \nPLC PART NUMBER: 3176 0001 50/3176 0001 55 \n \nINDEX \nINDEX.................................................................................................................................................................."
+      },
+      "notes": "Per-page model filter is authoritative. Shared pages can contain explicitly labelled variant alternatives.",
+      "limitations": "Exact settings, connections and values require visible variant verification.",
+      "retrieval_enabled": true
+    },
+    "hydraulic_diagrams_l7": {
+      "pdf_start": 304,
+      "pdf_end": 311,
+      "title": "L7 hydraulic diagrams",
+      "title_fa": "نقشه هیدرولیک L7",
+      "keywords_en": [
+        "hydraulic",
+        "diagram"
+      ],
+      "keywords_fa": [
+        "نقشه",
+        "هیدرولیک",
+        "L7"
+      ],
+      "topics": [
+        "hydraulic",
+        "diagram"
+      ],
+      "applicable_models": [
+        "L7"
+      ],
+      "content_type": "diagram",
+      "extraction_mode": "mixed",
+      "document_id": "roc-l8-trainee-9852960001",
+      "textless_pages": [],
+      "heading_evidence": {
+        "pdf_page": 304,
+        "text": "L7\n40\nBosal\n13\n13a\n14\n15\n13b\n68\n64\n65\n63\n"
+      },
+      "notes": "Per-page model filter is authoritative. Shared pages can contain explicitly labelled variant alternatives.",
+      "limitations": "Exact settings, connections and values require visible variant verification.",
+      "retrieval_enabled": true
+    },
+    "hydraulic_diagrams_l8": {
+      "pdf_start": 312,
+      "pdf_end": 315,
+      "title": "L8 hydraulic diagrams",
+      "title_fa": "نقشه هیدرولیک L8",
+      "keywords_en": [
+        "hydraulic",
+        "diagram"
+      ],
+      "keywords_fa": [
+        "نقشه",
+        "هیدرولیک",
+        "L8"
+      ],
+      "topics": [
+        "hydraulic",
+        "diagram"
+      ],
+      "applicable_models": [
+        "L8",
+        "L830"
+      ],
+      "content_type": "diagram",
+      "extraction_mode": "mixed",
+      "document_id": "roc-l8-trainee-9852960001",
+      "textless_pages": [],
+      "heading_evidence": {
+        "pdf_page": 312,
+        "text": "L8\n30\nBosal\n68\n13\n14\n15\n13a\n13b\n64\n63\n65\n"
+      },
+      "notes": "Per-page model filter is authoritative. Shared pages can contain explicitly labelled variant alternatives.",
+      "limitations": "Exact settings, connections and values require visible variant verification.",
+      "retrieval_enabled": true
+    },
+    "electrical_diagrams": {
+      "pdf_start": 316,
+      "pdf_end": 359,
+      "title": "Electrical diagrams, 44 sheets",
+      "title_fa": "نقشه برق نسخه ۴۴ شیتی",
+      "keywords_en": [
+        "electrical",
+        "wiring",
+        "diagram"
+      ],
+      "keywords_fa": [
+        "نقشه",
+        "برق",
+        "نسخه",
+        "۴۴",
+        "شیتی"
+      ],
+      "topics": [
+        "electrical",
+        "wiring",
+        "diagram"
+      ],
+      "applicable_models": [
+        "UNKNOWN"
+      ],
+      "content_type": "diagram",
+      "extraction_mode": "image",
+      "document_id": "roc-l8-trainee-9852960001",
+      "textless_pages": [
+        316,
+        317,
+        318,
+        319,
+        320,
+        321,
+        322,
+        323,
+        324,
+        325,
+        326,
+        327,
+        328,
+        329,
+        330,
+        331,
+        332,
+        333,
+        334,
+        335,
+        336,
+        337,
+        338,
+        339,
+        340,
+        341,
+        342,
+        343,
+        344,
+        345,
+        346,
+        347,
+        348,
+        349,
+        350,
+        351,
+        352,
+        353,
+        354,
+        355,
+        356,
+        357,
+        358,
+        359
+      ],
+      "heading_evidence": {
+        "pdf_page": 316,
+        "text": ""
+      },
+      "notes": "Per-page model filter is authoritative. Shared pages can contain explicitly labelled variant alternatives.",
+      "limitations": "Exact settings, connections and values require visible variant verification.",
+      "retrieval_enabled": true
+    },
+    "air_diagrams": {
+      "pdf_start": 360,
+      "pdf_end": 368,
+      "title": "Air / Pneumatic diagrams",
+      "title_fa": "نقشه هوا و پنوماتیک",
+      "keywords_en": [
+        "air",
+        "pneumatic",
+        "diagram"
+      ],
+      "keywords_fa": [
+        "نقشه",
+        "هوا",
+        "و",
+        "پنوماتیک"
+      ],
+      "topics": [
+        "air",
+        "pneumatic",
+        "diagram"
+      ],
+      "applicable_models": [
+        "L7",
+        "L740CR",
+        "L8"
+      ],
+      "content_type": "diagram",
+      "extraction_mode": "image",
+      "document_id": "roc-l8-trainee-9852960001",
+      "textless_pages": [
+        360,
+        361,
+        362,
+        363,
+        364,
+        365,
+        366,
+        367,
+        368
+      ],
+      "heading_evidence": {
+        "pdf_page": 360,
+        "text": ""
+      },
+      "notes": "Per-page model filter is authoritative. Shared pages can contain explicitly labelled variant alternatives.",
+      "limitations": "Exact settings, connections and values require visible variant verification.",
+      "retrieval_enabled": true
+    },
+    "excluded_filemarket": {
+      "pdf_start": 369,
+      "pdf_end": 369,
+      "title": "FILEMARKET",
+      "title_fa": "صفحه غیر فنی",
+      "keywords_en": [
+        "filemarket"
+      ],
+      "keywords_fa": [
+        "صفحه",
+        "غیر",
+        "فنی"
+      ],
+      "topics": [
+        "filemarket"
+      ],
+      "applicable_models": [
+        "EXCLUDED"
+      ],
+      "content_type": "training",
+      "extraction_mode": "image",
+      "document_id": "roc-l8-trainee-9852960001",
+      "textless_pages": [
+        369
+      ],
+      "heading_evidence": {
+        "pdf_page": 369,
+        "text": ""
+      },
+      "notes": "Per-page model filter is authoritative. Shared pages can contain explicitly labelled variant alternatives.",
+      "limitations": "Exact settings, connections and values require visible variant verification.",
+      "retrieval_enabled": false
+    }
+  },
+  "limitations": [
+    "SHARED_ROC_L is common training context, not proof of universal settings",
+    "UNKNOWN diagram applicability is returned only as visual discovery requiring inspection"
+  ]
+}

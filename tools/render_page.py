@@ -39,6 +39,14 @@ def approved_pdf(path: Path) -> Path:
     folders = {(ROOT / folder).resolve() for folder in models.values()}
     if path.suffix.lower() != ".pdf" or not path.is_file() or path.parent not in folders:
         raise ValueError("PDF must be inside an approved technical document folder")
+    manifest=path.parent/'document_manifest.json'
+    if manifest.is_file():
+        registered=json.loads(manifest.read_text(encoding='utf-8'))['documents']
+        records=[d for d in registered if (ROOT/d['file_path']).resolve()==path]
+        if len(records)!=1:
+            raise ValueError('PDF is not in the selected document registry')
+        if hashlib.sha256(path.read_bytes()).hexdigest()!=records[0]['sha256']:
+            raise ValueError('Registered PDF changed; source review required before rendering')
     return path
 
 
@@ -61,8 +69,13 @@ def region_clip(page, region):
     return clip
 
 
-def render_page(pdf_path, page_number, label, *, region=None, dpi=None):
+def render_page(pdf_path, page_number, label, *, region=None, dpi=None, document_id=None):
     pdf_path = approved_pdf(Path(pdf_path))
+    if document_id:
+        manifest=json.loads((pdf_path.parent/'document_manifest.json').read_text(encoding='utf-8'))
+        selected=[d for d in manifest['documents'] if d['document_id']==document_id]
+        if len(selected)!=1 or (ROOT/selected[0]['file_path']).resolve()!=pdf_path:
+            raise ValueError('document_id does not identify the selected PDF')
     if isinstance(page_number, bool) or not isinstance(page_number, int):
         raise ValueError("Page number must be an integer")
     if dpi is not None and (isinstance(dpi, bool) or not isinstance(dpi, (int, float))
@@ -95,7 +108,7 @@ def render_page(pdf_path, page_number, label, *, region=None, dpi=None):
         validate_dimensions(pixmap.width, pixmap.height)
         output_dir.mkdir(parents=True, exist_ok=True)
         suffix = ""
-        if region is not None:
+        if region is not None or document_id:
             identity = hashlib.sha256(str(pdf_path).encode()).hexdigest()[:10]
             suffix = f"-crop-{identity}-{uuid4().hex}"
         output_path = output_dir / f"{label}-p{page_number}{suffix}.png"
@@ -121,8 +134,9 @@ def main() -> None:
     parser.add_argument("label")
     parser.add_argument("--region", type=float, nargs=4, metavar=("X0", "Y0", "X1", "Y1"))
     parser.add_argument("--dpi", type=float)
+    parser.add_argument("--document-id")
     args = parser.parse_args()
-    result = render_page(args.pdf_path, args.page_number, args.label, region=args.region, dpi=args.dpi)
+    result = render_page(args.pdf_path, args.page_number, args.label, region=args.region, dpi=args.dpi, document_id=args.document_id)
     print("MEDIA:" + result["media"])
 
 

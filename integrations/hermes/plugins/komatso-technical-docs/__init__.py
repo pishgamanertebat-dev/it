@@ -45,6 +45,8 @@ def source_intent(question):
         r"شماره\s*(?:فنی|قطعه)|پارت\s*(?:نامبر|بوک)|part\s*(?:number|no\b|book)|"
         r"parts\s*book|\bpn\b|\bfigure\b|\bitem\b|exploded\s*view|نمای\s*انفجاری|"
         r"\b[0-9A-Za-z]{3,5}-[0-9A-Za-z]{2,3}-[0-9A-Za-z]{4,5}\b", text, re.I))
+    if re.search(r'\broc[\s-]*l8\b|\brocl8\b|\bl830\b',text,re.I):
+        part = part or bool(re.search(r'(?<!\d)\d{4}\s+\d{4}\s+\d{2}(?!\d)|(?<!\d)\d{10}(?!\d)',text))
     technical = bool(re.search(
         r"\b(?:fault|symptom|troubleshoot\w*|test\w*|adjust\w*|pressure|voltage|wiring|"
         r"error\s*code|operation|specification\w*|diagnos\w*|fail\w*|weak|leak\w*)\b|"
@@ -264,6 +266,7 @@ TOOL_DESCRIPTION = (
 
 
 def tool_schema(models):
+    from integrations.hermes.technical_documents import registered_document_ids
     pages = {"type": "array", "items": {"type": "integer", "minimum": 1}, "maxItems": 8}
     return {"name": TOOL, "description": TOOL_DESCRIPTION, "parameters": {
         "type": "object", "required": ["phase"], "properties": {
@@ -271,6 +274,8 @@ def tool_schema(models):
             "model": {"type": "string", "enum": sorted(models),
                       "description": "retrieve: verified model; ask the user when it cannot be safely identified"},
             "question": {"type": "string", "description": "retrieve: exact original user question, verbatim"},
+            "document_id": {"type":"string", "enum":registered_document_ids(manual_only=True),
+                "description":"Optional: omit to auto-route. Select an exact listed ID, never D4/D5 shorthand. finish remains bound to retrieve's document_id."},
             "keywords": {"type": "string", "description": (
                 "retrieve: English Shop Manual terms for the affected system/component and symptom, "
                 "normalizing colloquial, abbreviated or misspelled user wording. Do not add guessed causes.")},
@@ -284,6 +289,7 @@ def tool_schema(models):
                 "missed the relevant topic")},
             "request_id": {"type": "string", "description": "finish: request_id returned by retrieve"},
             "render_pages": dict(pages, description="finish: smallest sufficient image set, usually 1-4"),
+            "inspect_images": {"type":"boolean", "description":"finish: true to put 1-4 rendered genuine pages into native model vision. Required before claims based on image-only diagrams; no OCR. Default false preserves legacy JSON."},
             "read_pages": dict(pages, description="finish: only pages with a material text gap"),
             "web_url": {"type": "string", "description": "finish: one directly relevant URL from retrieve web_search results"},
         }}}
@@ -459,7 +465,12 @@ def run_retrieval(command, session_id, model, part_query=None, request_id=""):
 def retrieve(args, home, session_id):
     model, question = args.get("model"), args.get("question")
     device = verified_device(model, question)
-    if source_intent(question) == "part":
+    from integrations.hermes.technical_documents import choose_document
+    document_id=None
+    if (device.parent/'document_manifest.json').is_file() or args.get('document_id'):
+        metadata=json.loads((device.parent/'manual_sections.json').read_text(encoding='utf-8'))
+        document_id=choose_document(device.parent,metadata,question+' '+str(args.get('keywords') or ''),args.get('document_id'))
+    if source_intent(question+' '+str(model)) == "part":
         raise ValueError("Part Book intent: call maintenance_partbook_lookup first; no Shop Manual/web search was run. "
                          "For a coverage miss use Part Book fallback; never infer absence from a Shop Manual miss.")
     keywords = str(args.get("keywords") or "").strip()
@@ -474,6 +485,10 @@ def retrieve(args, home, session_id):
     fault_code = str(args.get("fault_code") or "").strip()
     seed = "|".join((session_id, question, keywords, fault_code, str(bool(args.get("broad"))), str(time.time_ns())))
     request_id, request_file = write_request(home, seed, model, question)
+    if document_id:
+        request_data=json.loads(request_file.read_text(encoding='utf-8'))
+        request_data['document_id']=document_id
+        request_file.write_text(json.dumps(request_data,ensure_ascii=False),encoding='utf-8')
     with _registry_lock:
         _requests[request_id] = session_id
         _request_keys[request_id] = count_key
@@ -494,14 +509,19 @@ def retrieve(args, home, session_id):
     coverage = (retrieval.get("manual_packet") or {}).get("evidence_coverage")
     return {
         "evidence_coverage": coverage or {"status": "unknown", "action": "judge"},
-        "next": evidence_followup(coverage, broad=bool(args.get("broad"))) + (
+        "next": (("Inspect diagram_candidates, then finish with selected render_pages. Metadata is not wiring evidence."
+                  if coverage and coverage.get('status')=='visual_required' else
+                  "Judge actual training pages with their model scope and limits. Render only directly useful evidence. A general engine introduction is not evidence for unsupported overhaul tolerances/torques; do not render it as proof. State missing evidence without inventing a repair."
+                  if coverage and coverage.get('status')=='source_limited' else
+                  evidence_followup(coverage, broad=bool(args.get("broad")))) + (
             " Ready VERIFIED Part Book rows are in part_enrichment. If their assembly identity helps this "
             "repair, include one compact identification line with applicability/coverage in the same final "
             "answer; do not omit useful identification solely because no PN was explicitly requested. "
             "Different assembly variants remain alternatives, not confirmed fit. No extra lookup or render."
-            if enrichment.get("status") == "verified" else ""),
+            if enrichment.get("status") == "verified" else "")),
         "prepared": {
             "model": model, "request_id": request_id,
+            "document_id":document_id,
             "device_agents_read_in_full": str(device),
             "applicable_device_policy": rules or "No unique device policy beyond the loaded root rules.",
         },
@@ -518,6 +538,10 @@ def finish(args, session_id):
     if not re.fullmatch(r"[0-9a-f]{24}", request_id) or owner != session_id:
         raise ValueError("Unknown request_id; call phase=retrieve for this question first")
     command = ["finish", "--request-file", ROOT / "runtime/manual-worker-requests" / (request_id + ".json")]
+    if args.get('document_id'):
+        bound=json.loads(Path(command[2]).read_text(encoding='utf-8'))
+        if args['document_id']!=bound.get('document_id'):
+            raise ValueError('finish document_id differs from the retrieved source')
     for option, key in (("--render-pages", "render_pages"), ("--read-pages", "read_pages")):
         pages = args.get(key) or []
         if pages:
@@ -541,6 +565,8 @@ def manual_evidence(args, session_id="", **kwargs):
     from hermes_constants import get_hermes_home
     home = get_hermes_home().resolve()
     try:
+        if set(args)-set(tool_schema(manual_models())['parameters']['properties']):
+            raise ValueError('Unknown Manual arguments; arbitrary paths are not accepted')
         if not is_maintenance(home):
             raise ValueError("Technical Docs surface is not enabled in this profile")
         phase = args.get("phase")
@@ -548,6 +574,11 @@ def manual_evidence(args, session_id="", **kwargs):
             result = retrieve(args, home, session_id)
         elif phase == "finish":
             result = finish(args, session_id)
+            if args.get('inspect_images'):
+                from integrations.hermes.technical_documents import image_evidence_packet
+                pages=(result.get('rendered_pages') or {}).get('pages',[])
+                result['document_id']=(result.get('rendered_pages') or {}).get('document_id')
+                return image_evidence_packet(result,[p['media'] for p in pages if p.get('image_validated')],session_id)
         else:
             raise ValueError("phase must be retrieve or finish")
     except (OSError, ValueError, KeyError, TypeError, subprocess.TimeoutExpired) as exc:
@@ -556,6 +587,8 @@ def manual_evidence(args, session_id="", **kwargs):
 
 
 PART_DESCRIPTION = (
+    "ROC-L8: owner default ROC-L8-D2; explicit LF uses ROC-L8-LF-D3. Never merge books. "
+    "item_ref supports E01; figure also accepts the printed Atlas assembly number. "
     "FIRST tool for Part Number / شماره فنی / شماره قطعه / پارت نامبر, bare PN with model, "
     "Parts Book component identification, Figure/Item or exploded view. Reads device AGENTS.md IN FULL "
     "before one targeted partbook_lookup.py --verify; verifies actual PDF rows. Use part_number for "
@@ -573,6 +606,8 @@ PART_DESCRIPTION = (
 
 
 def part_schema(models):
+    book_ids=sorted({book for asset in load_registry()['assets'] for book in
+                     asset['book_ids']+asset.get('supplemental_book_ids',[])})
     return {"name": PART_TOOL, "description": PART_DESCRIPTION, "parameters": {
         "type": "object", "required": ["model", "question"], "properties": {
             "model": {"type": "string", "description": "Approved fleet model/alias or source name, e.g. ۱۲۵۰, بیل ۸۰۰, 1250 خط 8; exact historical model names remain accepted. Resolver rejects unknown/ambiguous models."},
@@ -580,6 +615,8 @@ def part_schema(models):
             "part_number": {"type": "string", "description": "Exact user PN; never guess"},
             "query": {"type": "string", "description": "English Part Book component name; no guessed PN"},
             "figure": {"type": "string"}, "item": {"type": "integer", "minimum": 0},
+            "item_ref": {"type":"string", "description":"Exact printed numeric or alphanumeric Ref, e.g. E01"},
+            "book_id": {"type":"string", "enum":book_ids, "description":"Optional exact linked book ID. ROC defaults to D2 only; select D3 for explicit LF/comparison/useful miss with a technical reason."},
             "serial": {"type": "string", "description": "Machine serial only if supplied/verified"},
             "render": {"type": "boolean", "description": "Optional explicit render for mixed requests; verified direct Part-only identification renders automatically"},
         }}}
@@ -588,6 +625,8 @@ def part_schema(models):
 def part_lookup(args, session_id="", **kwargs):
     from hermes_constants import get_hermes_home
     try:
+        if set(args)-set(part_schema(part_model_names())['parameters']['properties']):
+            raise ValueError('Unknown Part Book arguments; arbitrary paths are not accepted')
         if not is_maintenance(get_hermes_home().resolve()):
             raise ValueError("Technical Docs surface is not enabled in this profile")
         requested_model, question = args.get("model"), args.get("question")
@@ -632,6 +671,8 @@ def part_lookup(args, session_id="", **kwargs):
         pn = str(args.get("part_number") or "").strip()
         if not pn and not args.get("query") and not args.get("figure"):
             matches = re.findall(r"\b[0-9A-Za-z]{3,5}-[0-9A-Za-z]{2,3}-[0-9A-Za-z]{4,5}\b", question)
+            if asset['asset_id'].startswith('model:ROC-L8'):
+                matches += re.findall(r'(?<!\d)\d{4}\s+\d{4}\s+\d{2}(?!\d)|(?<!\d)\d{10}(?!\d)',question)
             if len(matches) == 1:
                 pn = matches[0]
         if not any((pn, args.get("query"), args.get("figure"))):
@@ -640,12 +681,16 @@ def part_lookup(args, session_id="", **kwargs):
                    str(ROOT / "tools/fleet/partbook_lookup.py"), "--model", requested_model, "--verify"]
         if os.environ.get("PARTBOOK_TEST_DB"):
             command += ["--db", os.environ["PARTBOOK_TEST_DB"]]
+        selected_book=args.get('book_id')
+        if asset['asset_id']=='model:ROC-L8' and not selected_book and re.search(r'\bLF\b',question,re.I):
+            selected_book='ROC-L8-LF-D3'
         for option, value in (("--part-number", pn), ("--query", args.get("query")),
                               ("--figure", args.get("figure")), ("--item", args.get("item")),
+                              ("--item-ref",args.get('item_ref')), ("--book",selected_book),
                               ("--serial", args.get("serial"))):
             if value is not None and str(value).strip():
                 command += [option, str(value)]
-        intent = source_intent(question)
+        intent = source_intent(question+' '+str(requested_model))
         if intent == "part":
             command.append("--auto-render-verified")
         elif args.get("render"):
@@ -724,7 +769,10 @@ def region_evidence(args, session_id="", **kwargs):
     from hermes_constants import get_hermes_home
     from integrations.hermes.pdf_region import render_region
     try:
-        return json.dumps(render_region(args, session_id=session_id,
-                                       home=get_hermes_home().resolve(), resolver=_resolver), ensure_ascii=False)
+        result=render_region(args,session_id=session_id,home=get_hermes_home().resolve(),resolver=_resolver)
+        if args.get('inspect_images'):
+            from integrations.hermes.technical_documents import image_evidence_packet
+            return image_evidence_packet(result,result['media'],session_id)
+        return json.dumps(result,ensure_ascii=False)
     except (OSError, ValueError, KeyError, TypeError, subprocess.TimeoutExpired) as exc:
         return json.dumps({"success": False, "error": str(exc)}, ensure_ascii=False)

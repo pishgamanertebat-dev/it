@@ -11,8 +11,15 @@ from pathlib import Path
 import pymupdf
 
 ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.append(str(ROOT))
+from integrations.hermes.technical_documents import (resolve_document, page_allowed,
+    restrict_sections, diagram_search)
 MODELS = json.loads((ROOT / 'tools/manual_models.json').read_text(encoding='utf-8'))
 ALIASES = {
+    "فید": ("feed",), "پیشروی": ("feed",), "کمپرسور": ("compressor",),
+    "پی ال سی": ("plc",), "غبارگیر": ("dust collector", "dct"),
+    "چرخش": ("rotation",), "روانکاری": ("lubrication", "hecl"),
     "retarder": ("retarder", "rear brake", "retarder lever", "brake oil pressure", "brake", "retarder control"),
     "ریتاردر": ("retarder", "rear brake", "retarder lever", "brake oil pressure", "brake", "retarder control"),
     "ترمز": ("brake", "braking"), "brake": ("brake", "braking"),
@@ -106,7 +113,8 @@ def route(sections, terms, problem, code="", limit=4):
             continue
         label = " ".join((path.replace("_", " "), str(item.get("title", "")),
                           str(item.get("description", "")),
-                          " ".join(map(str, item.get("topics", []))))).casefold()
+                          " ".join(map(str, item.get("topics", []))),
+                          " ".join(map(str, item.get("keywords_fa", []))))).casefold()
         matches = [term for term in terms if term in label]
         score = sum(5 if " " in term else 3 for term in matches)
         if category == "troubleshooting" and symptom:
@@ -168,6 +176,7 @@ def excerpt(raw, terms, limit):
 
 def probe(section_map, metadata, chosen, terms, top=5, page_chars=2400,
           allow_fallback=True, required_code=""):
+    chosen = restrict_sections(metadata, chosen)
     pdf = Path(metadata["manual"]).resolve()
     if not pdf.is_file() or pdf.suffix.lower() != ".pdf":
         raise ValueError("Indexed Shop Manual PDF is missing")
@@ -184,6 +193,8 @@ def probe(section_map, metadata, chosen, terms, top=5, page_chars=2400,
                 if start < 1 or end < start or end > len(doc):
                     raise ValueError(f"Invalid page range: {path}")
                 for page in range(start, end + 1):
+                    if not page_allowed(metadata, page):
+                        continue
                     if page in seen:
                         continue
                     seen.add(page)
@@ -194,7 +205,10 @@ def probe(section_map, metadata, chosen, terms, top=5, page_chars=2400,
                         continue
                     score = sum((16 if t == terms[0] else 8) if " " in t else (12 if t == terms[0] else 4) for t in matched)
                     score += min(sum(folded.count(t) for t in matched), 20)
-                    heading = page_structure(doc[page - 1])["heading"] or ""
+                    if metadata.get('scope_policy') and set(metadata['page_models'].get(str(page),[])) & {'L830','L8'}:
+                        score += 12
+                    heading = (" ".join(raw.splitlines()[:7]) if metadata.get('scope_policy') else
+                               page_structure(doc[page - 1])["heading"] or "")
                     head = re.sub(r"\s+", " ", heading.casefold())
                     score += sum((50 if term == terms[0] else 5) * (2 if " " in term else 1)
                                  for term in matched if term in head)
@@ -204,11 +218,16 @@ def probe(section_map, metadata, chosen, terms, top=5, page_chars=2400,
                                  "excerpt_truncated": clipped})
         scan(chosen)
         fallback = False
-        if allow_fallback and ((len(hits) < 2 and len(seen) < 20) or not hits or (required_code and not any(required_code.casefold() in h["matched_terms"] for h in hits))):
+        if allow_fallback and not metadata.get("scope_policy") and ((len(hits) < 2 and len(seen) < 20) or not hits or (required_code and not any(required_code.casefold() in h["matched_terms"] for h in hits))):
             fallback = True
             scan([("full_manual_fallback", {"pdf_start": 1, "pdf_end": len(doc)})])
         hits.sort(key=lambda hit: (-hit["score"], hit["pdf_page"]))
         selected = []
+        if metadata.get('scope_policy'):
+            for path,_ in chosen:
+                specific=next((h for h in hits if h['section']==path and
+                    set(metadata['page_models'].get(str(h['pdf_page']),[])) & {'L830','L8'}),None)
+                if specific and len(selected)<top:selected.append(specific)
         if required_code:
             selected.extend(h for h in hits
                             if required_code.casefold() in h["matched_terms"])
@@ -220,7 +239,9 @@ def probe(section_map, metadata, chosen, terms, top=5, page_chars=2400,
                     selected.append(candidates[ordinal])
         selected.extend(h for h in hits if h not in selected)
         return {
-            "manual": str(pdf), "source_type": "Shop Manual",
+            "manual": str(pdf), "source_type": metadata.get('document_identity',{}).get('document_type','Shop Manual'),
+            "document_id": metadata.get("document_id"),
+            "source_limitations": metadata.get("limitations", []),
             "index_is_evidence": False,
             "searched_sections": [{"key": path,
                                    "title": item.get("title") or item.get("description"),
@@ -232,6 +253,8 @@ def probe(section_map, metadata, chosen, terms, top=5, page_chars=2400,
                  "title": item.get("title") or item.get("description")}
                 for path, item in nodes(metadata["sections"])
                 if not item.get("subsections") and
+                (not metadata.get('scope_policy') or any(page_allowed(metadata,p,visual=True)
+                  for p in range(item['pdf_start'],item['pdf_end']+1))) and
                 ("diagram" in path.casefold() or
                  "diagram" in str(item.get("title", "")).casefold())
             ][:6],
@@ -276,6 +299,10 @@ def topic_pages(doc, metadata, seed, max_pages=4):
     A new heading of the same or larger type size ends the topic. Unrecognized
     layouts retain only the requested page; limits are explicit, never silent.
     """
+    if metadata.get("scope_policy"):
+        # Atlas training layout has no reliable SEN/form continuation marker.
+        # An explicit follow-up can read another applicable page; never cross variants.
+        return [seed], False
     bounds = [(int(item["pdf_start"]), int(item["pdf_end"]))
               for _, item in nodes(metadata["sections"])
               if not item.get("subsections") and
@@ -543,7 +570,8 @@ def evidence_packet(section_map, metadata, result, text_budget=22000):
         for number in requested:
             page = doc[number - 1]
             raw = page.get_text("text")
-            structure = page_structure(page)
+            structure = ({'form':None,'heading':' '.join(line.strip() for line in raw.splitlines()[:5] if line.strip())}
+                         if metadata.get('scope_policy') else page_structure(page))
             cap = min(6000, left)
             text = raw[:cap]
             left -= len(text)
@@ -601,6 +629,8 @@ def batch_pages(section_map, metadata, pages, page_chars=5000, render=False,
     unique = list(dict.fromkeys(pages))
     if not unique or len(unique) > 8:
         raise ValueError("Select between one and eight PDF pages")
+    if any(not page_allowed(metadata, p, visual=render) for p in unique):
+        raise ValueError("Page is excluded or belongs to another/unknown model scope")
     page_chars = min(page_chars, max(800, 20000 // len(unique)))
     with pymupdf.open(pdf) as doc:
         if metadata.get("pdf_pages") and int(metadata["pdf_pages"]) != len(doc):
@@ -617,7 +647,8 @@ def batch_pages(section_map, metadata, pages, page_chars=5000, render=False,
             if render:
                 result = subprocess.run(
                     [sys.executable, str(ROOT / "tools" / "render_page.py"),
-                     str(pdf), str(page), "manual_evidence"],
+                     str(pdf), str(page), "manual_evidence",
+                     *(["--document-id", metadata["document_id"]] if metadata.get("document_id") else [])],
                     check=True, capture_output=True, text=True,
                 )
                 media = next((line[6:] for line in result.stdout.splitlines()
@@ -632,7 +663,7 @@ def batch_pages(section_map, metadata, pages, page_chars=5000, render=False,
                             image_width=pixmap.width, image_height=pixmap.height)
                 del pixmap
             selected.append(item)
-    return {"manual": str(pdf), "source_type": "Shop Manual",
+    return {"manual": str(pdf), "source_type": "Shop Manual", "document_id": metadata.get("document_id"),
             "pages": selected,
             "note": "Text is clipped when text_truncated is true; inspect the rendered page for omitted table columns or diagram labels."}
 
@@ -653,6 +684,7 @@ def main():
     ap.add_argument("terms", nargs="?", help="Legacy: terms separated by |")
     ap.add_argument("sections", nargs="*")
     ap.add_argument("--model", choices=sorted(MODELS))
+    ap.add_argument("--document-id", help="Registered source ID only, never a file path")
     ap.add_argument("--problem", help="Question or symptom")
     ap.add_argument("--request-file", type=Path, help="Prepared private Maintenance request inside runtime")
     ap.add_argument("--fault-code", default="")
@@ -676,6 +708,9 @@ def main():
         if args.model or args.problem:
             ap.error("Do not combine --request-file with --model/--problem")
         args.model, args.problem = request["model"], request["question"]
+        if args.document_id and args.document_id != request.get("document_id"):
+            ap.error("document_id differs from the bound request")
+        args.document_id = request.get("document_id")
         if args.model not in MODELS or not isinstance(args.problem, str) or not args.problem.strip():
             ap.error("Invalid prepared model/question")
     if args.pages:
@@ -697,6 +732,7 @@ def main():
     if args.pages and not args.model:
         ap.error("--pages requires --model")
     metadata = json.loads(section_map.read_text(encoding="utf-8"))
+    metadata = resolve_document(section_map.parent, metadata, args.document_id)
     if args.pages:
         result = batch_pages(section_map, metadata, args.pages,
                              min(max(args.full_page_chars, 500), 6000), args.render, args.render_only)
@@ -721,16 +757,31 @@ def main():
             chosen.append((key, item))
     if not terms:
         ap.error("No useful search terms; provide a component or fault code")
+    if metadata.get("visual_document"):
+        result = {"document_id":metadata["document_id"],"manual":metadata["manual"],
+            "source_identity":metadata["document_identity"],"searched_pages":0,"matching_pages":0,
+            "full_manual_fallback":False,"evidence":[],"index_is_evidence":False,
+            "diagram_candidates":diagram_search(section_map.parent, metadata, args.problem+' '+args.component),
+            "evidence_coverage":{"status":"visual_required","action":"finish_render",
+                "note":"Select and inspect the real sheet image; metadata cannot verify pins or wiring."}}
+        print(json.dumps(result,ensure_ascii=True));return
     if args.broad:
         if args.no_fallback:
             ap.error("--broad is the whole-manual fallback")
-        chosen = []
+        chosen = ([(k,v) for k,v in nodes(metadata['sections']) if not v.get('subsections')]
+                  if metadata.get('scope_policy') else [])
     result = probe(section_map, metadata, chosen, terms,
                    min(max(args.top, 1), 10), min(max(args.page_chars, 500), 4000),
                    not args.no_fallback, args.fault_code)
     result["requested_terms"] = search_terms(args.problem, code=args.fault_code) if args.model else terms
     if args.packet:
         result = evidence_packet(section_map, metadata, result)
+    if metadata.get('scope_policy'):
+        result['diagram_candidates'] = diagram_search(section_map.parent,metadata,args.problem+' '+args.component)
+        result['evidence_models'] = {str(p['pdf_page']):metadata['page_models'][str(p['pdf_page'])] for p in result['evidence']}
+        result['evidence_coverage'] = {'status':'source_limited','action':'judge_actual_training_pages',
+            'note':'Actual training text, not proof of a complete repair procedure or actual-machine fit. Unknown topics require a limitation, not guessed values.'}
+        result['note']='Actual applicable training pages; preserve model labels on mixed pages. Index cannot establish a complete repair procedure. Inspect real diagrams and state missing evidence.'
     result["search_terms"] = terms
     result["next_commands"] = {
         "render": "E:/KomatsoAI/.venv/Scripts/python.exe E:/KomatsoAI/tools/manual_evidence_probe.py --model MODEL --pages SELECTED_PAGES --render-only",

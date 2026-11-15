@@ -68,10 +68,16 @@ def resolve_model(value, registry=None):
 def select_books(con, resolution, explicit_book=None, registry=None):
     registry = load_registry() if registry is None else registry
     asset = resolution["fleet_asset"]
-    allowed = asset["book_ids"]
+    # Older, already loaded readers only see book_ids. Keep supplemental books
+    # separate there so their default cannot silently expand before activation.
+    allowed = list(dict.fromkeys(asset["book_ids"] + asset.get('supplemental_book_ids', [])))
     if explicit_book and explicit_book not in allowed:
         raise ValueError("Requested book_id is not linked to the resolved fleet asset")
-    requested = [explicit_book] if explicit_book else allowed
+    source_book = resolution.get("source_alias_book_id")
+    defaults = asset.get("default_book_ids", allowed)
+    requested = [explicit_book] if explicit_book else ([source_book] if source_book else defaults)
+    requested = [bid for bid in requested if explicit_book or source_book or
+                 registry.get("sources", {}).get(bid, {}).get("default_search_enabled", True)]
     if not requested:
         return []
     placeholders = ",".join("?" for _ in requested)
@@ -84,6 +90,13 @@ def select_books(con, resolution, explicit_book=None, registry=None):
         expected = metadata.get("expected_model", asset["display_model"])
         if book["model"] != expected:
             raise ValueError("SQLite source model differs from approved registry binding")
+        if metadata.get('document_manifest'):
+            root=Path(__file__).resolve().parents[2]
+            manifest=json.loads((root/metadata['document_manifest']).read_text(encoding='utf-8'))
+            sources=[d for d in manifest['documents'] if d['document_id']==metadata.get('document_id')]
+            if len(sources)!=1 or any(book[k]!=sources[0][v] for k,v in
+                    [('source_pdf','file_path'),('pdf_sha256','sha256'),('page_count','page_count')]):
+                raise ValueError('SQLite book differs from the approved document manifest')
         book["source_identity"] = metadata or {"identity_status": "SAME_MODEL", "cover_model": book["model"],
                                                 "applicability_evidence": None}
     return books

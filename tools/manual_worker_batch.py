@@ -76,6 +76,7 @@ def main():
     ap.add_argument("--web-url",help="One model-selected directly relevant URL from the retrieval results")
     args=ap.parse_args()
     request=prepared_request(args.request_file)
+    document_args=(["--document-id",request["document_id"]] if request.get("document_id") else [])
     home=Path(request.get("profile_home") or os.environ.get("HERMES_HOME", "")).resolve()
     if not technical_docs_enabled(home):
         ap.error("Technical Docs surface not enabled")
@@ -98,11 +99,11 @@ def main():
         if args.render_pages:
             pages=[str(page) for group in args.render_pages for page in group]
             if len(set(pages))>8:ap.error("At most 8 rendered pages")
-            operations.append(("rendered_pages",lambda:run_probe("--model",request["model"],"--pages",*pages,"--render-only")))
+            operations.append(("rendered_pages",lambda:run_probe("--model",request["model"],*document_args,"--pages",*pages,"--render-only")))
         if args.read_pages:
             reads=[str(page) for group in args.read_pages for page in group]
             if len(set(reads))>8:ap.error("At most 8 read pages")
-            operations.append(("additional_text",lambda:run_probe("--model",request["model"],"--pages",*reads)))
+            operations.append(("additional_text",lambda:run_probe("--model",request["model"],*document_args,"--pages",*reads)))
         if args.web_url:
             search_file=args.request_file.with_suffix(".web.json")
             search=json.loads(search_file.read_text(encoding="utf-8"))
