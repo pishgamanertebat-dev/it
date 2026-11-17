@@ -1,0 +1,716 @@
+{
+  "schema_version": 1,
+  "device": "ROC-L8",
+  "stage": "PRE_RESTART",
+  "decision": "CONDITIONAL-GO",
+  "generated_at_tehran": "2026-11-15T14:48:21.355067+03:30",
+  "observation_started_at_tehran": "2026-11-15T14:14:01+03:30",
+  "latest_runtime_observation_utc": "2026-11-15T11:11:12.867483+00:00",
+  "timezone": "Asia/Tehran",
+  "restart_authorized": false,
+  "restart_now_allowed": false,
+  "owner_restart_authorization": null,
+  "restart_performed": false,
+  "reload_performed": false,
+  "manual_scheduled_job_triggered": false,
+  "manual_retry_performed": false,
+  "outbound_test_messages_sent": 0,
+  "real_model_calls_in_this_stage": 0,
+  "production_code_modified": false,
+  "production_index_modified": false,
+  "original_pdfs_modified": false,
+  "deliverables_created": [
+    "reports/technical-docs/ROC-L8-PRE-RESTART-REPORT.md",
+    "reports/technical-docs/ROC-L8-PRE-RESTART-GATE.json"
+  ],
+  "review_only_repository_change": {
+    "path": ".gitignore",
+    "change": "Exact exception for the new PRE-RESTART report, otherwise hidden by the existing *.md rule."
+  },
+  "conditions": [
+    {
+      "id": "OWNER_AUTHORIZATION",
+      "required": "مجوز مستقل و صریح مالک برای Restart همین Gateway؛ مجوز هنوز صادر نشده است."
+    },
+    {
+      "id": "AFTER_1500_WINDOW",
+      "required": "عبور از اجرای گزارش‌ها و یادآورهای ۱۵:۰۰؛ پنجره نامزد ۱۵:۱۰ تا ۱۵:۴۵ تهران فقط پس از بررسی مجدد."
+    },
+    {
+      "id": "FRESH_RUNTIME_GATE",
+      "required": "بلافاصله پیش از اجرا، control زنده، PID و Supervisor یکتا، active_agents=0، نبود ارسال running/sending/attempting، نبود obligation/resume/lease معوق، پایان موفق Sync و نبود fire_claim فعال دوباره کنترل شود."
+    },
+    {
+      "id": "UNCHANGED_RELEASE",
+      "required": "HEAD، ۴۱ اثرانگشت، چهار Config، Loaderها، AGENTS، Receipt و Backup ثابت؛ Task XML بدون Drift؛ هیچ Writer یا WAL تازه وجود نداشته باشد."
+    },
+    {
+      "id": "NO_UNSAFE_FALLBACK",
+      "required": "در صورت خطای Restart فقط یک تلاش برنامه‌ریزی‌شده ثبت شود؛ فرآیند موازی یا اصلاح Task/Network/Startup ساخته نشود؛ تغییر اساسی موجب توقف و ارزیابی دوباره است."
+    }
+  ],
+  "hard_blockers_observed": [],
+  "unknowns": [
+    "ROC Schema/module objects cached in the current Gateway process are not exposed by the read-only control API.",
+    "No explicitly authorized Bale test destination was supplied; real delivery acceptance is PENDING.",
+    "Actual machine serial/engine/options/revision fit and long-term stability remain unverified."
+  ],
+  "gateway": {
+    "pid": 53564,
+    "start_utc": "2026-11-11T13:17:13.454916+00:00",
+    "start_tehran": "2026-11-11T16:47:13.454916+03:30",
+    "core_version": "0.21.4",
+    "core_sha": "e7208cd01179d21494b7f46478cd7db85481ed90",
+    "core_tracked_tree_clean": true,
+    "supervisor": {
+      "supervisor_pid": 59268,
+      "updated_at": 1794403033.3917265,
+      "generation": "53262bd6b4ef4b35ad6803ffcf4d94a5",
+      "state": "running",
+      "child_pid": 25488,
+      "attempt": 1
+    },
+    "interpreter": "C:/Users/win-10/AppData/Local/hermes/hermes-agent/venv/Scripts/python.exe",
+    "base_executable": "C:/Users/win-10/AppData/Roaming/uv/python/cpython-3.11.15-windows-x86_64-none/python.exe",
+    "profiles": [
+      "default",
+      "admin",
+      "maintenance",
+      "net"
+    ],
+    "active_work_count": 0,
+    "platforms": {
+      "telegram": "connected",
+      "bale": "connected"
+    },
+    "parallel_gateway_observed": false,
+    "status_read_via_live_control": true,
+    "status_file_updated_at": "2026-11-15T11:10:24.688289+00:00",
+    "task_drift": [],
+    "official_restart_command_for_later_only": "& C:\\Users\\win-10\\AppData\\Local\\hermes\\hermes-agent\\venv\\Scripts\\python.exe -m hermes_cli.main gateway restart",
+    "official_cli_stop_grace_seconds": 30.0,
+    "official_cli_may_force_terminate_after_grace": true
+  },
+  "git": {
+    "branch": "technical-docs/roc-l8-onboarding-20261115",
+    "head": "ebfb190fa92bb78c94733ad41eb801cf5972bbec",
+    "status": "",
+    "commits": "ebfb190fa92bb78c94733ad41eb801cf5972bbec Keep ROC document revision unknown without explicit revision evidence\naf4ca6954e942a650182fa36fbbf4c2448abe7c4 Document ROC-L8 acceptance, partial coverage and controlled activation\n9bf3bb01510f6a33a9cfbfac06053dae55132350 Add ROC-L8 scoped manuals, dual Atlas parts and native diagram evidence\nae0466e16478e6e0d43bdd6629bb947cf444e3f2 Simplify maintenance Share sync and verify daily report recovery"
+  },
+  "installed_profiles": {
+    "default": {
+      "loader": "C:\\Users\\win-10\\AppData\\Local\\hermes\\plugins\\komatso-technical-docs\\__init__.py",
+      "loader_sha256": "473fc9fd726bba8d7b8b9dbdf0ac66d2eec8da9457b9d29e2a60a95716949841",
+      "model": {
+        "default": "gpt-6.1-sol",
+        "provider": "openai-codex"
+      },
+      "canonical_file": "E:\\KomatsoAI\\integrations\\hermes\\plugins\\komatso-technical-docs\\__init__.py",
+      "schema_checks": {
+        "manual_document_id": true,
+        "manual_inspect_images": true,
+        "parts_book_id": true,
+        "region_document_id": true
+      }
+    },
+    "admin": {
+      "loader": "C:\\Users\\win-10\\AppData\\Local\\hermes\\profiles\\admin\\plugins\\komatso-technical-docs\\__init__.py",
+      "loader_sha256": "473fc9fd726bba8d7b8b9dbdf0ac66d2eec8da9457b9d29e2a60a95716949841",
+      "model": {
+        "default": "gpt-6.1-sol",
+        "provider": "openai-codex"
+      },
+      "canonical_file": "E:\\KomatsoAI\\integrations\\hermes\\plugins\\komatso-technical-docs\\__init__.py",
+      "schema_checks": {
+        "manual_document_id": true,
+        "manual_inspect_images": true,
+        "parts_book_id": true,
+        "region_document_id": true
+      }
+    },
+    "maintenance": {
+      "loader": "C:\\Users\\win-10\\AppData\\Local\\hermes\\profiles\\maintenance\\plugins\\komatso-technical-docs\\__init__.py",
+      "loader_sha256": "473fc9fd726bba8d7b8b9dbdf0ac66d2eec8da9457b9d29e2a60a95716949841",
+      "model": {
+        "default": "gpt-6.1-sol",
+        "provider": "openai-codex"
+      },
+      "canonical_file": "E:\\KomatsoAI\\integrations\\hermes\\plugins\\komatso-technical-docs\\__init__.py",
+      "schema_checks": {
+        "manual_document_id": true,
+        "manual_inspect_images": true,
+        "parts_book_id": true,
+        "region_document_id": true
+      }
+    },
+    "net": {
+      "loader": "C:\\Users\\win-10\\AppData\\Local\\hermes\\profiles\\net\\plugins\\komatso-technical-docs\\__init__.py",
+      "loader_sha256": "473fc9fd726bba8d7b8b9dbdf0ac66d2eec8da9457b9d29e2a60a95716949841",
+      "model": {
+        "default": "gpt-6.1-sol",
+        "provider": "openai-codex"
+      },
+      "canonical_file": "E:\\KomatsoAI\\integrations\\hermes\\plugins\\komatso-technical-docs\\__init__.py",
+      "schema_checks": {
+        "manual_document_id": true,
+        "manual_inspect_images": true,
+        "parts_book_id": true,
+        "region_document_id": true
+      }
+    }
+  },
+  "release_hashes_match": true,
+  "protected_hash_count": 41,
+  "protected_hashes_unchanged": true,
+  "pdfs": [
+    {
+      "audit_id": "D1",
+      "document_id": "roc-l8-trainee-9852960001",
+      "path": "E:\\KomatsoAI\\ROC-L8\\ROC-L8_ShopManual.pdf",
+      "sha256": "1216b841239be1eda0b0f5cd4c051bdf66c6024a62aabef5c7d47ec7a6ba766f",
+      "expected_sha256": "1216b841239be1eda0b0f5cd4c051bdf66c6024a62aabef5c7d47ec7a6ba766f",
+      "match": true,
+      "pages": 369,
+      "pages_match": true
+    },
+    {
+      "audit_id": "D2",
+      "document_id": "roc-l8-parts-9853647820d",
+      "path": "E:\\KomatsoAI\\ROC-L8\\ROC-L8_PartBook.pdf",
+      "sha256": "0749517569bb35de78d9898e47987b9bee60c5dd7b26104638a522a16806bc56",
+      "expected_sha256": "0749517569bb35de78d9898e47987b9bee60c5dd7b26104638a522a16806bc56",
+      "match": true,
+      "pages": 1023,
+      "pages_match": true
+    },
+    {
+      "audit_id": "D3",
+      "document_id": "roc-l8-lf-parts-9853678620",
+      "path": "E:\\KomatsoAI\\ROC-L8\\ilide.info-roc-l8-30-lf-2011-model-9853-6786-20-pdf-pr_89055a09f0f869abf3be39c9e81fca1c.pdf",
+      "sha256": "ed143535a1f1f46e651a7186a988e24b85772fb702e102ed88ee9d69b7637cb5",
+      "expected_sha256": "ed143535a1f1f46e651a7186a988e24b85772fb702e102ed88ee9d69b7637cb5",
+      "match": true,
+      "pages": 1440,
+      "pages_match": true
+    },
+    {
+      "audit_id": "D4",
+      "document_id": "roc-l8-cabin-9840042409",
+      "path": "E:\\KomatsoAI\\ROC-L8\\ilide.info-9840-0424-09-electrical-diagram-cabin-pr_f7a76ce65c3567cd4f68a2c4edf4b85e.pdf",
+      "sha256": "cf9bdc7db23bb145995b6edae515f50f3248ff7cbc23e235f440e0a8cd646c1a",
+      "expected_sha256": "cf9bdc7db23bb145995b6edae515f50f3248ff7cbc23e235f440e0a8cd646c1a",
+      "match": true,
+      "pages": 16,
+      "pages_match": true
+    },
+    {
+      "audit_id": "D5",
+      "document_id": "roc-l8-electrical-9840042418",
+      "path": "E:\\KomatsoAI\\ROC-L8\\ilide.info-9840-0424-18-electrical-diagram-pr_0a0b062345b5137ccb3f8d7935015f42.pdf",
+      "sha256": "e32701757674d981742d862730ea9c97698ed2e95785a571adb288ed25090af9",
+      "expected_sha256": "e32701757674d981742d862730ea9c97698ed2e95785a571adb288ed25090af9",
+      "match": true,
+      "pages": 47,
+      "pages_match": true
+    }
+  ],
+  "manual_sections": 33,
+  "diagram_records": 128,
+  "index": {
+    "path": "E:\\KomatsoAI\\runtime\\partbook\\partbook_index.sqlite",
+    "sha256": "6b18429dffeca3d20df5e192cd6a46923bb38207f1d58be97ad1579a231d3a81",
+    "installed_hash_match": true,
+    "integrity": "ok",
+    "journal_mode": "delete",
+    "user_version": 0,
+    "books": [
+      {
+        "book_id": "HD465-7R",
+        "legacy_preserved": true,
+        "accepted_digest_match": null,
+        "backup_coverage_match": true
+      },
+      {
+        "book_id": "HD785-5",
+        "legacy_preserved": true,
+        "accepted_digest_match": null,
+        "backup_coverage_match": true
+      },
+      {
+        "book_id": "HD785-7-B1",
+        "legacy_preserved": true,
+        "accepted_digest_match": null,
+        "backup_coverage_match": true
+      },
+      {
+        "book_id": "HD785-7-B2",
+        "legacy_preserved": true,
+        "accepted_digest_match": null,
+        "backup_coverage_match": true
+      },
+      {
+        "book_id": "PC1250SP-8R",
+        "legacy_preserved": true,
+        "accepted_digest_match": null,
+        "backup_coverage_match": true
+      },
+      {
+        "book_id": "PC800-8",
+        "legacy_preserved": true,
+        "accepted_digest_match": null,
+        "backup_coverage_match": true
+      },
+      {
+        "book_id": "ROC-L8-D2",
+        "legacy_preserved": null,
+        "accepted_digest_match": true,
+        "backup_coverage_match": null
+      },
+      {
+        "book_id": "ROC-L8-LF-D3",
+        "legacy_preserved": null,
+        "accepted_digest_match": true,
+        "backup_coverage_match": null
+      },
+      {
+        "book_id": "WA600-6-2010",
+        "legacy_preserved": true,
+        "accepted_digest_match": null,
+        "backup_coverage_match": true
+      }
+    ],
+    "legacy_meta": {
+      "count": 20,
+      "preserved": true
+    },
+    "legacy_fts": {
+      "count": 3848,
+      "preserved": true
+    },
+    "default_book": "ROC-L8-D2",
+    "explicit_lf_book": "ROC-L8-LF-D3",
+    "migration_required": false,
+    "sidecars": {
+      "E:\\KomatsoAI\\runtime\\partbook\\partbook_index.sqlite-wal": {
+        "exists": false,
+        "size": null
+      },
+      "E:\\KomatsoAI\\runtime\\partbook\\partbook_index.sqlite-shm": {
+        "exists": false,
+        "size": null
+      },
+      "E:\\KomatsoAI\\runtime\\partbook\\partbook_index.sqlite-journal": {
+        "exists": false,
+        "size": null
+      }
+    },
+    "file_users": {
+      "time_utc": "2026-11-15T11:09:01.485668+00:00",
+      "file": "E:/KomatsoAI/runtime/partbook/partbook_index.sqlite",
+      "method": "Restart Manager resource inventory only; no shutdown/restart API invoked",
+      "start_result": 0,
+      "register_result": 0,
+      "users": [],
+      "get_list_result": 0
+    },
+    "writer_probe": {
+      "path": "E:\\KomatsoAI\\runtime\\partbook\\partbook_index.sqlite",
+      "mode": "GENERIC_READ + FILE_SHARE_READ, OPEN_EXISTING",
+      "succeeded": true,
+      "error": null,
+      "meaning": "No conflicting write-access file handle existed during the successful open; this is a point-in-time check, not a future writer lock."
+    }
+  },
+  "backups": {
+    "backup": {
+      "path": "E:\\KomatsoAI\\runtime\\roc-l8-onboarding\\production-before-ROC-20261115T130855.sqlite",
+      "sha256": "64815c762c81875d3c761058aad4902cf2d3984c036926f5b3acf3e4751a2ef9",
+      "expected": "64815c762c81875d3c761058aad4902cf2d3984c036926f5b3acf3e4751a2ef9",
+      "hash_match": true,
+      "integrity": [
+        [
+          "ok"
+        ]
+      ],
+      "books": [
+        "HD465-7R",
+        "HD785-5",
+        "HD785-7-B1",
+        "HD785-7-B2",
+        "PC1250SP-8R",
+        "PC800-8",
+        "WA600-6-2010"
+      ]
+    },
+    "immediate_before_backup": {
+      "path": "E:\\KomatsoAI\\runtime\\roc-l8-onboarding\\production-before-ROC-20261115T132603.sqlite",
+      "sha256": "8c6fd4170b2fce73b69f6263bfbd4750c05dcb95cd8886c51643ba914a0abccc",
+      "expected": "8c6fd4170b2fce73b69f6263bfbd4750c05dcb95cd8886c51643ba914a0abccc",
+      "hash_match": true,
+      "integrity": [
+        [
+          "ok"
+        ]
+      ],
+      "books": [
+        "HD465-7R",
+        "HD785-5",
+        "HD785-7-B1",
+        "HD785-7-B2",
+        "PC1250SP-8R",
+        "PC800-8",
+        "ROC-L8-D2",
+        "ROC-L8-LF-D3",
+        "WA600-6-2010"
+      ]
+    },
+    "candidate": {
+      "path": "E:\\KomatsoAI\\runtime\\roc-l8-onboarding\\acceptance-final.sqlite",
+      "sha256": "6b18429dffeca3d20df5e192cd6a46923bb38207f1d58be97ad1579a231d3a81",
+      "expected": "6b18429dffeca3d20df5e192cd6a46923bb38207f1d58be97ad1579a231d3a81",
+      "hash_match": true,
+      "integrity": [
+        [
+          "ok"
+        ]
+      ],
+      "books": [
+        "HD465-7R",
+        "HD785-5",
+        "HD785-7-B1",
+        "HD785-7-B2",
+        "PC1250SP-8R",
+        "PC800-8",
+        "ROC-L8-D2",
+        "ROC-L8-LF-D3",
+        "WA600-6-2010"
+      ]
+    }
+  },
+  "rollback": {
+    "database_validation": "PASS_NO_APPLY",
+    "receipt_copies_equal": true,
+    "root_agents_reverse_patch_check": "PASS_NO_APPLY",
+    "code_revert_order": [
+      "ebfb190",
+      "af4ca69",
+      "9bf3bb0"
+    ],
+    "restore_if_current_db_changed": "STOP_SEPARATE_REVIEW",
+    "old_backend_new_schema_combination": "NOT_ASSUMED; restore matching code/registry/index package while target Gateway is stopped"
+  },
+  "scheduler": {
+    "task": "KomatsoAI Schedules",
+    "restart_in_scope": false,
+    "schedules_file": "settings/schedules.yaml",
+    "config_check": "PASS",
+    "enabled_report_schedules": 8,
+    "report_times_tehran": [
+      "07:45",
+      "09:00",
+      "12:00",
+      "15:00"
+    ],
+    "active_dispatch_rows": {
+      "runs": 0,
+      "receipts": 0,
+      "office_artifact_receipts": 0
+    },
+    "integrity": "ok",
+    "duplicate_primary_keys": {
+      "runs": 0,
+      "receipts": 0,
+      "office_artifact_receipts": 0
+    },
+    "historical_uncertain_receipts": 4,
+    "historical_uncertain_artifacts": 3,
+    "historical_stale_preflight": [
+      {
+        "schedule_id": "maintenance_daily_report",
+        "due": "2026-10-18T08:30:00+00:00",
+        "status": "running",
+        "checked": "2026-10-18T08:00:32+00:00",
+        "error_code": null,
+        "error_detail": null,
+        "next_attempt_at": null,
+        "sample_date": null
+      }
+    ],
+    "historical_sent_aggregate_without_message_id": [
+      {
+        "delivery_kind": "notice",
+        "count": 1,
+        "earliest": "2026-10-07T06:30:00+00:00",
+        "latest": "2026-10-07T06:30:00+00:00"
+      },
+      {
+        "delivery_kind": "report",
+        "count": 142,
+        "earliest": "2026-10-09T05:30:00+00:00",
+        "latest": "2026-11-15T05:30:00+00:00"
+      }
+    ],
+    "aggregate_artifact_link": [
+      {
+        "schedule_id": "driver_daily_office_supervisor",
+        "aggregate_rows": 71,
+        "with_id_backed_artifact": 70
+      },
+      {
+        "schedule_id": "overflow_daily_test",
+        "aggregate_rows": 72,
+        "with_id_backed_artifact": 72
+      }
+    ],
+    "open_run_hold": [
+      {
+        "schedule_id": "oil_balance_daily_report",
+        "due": "2026-11-14T11:30:00+00:00",
+        "status": "waiting_for_data",
+        "error": "date_missing",
+        "hold_status": null
+      },
+      {
+        "schedule_id": "maintenance_daily_report",
+        "due": "2026-11-10T08:30:00+00:00",
+        "status": "waiting_for_data",
+        "error": "no_target_date_records",
+        "hold_status": "recovered"
+      },
+      {
+        "schedule_id": "oil_balance_daily_report",
+        "due": "2026-11-09T11:30:00+00:00",
+        "status": "waiting_for_data",
+        "error": "date_missing",
+        "hold_status": "held"
+      },
+      {
+        "schedule_id": "maintenance_daily_report",
+        "due": "2026-11-09T08:30:00+00:00",
+        "status": "waiting_for_data",
+        "error": "no_target_date_records",
+        "hold_status": "recovered"
+      },
+      {
+        "schedule_id": "overflow_daily_test",
+        "due": "2026-11-05T04:15:00+00:00",
+        "status": "uncertain",
+        "error": "uncertain",
+        "hold_status": "held"
+      },
+      {
+        "schedule_id": "driver_daily_mechanical",
+        "due": "2026-10-07T06:30:00+00:00",
+        "status": "uncertain",
+        "error": "legacy_artifact_unverified",
+        "hold_status": "held"
+      },
+      {
+        "schedule_id": "overflow_daily_test",
+        "due": "2026-09-28T05:30:00+00:00",
+        "status": "failed",
+        "error": "TimeoutError",
+        "hold_status": "held"
+      },
+      {
+        "schedule_id": "repairs_daily",
+        "due": "2026-09-23T04:30:00+00:00",
+        "status": "failed",
+        "error": "RuntimeError",
+        "hold_status": null
+      },
+      {
+        "schedule_id": "metalwork_daily",
+        "due": "2026-09-23T04:30:00+00:00",
+        "status": "failed",
+        "error": "RuntimeError",
+        "hold_status": null
+      }
+    ],
+    "startup_dispatch_effect": "Independent report scheduler continues unchanged; Gateway has one local mine-file-sync recurring job with durable claims and latest_only recovery."
+  },
+  "gateway_queues": {
+    "default": {
+      "db_exists": true,
+      "quick_check": [
+        "ok"
+      ],
+      "obligations": [
+        [
+          "delivered",
+          25
+        ]
+      ],
+      "recoverable_count": 0,
+      "turn_leases": 0,
+      "routing": {
+        "count": 28,
+        "resume_pending": 0,
+        "suspended": 0,
+        "first_keys": [
+          "session_key",
+          "session_id",
+          "created_at",
+          "updated_at",
+          "display_name",
+          "platform",
+          "chat_type",
+          "metadata",
+          "input_tokens",
+          "output_tokens",
+          "cache_read_tokens",
+          "cache_write_tokens",
+          "total_tokens",
+          "last_prompt_tokens",
+          "estimated_cost_usd",
+          "cost_status",
+          "expiry_finalized",
+          "suspended",
+          "resume_pending",
+          "resume_reason",
+          "last_resume_marked_at",
+          "is_fresh_reset",
+          "was_auto_reset",
+          "auto_reset_reason",
+          "reset_had_activity",
+          "prev_session_id",
+          "origin"
+        ]
+      }
+    },
+    "admin": {
+      "db_exists": true,
+      "quick_check": [
+        "ok"
+      ],
+      "turn_leases": 0,
+      "routing": {
+        "count": 0,
+        "resume_pending": 0,
+        "suspended": 0,
+        "first_keys": []
+      }
+    },
+    "maintenance": {
+      "db_exists": true,
+      "quick_check": [
+        "ok"
+      ],
+      "obligations": [
+        [
+          "delivered",
+          2
+        ]
+      ],
+      "recoverable_count": 0,
+      "turn_leases": 0,
+      "routing": {
+        "count": 0,
+        "resume_pending": 0,
+        "suspended": 0,
+        "first_keys": []
+      }
+    },
+    "net": {
+      "db_exists": true,
+      "quick_check": [
+        "ok"
+      ],
+      "obligations": [
+        [
+          "delivered",
+          3
+        ]
+      ],
+      "recoverable_count": 0,
+      "turn_leases": 0,
+      "routing": {
+        "count": 0,
+        "resume_pending": 0,
+        "suspended": 0,
+        "first_keys": []
+      }
+    }
+  },
+  "pending_message_files": 0,
+  "tests": {
+    "current_focused": {
+      "count": 27,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 24.542,
+      "real_agent": false,
+      "transport": "none",
+      "db": "runtime/roc-l8-onboarding/acceptance-final.sqlite; hash equals production"
+    },
+    "prior_evidence_only": {
+      "focused_tests": 82,
+      "isolated_real_agent_cases": 7,
+      "legacy_serial_failures": 7,
+      "legacy_alias_failures": 1
+    },
+    "post_restart_real_agent": "PENDING",
+    "bale_test_destination": null,
+    "bale_real_delivery": "PENDING"
+  },
+  "evidence": {
+    "static.json": {
+      "path": "runtime/roc-l8-pre-restart-20261115/static.json",
+      "sha256": "259b3fd505053f65f93ac46b39211866ea59bcc5bf992d4a4b0db861e9385912"
+    },
+    "processes.json": {
+      "path": "runtime/roc-l8-pre-restart-20261115/processes.json",
+      "sha256": "2c1520f3acdcefb13afc6986204cb0b4391c915cddf700842f6756febf980965"
+    },
+    "pending-messages.json": {
+      "path": "runtime/roc-l8-pre-restart-20261115/pending-messages.json",
+      "sha256": "84b1c14e68260082e3e79edff0a78f4ebf1942cfd6c593246044ec2149cbb87d"
+    },
+    "control.json": {
+      "path": "runtime/roc-l8-pre-restart-20261115/control.json",
+      "sha256": "02b74c04eafb98ad0c3ec23930d29c750e0d67024cb8df0182ed030588ead165"
+    },
+    "lifecycle.json": {
+      "path": "runtime/roc-l8-pre-restart-20261115/lifecycle.json",
+      "sha256": "fafe3d711067216f6a681ceecd29552bf96e0cd23902f0d972f23f4baf0679fe"
+    },
+    "gateway-task.xml": {
+      "path": "runtime/roc-l8-pre-restart-20261115/gateway-task.xml",
+      "sha256": "e011fd72498075f3c9b7697c0f916eefdd678b115eb57ad3e484b8dc12939f9e"
+    },
+    "gateway-task-template.xml": {
+      "path": "runtime/roc-l8-pre-restart-20261115/gateway-task-template.xml",
+      "sha256": "4aa657f005b27968ca1c2f22df397e2e4b78d9aca76388c571633917caec7acf"
+    },
+    "runtime.json": {
+      "path": "runtime/roc-l8-pre-restart-20261115/runtime.json",
+      "sha256": "d4975c61d941cb4b7cc37dc21dd968660746b85551514f0f7f91e96a75b780fd"
+    },
+    "details.json": {
+      "path": "runtime/roc-l8-pre-restart-20261115/details.json",
+      "sha256": "16106a814d18f9a3dedc0c3f07a02c605ad25493b911d87aaea1310fdd7d1b80"
+    },
+    "queues.json": {
+      "path": "runtime/roc-l8-pre-restart-20261115/queues.json",
+      "sha256": "8153a17354951787f896e95970b462a7913237cdbd43bca14132cd29823a98c5"
+    },
+    "open-handles.json": {
+      "path": "runtime/roc-l8-pre-restart-20261115/open-handles.json",
+      "sha256": "cff848eb9f5316d873acd3fdaa07c9e2a6e0ccaf9241009779cc20657fb75fa2"
+    },
+    "focused-tests.log": {
+      "path": "runtime/roc-l8-pre-restart-20261115/focused-tests.log",
+      "sha256": "5c659a423599087d687e689f75c3517ce82dc59ad0d62901f8215fe00a05927a"
+    },
+    "schedule-check.log": {
+      "path": "runtime/roc-l8-pre-restart-20261115/schedule-check.log",
+      "sha256": "cb0332ad76440afe5a7800404eb79265751ed5157019ad7b308c614114907ca5"
+    },
+    "final-check.json": {
+      "path": "runtime/roc-l8-pre-restart-20261115/final-check.json",
+      "sha256": "0daa7d334aba22e2712ca3fd7ecb0143bdc6d8ca5bc278169d0167212dfab046"
+    }
+  },
+  "report": "reports/technical-docs/ROC-L8-PRE-RESTART-REPORT.md",
+  "handoff": "STOP_AFTER_PRE_RESTART_REPORT; owner must independently authorize stage 2."
+}

@@ -191,7 +191,7 @@ MAINTENANCE_REPORT = Path("E:/Function/تعمیرات 1405.xlsx")
 
 
 def publish_fault_report(staged, destination, pulse=lambda **kw: None,
-                         module="tools.fleet.repairs.sync_service"):
+                         module="tools.fleet.repairs.sync_service", upstream=None):
     """The single shared fault workbook uses the project journal and atomic writer."""
     project = Path('E:/KomatsoAI')
     # Launch the native project interpreter, not the Windows venv redirector;
@@ -200,9 +200,12 @@ def publish_fault_report(staged, destination, pulse=lambda **kw: None,
     interpreter = Path(cfg['home']) / 'python.exe'
     bootstrap = ('import sys,runpy;sys.path.insert(0,' + repr(str(project / '.venv/Lib/site-packages')) +
                  ');runpy.run_module("' + module + '",run_name="__main__")')
-    process = subprocess.Popen([str(interpreter),
+    command = [str(interpreter),
             '-E', '-s', '-B', '-X', 'utf8', '-c', bootstrap,
-            '--staged', str(staged), '--destination', str(destination)],
+            '--staged', str(staged), '--destination', str(destination)]
+    if upstream is not None:
+        command.extend(['--upstream', str(upstream)])
+    process = subprocess.Popen(command,
             cwd=project, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
             creationflags=subprocess.CREATE_NO_WINDOW)
     deadline = time.monotonic() + 180
@@ -260,7 +263,7 @@ def atomic_copy(source, destination, before, pulse):
             publish_fault_report(temporary, destination, pulse=pulse)
         elif destination.resolve() == MAINTENANCE_REPORT.resolve():
             publication = publish_fault_report(temporary, destination, pulse=pulse,
-                                               module="tools.fleet.repairs.maintenance_sync")
+                                               module="tools.fleet.repairs.maintenance_sync", upstream=source)
         else:
             os.replace(temporary, destination)
     finally:
@@ -766,6 +769,28 @@ def supervise(args):
             cleanup_report(args, record)
 
 
+def publication_notice_tick(args, result):
+    """Same Cron, notice-only subprocess, including offline/backoff ticks.
+
+    Deployment remains disabled. No new scheduler, sender, or remote I/O.
+    """
+    config = Path('E:/KomatsoAI/settings/maintenance_entry.json')
+    if args.dry_run or args.dest.resolve() != DEST.resolve() or args.source != SOURCE:
+        return
+    value = json.loads(config.read_text('utf8')).get('outbound_publication', {})
+    if value.get('enabled') is not True or value.get('policy') != 'daily_1230':
+        return
+    project = Path('E:/KomatsoAI')
+    cfg = dict(line.split(' = ',1) for line in (project/'.venv/pyvenv.cfg').read_text().splitlines() if ' = ' in line)
+    bootstrap = ('import sys,runpy;sys.path.insert(0,'+repr(str(project/'.venv/Lib/site-packages'))+
+                 ');runpy.run_module("tools.fleet.repairs.maintenance_publication",run_name="__main__")')
+    outcome = subprocess.run([str(Path(cfg['home'])/'python.exe'), '-E','-s','-B','-X','utf8','-c',bootstrap,
+                              '--poll','--sync-status',result['status']], cwd=project,
+                             capture_output=True, timeout=180, creationflags=subprocess.CREATE_NO_WINDOW)
+    if outcome.returncode:
+        raise OSError('PUBLICATION_NOTICE_TICK_FAILED')
+
+
 def run(args):
     started = time.monotonic()
     setup_logging(args.home)
@@ -854,6 +879,11 @@ def run(args):
     LOG.info('attempt_end status=%s attempted=%s sync_healthy=%s classification=%s elapsed=%s next_attempt_at=%s',
              result['status'], attempted, result['status'] == 'success', result.get('failure_classification'),
              result['duration_seconds'], state.get('next_attempt_at'))
+    try:
+        publication_notice_tick(args, result)
+    except Exception as exc:
+        LOG.error('publication_notice_tick failed error=%s', type(exc).__name__)
+        result['publication_notice_error'] = type(exc).__name__
     if args.report:
         print(json.dumps(result, ensure_ascii=True))
     # Preserve cron's existing executable contract. Health consumers must use health_status/sync_healthy.

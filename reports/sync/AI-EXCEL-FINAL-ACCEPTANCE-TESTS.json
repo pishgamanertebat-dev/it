@@ -1,0 +1,257 @@
+{
+  "schema": "komatso-final-smb-native-acceptance-v1",
+  "time_tehran": "2026-11-16T14:54:35.082155+03:30",
+  "status": "PENDING_MINE_ACTION",
+  "production_ready": false,
+  "acceptance_exit_code": 1,
+  "decision": "NO-GO",
+  "owner_final_approval_received": false,
+  "errno22": {
+    "mechanism": "SMB_CONNECTION_DISCONNECTED_DURING_DATA_WRITE",
+    "errno": 22,
+    "winerror": 64,
+    "observed_thread_ntstatus": "0xc000020c",
+    "server_or_network_component_root_cause": "UNDETERMINED_REQUIRES_MINE_EVIDENCE",
+    "invalid_UNC_or_basename_not_supported_by_observations": true,
+    "extension_only_denial_not_supported_by_equal_size_text_failure": true,
+    "issue_fixed": false,
+    "native_write_failures": [
+      {
+        "operation": "native-large.txt:Native_WriteFile",
+        "time_tehran": "2026-11-16T14:47:00.597470+03:30",
+        "success": false,
+        "error_type": "OSError",
+        "error": "[WinError 64] The specified network name is no longer available.",
+        "repr": "OSError(22, 'The specified network name is no longer available.', None, 64)",
+        "errno": 22,
+        "winerror": 64,
+        "filename": "None",
+        "ntstatus": "0xc000020c",
+        "traceback": "Traceback (most recent call last):\n  File \"E:\\KomatsoAI\\reports\\sync\\AI-EXCEL-FINAL-SMB-ACCEPTANCE.py\", line 50, in step\n    value = call()\n            ^^^^^^\n  File \"E:\\KomatsoAI\\reports\\sync\\AI-EXCEL-FINAL-SMB-ACCEPTANCE.py\", line 115, in native_write\n    raise exc\nOSError: [WinError 64] The specified network name is no longer available.\n",
+        "elapsed_seconds": 77.781
+      },
+      {
+        "operation": "native-valid.xlsx:Native_WriteFile",
+        "time_tehran": "2026-11-16T14:48:19.581809+03:30",
+        "success": false,
+        "error_type": "OSError",
+        "error": "[WinError 64] The specified network name is no longer available.",
+        "repr": "OSError(22, 'The specified network name is no longer available.', None, 64)",
+        "errno": 22,
+        "winerror": 64,
+        "filename": "None",
+        "ntstatus": "0xc000020c",
+        "traceback": "Traceback (most recent call last):\n  File \"E:\\KomatsoAI\\reports\\sync\\AI-EXCEL-FINAL-SMB-ACCEPTANCE.py\", line 50, in step\n    value = call()\n            ^^^^^^\n  File \"E:\\KomatsoAI\\reports\\sync\\AI-EXCEL-FINAL-SMB-ACCEPTANCE.py\", line 115, in native_write\n    raise exc\nOSError: [WinError 64] The specified network name is no longer available.\n",
+        "elapsed_seconds": 66.203
+      }
+    ]
+  },
+  "SMB": {
+    "UNC": "\\\\192.168.20.251\\share",
+    "service_account": "desktop-0l5mjvm\\win-10",
+    "same_as_gateway_owner": true,
+    "server_authenticated_identity": "UNKNOWN",
+    "remote_identity_receipt": {
+      "api": "WNetGetUserW",
+      "resource": "\\\\192.168.20.251\\share",
+      "return_code": 2250,
+      "connected_user": null,
+      "error": "This network connection does not exist."
+    },
+    "small_text_create_write_flush_close_readback_rename_replace": "PASS",
+    "native_64_byte_write_readback": "PASS",
+    "equal_size_plain_write": "FAIL_WINERROR64",
+    "valid_xlsx_create": "PASS",
+    "valid_xlsx_write": "FAIL_WINERROR64",
+    "valid_xlsx_readback": "EMPTY_HASH_MISMATCH",
+    "valid_xlsx_rename_replace": "NOT_RUN_AFTER_DATA_WRITE_FAILURE",
+    "ACL_changes": 0,
+    "credential_changes": 0,
+    "security_bypass": false,
+    "private_folders": [
+      "\\\\192.168.20.251\\share\\__komatso_publication_uat_8156cabdfb204cac9750a719d7a5fcd0",
+      "\\\\192.168.20.251\\share\\__komatso_publication_uat_17dfeb3fd56f4b4f99e52e333a31f687"
+    ],
+    "both_private_folders_removed": true
+  },
+  "native": {
+    "status": "NATIVE_UAT_PENDING",
+    "connected_excel_sessions": 0,
+    "native_excel_executed": false,
+    "native_save_output_exists": false,
+    "machine_status": "PASS_PACKAGE_AND_READER_ONLY",
+    "sheets": 63,
+    "original_nonempty_cells_preserved": 5869,
+    "migrated_identities": 25,
+    "added_synthetic_identities": 2,
+    "input": "E:\\KomatsoAI\\runtime\\maintenance-coordinated-candidate\\final-acceptance-20261116\\native-uat-before.xlsx",
+    "input_sha256": "f07fc6894f5be746a41922cd993bd00f3e6c27469e670e128981664207149374",
+    "print_theme_parts_preserved": true,
+    "UAT": "reports/sync/AI-EXCEL-FINAL-NATIVE-UAT.md"
+  },
+  "concurrency": {
+    "status": "NOT_RUN_IO_FAILURE_AND_NO_CONNECTED_MINE_EXCEL",
+    "real_client_open_publish_close_retry": false,
+    "independent_mine_change_preservation_on_SMB": "NOT_TESTED",
+    "stale_excel_save_after_publish_on_SMB": "NOT_TESTED",
+    "server_exclusion": "UNVERIFIED",
+    "human_close_backup_conflict_stop_and_recovery_plan": "PROPOSED_ONLY",
+    "guard": "PUBLICATION_SMB_EXCLUSION_UNVERIFIED_PRESERVED",
+    "previous_critical_race": "EXISTING_PRESERVATION_FAIL_UNRESOLVED_NOT_RETESTED"
+  },
+  "verification": {
+    "guard_test": {
+      "command": "python -B -X utf8 -m unittest tools.fleet.repairs.test_maintenance_1230.DailyTests.test_real_gate_blocks_stage_replace_and_lunch_is_not_exclusion",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "result": "PASS",
+      "evidence": "current tool execution: Ran 1 test in 2.114s; OK"
+    },
+    "comparison_identical": {
+      "before": "runtime\\maintenance-coordinated-candidate\\final-acceptance-20261116\\native-uat-before.xlsx",
+      "after": "runtime\\maintenance-coordinated-candidate\\final-acceptance-20261116\\native-uat-working.xlsx",
+      "before_sha256": "f07fc6894f5be746a41922cd993bd00f3e6c27469e670e128981664207149374",
+      "after_sha256": "f07fc6894f5be746a41922cd993bd00f3e6c27469e670e128981664207149374",
+      "native_human_acceptance": "NATIVE_UAT_PENDING",
+      "sheet_order_unchanged": true,
+      "identities_unchanged": true,
+      "identity_count_before": 27,
+      "identity_count_after": 27,
+      "state_differences": {},
+      "workbook_controls_unchanged": true,
+      "defined_names_unchanged": true,
+      "removed_parts": [],
+      "added_parts": [],
+      "changed_parts": [],
+      "printer_theme_bytes_unchanged": true,
+      "verdict": "PASS_IDENTICAL_COPY_ONLY"
+    },
+    "comparison_tampered": {
+      "verdict": "FAIL_OR_UNREADABLE",
+      "error_type": "EntryError",
+      "error": "IDENTITY_ROW_CHANGED_OR_MOVED"
+    },
+    "production_code_and_settings_equal_baseline": true,
+    "code_sha256": {
+      "tools/fleet/repairs/maintenance_ooxml.py": "8b7941769dbb337863dbad86943d8553a01b3acaa6881581d931e7617560bf55",
+      "tools/fleet/repairs/maintenance_publication_alerts.py": "da8b19e3e74ccd43c6ca5c988b6e779a742dd10e8377e51cc6baea9de94cc1d5",
+      "tools/fleet/repairs/maintenance_identity.py": "3c17311e49920ed3945192e012aba37421efaf313ea580e6c6e1c5277f36e221",
+      "tools/fleet/repairs/maintenance_publication.py": "4feb5f0114f6f10fffda4208941a297557904041ef5a0f8ed549482e8d12ea42",
+      "tools/fleet/repairs/entry_service.py": "e7ff6edb39027f0ae0a6318720bf029a0686ae63dec0265cf6604c61c5ba3030",
+      "tools/fleet/repairs/maintenance_report.py": "1471fcd2176326f2cc963156287d1f95c3b505a7813f2eb92aedae548b784e29",
+      "tools/fleet/repairs/maintenance_service.py": "ad69aaff55228ae98dd6a173013fb48110ea135a03ed4cb02a560b1c3f8f2d52",
+      "tools/fleet/repairs/maintenance_baseline.py": "048da68d3907494a35fa9cc83a13653bb4922a652b534adc5349068f8f9c700f",
+      "integrations/hermes/mine_sync/mine_file_sync.py": "efd834b70095670511b3c436e7b6daed5b49fd9e7990764196834dca8686a235",
+      "settings/maintenance_entry.json": "cd41b55ea8684f777de022d8622728862680884e6f8be8614790bfe5c857b451",
+      "tools/fleet/repairs/test_maintenance_1230.py": "26c37a0a8353c45f988ca2f35b890863a006abb2413458905079b23ba3e183fc",
+      "reports/sync/AI-EXCEL-1230-SMB-UAT.py": "e05154b50bf4e8d51e38cb15df00a360f872cb8a4944c50fb124f09ab0b51bd6",
+      "reports/sync/AI-EXCEL-1230-NATIVE-UAT.md": "f46c51918cd5889a19b84c670bbbc4f2baa3e8763c6cd1810bbf98a8946e256c"
+    },
+    "existing_cron": {
+      "id": "3ccb658aed3c",
+      "name": "mine-file-sync",
+      "script": "mine_file_sync.py",
+      "schedule": {
+        "kind": "cron",
+        "expr": "*/2 * * * *",
+        "display": "*/2 * * * *"
+      },
+      "enabled": true,
+      "no_agent": true
+    },
+    "installed_mirror_sha256": "60fd7d2bd377a17b52a21dc046d12dbcd2de79a763caac0d4f10adaaa1658953",
+    "final_protected_readonly": {
+      "time_tehran": "2026-11-16T14:50:48.001954+03:30",
+      "path": "\\\\192.168.20.251\\share\\تعمیرات 1405.xlsx",
+      "readonly": true,
+      "returncode": 0,
+      "sha256": "b03b57902434e817c90caee6797ee25154cec617ccdb8524642d695f1193f2ed",
+      "error": "",
+      "function_sha256": "0d5400bd5d272a4facfbbc9d584d459532a78c376fa65b2583789015f8dc5ae2"
+    },
+    "gateway_environment": {
+      "Account": "desktop-0l5mjvm\\win-10",
+      "GatewayProcesses": [
+        {
+          "Pid": 19348,
+          "Session": 1,
+          "Created": "/Date(1794742870096)/",
+          "Account": "DESKTOP-0L5MJVM\\win-10"
+        },
+        {
+          "Pid": 50472,
+          "Session": 1,
+          "Created": "/Date(1794742870175)/",
+          "Account": "DESKTOP-0L5MJVM\\win-10"
+        },
+        {
+          "Pid": 19628,
+          "Session": 1,
+          "Created": "/Date(1794742872230)/",
+          "Account": "DESKTOP-0L5MJVM\\win-10"
+        },
+        {
+          "Pid": 34000,
+          "Session": 1,
+          "Created": "/Date(1794742872309)/",
+          "Account": "DESKTOP-0L5MJVM\\win-10"
+        }
+      ],
+      "ExcelProcesses": [],
+      "ConnectedCodexExcelSessions": 0,
+      "SMBConnectionQuery": "Access denied, Windows System Error 5",
+      "TCP445": "Connected",
+      "ACLChanges": 0,
+      "GatewayRestarts": 0,
+      "SchedulerRestarts": 0
+    },
+    "earlier_hash_timeouts": "raw false means no complete comparison, not proof of changed bytes; final readback agrees with baseline",
+    "traceback_note": "Python tool was enhanced during repeated probes; first synthetic Flush traceback is exact. Independent Win32 source snapshot is retained."
+  },
+  "scope": {
+    "production_workbook_writes": 0,
+    "function_writes": 0,
+    "operational_journal_writes": 0,
+    "outbound_enabled": false,
+    "production_code_changes": 0,
+    "new_schedulers": 0,
+    "gateway_restarts": 0,
+    "scheduler_restarts": 0,
+    "forced_user_handle_closes": 0,
+    "installed_mirror_changes": 0,
+    "ACL_changes": 0,
+    "real_messages_sent": 0,
+    "local_helper_and_documentation_changes_only": true,
+    "preliminary_stalled_readonly_diagnostic_terminated_only_own_processes": true
+  },
+  "remaining_actions": [
+    "Mine admin correlate server/network/filter logs at 2026-11-16 14:47-14:49:26 Asia/Tehran and identify authenticated remote account and disconnect cause",
+    "Fix confirmed infrastructure cause within mine authorization; no ACL widening inferred from current error",
+    "Repeat full private-share valid-XLSX Write/Flush/Close/Readback and Replace acceptance",
+    "Owner complete interactive mine Excel UAT, Save/reopen and full post-save comparison",
+    "Complete private-share real-client concurrency and stale-save UAT with accepted exclusion control",
+    "Independent owner final approval before any operational publication"
+  ],
+  "report": "reports/sync/AI-EXCEL-FINAL-ACCEPTANCE-REPORT.md",
+  "evidence_sha256": {
+    "runtime\\maintenance-coordinated-candidate\\final-acceptance-20261116\\smb-diagnostic.json": "ab581ef2297e72aee4925ca2e04b7fe1b535b54859df1a9800c92658e4165d89",
+    "runtime\\maintenance-coordinated-candidate\\final-acceptance-20261116\\smb-native-diagnostic.json": "f0c0c724c07ffd4c41a4d8165fd4ce76f595fccfbd30b1fde40b8610403d56fb",
+    "runtime\\maintenance-coordinated-candidate\\final-acceptance-20261116\\smb-operations.jsonl": "bc97a22ec2143e2e51ac3c545bd9c97ad852fdca2e3e26e0ea862ba9a0f65199",
+    "runtime\\maintenance-coordinated-candidate\\final-acceptance-20261116\\smb-native-executed-source.py": "59d029ca7c6eb07fcb12a13c82ea19539835077873ad8f8ba1a0cd2620818f77",
+    "runtime\\maintenance-coordinated-candidate\\final-acceptance-20261116\\native-uat-manifest.json": "75a0a7be0293e69fec82fb600360866fda3cd3beba20a37541c843e6c9c58210",
+    "runtime\\maintenance-coordinated-candidate\\final-acceptance-20261116\\guard-snapshot.json": "cfdf9babdc667bdea4bff812e5293ada75f33d397d44e12601155e5980b71982",
+    "runtime\\maintenance-coordinated-candidate\\final-acceptance-20261116\\final-protected-readonly.json": "88371e980f354962d97ad750c3d85b5f366f5759ebbd153a78001cd96787eb93",
+    "runtime\\maintenance-coordinated-candidate\\final-acceptance-20261116\\service-and-native-environment.json": "d2f999403703ca0640fe94aec07caa773e07eed82cd9a05531efb479fdbbdda5",
+    "runtime\\maintenance-coordinated-candidate\\final-acceptance-20261116\\smb-remote-identity.json": "0f50988f62f9f8a4e18960e6540a2b686e4719e1479a2e731d3fb4f7d1516733",
+    "runtime\\maintenance-coordinated-candidate\\final-acceptance-20261116\\smb-client-events.json": "05e80ffc36789b2d9505a6a5fa33bfcec81cfd728b5f35c169c1ee9691a949f5",
+    "runtime\\maintenance-coordinated-candidate\\final-acceptance-20261116\\comparison-selfcheck-identical.json": "cba6f05f1696a60d5569061068eb886d49a673302f79c33e25f10f437fe1efc6",
+    "runtime\\maintenance-coordinated-candidate\\final-acceptance-20261116\\comparison-selfcheck-tampered.json": "5b8c55df982179af0840d80f9787e27798acbcc394cd824fb288f31d9516d8f3",
+    "runtime\\maintenance-coordinated-candidate\\final-acceptance-20261116\\native-owner-receipt.template.json": "dbda0fe0e59f6fe23b547ba7a47ac87c98352fbe954eeb1d9a9032b577d641bf"
+  },
+  "helper_sha256": {
+    "reports/sync/AI-EXCEL-FINAL-SMB-ACCEPTANCE.py": "59d029ca7c6eb07fcb12a13c82ea19539835077873ad8f8ba1a0cd2620818f77",
+    "reports/sync/AI-EXCEL-FINAL-NATIVE-COMPARE.py": "30227fb27e82f8ced42e77a27f30040742df41d094616a1582f75cbb0658c6bd"
+  },
+  "report_sha256": "2566af7818fe6c14e36ec172300590774eef5ca7710d09af6f5e2677acb58bb1"
+}

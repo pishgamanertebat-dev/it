@@ -110,6 +110,9 @@ reports/scheduler/**/observer.lock
 *.txt
 *.csv
 *.md
+!reports/technical-docs/ROC-L8-PRE-RESTART-REPORT.md
+!reports/technical-docs/ROC-L8-POST-RESTART-REPORT.md
+!reports/technical-docs/ROC-L8-2011-DOCUMENT-APPLICABILITY.md
 *.mdc
 !integrations/hermes/profiles/admin/README.md
 !integrations/hermes/profiles/admin/SOUL.md

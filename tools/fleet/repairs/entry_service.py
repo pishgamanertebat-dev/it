@@ -589,7 +589,7 @@ def publish_candidate(source, original, candidate, db, actor, request, result, *
 
 
 def commit_workbook(actor, request, settings, mutate, *, runtime, day=None, command='شرح خرابی', authorization_check=None,
-                    replay_check=None, date_check=None, daily_section=None):
+                    replay_check=None, date_check=None, daily_section=None, workbook_reader=None, workbook_dumper=None):
     """Journal and atomically replace an existing workbook for a confirmed operation."""
     operation = str(request.get('operation', ''))
     if not re.fullmatch(r'[a-f0-9]{32}', operation):
@@ -618,16 +618,19 @@ def commit_workbook(actor, request, settings, mutate, *, runtime, day=None, comm
                     date_check()
                 elif request.get('date') != (day or jalali_today()):
                     raise EntryError(f'روز عوض شده است؛ «{command}» را دوباره برای تاریخ امروز باز کنید.')
-                book = openpyxl.load_workbook(io.BytesIO(original))
+                book = workbook_reader(original) if workbook_reader else openpyxl.load_workbook(io.BytesIO(original))
                 try:
                     result = mutate(book)
                     if daily_section:
                         from .entry_delivery import delivery_review
                         result['delivery']=dict(delivery_review(request['date'],daily_section,
                             settings.get('delivery_receipts',ROOT/'runtime/scheduler/runs.sqlite3')),section=daily_section)
-                    output = io.BytesIO()
-                    book.save(output)
-                    candidate = output.getvalue()
+                    if workbook_dumper:
+                        candidate = workbook_dumper(book)
+                    else:
+                        output = io.BytesIO()
+                        book.save(output)
+                        candidate = output.getvalue()
                 finally:
                     book.close()
                 def before_replace():

@@ -311,13 +311,13 @@ def combine(base_data, local_data, incoming_data):
             book.close()
 
 
-def sync_from_baseline(db, source, original, incoming, runtime, *, reviewed_change=None, upstream_copy=False):
-    """Caller holds the Writer lock; recheck source bytes under a short file lock."""
+def journal_branch(db, source, original, runtime, *, upstream_copy=False, coordinated=False):
+    """Verify the baseline, complete UUID/hash chain and immutable snapshots."""
     state = baseline(db, source, runtime)
     if state is None:
         return None
     check_journal(db)
-    current_hash, incoming_hash = digest(original), digest(incoming)
+    current_hash = digest(original)
     recover_prepared(db, source, current_hash)
     latest, mine_hash = state['initial_hash'], state['mine_hash']
     protected = []
@@ -338,6 +338,12 @@ def sync_from_baseline(db, source, original, incoming, runtime, *, reviewed_chan
                 or row['fingerprint'] != fingerprint):
             raise EntryError('MAINTENANCE_SYNC_INVALID_JOURNAL_FINGERPRINT: ' + str(row['operation']))
         if request.get('_kind') == KIND:
+            if result.get('coordinated_publication'):
+                if not coordinated:
+                    raise EntryError('MAINTENANCE_COORDINATED_MODE_REQUIRED')
+                if not result.get('publication_pending'):
+                    protected = []
+                    report_batches = []
             mine_hash = result['mine_hash']
             snapshot(runtime, mine_hash)
             absorbed = result.get('absorbed_operations', [])
@@ -365,6 +371,16 @@ def sync_from_baseline(db, source, original, incoming, runtime, *, reviewed_chan
         latest = row['after_hash']
     if current_hash != latest:
         raise EntryError('MAINTENANCE_SYNC_UNJOURNALED_LOCAL_CHANGE')
+    return state, mine_hash, protected, report_batches
+
+
+def sync_from_baseline(db, source, original, incoming, runtime, *, reviewed_change=None, upstream_copy=False):
+    """Caller holds the Writer lock; recheck source bytes under a short file lock."""
+    branch = journal_branch(db, source, original, runtime, upstream_copy=upstream_copy)
+    if branch is None:
+        return None
+    state, mine_hash, protected, report_batches = branch
+    current_hash, incoming_hash = digest(original), digest(incoming)
     if incoming_hash == mine_hash:
         return dict(status='unchanged', hash=current_hash, mine_hash=mine_hash,
                     protected_operations=protected, baseline=state['event_id'])

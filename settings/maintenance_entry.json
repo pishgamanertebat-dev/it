@@ -1,5 +1,13 @@
 {
   "allowed_users": ["455740857", "654806764", "641220453", "1732374823"],
   "source": "E:\\Function\\تعمیرات 1405.xlsx",
-  "sync_policy": "upstream_copy"
+  "sync_policy": "upstream_copy",
+  "outbound_publication": {
+    "enabled": false,
+    "mode": "isolated_candidate",
+    "isolation_root": null,
+    "publication_window": {"start": "12:30", "end": "12:55"},
+    "policy": "daily_1230",
+    "alert_owner": "455740857"
+  }
 }

@@ -40,8 +40,13 @@ def retain_snapshot(runtime, data):
     return target
 
 
-def guard_snapshot(staged, destination, *, config=CONFIG, runtime=RUNTIME):
+def guard_snapshot(staged, destination, *, config=CONFIG, runtime=RUNTIME, upstream=None):
     settings = json.loads(Path(config).read_text(encoding='utf8'))
+    from .maintenance_publication import options, cycle
+    if options(settings) is not None:
+        if upstream is None:
+            raise MaintenanceSyncBlocked('PUBLICATION_UPSTREAM_PATH_REQUIRED')
+        return cycle(staged, destination, upstream, config=config, runtime=runtime)
     source = Path(settings['source']).resolve(strict=True)
     if Path(destination).resolve(strict=True) != source:
         raise MaintenanceSyncBlocked('MAINTENANCE_SYNC_DESTINATION_DENIED')
@@ -121,9 +126,10 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--staged', required=True, type=Path)
     parser.add_argument('--destination', required=True, type=Path)
+    parser.add_argument('--upstream', type=Path)
     args = parser.parse_args()
     try:
-        print(json.dumps(guard_snapshot(args.staged, args.destination)))
+        print(json.dumps(guard_snapshot(args.staged, args.destination, upstream=args.upstream)))
     except Exception as exc:
         print(json.dumps(dict(status='blocked', error=str(exc))))
         raise SystemExit(1)

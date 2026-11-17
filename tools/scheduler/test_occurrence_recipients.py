@@ -4,7 +4,7 @@ import unittest
 from . import test_delivery_alert as harness
 from .runner import connect
 from .delivery_alert import occurrence_recipients,_delivery_summary
-from .daily_summary import ensure_schema,snapshot
+from .daily_issues import ensure_schema,collect_issues
 
 
 class OccurrenceRecipientTests(unittest.TestCase):
@@ -18,8 +18,8 @@ class OccurrenceRecipientTests(unittest.TestCase):
         c=connect(self.state);self.addCleanup(c.close)
         run=c.execute('SELECT * FROM runs').fetchone()
         self.assertEqual(occurrence_recipients(c,self.job(),run,self.store,self.moment+timedelta(days=2)),('A',))
-        ensure_schema(c);data=snapshot(c,[self.job()],self.moment+timedelta(days=2),self.store)
-        self.assertEqual(data['counts']['complete'],1);self.assertEqual(data['unresolved'],[])
+        ensure_schema(c);issues=collect_issues(c,[self.job()],self.moment+timedelta(days=2),self.store)
+        self.assertEqual(issues,[])
     def test_old_numeric_recipient_is_preserved_when_no_receipt_exists(self):
         self.arm();self.add_run('succeeded');c=connect(self.state);self.addCleanup(c.close)
         with c:c.execute("UPDATE runs SET recipient='777'")

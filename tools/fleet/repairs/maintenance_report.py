@@ -43,10 +43,15 @@ def delivery_review(date, ledger):
                 section='maintenance',receipts=evidence)
 
 
-def apply_records(book, records):
+def apply_records(book, records, *, operation=None):
     """Append journal-identified records; used by the same Writer and guarded Sync."""
-    return [dict(service.append_record(book, record, recorder=record['recorder']),
-                 record=record) for record in records]
+    saved = [dict(service.append_record(book, record, recorder=record['recorder']),
+                  record=record) for record in records]
+    from . import maintenance_identity as identity
+    if identity.active(book):
+        for group, item in enumerate(saved):
+            identity.attach(book, item, operation, group)
+    return saved
 
 
 def verify_operation(request, result):
@@ -65,6 +70,8 @@ def verify_operation(request, result):
 def receive(actor, chat, source_id, raw, *, config=CONFIG, entry_config=service.CONFIG,
             runtime=service.RUNTIME, day=None, ledger=None):
     settings = permission(actor, chat, config=config, entry_config=entry_config)
+    from .maintenance_publication import writer_codec
+    codec = writer_codec(entry_config, runtime)
     if not isinstance(source_id,str) or not re.fullmatch(r'[A-Za-z0-9:/_.-]{1,240}',source_id):
         raise EntryError('شناسهٔ پیام معتبر نیست؛ ثبت انجام نشد.')
     if not isinstance(raw,str) or not 1 <= len(raw) <= 16000:
@@ -89,6 +96,10 @@ def receive(actor, chat, source_id, raw, *, config=CONFIG, entry_config=service.
             if current != settings:
                 raise EntryError('هویت، مقصد یا سیاست ثبت هم‌زمان تغییر کرد؛ ثبت متوقف شد.')
         def mutate(book):
+            from . import maintenance_identity as identity
+            if identity.active(book):
+                checked = identity.load(Path(settings['source']).read_bytes(), preserve=bool(codec))
+                checked.close()
             from tools.fleet.maintenance_daily.prepared import source_proof
             import hashlib
             source_proof(hashlib.sha256(Path(settings['source']).read_bytes()).hexdigest(),
@@ -108,7 +119,7 @@ def receive(actor, chat, source_id, raw, *, config=CONFIG, entry_config=service.
                 group['description'] += ('\n' if group['description'] else '') + item['description']
             for record in groups.values():
                 service.validate_text(record['description'])
-            records = apply_records(book,list(groups.values()))
+            records = apply_records(book,list(groups.values()),operation=operation)
             result = dict(date=request['date'],records=records,recorder=settings['recorder'],
                           remaining_text=raw.strip().splitlines()[0]+'\n'+'\n'.join(remaining) if remaining else '',
                           delivery=delivery_review(request['date'],ledger or service.ROOT/'runtime/scheduler/runs.sqlite3'))
@@ -116,7 +127,7 @@ def receive(actor, chat, source_id, raw, *, config=CONFIG, entry_config=service.
             return result
         result = commit_workbook(actor,request,settings,mutate,runtime=runtime,day=day,
             command='گزارش تعمیرات',authorization_check=authorized,replay_check=service.verify_replay,
-            date_check=lambda:entry_dates.validate_selected(request['date'],day))
+            date_check=lambda:entry_dates.validate_selected(request['date'],day), **codec)
         record_outcome(runtime,operation,digest,'succeeded',result)
         return dict(result,operation=operation)
     except Exception as exc:

@@ -1,0 +1,3688 @@
+{
+  "schema": "komatso-ai-excel-mine-share-audit-v1",
+  "captured_at_utc": "2026-11-16T06:41:03.550037+00:00",
+  "client_date": "2026-11-16",
+  "timezone": "Asia/Tehran",
+  "synthetic_only": true,
+  "run_root": "E:\\KomatsoAI\\runtime\\ai-excel-sync-audit\\20261116T064050Z",
+  "python": "E:\\KomatsoAI\\.venv\\Scripts\\python.exe",
+  "platform": "win32",
+  "openpyxl": "3.1.5",
+  "code_sha256": {
+    "integrations\\hermes\\mine_sync\\mine_file_sync.py": "60fd7d2bd377a17b52a21dc046d12dbcd2de79a763caac0d4f10adaaa1658953",
+    "tools\\fleet\\repairs\\maintenance_baseline.py": "9cf2fd222a2fd28c4e2bd0cde796d3dde68e4b284fb7d778181567436a12a384",
+    "tools\\fleet\\repairs\\maintenance_sync.py": "f67ad17ea0d4ba3c3286a506f703c3b9977a4e95f9d21894e3f4f70b6eb2ea0f",
+    "tools\\fleet\\repairs\\entry_service.py": "fbba0e4b860d64b6629bcf53d824376976c99c43bb8b5865dd0faa2355fbbc6b",
+    "tools\\fleet\\repairs\\maintenance_report.py": "de37386b7755461d8bc9c0bfd5a7f4d06cd8313bf6f30258b0aae2154f94b83b"
+  },
+  "verdict_definition": {
+    "PASS": "Observed preservation/idempotency for stated isolated ordering; not certification of outgoing production sync.",
+    "FAIL": "Observed loss, duplicate or unresolved semantic conflict in stated scenario.",
+    "UNKNOWN": "Isolated primitive executed, but outgoing lifecycle or real SMB/Excel behavior does not exist/is not verified."
+  },
+  "summary": {
+    "PASS": 5,
+    "FAIL": 3,
+    "UNKNOWN": 4
+  },
+  "tests": [
+    {
+      "id": "T1",
+      "verdict": "PASS",
+      "experiment_assertions": "PASS",
+      "sequence": [
+        "equal BASE files",
+        "AI append",
+        "SIMULATED outgoing whole-file copy",
+        "immediate real inbound guard"
+      ],
+      "mine_change": "none",
+      "ai_change": "one append to 710",
+      "data_loss": false,
+      "duplicate": false,
+      "conflict": false,
+      "current_code_behavior": "Exact returned bytes acknowledge protected UUIDs; no repeated append.",
+      "simulation": [
+        "outgoing publication only; not present in production"
+      ],
+      "extra": {
+        "status": "success",
+        "scanned": 1,
+        "copied": 0,
+        "updated": 0,
+        "skipped": 1,
+        "skipped_locked": 0,
+        "skipped_unstable": 0,
+        "ignored": 0,
+        "errors": 0,
+        "collisions": 0,
+        "collision_files": 0,
+        "phase": "copy",
+        "source_enumerated": true,
+        "flatten_bindings": {
+          "maintenance.xlsx": "maintenance.xlsx"
+        },
+        "flatten_outputs": {
+          "maintenance.xlsx": "maintenance.xlsx"
+        },
+        "maintenance_guard": {
+          "status": "unchanged",
+          "hash": "c9b6dc12a1adf6c84da66cc9111908fba9c7fbcdb6699da0e853515ecfe2a3a3",
+          "mine_hash": "c9b6dc12a1adf6c84da66cc9111908fba9c7fbcdb6699da0e853515ecfe2a3a3",
+          "protected_operations": [],
+          "absorbed_operations": [
+            "afc118e4825e53c6a9661b9b2b2691d2"
+          ],
+          "baseline": "14744b3dea9547a682d861e5a84aa567"
+        }
+      },
+      "initial": {
+        "710": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "710",
+            "BASE-710",
+            null
+          ]
+        ],
+        "851": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "851",
+            "BASE-851",
+            null
+          ]
+        ],
+        "متفرقه": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "متفرقه",
+            "BASE-متفرقه",
+            null
+          ]
+        ]
+      },
+      "final_mine": {
+        "710": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "710",
+            "BASE-710",
+            null
+          ],
+          [
+            "1405/08/24",
+            "SYNTHETIC-AI",
+            "TEST",
+            "710",
+            "-دامپتراک710: AI-1.",
+            null
+          ]
+        ],
+        "851": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "851",
+            "BASE-851",
+            null
+          ]
+        ],
+        "متفرقه": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "متفرقه",
+            "BASE-متفرقه",
+            null
+          ]
+        ]
+      },
+      "final_function": {
+        "710": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "710",
+            "BASE-710",
+            null
+          ],
+          [
+            "1405/08/24",
+            "SYNTHETIC-AI",
+            "TEST",
+            "710",
+            "-دامپتراک710: AI-1.",
+            null
+          ]
+        ],
+        "851": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "851",
+            "BASE-851",
+            null
+          ]
+        ],
+        "متفرقه": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "متفرقه",
+            "BASE-متفرقه",
+            null
+          ]
+        ]
+      },
+      "mine_sha256": "c9b6dc12a1adf6c84da66cc9111908fba9c7fbcdb6699da0e853515ecfe2a3a3",
+      "function_sha256": "c9b6dc12a1adf6c84da66cc9111908fba9c7fbcdb6699da0e853515ecfe2a3a3",
+      "journal": [
+        {
+          "operation": "afc118e4825e53c6a9661b9b2b2691d2",
+          "status": "succeeded",
+          "before_hash": "6c20b21bfce2a2c4f482f4c335488ddcf2fc4ac4b04587e56d537a9e932289bf",
+          "after_hash": "c9b6dc12a1adf6c84da66cc9111908fba9c7fbcdb6699da0e853515ecfe2a3a3"
+        },
+        {
+          "operation": "1437fa7c2db947cbaa3cc7229cfc6911",
+          "status": "succeeded",
+          "before_hash": "c9b6dc12a1adf6c84da66cc9111908fba9c7fbcdb6699da0e853515ecfe2a3a3",
+          "after_hash": "c9b6dc12a1adf6c84da66cc9111908fba9c7fbcdb6699da0e853515ecfe2a3a3"
+        }
+      ],
+      "artifacts": "runtime\\ai-excel-sync-audit\\20261116T064050Z\\T1"
+    },
+    {
+      "id": "T2",
+      "verdict": "PASS",
+      "experiment_assertions": "PASS",
+      "sequence": [
+        "equal BASE",
+        "AI append",
+        "inbound before outgoing"
+      ],
+      "mine_change": "none",
+      "ai_change": "one append to 710",
+      "data_loss": false,
+      "duplicate": false,
+      "conflict": false,
+      "current_code_behavior": "Unchanged upstream baseline preserves local UUID; mine still lacks AI.",
+      "simulation": [],
+      "extra": {
+        "status": "success",
+        "scanned": 1,
+        "copied": 0,
+        "updated": 0,
+        "skipped": 1,
+        "skipped_locked": 0,
+        "skipped_unstable": 0,
+        "ignored": 0,
+        "errors": 0,
+        "collisions": 0,
+        "collision_files": 0,
+        "phase": "copy",
+        "source_enumerated": true,
+        "flatten_bindings": {
+          "maintenance.xlsx": "maintenance.xlsx"
+        },
+        "flatten_outputs": {
+          "maintenance.xlsx": "maintenance.xlsx"
+        },
+        "maintenance_guard": {
+          "status": "unchanged",
+          "hash": "4c9c114fdb2706e3d4da686999b00e26a21dd1881867c1a7e9062f384a5160e0",
+          "mine_hash": "7824674ba708e3ab5c5f6069f8ca67881791b561a249efae9890c98e8565f93c",
+          "protected_operations": [
+            "afc118e4825e53c6a9661b9b2b2691d2"
+          ],
+          "baseline": "deaf92ba7bd443a0ab6c60eeb9da24a1"
+        }
+      },
+      "initial": {
+        "710": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "710",
+            "BASE-710",
+            null
+          ]
+        ],
+        "851": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "851",
+            "BASE-851",
+            null
+          ]
+        ],
+        "متفرقه": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "متفرقه",
+            "BASE-متفرقه",
+            null
+          ]
+        ]
+      },
+      "final_mine": {
+        "710": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "710",
+            "BASE-710",
+            null
+          ]
+        ],
+        "851": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "851",
+            "BASE-851",
+            null
+          ]
+        ],
+        "متفرقه": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "متفرقه",
+            "BASE-متفرقه",
+            null
+          ]
+        ]
+      },
+      "final_function": {
+        "710": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "710",
+            "BASE-710",
+            null
+          ],
+          [
+            "1405/08/24",
+            "SYNTHETIC-AI",
+            "TEST",
+            "710",
+            "-دامپتراک710: AI-1.",
+            null
+          ]
+        ],
+        "851": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "851",
+            "BASE-851",
+            null
+          ]
+        ],
+        "متفرقه": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "متفرقه",
+            "BASE-متفرقه",
+            null
+          ]
+        ]
+      },
+      "mine_sha256": "7824674ba708e3ab5c5f6069f8ca67881791b561a249efae9890c98e8565f93c",
+      "function_sha256": "4c9c114fdb2706e3d4da686999b00e26a21dd1881867c1a7e9062f384a5160e0",
+      "journal": [
+        {
+          "operation": "afc118e4825e53c6a9661b9b2b2691d2",
+          "status": "succeeded",
+          "before_hash": "7824674ba708e3ab5c5f6069f8ca67881791b561a249efae9890c98e8565f93c",
+          "after_hash": "4c9c114fdb2706e3d4da686999b00e26a21dd1881867c1a7e9062f384a5160e0"
+        }
+      ],
+      "artifacts": "runtime\\ai-excel-sync-audit\\20261116T064050Z\\T2"
+    },
+    {
+      "id": "T3",
+      "verdict": "PASS",
+      "experiment_assertions": "PASS",
+      "sequence": [
+        "equal BASE",
+        "AI append on 710",
+        "mine edits 851/E3",
+        "inbound guarded merge"
+      ],
+      "mine_change": "851/E3= MINE-EDIT-851",
+      "ai_change": "new 710 row",
+      "data_loss": false,
+      "duplicate": false,
+      "conflict": false,
+      "current_code_behavior": "upstream_copy keeps mine history edit and replays exact UUID-proven AI append locally.",
+      "simulation": [],
+      "extra": {
+        "status": "success",
+        "scanned": 1,
+        "copied": 0,
+        "updated": 1,
+        "skipped": 0,
+        "skipped_locked": 0,
+        "skipped_unstable": 0,
+        "ignored": 0,
+        "errors": 0,
+        "collisions": 0,
+        "collision_files": 0,
+        "phase": "copy",
+        "source_enumerated": true,
+        "flatten_bindings": {
+          "maintenance.xlsx": "maintenance.xlsx"
+        },
+        "flatten_outputs": {
+          "maintenance.xlsx": "maintenance.xlsx"
+        },
+        "maintenance_guard": {
+          "status": "merged",
+          "hash": "8b2f7f0c7510235f7cadde4dc4c084033b59044fbf9d8b0c6f336a427d8893a7",
+          "mine_hash": "77ab6d8c90231d3ddcd7bea21f3183f284154637ee944d7e7cd44648526dee1b",
+          "changed_sheets": [
+            "851"
+          ],
+          "protected_operations": [
+            "afc118e4825e53c6a9661b9b2b2691d2"
+          ],
+          "baseline": "b04fe8008a0f43869521aaef0a049e02",
+          "merge_strategy": "journalled_report_append_v1",
+          "report_positions": {
+            "afc118e4825e53c6a9661b9b2b2691d2": [
+              {
+                "sheet": "710",
+                "code": "710",
+                "canonical": "HD710",
+                "name": "دامپ 710",
+                "date": "1405/08/24",
+                "row": 4,
+                "recorder": "SYNTHETIC-AI",
+                "record": {
+                  "sheet": "710",
+                  "code": "710",
+                  "canonical": "HD710",
+                  "name": "دامپ 710",
+                  "date": "1405/08/24",
+                  "mechanic": "TEST",
+                  "department": "تعمیرگاه",
+                  "recorder": "SYNTHETIC-AI",
+                  "description": "-دامپتراک710: AI-1.",
+                  "parts": ""
+                }
+              }
+            ]
+          }
+        }
+      },
+      "initial": {
+        "710": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "710",
+            "BASE-710",
+            null
+          ]
+        ],
+        "851": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "851",
+            "BASE-851",
+            null
+          ]
+        ],
+        "متفرقه": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "متفرقه",
+            "BASE-متفرقه",
+            null
+          ]
+        ]
+      },
+      "final_mine": {
+        "710": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "710",
+            "BASE-710",
+            null
+          ]
+        ],
+        "851": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "851",
+            "MINE-EDIT-851",
+            null
+          ]
+        ],
+        "متفرقه": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "متفرقه",
+            "BASE-متفرقه",
+            null
+          ]
+        ]
+      },
+      "final_function": {
+        "710": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "710",
+            "BASE-710",
+            null
+          ],
+          [
+            "1405/08/24",
+            "SYNTHETIC-AI",
+            "TEST",
+            "710",
+            "-دامپتراک710: AI-1.",
+            null
+          ]
+        ],
+        "851": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "851",
+            "MINE-EDIT-851",
+            null
+          ]
+        ],
+        "متفرقه": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "متفرقه",
+            "BASE-متفرقه",
+            null
+          ]
+        ]
+      },
+      "mine_sha256": "77ab6d8c90231d3ddcd7bea21f3183f284154637ee944d7e7cd44648526dee1b",
+      "function_sha256": "8b2f7f0c7510235f7cadde4dc4c084033b59044fbf9d8b0c6f336a427d8893a7",
+      "journal": [
+        {
+          "operation": "afc118e4825e53c6a9661b9b2b2691d2",
+          "status": "succeeded",
+          "before_hash": "7824674ba708e3ab5c5f6069f8ca67881791b561a249efae9890c98e8565f93c",
+          "after_hash": "8203b98b47dc0e36df0ec69da92a234ab56a011549a223a34efaa1676905906f"
+        },
+        {
+          "operation": "2ef4bed619874cfe96bc1304e8541913",
+          "status": "succeeded",
+          "before_hash": "8203b98b47dc0e36df0ec69da92a234ab56a011549a223a34efaa1676905906f",
+          "after_hash": "8b2f7f0c7510235f7cadde4dc4c084033b59044fbf9d8b0c6f336a427d8893a7"
+        }
+      ],
+      "artifacts": "runtime\\ai-excel-sync-audit\\20261116T064050Z\\T3"
+    },
+    {
+      "id": "T4",
+      "verdict": "FAIL",
+      "experiment_assertions": "PASS",
+      "sequence": [
+        "AI append 710/E4",
+        "SIMULATED publication without inbound acknowledgement",
+        "mine corrects the same published record E4",
+        "inbound"
+      ],
+      "mine_change": "710/E4 changes the same AI event",
+      "ai_change": "710/E4 original AI text",
+      "data_loss": false,
+      "duplicate": true,
+      "conflict": "UNDETECTED_SEMANTIC_CONFLICT",
+      "current_code_behavior": "No stable row UUID in workbook: mine correction and original AI append become two rows, without conflict.",
+      "simulation": [
+        "outgoing copy; mine edit via openpyxl, not native Excel"
+      ],
+      "extra": {
+        "status": "success",
+        "scanned": 1,
+        "copied": 0,
+        "updated": 1,
+        "skipped": 0,
+        "skipped_locked": 0,
+        "skipped_unstable": 0,
+        "ignored": 0,
+        "errors": 0,
+        "collisions": 0,
+        "collision_files": 0,
+        "phase": "copy",
+        "source_enumerated": true,
+        "flatten_bindings": {
+          "maintenance.xlsx": "maintenance.xlsx"
+        },
+        "flatten_outputs": {
+          "maintenance.xlsx": "maintenance.xlsx"
+        },
+        "maintenance_guard": {
+          "status": "merged",
+          "hash": "e1a1b2423ecf286348b51a8f6d0abcaa622cf7d2b6872ed2777f7a0369ba0479",
+          "mine_hash": "4573875739581bc085effcdbf125ff8785b3d4202ed4db8a0a8189f4f4c5cfe3",
+          "changed_sheets": [
+            "710"
+          ],
+          "protected_operations": [
+            "afc118e4825e53c6a9661b9b2b2691d2"
+          ],
+          "baseline": "b7142fdb3a2f4e3cab525895609d9616",
+          "merge_strategy": "journalled_report_append_v1",
+          "report_positions": {
+            "afc118e4825e53c6a9661b9b2b2691d2": [
+              {
+                "sheet": "710",
+                "code": "710",
+                "canonical": "HD710",
+                "name": "دامپ 710",
+                "date": "1405/08/24",
+                "row": 5,
+                "recorder": "SYNTHETIC-AI",
+                "record": {
+                  "sheet": "710",
+                  "code": "710",
+                  "canonical": "HD710",
+                  "name": "دامپ 710",
+                  "date": "1405/08/24",
+                  "mechanic": "TEST",
+                  "department": "تعمیرگاه",
+                  "recorder": "SYNTHETIC-AI",
+                  "description": "-دامپتراک710: AI-1.",
+                  "parts": ""
+                }
+              }
+            ]
+          }
+        }
+      },
+      "initial": {
+        "710": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "710",
+            "BASE-710",
+            null
+          ]
+        ],
+        "851": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "851",
+            "BASE-851",
+            null
+          ]
+        ],
+        "متفرقه": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "متفرقه",
+            "BASE-متفرقه",
+            null
+          ]
+        ]
+      },
+      "final_mine": {
+        "710": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "710",
+            "BASE-710",
+            null
+          ],
+          [
+            "1405/08/24",
+            "SYNTHETIC-AI",
+            "TEST",
+            "710",
+            "MINE-CORRECTED-SAME-AI-RECORD",
+            null
+          ]
+        ],
+        "851": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "851",
+            "BASE-851",
+            null
+          ]
+        ],
+        "متفرقه": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "متفرقه",
+            "BASE-متفرقه",
+            null
+          ]
+        ]
+      },
+      "final_function": {
+        "710": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "710",
+            "BASE-710",
+            null
+          ],
+          [
+            "1405/08/24",
+            "SYNTHETIC-AI",
+            "TEST",
+            "710",
+            "MINE-CORRECTED-SAME-AI-RECORD",
+            null
+          ],
+          [
+            "1405/08/24",
+            "SYNTHETIC-AI",
+            "TEST",
+            "710",
+            "-دامپتراک710: AI-1.",
+            null
+          ]
+        ],
+        "851": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "851",
+            "BASE-851",
+            null
+          ]
+        ],
+        "متفرقه": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "متفرقه",
+            "BASE-متفرقه",
+            null
+          ]
+        ]
+      },
+      "mine_sha256": "4573875739581bc085effcdbf125ff8785b3d4202ed4db8a0a8189f4f4c5cfe3",
+      "function_sha256": "e1a1b2423ecf286348b51a8f6d0abcaa622cf7d2b6872ed2777f7a0369ba0479",
+      "journal": [
+        {
+          "operation": "afc118e4825e53c6a9661b9b2b2691d2",
+          "status": "succeeded",
+          "before_hash": "239a6f8b57103716eb9178994f90851081149d1e95f53ba5602bd62104062e68",
+          "after_hash": "40f231b3b8f5068c73f278a102802c4321eaa2729f892f4acc10a4ad56cc8522"
+        },
+        {
+          "operation": "049c70de13414e449463d29bfd45595f",
+          "status": "succeeded",
+          "before_hash": "40f231b3b8f5068c73f278a102802c4321eaa2729f892f4acc10a4ad56cc8522",
+          "after_hash": "e1a1b2423ecf286348b51a8f6d0abcaa622cf7d2b6872ed2777f7a0369ba0479"
+        }
+      ],
+      "artifacts": "runtime\\ai-excel-sync-audit\\20261116T064050Z\\T4"
+    },
+    {
+      "id": "T5",
+      "verdict": "UNKNOWN",
+      "experiment_assertions": "PASS",
+      "sequence": [
+        "AI append",
+        "SIMULATED outgoing rename network failure",
+        "isolated incoming supervisor outage"
+      ],
+      "mine_change": "none",
+      "ai_change": "one append",
+      "data_loss": false,
+      "duplicate": false,
+      "conflict": false,
+      "current_code_behavior": "Copy primitive preserves old target; existing inbound run records outage/backoff. No outgoing retry exists.",
+      "simulation": [
+        "SMB/network failure injection; outgoing supervisor absent"
+      ],
+      "extra": {
+        "status": "source_unavailable",
+        "scanned": 0,
+        "copied": 0,
+        "updated": 0,
+        "skipped": 0,
+        "skipped_locked": 0,
+        "skipped_unstable": 0,
+        "ignored": 0,
+        "errors": 0,
+        "collisions": 0,
+        "collision_files": 0,
+        "exception": "SIMULATED SMB failure",
+        "failure_classification": "source_outage",
+        "started_at": "2026-11-16T06:40:54.632700+00:00",
+        "finished_at": "2026-11-16T06:40:54.642722+00:00",
+        "duration_seconds": 0.0,
+        "dry_run": false,
+        "source": "E:\\KomatsoAI\\runtime\\ai-excel-sync-audit\\20261116T064050Z\\T5\\mine",
+        "destination": "E:\\KomatsoAI\\runtime\\ai-excel-sync-audit\\20261116T064050Z\\T5\\function",
+        "attempted": true,
+        "sync_healthy": false,
+        "next_attempt_at": "2026-11-16T06:42:54.642722+00:00"
+      },
+      "initial": {
+        "710": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "710",
+            "BASE-710",
+            null
+          ]
+        ],
+        "851": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "851",
+            "BASE-851",
+            null
+          ]
+        ],
+        "متفرقه": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "متفرقه",
+            "BASE-متفرقه",
+            null
+          ]
+        ]
+      },
+      "final_mine": {
+        "710": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "710",
+            "BASE-710",
+            null
+          ]
+        ],
+        "851": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "851",
+            "BASE-851",
+            null
+          ]
+        ],
+        "متفرقه": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "متفرقه",
+            "BASE-متفرقه",
+            null
+          ]
+        ]
+      },
+      "final_function": {
+        "710": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "710",
+            "BASE-710",
+            null
+          ],
+          [
+            "1405/08/24",
+            "SYNTHETIC-AI",
+            "TEST",
+            "710",
+            "-دامپتراک710: AI-1.",
+            null
+          ]
+        ],
+        "851": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "851",
+            "BASE-851",
+            null
+          ]
+        ],
+        "متفرقه": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "متفرقه",
+            "BASE-متفرقه",
+            null
+          ]
+        ]
+      },
+      "mine_sha256": "9308637d5c56a62de84c243e87ae4c983fa3af819d76bab24938b21f60403f9a",
+      "function_sha256": "a3a34123f1b5846ac8ec12dce4c90f030da78d1c71e4798dbf16a0ff70262197",
+      "journal": [
+        {
+          "operation": "afc118e4825e53c6a9661b9b2b2691d2",
+          "status": "succeeded",
+          "before_hash": "9308637d5c56a62de84c243e87ae4c983fa3af819d76bab24938b21f60403f9a",
+          "after_hash": "a3a34123f1b5846ac8ec12dce4c90f030da78d1c71e4798dbf16a0ff70262197"
+        }
+      ],
+      "artifacts": "runtime\\ai-excel-sync-audit\\20261116T064050Z\\T5"
+    },
+    {
+      "id": "T6",
+      "verdict": "UNKNOWN",
+      "experiment_assertions": "PASS",
+      "sequence": [
+        "outage",
+        "early retry skips under persisted backoff",
+        "SIMULATED reconnection and outgoing copy",
+        "clock advanced 4 minutes in isolated supervisor",
+        "guarded inbound recovery"
+      ],
+      "mine_change": "none",
+      "ai_change": "one append",
+      "data_loss": false,
+      "duplicate": false,
+      "conflict": false,
+      "current_code_behavior": "Inbound recovery clears outage. Outgoing recovery/receipt does not exist and cannot be certified.",
+      "simulation": [
+        "network and time simulation; outgoing copy; supervisor subprocess replaced by isolated inbound"
+      ],
+      "extra": {
+        "status": "success",
+        "scanned": 1,
+        "copied": 0,
+        "updated": 0,
+        "skipped": 1,
+        "skipped_locked": 0,
+        "skipped_unstable": 0,
+        "ignored": 0,
+        "errors": 0,
+        "collisions": 0,
+        "collision_files": 0,
+        "phase": "copy",
+        "source_enumerated": true,
+        "maintenance_guard": {
+          "status": "unchanged",
+          "hash": "0b8cf8e75caac2a9eb54deeff21adeed8317a1fbb307bb8e449d8dc8b3f53b51",
+          "mine_hash": "0b8cf8e75caac2a9eb54deeff21adeed8317a1fbb307bb8e449d8dc8b3f53b51",
+          "protected_operations": [],
+          "absorbed_operations": [
+            "afc118e4825e53c6a9661b9b2b2691d2"
+          ],
+          "baseline": "74462e9b22ff4d7b93b0eaedee45a7e9"
+        },
+        "started_at": "2026-11-16T06:44:55.293066+00:00",
+        "finished_at": "2026-11-16T06:44:55.293066+00:00",
+        "duration_seconds": 0.141,
+        "dry_run": false,
+        "source": "E:\\KomatsoAI\\runtime\\ai-excel-sync-audit\\20261116T064050Z\\T6\\mine",
+        "destination": "E:\\KomatsoAI\\runtime\\ai-excel-sync-audit\\20261116T064050Z\\T6\\function",
+        "attempted": true,
+        "sync_healthy": true,
+        "next_attempt_at": null
+      },
+      "initial": {
+        "710": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "710",
+            "BASE-710",
+            null
+          ]
+        ],
+        "851": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "851",
+            "BASE-851",
+            null
+          ]
+        ],
+        "متفرقه": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "متفرقه",
+            "BASE-متفرقه",
+            null
+          ]
+        ]
+      },
+      "final_mine": {
+        "710": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "710",
+            "BASE-710",
+            null
+          ],
+          [
+            "1405/08/24",
+            "SYNTHETIC-AI",
+            "TEST",
+            "710",
+            "-دامپتراک710: AI-1.",
+            null
+          ]
+        ],
+        "851": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "851",
+            "BASE-851",
+            null
+          ]
+        ],
+        "متفرقه": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "متفرقه",
+            "BASE-متفرقه",
+            null
+          ]
+        ]
+      },
+      "final_function": {
+        "710": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "710",
+            "BASE-710",
+            null
+          ],
+          [
+            "1405/08/24",
+            "SYNTHETIC-AI",
+            "TEST",
+            "710",
+            "-دامپتراک710: AI-1.",
+            null
+          ]
+        ],
+        "851": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "851",
+            "BASE-851",
+            null
+          ]
+        ],
+        "متفرقه": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "متفرقه",
+            "BASE-متفرقه",
+            null
+          ]
+        ]
+      },
+      "mine_sha256": "0b8cf8e75caac2a9eb54deeff21adeed8317a1fbb307bb8e449d8dc8b3f53b51",
+      "function_sha256": "0b8cf8e75caac2a9eb54deeff21adeed8317a1fbb307bb8e449d8dc8b3f53b51",
+      "journal": [
+        {
+          "operation": "afc118e4825e53c6a9661b9b2b2691d2",
+          "status": "succeeded",
+          "before_hash": "9308637d5c56a62de84c243e87ae4c983fa3af819d76bab24938b21f60403f9a",
+          "after_hash": "0b8cf8e75caac2a9eb54deeff21adeed8317a1fbb307bb8e449d8dc8b3f53b51"
+        },
+        {
+          "operation": "e2adbe9b87e94091818833b667267ef0",
+          "status": "succeeded",
+          "before_hash": "0b8cf8e75caac2a9eb54deeff21adeed8317a1fbb307bb8e449d8dc8b3f53b51",
+          "after_hash": "0b8cf8e75caac2a9eb54deeff21adeed8317a1fbb307bb8e449d8dc8b3f53b51"
+        }
+      ],
+      "artifacts": "runtime\\ai-excel-sync-audit\\20261116T064050Z\\T6"
+    },
+    {
+      "id": "T7",
+      "verdict": "UNKNOWN",
+      "experiment_assertions": "PASS",
+      "sequence": [
+        "AI append",
+        "native local Win32 deny-delete/write handle on mine fixture",
+        "outgoing replacement denied",
+        "release handle",
+        "SIMULATED outgoing retry",
+        "inbound"
+      ],
+      "mine_change": "none",
+      "ai_change": "one append",
+      "data_loss": false,
+      "duplicate": false,
+      "conflict": false,
+      "current_code_behavior": "Real NTFS sharing violation preserves target; retry after releasing the handle succeeds. SMB/Excel parity unknown.",
+      "simulation": [
+        "SIMULATED Excel/SMB lock using real Windows NTFS handle; no native Excel or real SMB"
+      ],
+      "extra": {
+        "lock_error": {
+          "type": "PermissionError",
+          "winerror": 5
+        },
+        "inbound": {
+          "status": "success",
+          "scanned": 1,
+          "copied": 0,
+          "updated": 0,
+          "skipped": 1,
+          "skipped_locked": 0,
+          "skipped_unstable": 0,
+          "ignored": 0,
+          "errors": 0,
+          "collisions": 0,
+          "collision_files": 0,
+          "phase": "copy",
+          "source_enumerated": true,
+          "flatten_bindings": {
+            "maintenance.xlsx": "maintenance.xlsx"
+          },
+          "flatten_outputs": {
+            "maintenance.xlsx": "maintenance.xlsx"
+          },
+          "maintenance_guard": {
+            "status": "unchanged",
+            "hash": "f07da27d1f14d7604d48481d7e4189d5b5cdbc1a9ce2e55393ba24c07f98876c",
+            "mine_hash": "f07da27d1f14d7604d48481d7e4189d5b5cdbc1a9ce2e55393ba24c07f98876c",
+            "protected_operations": [],
+            "absorbed_operations": [
+              "afc118e4825e53c6a9661b9b2b2691d2"
+            ],
+            "baseline": "f768a5774ee0472eb75afc6a92eb4981"
+          }
+        }
+      },
+      "initial": {
+        "710": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "710",
+            "BASE-710",
+            null
+          ]
+        ],
+        "851": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "851",
+            "BASE-851",
+            null
+          ]
+        ],
+        "متفرقه": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "متفرقه",
+            "BASE-متفرقه",
+            null
+          ]
+        ]
+      },
+      "final_mine": {
+        "710": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "710",
+            "BASE-710",
+            null
+          ],
+          [
+            "1405/08/24",
+            "SYNTHETIC-AI",
+            "TEST",
+            "710",
+            "-دامپتراک710: AI-1.",
+            null
+          ]
+        ],
+        "851": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "851",
+            "BASE-851",
+            null
+          ]
+        ],
+        "متفرقه": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "متفرقه",
+            "BASE-متفرقه",
+            null
+          ]
+        ]
+      },
+      "final_function": {
+        "710": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "710",
+            "BASE-710",
+            null
+          ],
+          [
+            "1405/08/24",
+            "SYNTHETIC-AI",
+            "TEST",
+            "710",
+            "-دامپتراک710: AI-1.",
+            null
+          ]
+        ],
+        "851": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "851",
+            "BASE-851",
+            null
+          ]
+        ],
+        "متفرقه": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "متفرقه",
+            "BASE-متفرقه",
+            null
+          ]
+        ]
+      },
+      "mine_sha256": "f07da27d1f14d7604d48481d7e4189d5b5cdbc1a9ce2e55393ba24c07f98876c",
+      "function_sha256": "f07da27d1f14d7604d48481d7e4189d5b5cdbc1a9ce2e55393ba24c07f98876c",
+      "journal": [
+        {
+          "operation": "afc118e4825e53c6a9661b9b2b2691d2",
+          "status": "succeeded",
+          "before_hash": "14506faa3cbfd7d9d81dcf1b54d4edf13ff049cf3c6d66bb02aa86ea80ff9c79",
+          "after_hash": "f07da27d1f14d7604d48481d7e4189d5b5cdbc1a9ce2e55393ba24c07f98876c"
+        },
+        {
+          "operation": "43a7a93a2c634bfb9c175b841a29854a",
+          "status": "succeeded",
+          "before_hash": "f07da27d1f14d7604d48481d7e4189d5b5cdbc1a9ce2e55393ba24c07f98876c",
+          "after_hash": "f07da27d1f14d7604d48481d7e4189d5b5cdbc1a9ce2e55393ba24c07f98876c"
+        }
+      ],
+      "artifacts": "runtime\\ai-excel-sync-audit\\20261116T064050Z\\T7"
+    },
+    {
+      "id": "T8",
+      "verdict": "UNKNOWN",
+      "experiment_assertions": "PASS",
+      "sequence": [
+        "AI append",
+        "outgoing read fails after 100 staged bytes",
+        "mine edit",
+        "incoming read fails after 100 staged bytes"
+      ],
+      "mine_change": "851/E3=MINE-NEW",
+      "ai_change": "one append",
+      "data_loss": false,
+      "duplicate": false,
+      "conflict": false,
+      "current_code_behavior": "Actual staging code removes partial file and preserves both completed workbooks in both directions.",
+      "simulation": [
+        "transfer interruption injected; outbound lifecycle absent; no SMB power-loss durability test"
+      ],
+      "extra": {},
+      "initial": {
+        "710": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "710",
+            "BASE-710",
+            null
+          ]
+        ],
+        "851": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "851",
+            "BASE-851",
+            null
+          ]
+        ],
+        "متفرقه": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "متفرقه",
+            "BASE-متفرقه",
+            null
+          ]
+        ]
+      },
+      "final_mine": {
+        "710": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "710",
+            "BASE-710",
+            null
+          ]
+        ],
+        "851": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "851",
+            "MINE-NEW",
+            null
+          ]
+        ],
+        "متفرقه": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "متفرقه",
+            "BASE-متفرقه",
+            null
+          ]
+        ]
+      },
+      "final_function": {
+        "710": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "710",
+            "BASE-710",
+            null
+          ],
+          [
+            "1405/08/24",
+            "SYNTHETIC-AI",
+            "TEST",
+            "710",
+            "-دامپتراک710: AI-1.",
+            null
+          ]
+        ],
+        "851": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "851",
+            "BASE-851",
+            null
+          ]
+        ],
+        "متفرقه": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "متفرقه",
+            "BASE-متفرقه",
+            null
+          ]
+        ]
+      },
+      "mine_sha256": "2c89382a82d867f40dc9b1eb0eefa2e482553107676420925ae6ecb55de9b30d",
+      "function_sha256": "9f124cd75bebe7195a222857e6673866cf9df047efb9bd20ac53c7a47bf26968",
+      "journal": [
+        {
+          "operation": "afc118e4825e53c6a9661b9b2b2691d2",
+          "status": "succeeded",
+          "before_hash": "e4dc4ecc4bd58cf96d16037ea758a47b99e13debd486cfa9a31f48e5f6f3c879",
+          "after_hash": "9f124cd75bebe7195a222857e6673866cf9df047efb9bd20ac53c7a47bf26968"
+        }
+      ],
+      "artifacts": "runtime\\ai-excel-sync-audit\\20261116T064050Z\\T8"
+    },
+    {
+      "id": "T9",
+      "verdict": "PASS",
+      "experiment_assertions": "PASS",
+      "sequence": [
+        "same AI source ID twice",
+        "SIMULATED outgoing",
+        "inbound ack",
+        "same outgoing bytes again",
+        "inbound again"
+      ],
+      "mine_change": "none",
+      "ai_change": "one source ID twice",
+      "data_loss": false,
+      "duplicate": false,
+      "conflict": false,
+      "current_code_behavior": "UUIDv5 message identity and exact byte acknowledgement are idempotent under this ordering.",
+      "simulation": [
+        "outgoing copy"
+      ],
+      "extra": {
+        "status": "success",
+        "scanned": 1,
+        "copied": 0,
+        "updated": 0,
+        "skipped": 1,
+        "skipped_locked": 0,
+        "skipped_unstable": 0,
+        "ignored": 0,
+        "errors": 0,
+        "collisions": 0,
+        "collision_files": 0,
+        "phase": "copy",
+        "source_enumerated": true,
+        "flatten_bindings": {
+          "maintenance.xlsx": "maintenance.xlsx"
+        },
+        "flatten_outputs": {
+          "maintenance.xlsx": "maintenance.xlsx"
+        },
+        "maintenance_guard": {
+          "status": "unchanged",
+          "hash": "8bfa9bfb4c3a859a4bd9b4538d77bd157f5c49b7827c9c6fe4c9ab34cc39f436",
+          "mine_hash": "8bfa9bfb4c3a859a4bd9b4538d77bd157f5c49b7827c9c6fe4c9ab34cc39f436",
+          "protected_operations": [],
+          "baseline": "4e542341083441e6b36ecb37ebd05c25"
+        }
+      },
+      "initial": {
+        "710": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "710",
+            "BASE-710",
+            null
+          ]
+        ],
+        "851": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "851",
+            "BASE-851",
+            null
+          ]
+        ],
+        "متفرقه": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "متفرقه",
+            "BASE-متفرقه",
+            null
+          ]
+        ]
+      },
+      "final_mine": {
+        "710": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "710",
+            "BASE-710",
+            null
+          ],
+          [
+            "1405/08/24",
+            "SYNTHETIC-AI",
+            "TEST",
+            "710",
+            "-دامپتراک710: AI-1.",
+            null
+          ]
+        ],
+        "851": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "851",
+            "BASE-851",
+            null
+          ]
+        ],
+        "متفرقه": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "متفرقه",
+            "BASE-متفرقه",
+            null
+          ]
+        ]
+      },
+      "final_function": {
+        "710": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "710",
+            "BASE-710",
+            null
+          ],
+          [
+            "1405/08/24",
+            "SYNTHETIC-AI",
+            "TEST",
+            "710",
+            "-دامپتراک710: AI-1.",
+            null
+          ]
+        ],
+        "851": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "851",
+            "BASE-851",
+            null
+          ]
+        ],
+        "متفرقه": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "متفرقه",
+            "BASE-متفرقه",
+            null
+          ]
+        ]
+      },
+      "mine_sha256": "8bfa9bfb4c3a859a4bd9b4538d77bd157f5c49b7827c9c6fe4c9ab34cc39f436",
+      "function_sha256": "8bfa9bfb4c3a859a4bd9b4538d77bd157f5c49b7827c9c6fe4c9ab34cc39f436",
+      "journal": [
+        {
+          "operation": "afc118e4825e53c6a9661b9b2b2691d2",
+          "status": "succeeded",
+          "before_hash": "7ccbf4e2b99efb2325322550da3a0f5c63770db525eaacbd4955aae5d9e410e8",
+          "after_hash": "8bfa9bfb4c3a859a4bd9b4538d77bd157f5c49b7827c9c6fe4c9ab34cc39f436"
+        },
+        {
+          "operation": "21d9ac17eacf43b4bf70f160f63f0cd0",
+          "status": "succeeded",
+          "before_hash": "8bfa9bfb4c3a859a4bd9b4538d77bd157f5c49b7827c9c6fe4c9ab34cc39f436",
+          "after_hash": "8bfa9bfb4c3a859a4bd9b4538d77bd157f5c49b7827c9c6fe4c9ab34cc39f436"
+        }
+      ],
+      "artifacts": "runtime\\ai-excel-sync-audit\\20261116T064050Z\\T9"
+    },
+    {
+      "id": "T10",
+      "verdict": "PASS",
+      "experiment_assertions": "PASS",
+      "sequence": [
+        "three atomic reports, two devices each",
+        "mine edits base 851 row",
+        "inbound",
+        "repeat inbound"
+      ],
+      "mine_change": "851 base row edit",
+      "ai_change": "three operations/six rows across 710 and 851",
+      "data_loss": false,
+      "duplicate": false,
+      "conflict": false,
+      "current_code_behavior": "Ordered journal reconstructs all batches once; repeat inbound unchanged. Mine does not yet contain them.",
+      "simulation": [],
+      "extra": {
+        "first": {
+          "status": "success",
+          "scanned": 1,
+          "copied": 0,
+          "updated": 1,
+          "skipped": 0,
+          "skipped_locked": 0,
+          "skipped_unstable": 0,
+          "ignored": 0,
+          "errors": 0,
+          "collisions": 0,
+          "collision_files": 0,
+          "phase": "copy",
+          "source_enumerated": true,
+          "flatten_bindings": {
+            "maintenance.xlsx": "maintenance.xlsx"
+          },
+          "flatten_outputs": {
+            "maintenance.xlsx": "maintenance.xlsx"
+          },
+          "maintenance_guard": {
+            "status": "merged",
+            "hash": "db4f75b05e325192a320fa59c69fd4b20b6a40db7f050dfb3de1cedbaa5d8ef1",
+            "mine_hash": "4ca0aa8efbcbff1ab36920c42b00690b48019c246b06e172a2db9f88421adb99",
+            "changed_sheets": [
+              "851"
+            ],
+            "protected_operations": [
+              "8c000d44302655429503321faf27f7dd",
+              "afc118e4825e53c6a9661b9b2b2691d2",
+              "120d9109d9d459e89a1a825cc6d44b22"
+            ],
+            "baseline": "bd60fd4255e8496091af2c817ff64690",
+            "merge_strategy": "journalled_report_append_v1",
+            "report_positions": {
+              "8c000d44302655429503321faf27f7dd": [
+                {
+                  "sheet": "710",
+                  "code": "710",
+                  "canonical": "HD710",
+                  "name": "دامپ 710",
+                  "date": "1405/08/24",
+                  "row": 4,
+                  "recorder": "SYNTHETIC-AI",
+                  "record": {
+                    "sheet": "710",
+                    "code": "710",
+                    "canonical": "HD710",
+                    "name": "دامپ 710",
+                    "date": "1405/08/24",
+                    "mechanic": "TEST",
+                    "department": "تعمیرگاه",
+                    "recorder": "SYNTHETIC-AI",
+                    "description": "-دامپتراک710: AI-BATCH-0.",
+                    "parts": ""
+                  }
+                },
+                {
+                  "sheet": "851",
+                  "code": "851",
+                  "canonical": "EX851",
+                  "name": "بیل 851",
+                  "date": "1405/08/24",
+                  "row": 4,
+                  "recorder": "SYNTHETIC-AI",
+                  "record": {
+                    "sheet": "851",
+                    "code": "851",
+                    "canonical": "EX851",
+                    "name": "بیل 851",
+                    "date": "1405/08/24",
+                    "mechanic": "TEST",
+                    "department": "تعمیرگاه",
+                    "recorder": "SYNTHETIC-AI",
+                    "description": "-بیل851: AI-BATCH-0.",
+                    "parts": ""
+                  }
+                }
+              ],
+              "afc118e4825e53c6a9661b9b2b2691d2": [
+                {
+                  "sheet": "710",
+                  "code": "710",
+                  "canonical": "HD710",
+                  "name": "دامپ 710",
+                  "date": "1405/08/24",
+                  "row": 5,
+                  "recorder": "SYNTHETIC-AI",
+                  "record": {
+                    "sheet": "710",
+                    "code": "710",
+                    "canonical": "HD710",
+                    "name": "دامپ 710",
+                    "date": "1405/08/24",
+                    "mechanic": "TEST",
+                    "department": "تعمیرگاه",
+                    "recorder": "SYNTHETIC-AI",
+                    "description": "-دامپتراک710: AI-BATCH-1.",
+                    "parts": ""
+                  }
+                },
+                {
+                  "sheet": "851",
+                  "code": "851",
+                  "canonical": "EX851",
+                  "name": "بیل 851",
+                  "date": "1405/08/24",
+                  "row": 5,
+                  "recorder": "SYNTHETIC-AI",
+                  "record": {
+                    "sheet": "851",
+                    "code": "851",
+                    "canonical": "EX851",
+                    "name": "بیل 851",
+                    "date": "1405/08/24",
+                    "mechanic": "TEST",
+                    "department": "تعمیرگاه",
+                    "recorder": "SYNTHETIC-AI",
+                    "description": "-بیل851: AI-BATCH-1.",
+                    "parts": ""
+                  }
+                }
+              ],
+              "120d9109d9d459e89a1a825cc6d44b22": [
+                {
+                  "sheet": "710",
+                  "code": "710",
+                  "canonical": "HD710",
+                  "name": "دامپ 710",
+                  "date": "1405/08/24",
+                  "row": 6,
+                  "recorder": "SYNTHETIC-AI",
+                  "record": {
+                    "sheet": "710",
+                    "code": "710",
+                    "canonical": "HD710",
+                    "name": "دامپ 710",
+                    "date": "1405/08/24",
+                    "mechanic": "TEST",
+                    "department": "تعمیرگاه",
+                    "recorder": "SYNTHETIC-AI",
+                    "description": "-دامپتراک710: AI-BATCH-2.",
+                    "parts": ""
+                  }
+                },
+                {
+                  "sheet": "851",
+                  "code": "851",
+                  "canonical": "EX851",
+                  "name": "بیل 851",
+                  "date": "1405/08/24",
+                  "row": 6,
+                  "recorder": "SYNTHETIC-AI",
+                  "record": {
+                    "sheet": "851",
+                    "code": "851",
+                    "canonical": "EX851",
+                    "name": "بیل 851",
+                    "date": "1405/08/24",
+                    "mechanic": "TEST",
+                    "department": "تعمیرگاه",
+                    "recorder": "SYNTHETIC-AI",
+                    "description": "-بیل851: AI-BATCH-2.",
+                    "parts": ""
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "repeat": {
+          "status": "success",
+          "scanned": 1,
+          "copied": 0,
+          "updated": 0,
+          "skipped": 1,
+          "skipped_locked": 0,
+          "skipped_unstable": 0,
+          "ignored": 0,
+          "errors": 0,
+          "collisions": 0,
+          "collision_files": 0,
+          "phase": "copy",
+          "source_enumerated": true,
+          "flatten_bindings": {
+            "maintenance.xlsx": "maintenance.xlsx"
+          },
+          "flatten_outputs": {
+            "maintenance.xlsx": "maintenance.xlsx"
+          },
+          "maintenance_guard": {
+            "status": "unchanged",
+            "hash": "db4f75b05e325192a320fa59c69fd4b20b6a40db7f050dfb3de1cedbaa5d8ef1",
+            "mine_hash": "4ca0aa8efbcbff1ab36920c42b00690b48019c246b06e172a2db9f88421adb99",
+            "protected_operations": [
+              "8c000d44302655429503321faf27f7dd",
+              "afc118e4825e53c6a9661b9b2b2691d2",
+              "120d9109d9d459e89a1a825cc6d44b22"
+            ],
+            "baseline": "bd60fd4255e8496091af2c817ff64690"
+          }
+        }
+      },
+      "initial": {
+        "710": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "710",
+            "BASE-710",
+            null
+          ]
+        ],
+        "851": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "851",
+            "BASE-851",
+            null
+          ]
+        ],
+        "متفرقه": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "متفرقه",
+            "BASE-متفرقه",
+            null
+          ]
+        ]
+      },
+      "final_mine": {
+        "710": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "710",
+            "BASE-710",
+            null
+          ]
+        ],
+        "851": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "851",
+            "MINE-BETWEEN",
+            null
+          ]
+        ],
+        "متفرقه": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "متفرقه",
+            "BASE-متفرقه",
+            null
+          ]
+        ]
+      },
+      "final_function": {
+        "710": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "710",
+            "BASE-710",
+            null
+          ],
+          [
+            "1405/08/24",
+            "SYNTHETIC-AI",
+            "TEST",
+            "710",
+            "-دامپتراک710: AI-BATCH-0.",
+            null
+          ],
+          [
+            "1405/08/24",
+            "SYNTHETIC-AI",
+            "TEST",
+            "710",
+            "-دامپتراک710: AI-BATCH-1.",
+            null
+          ],
+          [
+            "1405/08/24",
+            "SYNTHETIC-AI",
+            "TEST",
+            "710",
+            "-دامپتراک710: AI-BATCH-2.",
+            null
+          ]
+        ],
+        "851": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "851",
+            "MINE-BETWEEN",
+            null
+          ],
+          [
+            "1405/08/24",
+            "SYNTHETIC-AI",
+            "TEST",
+            "851",
+            "-بیل851: AI-BATCH-0.",
+            null
+          ],
+          [
+            "1405/08/24",
+            "SYNTHETIC-AI",
+            "TEST",
+            "851",
+            "-بیل851: AI-BATCH-1.",
+            null
+          ],
+          [
+            "1405/08/24",
+            "SYNTHETIC-AI",
+            "TEST",
+            "851",
+            "-بیل851: AI-BATCH-2.",
+            null
+          ]
+        ],
+        "متفرقه": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "متفرقه",
+            "BASE-متفرقه",
+            null
+          ]
+        ]
+      },
+      "mine_sha256": "4ca0aa8efbcbff1ab36920c42b00690b48019c246b06e172a2db9f88421adb99",
+      "function_sha256": "db4f75b05e325192a320fa59c69fd4b20b6a40db7f050dfb3de1cedbaa5d8ef1",
+      "journal": [
+        {
+          "operation": "8c000d44302655429503321faf27f7dd",
+          "status": "succeeded",
+          "before_hash": "6f89f1fbdceed7c1a3c95503f0e2f5909f8f48131eb9fd5dc954c9ce33494213",
+          "after_hash": "fa50e8bdb61efc2412a8c08c3f75a14b775a1ac55a5e6cf24a7b23228eca2017"
+        },
+        {
+          "operation": "afc118e4825e53c6a9661b9b2b2691d2",
+          "status": "succeeded",
+          "before_hash": "fa50e8bdb61efc2412a8c08c3f75a14b775a1ac55a5e6cf24a7b23228eca2017",
+          "after_hash": "9010e0d6509d6c865708047ebd7950730dfd211ce1113876b266d72b4918cd25"
+        },
+        {
+          "operation": "120d9109d9d459e89a1a825cc6d44b22",
+          "status": "succeeded",
+          "before_hash": "9010e0d6509d6c865708047ebd7950730dfd211ce1113876b266d72b4918cd25",
+          "after_hash": "363ef3a445230894532a7e5102146cc2f15a5c654089dcce0a933a926e8bce84"
+        },
+        {
+          "operation": "8d077b95c9e0401e89eb85a527822480",
+          "status": "succeeded",
+          "before_hash": "363ef3a445230894532a7e5102146cc2f15a5c654089dcce0a933a926e8bce84",
+          "after_hash": "db4f75b05e325192a320fa59c69fd4b20b6a40db7f050dfb3de1cedbaa5d8ef1"
+        }
+      ],
+      "artifacts": "runtime\\ai-excel-sync-audit\\20261116T064050Z\\T10"
+    },
+    {
+      "id": "T11",
+      "verdict": "FAIL",
+      "experiment_assertions": "PASS",
+      "sequence": [
+        "AI succeeds",
+        "FORCED bypass: overwrite synthetic Function with stale mine bytes",
+        "normal inbound guard",
+        "retry same AI operation",
+        "recover into a third private evidence file"
+      ],
+      "mine_change": "none (stale mine bytes)",
+      "ai_change": "AI append subsequently displaced by explicit fixture overwrite",
+      "data_loss": true,
+      "duplicate": false,
+      "conflict": "DETECTED_UNJOURNALED_LOCAL_CHANGE",
+      "current_code_behavior": "Normal sync did not cause overwrite: bypass was deliberate. Guard blocks, replay refuses false success; snapshot permits reviewed recovery.",
+      "simulation": [
+        "forced unsafe manual copy, not a current guarded sync action"
+      ],
+      "extra": {
+        "inbound": {
+          "status": "partial",
+          "scanned": 1,
+          "copied": 0,
+          "updated": 0,
+          "skipped": 0,
+          "skipped_locked": 0,
+          "skipped_unstable": 0,
+          "ignored": 0,
+          "errors": 1,
+          "collisions": 0,
+          "collision_files": 0,
+          "phase": "copy",
+          "source_enumerated": true,
+          "flatten_bindings": {
+            "maintenance.xlsx": "maintenance.xlsx"
+          },
+          "flatten_outputs": {
+            "maintenance.xlsx": "maintenance.xlsx"
+          },
+          "maintenance_guard": {
+            "status": "blocked",
+            "error": "MAINTENANCE_SYNC_UNJOURNALED_LOCAL_CHANGE: replacement stopped; local=1f20cf7ebff25e2727bac83bac8325853f038da9f82a9f55ade9dab886622aac; mine=1f20cf7ebff25e2727bac83bac8325853f038da9f82a9f55ade9dab886622aac; journal=E:\\KomatsoAI\\runtime\\ai-excel-sync-audit\\20261116T064050Z\\T11\\journal\\audit.sqlite3; both snapshots retained; manual review required"
+          }
+        },
+        "replay_refused": true,
+        "recovery_snapshot_sha256": "29f09f2ec8a5e7f7891a332db0a68b6ffda3ffa9db16728bddff9767c1d41c8e"
+      },
+      "initial": {
+        "710": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "710",
+            "BASE-710",
+            null
+          ]
+        ],
+        "851": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "851",
+            "BASE-851",
+            null
+          ]
+        ],
+        "متفرقه": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "متفرقه",
+            "BASE-متفرقه",
+            null
+          ]
+        ]
+      },
+      "final_mine": {
+        "710": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "710",
+            "BASE-710",
+            null
+          ]
+        ],
+        "851": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "851",
+            "BASE-851",
+            null
+          ]
+        ],
+        "متفرقه": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "متفرقه",
+            "BASE-متفرقه",
+            null
+          ]
+        ]
+      },
+      "final_function": {
+        "710": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "710",
+            "BASE-710",
+            null
+          ]
+        ],
+        "851": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "851",
+            "BASE-851",
+            null
+          ]
+        ],
+        "متفرقه": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "متفرقه",
+            "BASE-متفرقه",
+            null
+          ]
+        ]
+      },
+      "mine_sha256": "1f20cf7ebff25e2727bac83bac8325853f038da9f82a9f55ade9dab886622aac",
+      "function_sha256": "1f20cf7ebff25e2727bac83bac8325853f038da9f82a9f55ade9dab886622aac",
+      "journal": [
+        {
+          "operation": "afc118e4825e53c6a9661b9b2b2691d2",
+          "status": "succeeded",
+          "before_hash": "1f20cf7ebff25e2727bac83bac8325853f038da9f82a9f55ade9dab886622aac",
+          "after_hash": "29f09f2ec8a5e7f7891a332db0a68b6ffda3ffa9db16728bddff9767c1d41c8e"
+        }
+      ],
+      "artifacts": "runtime\\ai-excel-sync-audit\\20261116T064050Z\\T11"
+    },
+    {
+      "id": "T12",
+      "verdict": "FAIL",
+      "experiment_assertions": "PASS",
+      "sequence": [
+        "AI append",
+        "SIMULATED outgoing copy",
+        "mine opens/saves equivalent contents with zoom change BEFORE ack",
+        "inbound replay",
+        "control: acknowledge exact bytes BEFORE mine save"
+      ],
+      "mine_change": "view zoom=85, original AI row unchanged",
+      "ai_change": "one AI append",
+      "data_loss": false,
+      "duplicate": true,
+      "conflict": "IDENTITY_NOT_ACKNOWLEDGED",
+      "current_code_behavior": "Before ack: byte inequality causes the existing AI row to be appended again; after ack control has one row.",
+      "simulation": [
+        "openpyxl save/zoom change approximates Excel save; native Excel UNKNOWN; outgoing copy"
+      ],
+      "extra": {
+        "inbound": {
+          "status": "success",
+          "scanned": 1,
+          "copied": 0,
+          "updated": 1,
+          "skipped": 0,
+          "skipped_locked": 0,
+          "skipped_unstable": 0,
+          "ignored": 0,
+          "errors": 0,
+          "collisions": 0,
+          "collision_files": 0,
+          "phase": "copy",
+          "source_enumerated": true,
+          "flatten_bindings": {
+            "maintenance.xlsx": "maintenance.xlsx"
+          },
+          "flatten_outputs": {
+            "maintenance.xlsx": "maintenance.xlsx"
+          },
+          "maintenance_guard": {
+            "status": "merged",
+            "hash": "bba4e954e7aab5281cb6886bbc79097e717b645badf8dc8f7b154f3f07412af7",
+            "mine_hash": "f2cacfb612ca5c4535764168195890b76cfd7321b6048f0845f844e1317fe61a",
+            "changed_sheets": [
+              "710"
+            ],
+            "protected_operations": [
+              "afc118e4825e53c6a9661b9b2b2691d2"
+            ],
+            "baseline": "fcbd8e3b66b34ac4bfd446a4e06fbaed",
+            "merge_strategy": "journalled_report_append_v1",
+            "report_positions": {
+              "afc118e4825e53c6a9661b9b2b2691d2": [
+                {
+                  "sheet": "710",
+                  "code": "710",
+                  "canonical": "HD710",
+                  "name": "دامپ 710",
+                  "date": "1405/08/24",
+                  "row": 5,
+                  "recorder": "SYNTHETIC-AI",
+                  "record": {
+                    "sheet": "710",
+                    "code": "710",
+                    "canonical": "HD710",
+                    "name": "دامپ 710",
+                    "date": "1405/08/24",
+                    "mechanic": "TEST",
+                    "department": "تعمیرگاه",
+                    "recorder": "SYNTHETIC-AI",
+                    "description": "-دامپتراک710: AI-1.",
+                    "parts": ""
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "after_ack_control": {
+          "initial": {
+            "710": [
+              [
+                "1405/08/20",
+                "SYNTHETIC-MINE",
+                "TEST",
+                "710",
+                "BASE-710",
+                null
+              ]
+            ],
+            "851": [
+              [
+                "1405/08/20",
+                "SYNTHETIC-MINE",
+                "TEST",
+                "851",
+                "BASE-851",
+                null
+              ]
+            ],
+            "متفرقه": [
+              [
+                "1405/08/20",
+                "SYNTHETIC-MINE",
+                "TEST",
+                "متفرقه",
+                "BASE-متفرقه",
+                null
+              ]
+            ]
+          },
+          "final_mine": {
+            "710": [
+              [
+                "1405/08/20",
+                "SYNTHETIC-MINE",
+                "TEST",
+                "710",
+                "BASE-710",
+                null
+              ],
+              [
+                "1405/08/24",
+                "SYNTHETIC-AI",
+                "TEST",
+                "710",
+                "-دامپتراک710: AI-1.",
+                null
+              ]
+            ],
+            "851": [
+              [
+                "1405/08/20",
+                "SYNTHETIC-MINE",
+                "TEST",
+                "851",
+                "BASE-851",
+                null
+              ]
+            ],
+            "متفرقه": [
+              [
+                "1405/08/20",
+                "SYNTHETIC-MINE",
+                "TEST",
+                "متفرقه",
+                "BASE-متفرقه",
+                null
+              ]
+            ]
+          },
+          "final_function": {
+            "710": [
+              [
+                "1405/08/20",
+                "SYNTHETIC-MINE",
+                "TEST",
+                "710",
+                "BASE-710",
+                null
+              ],
+              [
+                "1405/08/24",
+                "SYNTHETIC-AI",
+                "TEST",
+                "710",
+                "-دامپتراک710: AI-1.",
+                null
+              ]
+            ],
+            "851": [
+              [
+                "1405/08/20",
+                "SYNTHETIC-MINE",
+                "TEST",
+                "851",
+                "BASE-851",
+                null
+              ]
+            ],
+            "متفرقه": [
+              [
+                "1405/08/20",
+                "SYNTHETIC-MINE",
+                "TEST",
+                "متفرقه",
+                "BASE-متفرقه",
+                null
+              ]
+            ]
+          },
+          "mine_sha256": "4dfa07b110399ee83bc9ea2806cd5fa5c21e509b9f16e86320f785e25c801f8c",
+          "function_sha256": "4dfa07b110399ee83bc9ea2806cd5fa5c21e509b9f16e86320f785e25c801f8c",
+          "journal": [
+            {
+              "operation": "afc118e4825e53c6a9661b9b2b2691d2",
+              "status": "succeeded",
+              "before_hash": "69a61ed7bf0143ca94bc121977e36a6dc5d335b30512d2f27bfbca0aa72e9df3",
+              "after_hash": "ca9d7e62ca8b5fc99673b33cd118f142e43f91e084dac139f4cd2743b77571f4"
+            },
+            {
+              "operation": "971e5e1f50994a6088a75a75caeb6212",
+              "status": "succeeded",
+              "before_hash": "ca9d7e62ca8b5fc99673b33cd118f142e43f91e084dac139f4cd2743b77571f4",
+              "after_hash": "ca9d7e62ca8b5fc99673b33cd118f142e43f91e084dac139f4cd2743b77571f4"
+            },
+            {
+              "operation": "ea1ffe2f90c6444c81b98862a7c98200",
+              "status": "succeeded",
+              "before_hash": "ca9d7e62ca8b5fc99673b33cd118f142e43f91e084dac139f4cd2743b77571f4",
+              "after_hash": "4dfa07b110399ee83bc9ea2806cd5fa5c21e509b9f16e86320f785e25c801f8c"
+            }
+          ],
+          "artifacts": "runtime\\ai-excel-sync-audit\\20261116T064050Z\\T12-after-ack-control"
+        },
+        "after_ack_result": {
+          "status": "success",
+          "scanned": 1,
+          "copied": 0,
+          "updated": 1,
+          "skipped": 0,
+          "skipped_locked": 0,
+          "skipped_unstable": 0,
+          "ignored": 0,
+          "errors": 0,
+          "collisions": 0,
+          "collision_files": 0,
+          "phase": "copy",
+          "source_enumerated": true,
+          "flatten_bindings": {
+            "maintenance.xlsx": "maintenance.xlsx"
+          },
+          "flatten_outputs": {
+            "maintenance.xlsx": "maintenance.xlsx"
+          },
+          "maintenance_guard": {
+            "status": "imported",
+            "hash": "4dfa07b110399ee83bc9ea2806cd5fa5c21e509b9f16e86320f785e25c801f8c",
+            "mine_hash": "4dfa07b110399ee83bc9ea2806cd5fa5c21e509b9f16e86320f785e25c801f8c",
+            "changed_sheets": [],
+            "protected_operations": [],
+            "baseline": "c5f20651709d49f3b5466117ada55e53"
+          }
+        }
+      },
+      "initial": {
+        "710": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "710",
+            "BASE-710",
+            null
+          ]
+        ],
+        "851": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "851",
+            "BASE-851",
+            null
+          ]
+        ],
+        "متفرقه": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "متفرقه",
+            "BASE-متفرقه",
+            null
+          ]
+        ]
+      },
+      "final_mine": {
+        "710": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "710",
+            "BASE-710",
+            null
+          ],
+          [
+            "1405/08/24",
+            "SYNTHETIC-AI",
+            "TEST",
+            "710",
+            "-دامپتراک710: AI-1.",
+            null
+          ]
+        ],
+        "851": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "851",
+            "BASE-851",
+            null
+          ]
+        ],
+        "متفرقه": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "متفرقه",
+            "BASE-متفرقه",
+            null
+          ]
+        ]
+      },
+      "final_function": {
+        "710": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "710",
+            "BASE-710",
+            null
+          ],
+          [
+            "1405/08/24",
+            "SYNTHETIC-AI",
+            "TEST",
+            "710",
+            "-دامپتراک710: AI-1.",
+            null
+          ],
+          [
+            "1405/08/24",
+            "SYNTHETIC-AI",
+            "TEST",
+            "710",
+            "-دامپتراک710: AI-1.",
+            null
+          ]
+        ],
+        "851": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "851",
+            "BASE-851",
+            null
+          ]
+        ],
+        "متفرقه": [
+          [
+            "1405/08/20",
+            "SYNTHETIC-MINE",
+            "TEST",
+            "متفرقه",
+            "BASE-متفرقه",
+            null
+          ]
+        ]
+      },
+      "mine_sha256": "f2cacfb612ca5c4535764168195890b76cfd7321b6048f0845f844e1317fe61a",
+      "function_sha256": "bba4e954e7aab5281cb6886bbc79097e717b645badf8dc8f7b154f3f07412af7",
+      "journal": [
+        {
+          "operation": "afc118e4825e53c6a9661b9b2b2691d2",
+          "status": "succeeded",
+          "before_hash": "be19d71759ca019e9365b67ae13748d564d6be7941df4f0de0448ded5b2e2a04",
+          "after_hash": "29638ddd43140cecff7053261742aaa0f07a6979a1271f6f5c175cf12a8f088a"
+        },
+        {
+          "operation": "c7e00e24bd4a445884c97fddd17f10c8",
+          "status": "succeeded",
+          "before_hash": "29638ddd43140cecff7053261742aaa0f07a6979a1271f6f5c175cf12a8f088a",
+          "after_hash": "bba4e954e7aab5281cb6886bbc79097e717b645badf8dc8f7b154f3f07412af7"
+        }
+      ],
+      "artifacts": "runtime\\ai-excel-sync-audit\\20261116T064050Z\\T12"
+    }
+  ],
+  "extra_components": {
+    "writer_sync_lock": "PASS: actual Windows byte-range lock held off inbound until release",
+    "lock_artifacts": "runtime\\ai-excel-sync-audit\\20261116T064050Z\\X1-lock-order",
+    "generic_stale_overwrite": {
+      "assertions": "PASS",
+      "observed_data_loss": true,
+      "scope": "generic files only, not guarded maintenance destination",
+      "reason": "different signature replaces regardless of newer destination mtime",
+      "artifacts": "runtime\\ai-excel-sync-audit\\20261116T064050Z\\X2-generic-stale-overwrite",
+      "result": {
+        "status": "success",
+        "scanned": 1,
+        "copied": 0,
+        "updated": 1,
+        "skipped": 0,
+        "skipped_locked": 0,
+        "skipped_unstable": 0,
+        "ignored": 0,
+        "errors": 0,
+        "collisions": 0,
+        "collision_files": 0,
+        "phase": "copy",
+        "source_enumerated": true,
+        "flatten_bindings": {
+          "generic.xlsx": "generic.xlsx"
+        },
+        "flatten_outputs": {
+          "generic.xlsx": "generic.xlsx"
+        }
+      }
+    },
+    "acknowledged_report_deleted_upstream": {
+      "assertions": "PASS",
+      "safety": "FAIL",
+      "sequence": [
+        "AI append",
+        "SIMULATED exact whole-workbook publication",
+        "guard acknowledges UUID",
+        "synthetic mine deletes AI row",
+        "ordinary upstream_copy inbound imports deletion"
+      ],
+      "data_loss_from_active_workbooks": true,
+      "journal_snapshot_retained": true,
+      "conflict_detected": false,
+      "scope": "after an exact-byte acknowledgement; not current four unacknowledged production operations",
+      "artifacts": "runtime\\ai-excel-sync-audit\\20261116T064050Z\\X3-delete-after-ack",
+      "acknowledgement": {
+        "status": "unchanged",
+        "hash": "c593b5ec420a77f22aea7a1c0234ffc191d173338c8f1bd0cc83aa671b3277e7",
+        "mine_hash": "c593b5ec420a77f22aea7a1c0234ffc191d173338c8f1bd0cc83aa671b3277e7",
+        "protected_operations": [],
+        "absorbed_operations": [
+          "d1bca9f0ba3a5d869cba86bcfa55285c"
+        ],
+        "baseline": "d4c0c696070d4bb0a9389177ebf7d1ec"
+      },
+      "inbound": {
+        "status": "imported",
+        "hash": "b875157feea10f4eefda00754a6150ae737463a4c53b057f605fb5b540997db7",
+        "mine_hash": "b875157feea10f4eefda00754a6150ae737463a4c53b057f605fb5b540997db7",
+        "changed_sheets": [],
+        "protected_operations": [],
+        "baseline": "d4c0c696070d4bb0a9389177ebf7d1ec"
+      }
+    }
+  },
+  "constraints": {
+    "production_workbook_writes": 0,
+    "production_journal_writes": 0,
+    "cron_triggers": 0,
+    "gateway_restarts": 0,
+    "bale_sends": 0,
+    "model_calls": 0,
+    "new_sync_implementation": false
+  },
+  "read_only_operational_observation": {
+    "captured_at_utc": "2026-11-16T06:42:23.153004+00:00",
+    "current_checkout_code_sha": "60fd7d2bd377a17b52a21dc046d12dbcd2de79a763caac0d4f10adaaa1658953",
+    "installed_script_sha": "60fd7d2bd377a17b52a21dc046d12dbcd2de79a763caac0d4f10adaaa1658953",
+    "discovered_paths": {
+      "source_root": "\\\\192.168.20.251\\share\\",
+      "relative_binding": "تعمیرات 1405.xlsx",
+      "mine": "\\\\192.168.20.251\\share\\تعمیرات 1405.xlsx",
+      "function": "E:\\Function\\تعمیرات 1405.xlsx"
+    },
+    "cron": {
+      "id": "3ccb658aed3c",
+      "name": "mine-file-sync",
+      "script": "mine_file_sync.py",
+      "schedule": {
+        "kind": "cron",
+        "expr": "*/2 * * * *",
+        "display": "*/2 * * * *"
+      },
+      "no_agent": true,
+      "enabled": true,
+      "state": "scheduled",
+      "last_run_at": "2026-11-16T10:10:57.929125+03:30",
+      "last_status": "ok",
+      "last_dispatch": {
+        "scheduled_at": "2026-11-16T10:10:00+03:30",
+        "dispatched_at": "2026-11-16T10:10:44.098285+03:30",
+        "lateness_seconds": 44.1,
+        "kind": "on_time"
+      },
+      "next_run_at": "2026-11-16T10:12:00+03:30"
+    },
+    "state": {
+      "sync_healthy": true,
+      "health_status": "success",
+      "last_success_at": "2026-11-16T06:40:57.679457+00:00",
+      "last_attempt_at": "2026-11-16T06:40:45.122942+00:00",
+      "next_attempt_at": null,
+      "consecutive_source_failures": 0
+    },
+    "maintenance_guard": {
+      "status": "unchanged",
+      "hash": "0d5400bd5d272a4facfbbc9d584d459532a78c376fa65b2583789015f8dc5ae2",
+      "mine_hash": "b03b57902434e817c90caee6797ee25154cec617ccdb8524642d695f1193f2ed",
+      "protected_operations": [
+        "bb9adf4f871659ce9043dace1f49c2b1",
+        "72fc231498da5a34aa1dad9e294b5856",
+        "1643333071a655248008413804373396",
+        "a186201f0ec85c3bbf9d6beb09a7c01c"
+      ],
+      "baseline": "9bc7f95d8da84602982b101b6d85e64b"
+    },
+    "workbooks": {
+      "function": {
+        "read": "SUCCESS",
+        "stable_read": true,
+        "sha256": "0d5400bd5d272a4facfbbc9d584d459532a78c376fa65b2583789015f8dc5ae2",
+        "size": 179194,
+        "mtime_ns": 1794756302485392700,
+        "sheet_count": 63,
+        "sheetnames": [
+          "متفرقه",
+          "801",
+          "802",
+          "601",
+          "521",
+          "331",
+          "332",
+          "321",
+          "231",
+          "851",
+          "852",
+          "853",
+          "1251",
+          "1252",
+          "1253",
+          "1254",
+          "1255",
+          "1256",
+          "471",
+          "472",
+          "473",
+          "601.",
+          "151",
+          "152",
+          "701",
+          "702",
+          "703",
+          "704",
+          "705",
+          "706",
+          "707",
+          "708",
+          "709",
+          "710",
+          "711",
+          "712",
+          "713",
+          "714",
+          "715",
+          "716",
+          "717",
+          "718",
+          "719",
+          "720",
+          "721",
+          "461",
+          "462",
+          "463",
+          "464",
+          "465",
+          "466",
+          "467",
+          "468",
+          "469",
+          "MZ10",
+          "MZ6",
+          "MZ4",
+          "TA1",
+          "TR1",
+          "S1",
+          "S2",
+          "DG1",
+          "تعمیرگاه"
+        ],
+        "layout": {
+          "متفرقه": {
+            "header_row": 2,
+            "columns": {
+              "date": 1,
+              "code": 3,
+              "mechanic": 4,
+              "description": 5,
+              "parts": 6
+            },
+            "recorder_columns": [
+              2
+            ]
+          },
+          "801": {
+            "header_row": 2,
+            "columns": {
+              "date": 1,
+              "code": 3,
+              "mechanic": 4,
+              "description": 5,
+              "parts": 6
+            },
+            "recorder_columns": [
+              2
+            ]
+          },
+          "802": {
+            "header_row": 3,
+            "columns": {
+              "date": 1,
+              "code": 4,
+              "mechanic": 3,
+              "description": 5,
+              "parts": 6
+            },
+            "recorder_columns": []
+          },
+          "601": {
+            "header_row": 2,
+            "columns": {
+              "date": 1,
+              "code": 4,
+              "mechanic": 3,
+              "description": 5,
+              "parts": 6
+            },
+            "recorder_columns": [
+              2
+            ]
+          },
+          "521": {
+            "header_row": 2,
+            "columns": {
+              "date": 1,
+              "code": 4,
+              "mechanic": 3,
+              "description": 5,
+              "parts": 6
+            },
+            "recorder_columns": [
+              2
+            ]
+          },
+          "331": {
+            "header_row": 2,
+            "columns": {
+              "date": 1,
+              "code": 4,
+              "mechanic": 3,
+              "description": 5,
+              "parts": 6
+            },
+            "recorder_columns": [
+              2
+            ]
+          },
+          "332": {
+            "header_row": 2,
+            "columns": {
+              "date": 1,
+              "code": 3,
+              "mechanic": 4,
+              "description": 5,
+              "parts": 6
+            },
+            "recorder_columns": [
+              2
+            ]
+          },
+          "321": {
+            "header_row": 2,
+            "columns": {
+              "date": 1,
+              "code": 3,
+              "mechanic": 4,
+              "description": 5,
+              "parts": 6
+            },
+            "recorder_columns": [
+              2
+            ]
+          },
+          "231": {
+            "header_row": 2,
+            "columns": {
+              "date": 1,
+              "code": 4,
+              "mechanic": 3,
+              "description": 5,
+              "parts": 6
+            },
+            "recorder_columns": [
+              2
+            ]
+          },
+          "851": {
+            "header_row": 2,
+            "columns": {
+              "date": 1,
+              "code": 4,
+              "mechanic": 3,
+              "description": 5,
+              "parts": 6
+            },
+            "recorder_columns": [
+              2
+            ]
+          },
+          "852": {
+            "header_row": 3,
+            "columns": {
+              "date": 1,
+              "code": 4,
+              "mechanic": 3,
+              "description": 5,
+              "parts": 6
+            },
+            "recorder_columns": [
+              2
+            ]
+          },
+          "853": {
+            "header_row": 3,
+            "columns": {
+              "date": 1,
+              "code": 4,
+              "mechanic": 3,
+              "description": 5,
+              "parts": 6
+            },
+            "recorder_columns": [
+              2
+            ]
+          },
+          "1251": {
+            "header_row": 2,
+            "columns": {
+              "date": 1,
+              "code": 4,
+              "mechanic": 3,
+              "description": 5,
+              "parts": 6
+            },
+            "recorder_columns": [
+              2
+            ]
+          },
+          "1252": {
+            "header_row": 2,
+            "columns": {
+              "date": 1,
+              "code": 4,
+              "mechanic": 3,
+              "description": 5,
+              "parts": 6
+            },
+            "recorder_columns": [
+              2
+            ]
+          },
+          "1253": {
+            "header_row": 2,
+            "columns": {
+              "date": 1,
+              "code": 4,
+              "mechanic": 3,
+              "description": 5,
+              "parts": 6
+            },
+            "recorder_columns": [
+              2
+            ]
+          },
+          "1254": {
+            "header_row": 2,
+            "columns": {
+              "date": 1,
+              "code": 4,
+              "mechanic": 3,
+              "description": 5,
+              "parts": 6
+            },
+            "recorder_columns": [
+              2
+            ]
+          },
+          "1255": {
+            "header_row": 2,
+            "columns": {
+              "date": 1,
+              "code": 4,
+              "mechanic": 3,
+              "description": 5,
+              "parts": 6
+            },
+            "recorder_columns": [
+              2
+            ]
+          },
+          "1256": {
+            "header_row": 2,
+            "columns": {
+              "date": 1,
+              "code": 4,
+              "mechanic": 3,
+              "description": 5,
+              "parts": 6
+            },
+            "recorder_columns": [
+              2
+            ]
+          },
+          "471": {
+            "header_row": 2,
+            "columns": {
+              "date": 1,
+              "code": 4,
+              "mechanic": 3,
+              "description": 5,
+              "parts": 6
+            },
+            "recorder_columns": [
+              2
+            ]
+          },
+          "472": {
+            "header_row": 2,
+            "columns": {
+              "date": 1,
+              "code": 4,
+              "mechanic": 3,
+              "description": 5,
+              "parts": 6
+            },
+            "recorder_columns": [
+              2
+            ]
+          },
+          "473": {
+            "header_row": 2,
+            "columns": {
+              "date": 1,
+              "code": 4,
+              "mechanic": 3,
+              "description": 5,
+              "parts": 6
+            },
+            "recorder_columns": [
+              2
+            ]
+          },
+          "601.": {
+            "header_row": 2,
+            "columns": {
+              "date": 1,
+              "code": 4,
+              "mechanic": 3,
+              "description": 5,
+              "parts": 6
+            },
+            "recorder_columns": [
+              2
+            ]
+          },
+          "151": {
+            "header_row": 2,
+            "columns": {
+              "date": 1,
+              "code": 4,
+              "mechanic": 3,
+              "description": 5,
+              "parts": 6
+            },
+            "recorder_columns": [
+              2
+            ]
+          },
+          "152": {
+            "header_row": 2,
+            "columns": {
+              "date": 1,
+              "code": 4,
+              "mechanic": 3,
+              "description": 5,
+              "parts": 6
+            },
+            "recorder_columns": [
+              2
+            ]
+          },
+          "701": {
+            "header_row": 2,
+            "columns": {
+              "date": 1,
+              "code": 3,
+              "mechanic": 4,
+              "description": 5,
+              "parts": 6
+            },
+            "recorder_columns": [
+              2
+            ]
+          },
+          "702": {
+            "header_row": 2,
+            "columns": {
+              "date": 1,
+              "code": 3,
+              "mechanic": 4,
+              "description": 5,
+              "parts": 6
+            },
+            "recorder_columns": [
+              2
+            ]
+          },
+          "703": {
+            "header_row": 2,
+            "columns": {
+              "date": 1,
+              "code": 3,
+              "mechanic": 4,
+              "description": 5,
+              "parts": 6
+            },
+            "recorder_columns": [
+              2
+            ]
+          },
+          "704": {
+            "header_row": 2,
+            "columns": {
+              "date": 1,
+              "code": 3,
+              "mechanic": 4,
+              "description": 5,
+              "parts": 6
+            },
+            "recorder_columns": [
+              2
+            ]
+          },
+          "705": {
+            "header_row": 2,
+            "columns": {
+              "date": 1,
+              "code": 3,
+              "mechanic": 4,
+              "description": 5,
+              "parts": 6
+            },
+            "recorder_columns": [
+              2
+            ]
+          },
+          "706": {
+            "header_row": 2,
+            "columns": {
+              "date": 1,
+              "code": 4,
+              "mechanic": 3,
+              "description": 5,
+              "parts": 6
+            },
+            "recorder_columns": [
+              2
+            ]
+          },
+          "707": {
+            "header_row": 2,
+            "columns": {
+              "date": 1,
+              "code": 3,
+              "mechanic": 4,
+              "description": 5,
+              "parts": 6
+            },
+            "recorder_columns": [
+              2
+            ]
+          },
+          "708": {
+            "header_row": 2,
+            "columns": {
+              "date": 1,
+              "code": 4,
+              "mechanic": 3,
+              "description": 5,
+              "parts": 6
+            },
+            "recorder_columns": [
+              2
+            ]
+          },
+          "709": {
+            "header_row": 2,
+            "columns": {
+              "date": 1,
+              "code": 4,
+              "mechanic": 3,
+              "description": 5,
+              "parts": 6
+            },
+            "recorder_columns": [
+              2
+            ]
+          },
+          "710": {
+            "header_row": 2,
+            "columns": {
+              "date": 1,
+              "code": 4,
+              "mechanic": 3,
+              "description": 5,
+              "parts": 6
+            },
+            "recorder_columns": [
+              2
+            ]
+          },
+          "711": {
+            "header_row": 2,
+            "columns": {
+              "date": 1,
+              "code": 4,
+              "mechanic": 3,
+              "description": 5,
+              "parts": 6
+            },
+            "recorder_columns": [
+              2
+            ]
+          },
+          "712": {
+            "header_row": 2,
+            "columns": {
+              "date": 1,
+              "code": 3,
+              "mechanic": 4,
+              "description": 5,
+              "parts": 6
+            },
+            "recorder_columns": [
+              2
+            ]
+          },
+          "713": {
+            "header_row": 2,
+            "columns": {
+              "date": 1,
+              "code": 3,
+              "mechanic": 4,
+              "description": 5,
+              "parts": 6
+            },
+            "recorder_columns": [
+              2
+            ]
+          },
+          "714": {
+            "header_row": 2,
+            "columns": {
+              "date": 1,
+              "code": 3,
+              "mechanic": 4,
+              "description": 5,
+              "parts": 6
+            },
+            "recorder_columns": [
+              2
+            ]
+          },
+          "715": {
+            "header_row": 2,
+            "columns": {
+              "date": 1,
+              "code": 3,
+              "mechanic": 4,
+              "description": 5,
+              "parts": 6
+            },
+            "recorder_columns": [
+              2
+            ]
+          },
+          "716": {
+            "header_row": 2,
+            "columns": {
+              "date": 1,
+              "code": 3,
+              "mechanic": 4,
+              "description": 5,
+              "parts": 6
+            },
+            "recorder_columns": [
+              2
+            ]
+          },
+          "717": {
+            "header_row": 2,
+            "columns": {
+              "date": 1,
+              "code": 3,
+              "mechanic": 4,
+              "description": 5,
+              "parts": 6
+            },
+            "recorder_columns": [
+              2
+            ]
+          },
+          "718": {
+            "header_row": 2,
+            "columns": {
+              "date": 1,
+              "code": 3,
+              "mechanic": 4,
+              "description": 5,
+              "parts": 6
+            },
+            "recorder_columns": [
+              2
+            ]
+          },
+          "719": {
+            "header_row": 2,
+            "columns": {
+              "date": 1,
+              "code": 3,
+              "mechanic": 4,
+              "description": 5,
+              "parts": 6
+            },
+            "recorder_columns": [
+              2
+            ]
+          },
+          "720": {
+            "header_row": 2,
+            "columns": {
+              "date": 1,
+              "code": 3,
+              "mechanic": 4,
+              "description": 5,
+              "parts": 6
+            },
+            "recorder_columns": [
+              2
+            ]
+          },
+          "721": {
+            "header_row": 2,
+            "columns": {
+              "date": 1,
+              "code": 3,
+              "mechanic": 4,
+              "description": 5,
+              "parts": 6
+            },
+            "recorder_columns": [
+              2
+            ]
+          },
+          "461": {
+            "header_row": 2,
+            "columns": {
+              "date": 1,
+              "code": 3,
+              "mechanic": 4,
+              "description": 5,
+              "parts": 6
+            },
+            "recorder_columns": [
+              2
+            ]
+          },
+          "462": {
+            "header_row": 2,
+            "columns": {
+              "date": 1,
+              "code": 3,
+              "mechanic": 4,
+              "description": 5,
+              "parts": 6
+            },
+            "recorder_columns": [
+              2
+            ]
+          },
+          "463": {
+            "header_row": 2,
+            "columns": {
+              "date": 1,
+              "code": 3,
+              "mechanic": 4,
+              "description": 5,
+              "parts": 6
+            },
+            "recorder_columns": [
+              2
+            ]
+          },
+          "464": {
+            "header_row": 2,
+            "columns": {
+              "date": 1,
+              "code": 3,
+              "mechanic": 4,
+              "description": 5,
+              "parts": 6
+            },
+            "recorder_columns": [
+              2
+            ]
+          },
+          "465": {
+            "header_row": 2,
+            "columns": {
+              "date": 1,
+              "code": 3,
+              "mechanic": 4,
+              "description": 5,
+              "parts": 6
+            },
+            "recorder_columns": [
+              2
+            ]
+          },
+          "466": {
+            "header_row": 2,
+            "columns": {
+              "date": 1,
+              "code": 3,
+              "mechanic": 4,
+              "description": 5,
+              "parts": 6
+            },
+            "recorder_columns": [
+              2
+            ]
+          },
+          "467": {
+            "header_row": 2,
+            "columns": {
+              "date": 1,
+              "code": 3,
+              "mechanic": 4,
+              "description": 5,
+              "parts": 6
+            },
+            "recorder_columns": [
+              2
+            ]
+          },
+          "468": {
+            "header_row": 2,
+            "columns": {
+              "date": 1,
+              "code": 4,
+              "mechanic": 3,
+              "description": 5,
+              "parts": 6
+            },
+            "recorder_columns": [
+              2
+            ]
+          },
+          "469": {
+            "header_row": 2,
+            "columns": {
+              "date": 1,
+              "code": 4,
+              "mechanic": 3,
+              "description": 5,
+              "parts": 6
+            },
+            "recorder_columns": [
+              2
+            ]
+          },
+          "MZ10": {
+            "header_row": 2,
+            "columns": {
+              "date": 1,
+              "code": 3,
+              "mechanic": 4,
+              "description": 5,
+              "parts": 6
+            },
+            "recorder_columns": [
+              2
+            ]
+          },
+          "MZ6": {
+            "header_row": 2,
+            "columns": {
+              "date": 1,
+              "code": 3,
+              "mechanic": 4,
+              "description": 5,
+              "parts": 6
+            },
+            "recorder_columns": [
+              2
+            ]
+          },
+          "MZ4": {
+            "header_row": 2,
+            "columns": {
+              "date": 1,
+              "code": 3,
+              "mechanic": 4,
+              "description": 5,
+              "parts": 6
+            },
+            "recorder_columns": [
+              2
+            ]
+          },
+          "TA1": {
+            "header_row": 2,
+            "columns": {
+              "date": 1,
+              "code": 3,
+              "mechanic": 4,
+              "description": 5,
+              "parts": 6
+            },
+            "recorder_columns": [
+              2
+            ]
+          },
+          "TR1": {
+            "header_row": 2,
+            "columns": {
+              "date": 1,
+              "code": 3,
+              "mechanic": 4,
+              "description": 5,
+              "parts": 6
+            },
+            "recorder_columns": [
+              2
+            ]
+          },
+          "S1": {
+            "header_row": 2,
+            "columns": {
+              "date": 1,
+              "code": 3,
+              "mechanic": 4,
+              "description": 5,
+              "parts": 6
+            },
+            "recorder_columns": [
+              2
+            ]
+          },
+          "S2": {
+            "header_row": 2,
+            "columns": {
+              "date": 1,
+              "code": 3,
+              "mechanic": 4,
+              "description": 5,
+              "parts": 6
+            },
+            "recorder_columns": [
+              2
+            ]
+          },
+          "DG1": {
+            "header_row": 2,
+            "columns": {
+              "date": 1,
+              "code": 3,
+              "mechanic": 4,
+              "description": 5,
+              "parts": 6
+            },
+            "recorder_columns": [
+              2
+            ]
+          },
+          "تعمیرگاه": {
+            "header_row": 2,
+            "columns": {
+              "date": 1,
+              "mechanic": 4,
+              "code": 3,
+              "description": 5,
+              "parts": 6
+            },
+            "recorder_columns": [
+              2
+            ]
+          }
+        },
+        "private_snapshot": "runtime\\ai-excel-sync-audit\\20261116T064050Z\\private-operational-snapshots\\function.xlsx"
+      },
+      "mine": {
+        "read": "UNKNOWN",
+        "error": "PermissionError",
+        "message": "[WinError 5] Access is denied: '\\\\\\\\192.168.20.251\\\\share\\\\تعمیرات 1405.xlsx'"
+      }
+    },
+    "journal": {
+      "integrity_check": "ok",
+      "counts": {
+        "manual:succeeded": 1,
+        "maintenance_mine_sync:succeeded": 13,
+        "maintenance_report_batch_v1:succeeded": 4
+      },
+      "post_baseline_edits": 17,
+      "chain_continuous": true,
+      "baseline_event": "9bc7f95d8da84602982b101b6d85e64b",
+      "latest_hash": "0d5400bd5d272a4facfbbc9d584d459532a78c376fa65b2583789015f8dc5ae2",
+      "function_snapshot_matches_head": true,
+      "required_snapshots": 27,
+      "valid_snapshots": 27,
+      "protected_operations": [
+        {
+          "operation": "bb9adf4f871659ce9043dace1f49c2b1",
+          "kind": "maintenance_report_batch_v1",
+          "status": "succeeded",
+          "records": 8,
+          "source_id": "bale:7349"
+        },
+        {
+          "operation": "72fc231498da5a34aa1dad9e294b5856",
+          "kind": "maintenance_report_batch_v1",
+          "status": "succeeded",
+          "records": 6,
+          "source_id": "recovered-offer:7363"
+        },
+        {
+          "operation": "1643333071a655248008413804373396",
+          "kind": "maintenance_report_batch_v1",
+          "status": "succeeded",
+          "records": 4,
+          "source_id": "legacy-draft:0402503458cc4dfc9f47cf1cd1c7f198"
+        },
+        {
+          "operation": "a186201f0ec85c3bbf9d6beb09a7c01c",
+          "kind": "maintenance_report_batch_v1",
+          "status": "succeeded",
+          "records": 7,
+          "source_id": "bale:7762"
+        }
+      ],
+      "private_snapshot": "runtime\\ai-excel-sync-audit\\20261116T064050Z\\private-operational-snapshots\\audit.sqlite3",
+      "protected_rows": 25,
+      "protected_reconstruction_exact_state": true,
+      "reconstruction_input": "retained last accepted mine snapshot, not direct current Share"
+    },
+    "observed_intervals_seconds": [
+      120.052,
+      119.979,
+      119.974,
+      120.032,
+      119.983,
+      119.961,
+      120.024,
+      120.032,
+      119.953,
+      120.064,
+      119.97,
+      120.035,
+      119.948,
+      119.999,
+      119.984,
+      120.172,
+      119.858,
+      120.002,
+      120.092
+    ],
+    "share_acl": {
+      "status": "UNKNOWN",
+      "operation": "Get-Acl, read only",
+      "error": "Access is denied"
+    },
+    "effective_share_write_permission": "UNKNOWN; no write probe, no ACL change",
+    "human_mine_editing": "UNKNOWN; code and hashes do not establish human behavior",
+    "regression": {
+      "command": ".venv/Scripts/python.exe -B -X utf8 -m unittest tools.fleet.repairs.test_maintenance_upstream_copy tools.fleet.repairs.test_maintenance_report tools.fleet.repairs.test_maintenance_baseline tools.fleet.repairs.test_maintenance_sync tools.fleet.repairs.test_two_step_entry -q",
+      "exit_code": 0,
+      "tests": 79,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "elapsed_seconds": 72.633,
+      "note": "Synthetic workbook/config/runtime fixtures; fake transport. AuthorizationStore default connections are mode=ro/query_only."
+    }
+  },
+  "source_review": {
+    "git_head": "ebfb190fa92bb78c94733ad41eb801cf5972bbec",
+    "outgoing_sync_present": false,
+    "subprocess_boundary": "Test bridge passes isolated config/runtime to real guard; operational subprocess/cron/main not invoked",
+    "production_share_reads": "attempted read only, PermissionError WinError 5; no escalation/no write"
+  }
+}

@@ -160,16 +160,26 @@ def append_record(book, request, *, recorder=None):
 
 def commit(actor, request, *, config=CONFIG, runtime=RUNTIME, day=None):
     settings = permission(actor, config)
+    from .maintenance_publication import writer_codec
+    codec = writer_codec(config, runtime)
     for field in ('mechanic', 'description', 'parts'):
         validate_text(request.get(field), 200 if field == 'mechanic' else 1800)
     def authorized():
         current = permission(actor, config)
         if current.get('recorder') != settings.get('recorder'):
             raise EntryError('نام تأییدشدهٔ ثبت‌کننده تغییر کرده است؛ ثبت را دوباره بررسی کنید.')
-    return commit_workbook(actor, request, settings,
-                           lambda book: append_record(book, request, recorder=settings.get('recorder')),
+    def mutate(book):
+        from . import maintenance_identity as identity
+        if identity.active(book):
+            checked = identity.load(Path(settings['source']).read_bytes(), preserve=bool(codec))
+            checked.close()
+        saved = append_record(book, request, recorder=settings.get('recorder'))
+        if identity.active(book):
+            identity.attach(book, saved, request['operation'], 0)
+        return saved
+    return commit_workbook(actor, request, settings, mutate,
                            runtime=runtime, day=day, command='تعمیرات',
-                           authorization_check=authorized, replay_check=verify_replay)
+                           authorization_check=authorized, replay_check=verify_replay, **codec)
 
 
 def verify_replay(db, source, current_hash, previous):

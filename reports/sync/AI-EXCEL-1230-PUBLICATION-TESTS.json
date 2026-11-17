@@ -1,0 +1,1401 @@
+{
+  "schema": "komatso-maintenance-1230-publication-v1",
+  "captured_at_utc": "2026-11-16T09:29:21.831805+00:00",
+  "status": "BLOCKED",
+  "deployment_decision": "NO-GO",
+  "production_ready": false,
+  "acceptance_exit_code": 1,
+  "blockers": [
+    "Actual SMB synthetic workbook write failed with OSError Errno 22 before competition matrix",
+    "Competing-writer exclusion not established; old final-hash/Replace race still FAIL",
+    "Interactive native Excel acceptance and post-Save-As content comparison pending"
+  ],
+  "schedule": {
+    "timezone": "Asia/Tehran",
+    "start_inclusive": "12:30:00",
+    "end_exclusive": "12:55:00",
+    "existing_cron": "*/2 * * * *",
+    "nominal_window_expiry": "12:55:00",
+    "normal_first_expiry_tick": "12:56:00",
+    "existing_backoff_minutes": [
+      2,
+      4,
+      8,
+      10
+    ],
+    "jitter_fraction": 0.1,
+    "late_reports_due_next_day": true,
+    "unchanged_version_noop": true,
+    "new_version_within_window_may_publish_once": true,
+    "automatic_outside_window": false,
+    "emergency": "DESIGN_ONLY_EXPLICIT_HASH_BOUND_OWNER_AUTHORIZATION_ALL_GUARDS"
+  },
+  "code_sha256": {
+    "tools/fleet/repairs/maintenance_ooxml.py": "8b7941769dbb337863dbad86943d8553a01b3acaa6881581d931e7617560bf55",
+    "tools/fleet/repairs/maintenance_publication_alerts.py": "da8b19e3e74ccd43c6ca5c988b6e779a742dd10e8377e51cc6baea9de94cc1d5",
+    "tools/fleet/repairs/maintenance_identity.py": "3c17311e49920ed3945192e012aba37421efaf313ea580e6c6e1c5277f36e221",
+    "tools/fleet/repairs/maintenance_publication.py": "4feb5f0114f6f10fffda4208941a297557904041ef5a0f8ed549482e8d12ea42",
+    "tools/fleet/repairs/entry_service.py": "e7ff6edb39027f0ae0a6318720bf029a0686ae63dec0265cf6604c61c5ba3030",
+    "tools/fleet/repairs/maintenance_report.py": "1471fcd2176326f2cc963156287d1f95c3b505a7813f2eb92aedae548b784e29",
+    "tools/fleet/repairs/maintenance_service.py": "ad69aaff55228ae98dd6a173013fb48110ea135a03ed4cb02a560b1c3f8f2d52",
+    "tools/fleet/repairs/maintenance_baseline.py": "048da68d3907494a35fa9cc83a13653bb4922a652b534adc5349068f8f9c700f",
+    "integrations/hermes/mine_sync/mine_file_sync.py": "efd834b70095670511b3c436e7b6daed5b49fd9e7990764196834dca8686a235",
+    "settings/maintenance_entry.json": "cd41b55ea8684f777de022d8622728862680884e6f8be8614790bfe5c857b451",
+    "tools/fleet/repairs/test_maintenance_1230.py": "26c37a0a8353c45f988ca2f35b890863a006abb2413458905079b23ba3e183fc",
+    "reports/sync/AI-EXCEL-1230-SMB-UAT.py": "e05154b50bf4e8d51e38cb15df00a360f872cb8a4944c50fb124f09ab0b51bd6",
+    "reports/sync/AI-EXCEL-1230-NATIVE-UAT.md": "f46c51918cd5889a19b84c670bbbc4f2baa3e8763c6cd1810bbf98a8946e256c"
+  },
+  "candidate_retained": [
+    "stable_UUID",
+    "row_hash",
+    "Journal",
+    "Baseline",
+    "content_addressed_snapshots",
+    "exact_operation_replay",
+    "Intent",
+    "Receipt",
+    "readback",
+    "crash_recovery",
+    "duplicate_rejection",
+    "historical_25_rows"
+  ],
+  "tests": {
+    "daily": {
+      "tests": 21,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "scenarios": [
+        {
+          "test": "test_1230_publish_retry_same_version_and_fresh_report",
+          "verdict": "PASS",
+          "fixture": "E:\\KomatsoAI\\runtime\\maintenance-coordinated-candidate\\run-7b9c51ffbe3d445fb0a71bcd0fddd67a\\test_1230_publish_retry_same_version_and_fresh_report",
+          "hashes": [
+            "5c2e6b22fdc3bf9522acaa6aee521dfb05ceded344b6c5bbaf2c06db92c5a27d",
+            "5c2e6b22fdc3bf9522acaa6aee521dfb05ceded344b6c5bbaf2c06db92c5a27d"
+          ]
+        },
+        {
+          "test": "test_corrupt_journal_preserved_and_integrity_notice_is_durable",
+          "verdict": "PASS",
+          "fixture": "E:\\KomatsoAI\\runtime\\maintenance-coordinated-candidate\\run-7b9c51ffbe3d445fb0a71bcd0fddd67a\\test_corrupt_journal_preserved_and_integrity_notice_is_durable",
+          "hashes": [
+            "b0e2e10f8fdba79166888b7a0daf99b82ef43f0ace3c4eee47ce46f87534e485",
+            "290e168a2d72a4cc9219cdbf7e8c5550f149544ad6c4467a412ce3a3b7555051"
+          ]
+        },
+        {
+          "test": "test_daily_policy_rejects_widened_window",
+          "verdict": "PASS",
+          "fixture": "E:\\KomatsoAI\\runtime\\maintenance-coordinated-candidate\\run-7b9c51ffbe3d445fb0a71bcd0fddd67a\\test_daily_policy_rejects_widened_window",
+          "hashes": [
+            "40e97b26918f46acb89e7b5412d3b313fe5e9990a85ba6b612e9359c3787d687",
+            "40e97b26918f46acb89e7b5412d3b313fe5e9990a85ba6b612e9359c3787d687"
+          ]
+        },
+        {
+          "test": "test_existing_cron_calls_notice_even_offline_backoff_and_notice_failure",
+          "verdict": "PASS"
+        },
+        {
+          "test": "test_foreign_rich_note_and_unknown_package_component_retained",
+          "verdict": "PASS",
+          "fixture": "E:\\KomatsoAI\\runtime\\maintenance-coordinated-candidate\\run-7b9c51ffbe3d445fb0a71bcd0fddd67a\\test_foreign_rich_note_and_unknown_package_component_retained",
+          "hashes": [
+            "bffb2f178c16f7c3028a5e028d7ca724bcb589335d8624a776cdc70b309d17ad",
+            "9837676079d5c95ec7562bdc2ffd455890ccf6687123beba1e2a0c536f2bd3bc"
+          ]
+        },
+        {
+          "test": "test_invalid_readback_is_uncertain_never_auto_republished",
+          "verdict": "PASS",
+          "fixture": "E:\\KomatsoAI\\runtime\\maintenance-coordinated-candidate\\run-7b9c51ffbe3d445fb0a71bcd0fddd67a\\test_invalid_readback_is_uncertain_never_auto_republished",
+          "hashes": [
+            "8ae37709ad3a7c9981c15668bda75c1753f41f1c05bbf49a7c40d4b88faea8d8",
+            "c7791eeaf1260ae1da924053a5c5a0f6d51abe1f8aae76a899376268c5aecabf"
+          ]
+        },
+        {
+          "test": "test_late_new_report_does_not_raise_missed_window_notice",
+          "verdict": "PASS",
+          "fixture": "E:\\KomatsoAI\\runtime\\maintenance-coordinated-candidate\\run-7b9c51ffbe3d445fb0a71bcd0fddd67a\\test_late_new_report_does_not_raise_missed_window_notice",
+          "hashes": [
+            "910f935ce769c1a6215ddcbeb217c569b6ea6144f0dd6d089b4d4f446a3870ed",
+            "8fe48d75524faf0eb167b26e78b139e372c6ea90120e4859ae06c16a90f78b14"
+          ]
+        },
+        {
+          "test": "test_native_63_sheets_append_25_migrate_and_all_parts_retained",
+          "verdict": "PASS"
+        },
+        {
+          "test": "test_network_failure_then_1240_recovery_simulated",
+          "verdict": "PASS",
+          "fixture": "E:\\KomatsoAI\\runtime\\maintenance-coordinated-candidate\\run-7b9c51ffbe3d445fb0a71bcd0fddd67a\\test_network_failure_then_1240_recovery_simulated",
+          "hashes": [
+            "0ca6d26f05dcc60596328061ef3106be029186bd0492cdc23583e781114e8e49",
+            "0ca6d26f05dcc60596328061ef3106be029186bd0492cdc23583e781114e8e49"
+          ]
+        },
+        {
+          "test": "test_no_pending_noop_and_ordinary_inbound",
+          "verdict": "PASS",
+          "fixture": "E:\\KomatsoAI\\runtime\\maintenance-coordinated-candidate\\run-7b9c51ffbe3d445fb0a71bcd0fddd67a\\test_no_pending_noop_and_ordinary_inbound",
+          "hashes": [
+            "e546b46fcd345d80c83ad6865b5a3a1ce2151e883811d89d8531feeb88baaf85",
+            "e546b46fcd345d80c83ad6865b5a3a1ce2151e883811d89d8531feeb88baaf85"
+          ]
+        },
+        {
+          "test": "test_no_publish_before_or_after_window_pending_retained",
+          "verdict": "PASS",
+          "fixture": "E:\\KomatsoAI\\runtime\\maintenance-coordinated-candidate\\run-7b9c51ffbe3d445fb0a71bcd0fddd67a\\test_no_publish_before_or_after_window_pending_retained",
+          "hashes": [
+            "a3c7841d64693b01423039abde89493bd62c80a2b59761ac6d489586b7078a81",
+            "eede3128e264cc1c23e32a2c0adb33a24a1499e20bc5533d4dad6981ecc05a03"
+          ]
+        },
+        {
+          "test": "test_notes_unknown_parts_second_append_and_history_edit_denied",
+          "verdict": "PASS",
+          "fixture": "E:\\KomatsoAI\\runtime\\maintenance-coordinated-candidate\\run-7b9c51ffbe3d445fb0a71bcd0fddd67a\\test_notes_unknown_parts_second_append_and_history_edit_denied",
+          "hashes": [
+            "3c4dd70398f77b06adf5c135e30a123c25604d292c5a7cb1492af9fd0ba16574",
+            "3c4dd70398f77b06adf5c135e30a123c25604d292c5a7cb1492af9fd0ba16574"
+          ]
+        },
+        {
+          "test": "test_notice_once_retry_unavailable_owner_only_and_no_data_leak",
+          "verdict": "PASS",
+          "fixture": "E:\\KomatsoAI\\runtime\\maintenance-coordinated-candidate\\run-7b9c51ffbe3d445fb0a71bcd0fddd67a\\test_notice_once_retry_unavailable_owner_only_and_no_data_leak",
+          "hashes": [
+            "d5acb4b242775fbf664097eff47c626a91c8de3307f1a220e60d17d4a1e467d5",
+            "d5acb4b242775fbf664097eff47c626a91c8de3307f1a220e60d17d4a1e467d5"
+          ]
+        },
+        {
+          "test": "test_owner_file_conflict_readback_and_crash_recovery",
+          "verdict": "PASS",
+          "fixture": "E:\\KomatsoAI\\runtime\\maintenance-coordinated-candidate\\run-7b9c51ffbe3d445fb0a71bcd0fddd67a\\test_owner_file_conflict_readback_and_crash_recovery",
+          "hashes": [
+            "2ade0929733da069bfe0ccd054e3fd8b57b3bead0d00c56b8459827ebc3c718c",
+            "5fffdea1ac5c359bd75cfee3fe977d912712807365a23b12cc2dbb1120373193"
+          ]
+        },
+        {
+          "test": "test_pending_reports_do_not_stop_ordinary_inbound_outside_window",
+          "verdict": "PASS",
+          "fixture": "E:\\KomatsoAI\\runtime\\maintenance-coordinated-candidate\\run-7b9c51ffbe3d445fb0a71bcd0fddd67a\\test_pending_reports_do_not_stop_ordinary_inbound_outside_window",
+          "hashes": [
+            "86aa43ebc97bdf62774f955e20d8728eb9d2c98e69884fa35eecabfc80cfb5be",
+            "86aa43ebc97bdf62774f955e20d8728eb9d2c98e69884fa35eecabfc80cfb5be"
+          ]
+        },
+        {
+          "test": "test_poll_on_outage_backoff_and_noop_has_no_notice",
+          "verdict": "PASS",
+          "fixture": "E:\\KomatsoAI\\runtime\\maintenance-coordinated-candidate\\run-7b9c51ffbe3d445fb0a71bcd0fddd67a\\test_poll_on_outage_backoff_and_noop_has_no_notice",
+          "hashes": [
+            "c1a2c735ed54dc895cba0a06303d31ddc2d5fb008f7beb8b54e6e234e108027d",
+            "790944a401ecadd4ff483b811e6b1f4d062b399354de4eb3d450dd63e03bbef0"
+          ]
+        },
+        {
+          "test": "test_real_gate_blocks_stage_replace_and_lunch_is_not_exclusion",
+          "verdict": "PASS",
+          "fixture": "E:\\KomatsoAI\\runtime\\maintenance-coordinated-candidate\\run-7b9c51ffbe3d445fb0a71bcd0fddd67a\\test_real_gate_blocks_stage_replace_and_lunch_is_not_exclusion",
+          "hashes": [
+            "b9e6bc7679598db21a981c1ba81e70ea116fa58d05468a680141b504c19cd3a6",
+            "04611dd20380f02c0cbfd94ff36b4508e64c0f72b1373d7018651121eb81d56d"
+          ]
+        },
+        {
+          "test": "test_schedule_boundaries_and_timezone",
+          "verdict": "PASS"
+        },
+        {
+          "test": "test_second_changed_version_inside_window_publishes_once",
+          "verdict": "PASS",
+          "fixture": "E:\\KomatsoAI\\runtime\\maintenance-coordinated-candidate\\run-7b9c51ffbe3d445fb0a71bcd0fddd67a\\test_second_changed_version_inside_window_publishes_once",
+          "hashes": [
+            "9b16d27b9444d16a470624a6b47a2d62b09802b4d368d65cde9654eca735b54f",
+            "9b16d27b9444d16a470624a6b47a2d62b09802b4d368d65cde9654eca735b54f"
+          ]
+        },
+        {
+          "test": "test_uncertain_notice_never_duplicate_and_revocation_blocks",
+          "verdict": "PASS",
+          "fixture": "E:\\KomatsoAI\\runtime\\maintenance-coordinated-candidate\\run-7b9c51ffbe3d445fb0a71bcd0fddd67a\\test_uncertain_notice_never_duplicate_and_revocation_blocks",
+          "hashes": [
+            "f0832b3d3d6fbd446a694a8d85147035a8749b83b5f5296ac2ed66d0ba04dcdb",
+            "f0832b3d3d6fbd446a694a8d85147035a8749b83b5f5296ac2ed66d0ba04dcdb"
+          ]
+        },
+        {
+          "test": "test_unmigrated_no_pending_does_not_write_remote",
+          "verdict": "PASS",
+          "fixture": "E:\\KomatsoAI\\runtime\\maintenance-coordinated-candidate\\run-7b9c51ffbe3d445fb0a71bcd0fddd67a\\test_unmigrated_no_pending_does_not_write_remote",
+          "hashes": [
+            "1bc431344df1c086f820bb5a3efc8d7a03c0c8760458dc818947fdad7e5920e5",
+            "1bc431344df1c086f820bb5a3efc8d7a03c0c8760458dc818947fdad7e5920e5"
+          ]
+        }
+      ],
+      "simulated_exclusion_is_not_SMB_acceptance": true
+    },
+    "verification": {
+      "daily_1230": {
+        "command": [
+          "E:\\KomatsoAI\\.venv\\Scripts\\python.exe",
+          "-B",
+          "-X",
+          "utf8",
+          "-m",
+          "tools.fleet.repairs.test_maintenance_1230"
+        ],
+        "returncode": 0,
+        "elapsed_seconds": 58.875,
+        "stdout": "E:\\KomatsoAI\\runtime\\maintenance-coordinated-candidate\\daily-1230-20261116\\daily_1230.stdout.log",
+        "stderr": "E:\\KomatsoAI\\runtime\\maintenance-coordinated-candidate\\daily-1230-20261116\\daily_1230.stderr.log",
+        "summary": [
+          "test_unmigrated_no_pending_does_not_write_remote (__main__.DailyTests.test_unmigrated_no_pending_does_not_write_remote) ... ok",
+          "",
+          "----------------------------------------------------------------------",
+          "Ran 21 tests in 56.619s",
+          "",
+          "OK"
+        ]
+      },
+      "sync_and_alert_79": {
+        "command": [
+          "E:\\KomatsoAI\\.venv\\Scripts\\python.exe",
+          "-B",
+          "-X",
+          "utf8",
+          "-m",
+          "unittest",
+          "integrations.hermes.mine_sync.test_mine_file_sync",
+          "integrations.hermes.mine_sync.test_mine_file_sync_reliability",
+          "tools.scheduler.test_delivery_alert",
+          "-q"
+        ],
+        "returncode": 0,
+        "elapsed_seconds": 69.25,
+        "stdout": "E:\\KomatsoAI\\runtime\\maintenance-coordinated-candidate\\daily-1230-20261116\\sync_and_alert_79.stdout.log",
+        "stderr": "E:\\KomatsoAI\\runtime\\maintenance-coordinated-candidate\\daily-1230-20261116\\sync_and_alert_79.stderr.log",
+        "summary": [
+          "delivery alert send failed schedule=preflight_driver_daily_mechanical due=2026-10-07T06:30:00+00:00 kind=recovery error=TransportUnavailable",
+          "delivery alert send failed schedule=driver_daily_mechanical due=2026-10-07T06:30:00+00:00 kind=exception error=TransportUnavailable",
+          "----------------------------------------------------------------------",
+          "Ran 79 tests in 67.239s",
+          "",
+          "OK",
+          "FAILED CLI b'' b'usage: mine_file_sync.py [-h] [--dry-run] [--report] [--source SOURCE]\\r\\n                         [--dest DEST] [--home HOME]\\r\\n                         [--backoff-minutes BACKOFF_MINUTES]\\r\\n                         [--backoff-jitter BACKOFF_JITTER]\\r\\nmine_file_sync.py: error: backoff must be increasing positive minutes <=10; jitter must be 0..0.2\\r\\n' ",
+          "FAILED CLI b'' b'usage: mine_file_sync.py [-h] [--dry-run] [--report] [--source SOURCE]\\r\\n                         [--dest DEST] [--home HOME]\\r\\n                         [--backoff-minutes BACKOFF_MINUTES]\\r\\n                         [--backoff-jitter BACKOFF_JITTER]\\r\\nmine_file_sync.py: error: backoff must be increasing positive minutes <=10; jitter must be 0..0.2\\r\\n' "
+        ]
+      },
+      "maintenance_99": {
+        "command": [
+          "E:\\KomatsoAI\\.venv\\Scripts\\python.exe",
+          "-B",
+          "-X",
+          "utf8",
+          "-m",
+          "unittest",
+          "tools.fleet.repairs.test_maintenance_upstream_copy",
+          "tools.fleet.repairs.test_maintenance_report",
+          "tools.fleet.repairs.test_maintenance_baseline",
+          "tools.fleet.repairs.test_maintenance_sync",
+          "tools.fleet.repairs.test_two_step_entry",
+          "tools.fleet.repairs.test_maintenance_service",
+          "tools.fleet.repairs.test_maintenance_schema_update",
+          "tools.fleet.repairs.test_maintenance_report_bale",
+          "-q"
+        ],
+        "returncode": 0,
+        "elapsed_seconds": 80.234,
+        "stdout": "E:\\KomatsoAI\\runtime\\maintenance-coordinated-candidate\\daily-1230-20261116\\maintenance_99.stdout.log",
+        "stderr": "E:\\KomatsoAI\\runtime\\maintenance-coordinated-candidate\\daily-1230-20261116\\maintenance_99.stderr.log",
+        "summary": [
+          "Executing <Task finished name='Task-109' coro=<RepairsEntryHandler.start_task.<locals>.execute() done, defined at E:\\KomatsoAI\\tools\\fleet\\repairs\\entry_bale.py:209> result=None created at E:\\KomatsoAI\\tools\\fleet\\repairs\\entry_bale.py:221> took 0.422 seconds",
+          "Executing <Task pending name='Task-114' coro=<AutomaticMaintenanceBaleTests.test_composition_routes_declared_report_before_manual_code_form() running at E:\\KomatsoAI\\tools\\fleet\\repairs\\test_maintenance_report_bale.py:92> wait_for=<_GatheringFuture pending cb=[Task.task_wakeup()] created at C:\\Users\\win-10\\AppData\\Roaming\\uv\\python\\cpython-3.11-windows-x86_64-none\\Lib\\asyncio\\tasks.py:709> cb=[_run_until_complete_cb() at C:\\Users\\win-10\\AppData\\Roaming\\uv\\python\\cpython-3.11-windows-x86_64-none\\Lib\\asyncio\\base_events.py:181] created at C:\\Users\\win-10\\AppData\\Roaming\\uv\\python\\cpython-3.11-windows-x86_64-none\\Lib\\asyncio\\runners.py:100> took 0.156 seconds",
+          "----------------------------------------------------------------------",
+          "Ran 99 tests in 78.365s",
+          "",
+          "OK"
+        ]
+      },
+      "prior_candidate": {
+        "command": [
+          "E:\\KomatsoAI\\.venv\\Scripts\\python.exe",
+          "-B",
+          "-X",
+          "utf8",
+          "-m",
+          "tools.fleet.repairs.test_maintenance_publication",
+          "--evidence",
+          "E:\\KomatsoAI\\runtime\\maintenance-coordinated-candidate\\daily-1230-20261116\\prior-candidate.json",
+          "-q"
+        ],
+        "returncode": 1,
+        "elapsed_seconds": 106.907,
+        "stdout": "E:\\KomatsoAI\\runtime\\maintenance-coordinated-candidate\\daily-1230-20261116\\prior_candidate.stdout.log",
+        "stderr": "E:\\KomatsoAI\\runtime\\maintenance-coordinated-candidate\\daily-1230-20261116\\prior_candidate.stderr.log",
+        "summary": [
+          "Maintenance validation {\"kind\": \"device_title_mismatch\", \"sheet\": \"721\", \"source_titles\": [[\"A1\", \"دامپ 717\"]], \"expected_code\": \"721\"}",
+          "----------------------------------------------------------------------",
+          "Ran 35 tests in 104.954s",
+          "",
+          "OK",
+          "CANDIDATE_PARTIAL: preservation acceptance failed"
+        ]
+      },
+      "known_baseline_bale_6": {
+        "command": [
+          "E:\\KomatsoAI\\.venv\\Scripts\\python.exe",
+          "-B",
+          "-X",
+          "utf8",
+          "-m",
+          "unittest",
+          "tools.fleet.repairs.test_maintenance_bale",
+          "-q"
+        ],
+        "returncode": 1,
+        "elapsed_seconds": 3.656,
+        "stdout": "E:\\KomatsoAI\\runtime\\maintenance-coordinated-candidate\\daily-1230-20261116\\known_baseline_bale_6.stdout.log",
+        "stderr": "E:\\KomatsoAI\\runtime\\maintenance-coordinated-candidate\\daily-1230-20261116\\known_baseline_bale_6.stderr.log",
+        "summary": [
+          "AssertionError: {('1732374823', '1732374823'): {'stage': 'MECHANIC', 'expires': 2800, 'revision': 'e3d85b851cdbdca0', 'message_id': '1'}} is not false",
+          "",
+          "----------------------------------------------------------------------",
+          "Ran 6 tests in 2.718s",
+          "",
+          "FAILED (failures=1)"
+        ]
+      }
+    },
+    "prior_candidate_summary": {
+      "tests": 35,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "preservation_failures": 1,
+      "acceptance_exit_code": 1,
+      "scenario_verdicts": {
+        "PASS": 34,
+        "FAIL": 1,
+        "BLOCKED": 0
+      }
+    },
+    "prior_candidate_evidence": "E:\\KomatsoAI\\runtime\\maintenance-coordinated-candidate\\daily-1230-20261116\\prior-candidate.json",
+    "critical_old_race_kept_FAIL": true,
+    "simulated_exclusion_is_not_SMB_acceptance": true,
+    "regression_test_counts": {
+      "maintenance": 99,
+      "sync_and_existing_alerts": 79
+    },
+    "known_baseline_failure": {
+      "tests": 6,
+      "failures": 1,
+      "errors": 0,
+      "test": "tools.fleet.repairs.test_maintenance_bale.MaintenanceBaleTests.test_permissions_group_and_other_actor_callback",
+      "reason": "same recorded baseline mismatch: actor 1732374823 is already allowed, test expects denial",
+      "permissions_changed": false,
+      "prior_evidence": "reports/sync/AI-EXCEL-COORDINATED-SYNC-TESTS.json#baseline_failure"
+    }
+  },
+  "native_package": {
+    "source_sha256": "b03b57902434e817c90caee6797ee25154cec617ccdb8524642d695f1193f2ed",
+    "output_sha256": "d3ad7fb881f5c10777971d9f1b93bf79a9e3569973bd964fe74b77538f88d3cc",
+    "historical_rows": 25,
+    "batches": 4,
+    "sheets": 63,
+    "original_parts": 132,
+    "added_parts": [
+      "xl/comments/comment1.xml",
+      "xl/comments/comment10.xml",
+      "xl/comments/comment11.xml",
+      "xl/comments/comment12.xml",
+      "xl/comments/comment13.xml",
+      "xl/comments/comment14.xml",
+      "xl/comments/comment15.xml",
+      "xl/comments/comment16.xml",
+      "xl/comments/comment17.xml",
+      "xl/comments/comment18.xml",
+      "xl/comments/comment19.xml",
+      "xl/comments/comment2.xml",
+      "xl/comments/comment20.xml",
+      "xl/comments/comment21.xml",
+      "xl/comments/comment22.xml",
+      "xl/comments/comment23.xml",
+      "xl/comments/comment3.xml",
+      "xl/comments/comment4.xml",
+      "xl/comments/comment5.xml",
+      "xl/comments/comment6.xml",
+      "xl/comments/comment7.xml",
+      "xl/comments/comment8.xml",
+      "xl/comments/comment9.xml",
+      "xl/drawings/commentsDrawing1.vml",
+      "xl/drawings/commentsDrawing10.vml",
+      "xl/drawings/commentsDrawing11.vml",
+      "xl/drawings/commentsDrawing12.vml",
+      "xl/drawings/commentsDrawing13.vml",
+      "xl/drawings/commentsDrawing14.vml",
+      "xl/drawings/commentsDrawing15.vml",
+      "xl/drawings/commentsDrawing16.vml",
+      "xl/drawings/commentsDrawing17.vml",
+      "xl/drawings/commentsDrawing18.vml",
+      "xl/drawings/commentsDrawing19.vml",
+      "xl/drawings/commentsDrawing2.vml",
+      "xl/drawings/commentsDrawing20.vml",
+      "xl/drawings/commentsDrawing21.vml",
+      "xl/drawings/commentsDrawing22.vml",
+      "xl/drawings/commentsDrawing23.vml",
+      "xl/drawings/commentsDrawing3.vml",
+      "xl/drawings/commentsDrawing4.vml",
+      "xl/drawings/commentsDrawing5.vml",
+      "xl/drawings/commentsDrawing6.vml",
+      "xl/drawings/commentsDrawing7.vml",
+      "xl/drawings/commentsDrawing8.vml",
+      "xl/drawings/commentsDrawing9.vml",
+      "xl/worksheets/_rels/sheet17.xml.rels",
+      "xl/worksheets/_rels/sheet18.xml.rels",
+      "xl/worksheets/_rels/sheet29.xml.rels",
+      "xl/worksheets/_rels/sheet32.xml.rels",
+      "xl/worksheets/_rels/sheet34.xml.rels",
+      "xl/worksheets/_rels/sheet35.xml.rels",
+      "xl/worksheets/_rels/sheet49.xml.rels",
+      "xl/worksheets/_rels/sheet52.xml.rels",
+      "xl/worksheets/_rels/sheet54.xml.rels",
+      "xl/worksheets/_rels/sheet60.xml.rels"
+    ],
+    "changed_parts": [
+      "[Content_Types].xml",
+      "xl/workbook.xml",
+      "xl/worksheets/sheet5.xml",
+      "xl/worksheets/sheet13.xml",
+      "xl/worksheets/sheet15.xml",
+      "xl/worksheets/sheet17.xml",
+      "xl/worksheets/sheet18.xml",
+      "xl/worksheets/sheet24.xml",
+      "xl/worksheets/sheet25.xml",
+      "xl/worksheets/sheet28.xml",
+      "xl/worksheets/sheet29.xml",
+      "xl/worksheets/sheet30.xml",
+      "xl/worksheets/sheet31.xml",
+      "xl/worksheets/sheet32.xml",
+      "xl/worksheets/sheet34.xml",
+      "xl/worksheets/sheet35.xml",
+      "xl/worksheets/sheet38.xml",
+      "xl/worksheets/sheet40.xml",
+      "xl/worksheets/sheet41.xml",
+      "xl/worksheets/sheet44.xml",
+      "xl/worksheets/sheet49.xml",
+      "xl/worksheets/sheet52.xml",
+      "xl/worksheets/sheet54.xml",
+      "xl/worksheets/sheet60.xml",
+      "xl/worksheets/sheet16.xml",
+      "xl/worksheets/_rels/sheet5.xml.rels",
+      "xl/worksheets/_rels/sheet13.xml.rels",
+      "xl/worksheets/_rels/sheet15.xml.rels",
+      "xl/worksheets/_rels/sheet16.xml.rels",
+      "xl/worksheets/_rels/sheet24.xml.rels",
+      "xl/styles.xml",
+      "xl/worksheets/_rels/sheet28.xml.rels",
+      "xl/worksheets/_rels/sheet30.xml.rels",
+      "xl/worksheets/_rels/sheet31.xml.rels",
+      "xl/worksheets/_rels/sheet38.xml.rels",
+      "xl/worksheets/_rels/sheet40.xml.rels",
+      "xl/worksheets/_rels/sheet41.xml.rels",
+      "xl/worksheets/_rels/sheet44.xml.rels",
+      "xl/worksheets/_rels/sheet25.xml.rels"
+    ],
+    "unchanged_parts": [
+      "_rels/.rels",
+      "xl/_rels/workbook.xml.rels",
+      "xl/worksheets/sheet3.xml",
+      "xl/worksheets/sheet4.xml",
+      "xl/worksheets/sheet6.xml",
+      "xl/worksheets/sheet7.xml",
+      "xl/worksheets/sheet8.xml",
+      "xl/worksheets/sheet9.xml",
+      "xl/worksheets/sheet10.xml",
+      "xl/worksheets/sheet11.xml",
+      "xl/worksheets/sheet12.xml",
+      "xl/worksheets/sheet14.xml",
+      "xl/worksheets/sheet19.xml",
+      "xl/worksheets/sheet20.xml",
+      "xl/worksheets/sheet21.xml",
+      "xl/worksheets/sheet22.xml",
+      "xl/worksheets/sheet23.xml",
+      "xl/worksheets/sheet26.xml",
+      "xl/worksheets/sheet27.xml",
+      "xl/worksheets/sheet33.xml",
+      "xl/worksheets/sheet36.xml",
+      "xl/worksheets/sheet37.xml",
+      "xl/worksheets/sheet39.xml",
+      "xl/worksheets/sheet42.xml",
+      "xl/worksheets/sheet43.xml",
+      "xl/worksheets/sheet45.xml",
+      "xl/worksheets/sheet46.xml",
+      "xl/worksheets/sheet47.xml",
+      "xl/worksheets/sheet48.xml",
+      "xl/worksheets/sheet50.xml",
+      "xl/worksheets/sheet51.xml",
+      "xl/worksheets/sheet53.xml",
+      "xl/worksheets/sheet55.xml",
+      "xl/worksheets/sheet56.xml",
+      "xl/worksheets/sheet57.xml",
+      "xl/worksheets/sheet58.xml",
+      "xl/worksheets/sheet59.xml",
+      "xl/worksheets/sheet61.xml",
+      "xl/worksheets/sheet62.xml",
+      "xl/worksheets/sheet63.xml",
+      "xl/theme/theme1.xml",
+      "xl/sharedStrings.xml",
+      "xl/worksheets/sheet1.xml",
+      "xl/worksheets/sheet2.xml",
+      "xl/worksheets/_rels/sheet1.xml.rels",
+      "xl/worksheets/_rels/sheet2.xml.rels",
+      "xl/worksheets/_rels/sheet4.xml.rels",
+      "xl/worksheets/_rels/sheet6.xml.rels",
+      "xl/worksheets/_rels/sheet9.xml.rels",
+      "xl/worksheets/_rels/sheet10.xml.rels",
+      "xl/worksheets/_rels/sheet14.xml.rels",
+      "xl/worksheets/_rels/sheet20.xml.rels",
+      "xl/worksheets/_rels/sheet23.xml.rels",
+      "xl/worksheets/_rels/sheet27.xml.rels",
+      "xl/worksheets/_rels/sheet39.xml.rels",
+      "xl/worksheets/_rels/sheet42.xml.rels",
+      "xl/worksheets/_rels/sheet43.xml.rels",
+      "xl/worksheets/_rels/sheet45.xml.rels",
+      "xl/worksheets/_rels/sheet46.xml.rels",
+      "xl/worksheets/_rels/sheet47.xml.rels",
+      "xl/worksheets/_rels/sheet63.xml.rels",
+      "xl/printerSettings/printerSettings2.bin",
+      "xl/printerSettings/printerSettings3.bin",
+      "xl/printerSettings/printerSettings4.bin",
+      "xl/printerSettings/printerSettings5.bin",
+      "xl/printerSettings/printerSettings6.bin",
+      "xl/printerSettings/printerSettings7.bin",
+      "xl/printerSettings/printerSettings8.bin",
+      "xl/printerSettings/printerSettings9.bin",
+      "xl/printerSettings/printerSettings10.bin",
+      "xl/printerSettings/printerSettings11.bin",
+      "xl/printerSettings/printerSettings12.bin",
+      "xl/printerSettings/printerSettings13.bin",
+      "xl/printerSettings/printerSettings14.bin",
+      "xl/printerSettings/printerSettings15.bin",
+      "xl/printerSettings/printerSettings16.bin",
+      "xl/printerSettings/printerSettings17.bin",
+      "xl/printerSettings/printerSettings18.bin",
+      "xl/printerSettings/printerSettings19.bin",
+      "xl/printerSettings/printerSettings20.bin",
+      "xl/printerSettings/printerSettings21.bin",
+      "xl/printerSettings/printerSettings22.bin",
+      "xl/printerSettings/printerSettings23.bin",
+      "xl/printerSettings/printerSettings24.bin",
+      "xl/printerSettings/printerSettings25.bin",
+      "xl/printerSettings/printerSettings26.bin",
+      "xl/printerSettings/printerSettings27.bin",
+      "xl/printerSettings/printerSettings28.bin",
+      "xl/printerSettings/printerSettings29.bin",
+      "xl/printerSettings/printerSettings30.bin",
+      "docProps/core.xml",
+      "docProps/app.xml",
+      "xl/printerSettings/printerSettings1.bin"
+    ],
+    "native_excel": "UNKNOWN",
+    "SMB": "UNKNOWN",
+    "artifact": "E:\\KomatsoAI\\runtime\\maintenance-coordinated-candidate\\daily-1230-20261116\\native-history\\native-migrated.xlsx"
+  },
+  "native_excel": {
+    "verdict": "UNKNOWN",
+    "connected_excel_sessions": 0,
+    "unattended_Office_production": false,
+    "UAT": "reports/sync/AI-EXCEL-1230-NATIVE-UAT.md"
+  },
+  "actual_SMB": {
+    "scope": "SYNTHETIC_FILES_ON_ACTUAL_SHARE_ONLY",
+    "production_workbook_writes": 0,
+    "account": "desktop-0l5mjvm\\win-10",
+    "test_folder": "\\\\192.168.20.251\\share\\__komatso_publication_uat_1f366f3c6b3947d3ba6845d57e481c92",
+    "server_exclusion_accepted": false,
+    "excel_clients_tested": false,
+    "before_inventory": {
+      ".maintenance-C16-uyjuebla.partial": {
+        "size": 0,
+        "mtime_ns": 1792139083369609300
+      },
+      "Copy of شیفت شب.xlsx": {
+        "size": 297568,
+        "mtime_ns": 1791810220875500800
+      },
+      "باطری.xlsx": {
+        "size": 10187,
+        "mtime_ns": 1790596913293836400
+      },
+      "تعمیرات 1404.xlsx": {
+        "size": 142505,
+        "mtime_ns": 1748686122273299500
+      },
+      "تعمیرات 1405.xlsx": {
+        "size": 202985,
+        "mtime_ns": 1794756254473871000
+      },
+      "ساعت و مصرف روغن مکانیزم ها .xlsx": {
+        "size": 684866,
+        "mtime_ns": 1794811501743455200
+      },
+      "سرریز روزانه.xlsx": {
+        "size": 1092460,
+        "mtime_ns": 1794802199612536500
+      },
+      "شیفت شب مهر.xlsx": {
+        "size": 10657,
+        "mtime_ns": 1792580191094549000
+      },
+      "عملکرد ماشین آلات.xlsx": {
+        "size": 115291,
+        "mtime_ns": 1794810229261245800
+      },
+      "فرم گزارش کارواش.xlsx": {
+        "size": 10228,
+        "mtime_ns": 1793621597019266700
+      },
+      "قطعات مصرفی 1405.xlsx": {
+        "size": 277527,
+        "mtime_ns": 1794751814553200400
+      },
+      "لیست روزانه هواکش .xlsx": {
+        "size": 1323578,
+        "mtime_ns": 1794812380505610500
+      },
+      "لیست روزانه گریسکاری.xlsx": {
+        "size": 1063187,
+        "mtime_ns": 1794812383599362300
+      },
+      "لیست ضدیخ.xlsx": {
+        "size": 15882,
+        "mtime_ns": 1794372382250026600
+      },
+      "لیست ماشین آلات.xlsx": {
+        "size": 16850,
+        "mtime_ns": 1788188509158689500
+      },
+      "مرخصی پرسنل سرویسکاری - Copy.xlsx": {
+        "size": 42625,
+        "mtime_ns": 1790076075468578800
+      },
+      "مصرف روغن.xlsx": {
+        "size": 1067931,
+        "mtime_ns": 1791172677282829900
+      },
+      "موازنه روغن مصرفی.xlsx": {
+        "size": 16395,
+        "mtime_ns": 1794805432023892800
+      },
+      "هواکش.xlsx": {
+        "size": 117364,
+        "mtime_ns": 1794811660313836700
+      },
+      "وزن فیلترهای هواکش.xlsx": {
+        "size": 11283,
+        "mtime_ns": 1794480208527977000
+      },
+      "گزارش روزانه خرابی.xlsx": {
+        "size": 24326,
+        "mtime_ns": 1794809826593802400
+      },
+      "گزارش روزانه رانندگان(آهنگری).xlsx": {
+        "size": 127646,
+        "mtime_ns": 1782023449132061100
+      },
+      "گزارش روزانه رانندگان(تعمیر گاه).xlsx": {
+        "size": 131826,
+        "mtime_ns": 1782024559238450000
+      },
+      "گزارش روزانه رانندگان.xlsx": {
+        "size": 792522,
+        "mtime_ns": 1761368389606206400
+      },
+      "گزارش روزانه رانندگان2.xlsx": {
+        "size": 781604,
+        "mtime_ns": 1794817522481563200
+      },
+      "New folder\\برنامه ریزی سرویس.xlsx": {
+        "size": 11461,
+        "mtime_ns": 1793691202495031400
+      },
+      "New folder\\دستور کار PM-1250.xlsx": {
+        "size": 43373,
+        "mtime_ns": 1788335807729289300
+      },
+      "New folder\\دستور کار PM-785-7..xlsx": {
+        "size": 45108,
+        "mtime_ns": 1792499763858691800
+      },
+      "New folder\\دستور کار PM-800-7.xlsx": {
+        "size": 43671,
+        "mtime_ns": 1788954713586061000
+      },
+      "New folder\\دستور کار PM-850-8.xlsx": {
+        "size": 43415,
+        "mtime_ns": 1788954957569952400
+      },
+      "New folder\\دستور کار PM.xlsx": {
+        "size": 43373,
+        "mtime_ns": 1789388926371725600
+      },
+      "New folder\\دستورکار PM-155-2.xlsx": {
+        "size": 42225,
+        "mtime_ns": 1789129963330119800
+      },
+      "New folder\\دستورکار PM-155-6.xlsx": {
+        "size": 43269,
+        "mtime_ns": 1789142860605997800
+      },
+      "New folder\\دستورکار PM-320-9.xlsx": {
+        "size": 40918,
+        "mtime_ns": 1789128100021729700
+      },
+      "New folder\\دستورکار PM-330-9.xlsx": {
+        "size": 40693,
+        "mtime_ns": 1789127265417398100
+      },
+      "New folder\\دستورکار PM-465-7r.xlsx": {
+        "size": 43673,
+        "mtime_ns": 1788935823012223400
+      },
+      "New folder\\دستورکار PM-470-3.xlsx": {
+        "size": 42078,
+        "mtime_ns": 1789024893967331500
+      },
+      "New folder\\دستورکار PM-520-9.xlsx": {
+        "size": 41051,
+        "mtime_ns": 1789126102580393300
+      },
+      "New folder\\دستورکار PM-600-6.xlsx": {
+        "size": 42669,
+        "mtime_ns": 1789023921889620500
+      },
+      "New folder\\دستورکار PM-600-8.xlsx": {
+        "size": 41778,
+        "mtime_ns": 1789126939437031700
+      },
+      "New folder\\دستورکار PM-785-5.xlsx": {
+        "size": 44187,
+        "mtime_ns": 1788932956780868500
+      }
+    },
+    "before_workbook_sha256": "b03b57902434e817c90caee6797ee25154cec617ccdb8524642d695f1193f2ed",
+    "stage": "seed_synthetic_5",
+    "verdict": "BLOCKED",
+    "error_type": "OSError",
+    "error": "[Errno 22] Invalid argument",
+    "traceback": "Traceback (most recent call last):\n  File \"E:\\KomatsoAI\\reports\\sync\\AI-EXCEL-1230-SMB-UAT.py\", line 100, in run\n    target.write_bytes(template)\n  File \"C:\\Users\\win-10\\AppData\\Roaming\\uv\\python\\cpython-3.11-windows-x86_64-none\\Lib\\pathlib.py\", line 1067, in write_bytes\n    with self.open(mode='wb') as f:\nOSError: [Errno 22] Invalid argument\n",
+    "test_folder_removed": true,
+    "after_inventory": {
+      ".maintenance-C16-uyjuebla.partial": {
+        "size": 0,
+        "mtime_ns": 1792139083369609300
+      },
+      "Copy of شیفت شب.xlsx": {
+        "size": 297568,
+        "mtime_ns": 1791810220875500800
+      },
+      "باطری.xlsx": {
+        "size": 10187,
+        "mtime_ns": 1790596913293836400
+      },
+      "تعمیرات 1404.xlsx": {
+        "size": 142505,
+        "mtime_ns": 1748686122273299500
+      },
+      "تعمیرات 1405.xlsx": {
+        "size": 202985,
+        "mtime_ns": 1794756254473871000
+      },
+      "ساعت و مصرف روغن مکانیزم ها .xlsx": {
+        "size": 684866,
+        "mtime_ns": 1794811501743455200
+      },
+      "سرریز روزانه.xlsx": {
+        "size": 1092460,
+        "mtime_ns": 1794802199612536500
+      },
+      "شیفت شب مهر.xlsx": {
+        "size": 10657,
+        "mtime_ns": 1792580191094549000
+      },
+      "عملکرد ماشین آلات.xlsx": {
+        "size": 115291,
+        "mtime_ns": 1794810229261245800
+      },
+      "فرم گزارش کارواش.xlsx": {
+        "size": 10228,
+        "mtime_ns": 1793621597019266700
+      },
+      "قطعات مصرفی 1405.xlsx": {
+        "size": 277527,
+        "mtime_ns": 1794751814553200400
+      },
+      "لیست روزانه هواکش .xlsx": {
+        "size": 1323578,
+        "mtime_ns": 1794812380505610500
+      },
+      "لیست روزانه گریسکاری.xlsx": {
+        "size": 1063187,
+        "mtime_ns": 1794812383599362300
+      },
+      "لیست ضدیخ.xlsx": {
+        "size": 15882,
+        "mtime_ns": 1794372382250026600
+      },
+      "لیست ماشین آلات.xlsx": {
+        "size": 16850,
+        "mtime_ns": 1788188509158689500
+      },
+      "مرخصی پرسنل سرویسکاری - Copy.xlsx": {
+        "size": 42625,
+        "mtime_ns": 1790076075468578800
+      },
+      "مصرف روغن.xlsx": {
+        "size": 1067931,
+        "mtime_ns": 1791172677282829900
+      },
+      "موازنه روغن مصرفی.xlsx": {
+        "size": 16395,
+        "mtime_ns": 1794805432023892800
+      },
+      "هواکش.xlsx": {
+        "size": 117364,
+        "mtime_ns": 1794811660313836700
+      },
+      "وزن فیلترهای هواکش.xlsx": {
+        "size": 11283,
+        "mtime_ns": 1794480208527977000
+      },
+      "گزارش روزانه خرابی.xlsx": {
+        "size": 24326,
+        "mtime_ns": 1794809826593802400
+      },
+      "گزارش روزانه رانندگان(آهنگری).xlsx": {
+        "size": 127646,
+        "mtime_ns": 1782023449132061100
+      },
+      "گزارش روزانه رانندگان(تعمیر گاه).xlsx": {
+        "size": 131826,
+        "mtime_ns": 1782024559238450000
+      },
+      "گزارش روزانه رانندگان.xlsx": {
+        "size": 792522,
+        "mtime_ns": 1761368389606206400
+      },
+      "گزارش روزانه رانندگان2.xlsx": {
+        "size": 781604,
+        "mtime_ns": 1794817522481563200
+      },
+      "New folder\\برنامه ریزی سرویس.xlsx": {
+        "size": 11461,
+        "mtime_ns": 1793691202495031400
+      },
+      "New folder\\دستور کار PM-1250.xlsx": {
+        "size": 43373,
+        "mtime_ns": 1788335807729289300
+      },
+      "New folder\\دستور کار PM-785-7..xlsx": {
+        "size": 45108,
+        "mtime_ns": 1792499763858691800
+      },
+      "New folder\\دستور کار PM-800-7.xlsx": {
+        "size": 43671,
+        "mtime_ns": 1788954713586061000
+      },
+      "New folder\\دستور کار PM-850-8.xlsx": {
+        "size": 43415,
+        "mtime_ns": 1788954957569952400
+      },
+      "New folder\\دستور کار PM.xlsx": {
+        "size": 43373,
+        "mtime_ns": 1789388926371725600
+      },
+      "New folder\\دستورکار PM-155-2.xlsx": {
+        "size": 42225,
+        "mtime_ns": 1789129963330119800
+      },
+      "New folder\\دستورکار PM-155-6.xlsx": {
+        "size": 43269,
+        "mtime_ns": 1789142860605997800
+      },
+      "New folder\\دستورکار PM-320-9.xlsx": {
+        "size": 40918,
+        "mtime_ns": 1789128100021729700
+      },
+      "New folder\\دستورکار PM-330-9.xlsx": {
+        "size": 40693,
+        "mtime_ns": 1789127265417398100
+      },
+      "New folder\\دستورکار PM-465-7r.xlsx": {
+        "size": 43673,
+        "mtime_ns": 1788935823012223400
+      },
+      "New folder\\دستورکار PM-470-3.xlsx": {
+        "size": 42078,
+        "mtime_ns": 1789024893967331500
+      },
+      "New folder\\دستورکار PM-520-9.xlsx": {
+        "size": 41051,
+        "mtime_ns": 1789126102580393300
+      },
+      "New folder\\دستورکار PM-600-6.xlsx": {
+        "size": 42669,
+        "mtime_ns": 1789023921889620500
+      },
+      "New folder\\دستورکار PM-600-8.xlsx": {
+        "size": 41778,
+        "mtime_ns": 1789126939437031700
+      },
+      "New folder\\دستورکار PM-785-5.xlsx": {
+        "size": 44187,
+        "mtime_ns": 1788932956780868500
+      }
+    },
+    "after_workbook_sha256": "b03b57902434e817c90caee6797ee25154cec617ccdb8524642d695f1193f2ed",
+    "operational_workbook_bytes_unchanged": true,
+    "operational_inventory_unchanged": true
+  },
+  "actual_SMB_first_attempt": {
+    "scope": "SYNTHETIC_FILES_ON_ACTUAL_SHARE_ONLY",
+    "production_workbook_writes": 0,
+    "account": "desktop-0l5mjvm\\win-10",
+    "test_folder": "\\\\192.168.20.251\\share\\__komatso_publication_uat_67afa4dfa54748deac695f0691a7024e",
+    "server_exclusion_accepted": false,
+    "excel_clients_tested": false,
+    "before_inventory": {
+      ".maintenance-C16-uyjuebla.partial": {
+        "size": 0,
+        "mtime_ns": 1792139083369609300
+      },
+      "Copy of شیفت شب.xlsx": {
+        "size": 297568,
+        "mtime_ns": 1791810220875500800
+      },
+      "باطری.xlsx": {
+        "size": 10187,
+        "mtime_ns": 1790596913293836400
+      },
+      "تعمیرات 1404.xlsx": {
+        "size": 142505,
+        "mtime_ns": 1748686122273299500
+      },
+      "تعمیرات 1405.xlsx": {
+        "size": 202985,
+        "mtime_ns": 1794756254473871000
+      },
+      "ساعت و مصرف روغن مکانیزم ها .xlsx": {
+        "size": 684866,
+        "mtime_ns": 1794811501743455200
+      },
+      "سرریز روزانه.xlsx": {
+        "size": 1092460,
+        "mtime_ns": 1794802199612536500
+      },
+      "شیفت شب مهر.xlsx": {
+        "size": 10657,
+        "mtime_ns": 1792580191094549000
+      },
+      "عملکرد ماشین آلات.xlsx": {
+        "size": 115291,
+        "mtime_ns": 1794810229261245800
+      },
+      "فرم گزارش کارواش.xlsx": {
+        "size": 10228,
+        "mtime_ns": 1793621597019266700
+      },
+      "قطعات مصرفی 1405.xlsx": {
+        "size": 277527,
+        "mtime_ns": 1794751814553200400
+      },
+      "لیست روزانه هواکش .xlsx": {
+        "size": 1323578,
+        "mtime_ns": 1794812380505610500
+      },
+      "لیست روزانه گریسکاری.xlsx": {
+        "size": 1063187,
+        "mtime_ns": 1794812383599362300
+      },
+      "لیست ضدیخ.xlsx": {
+        "size": 15882,
+        "mtime_ns": 1794372382250026600
+      },
+      "لیست ماشین آلات.xlsx": {
+        "size": 16850,
+        "mtime_ns": 1788188509158689500
+      },
+      "مرخصی پرسنل سرویسکاری - Copy.xlsx": {
+        "size": 42625,
+        "mtime_ns": 1790076075468578800
+      },
+      "مصرف روغن.xlsx": {
+        "size": 1067931,
+        "mtime_ns": 1791172677282829900
+      },
+      "موازنه روغن مصرفی.xlsx": {
+        "size": 16395,
+        "mtime_ns": 1794805432023892800
+      },
+      "هواکش.xlsx": {
+        "size": 117364,
+        "mtime_ns": 1794811660313836700
+      },
+      "وزن فیلترهای هواکش.xlsx": {
+        "size": 11283,
+        "mtime_ns": 1794480208527977000
+      },
+      "گزارش روزانه خرابی.xlsx": {
+        "size": 24326,
+        "mtime_ns": 1794809826593802400
+      },
+      "گزارش روزانه رانندگان(آهنگری).xlsx": {
+        "size": 127646,
+        "mtime_ns": 1782023449132061100
+      },
+      "گزارش روزانه رانندگان(تعمیر گاه).xlsx": {
+        "size": 131826,
+        "mtime_ns": 1782024559238450000
+      },
+      "گزارش روزانه رانندگان.xlsx": {
+        "size": 792522,
+        "mtime_ns": 1761368389606206400
+      },
+      "گزارش روزانه رانندگان2.xlsx": {
+        "size": 781604,
+        "mtime_ns": 1794817522481563200
+      },
+      "New folder\\برنامه ریزی سرویس.xlsx": {
+        "size": 11461,
+        "mtime_ns": 1793691202495031400
+      },
+      "New folder\\دستور کار PM-1250.xlsx": {
+        "size": 43373,
+        "mtime_ns": 1788335807729289300
+      },
+      "New folder\\دستور کار PM-785-7..xlsx": {
+        "size": 45108,
+        "mtime_ns": 1792499763858691800
+      },
+      "New folder\\دستور کار PM-800-7.xlsx": {
+        "size": 43671,
+        "mtime_ns": 1788954713586061000
+      },
+      "New folder\\دستور کار PM-850-8.xlsx": {
+        "size": 43415,
+        "mtime_ns": 1788954957569952400
+      },
+      "New folder\\دستور کار PM.xlsx": {
+        "size": 43373,
+        "mtime_ns": 1789388926371725600
+      },
+      "New folder\\دستورکار PM-155-2.xlsx": {
+        "size": 42225,
+        "mtime_ns": 1789129963330119800
+      },
+      "New folder\\دستورکار PM-155-6.xlsx": {
+        "size": 43269,
+        "mtime_ns": 1789142860605997800
+      },
+      "New folder\\دستورکار PM-320-9.xlsx": {
+        "size": 40918,
+        "mtime_ns": 1789128100021729700
+      },
+      "New folder\\دستورکار PM-330-9.xlsx": {
+        "size": 40693,
+        "mtime_ns": 1789127265417398100
+      },
+      "New folder\\دستورکار PM-465-7r.xlsx": {
+        "size": 43673,
+        "mtime_ns": 1788935823012223400
+      },
+      "New folder\\دستورکار PM-470-3.xlsx": {
+        "size": 42078,
+        "mtime_ns": 1789024893967331500
+      },
+      "New folder\\دستورکار PM-520-9.xlsx": {
+        "size": 41051,
+        "mtime_ns": 1789126102580393300
+      },
+      "New folder\\دستورکار PM-600-6.xlsx": {
+        "size": 42669,
+        "mtime_ns": 1789023921889620500
+      },
+      "New folder\\دستورکار PM-600-8.xlsx": {
+        "size": 41778,
+        "mtime_ns": 1789126939437031700
+      },
+      "New folder\\دستورکار PM-785-5.xlsx": {
+        "size": 44187,
+        "mtime_ns": 1788932956780868500
+      }
+    },
+    "before_workbook_sha256": "b03b57902434e817c90caee6797ee25154cec617ccdb8524642d695f1193f2ed",
+    "verdict": "BLOCKED",
+    "error_type": "OSError",
+    "error": "[Errno 22] Invalid argument",
+    "test_folder_removed": true,
+    "after_inventory": {
+      ".maintenance-C16-uyjuebla.partial": {
+        "size": 0,
+        "mtime_ns": 1792139083369609300
+      },
+      "Copy of شیفت شب.xlsx": {
+        "size": 297568,
+        "mtime_ns": 1791810220875500800
+      },
+      "باطری.xlsx": {
+        "size": 10187,
+        "mtime_ns": 1790596913293836400
+      },
+      "تعمیرات 1404.xlsx": {
+        "size": 142505,
+        "mtime_ns": 1748686122273299500
+      },
+      "تعمیرات 1405.xlsx": {
+        "size": 202985,
+        "mtime_ns": 1794756254473871000
+      },
+      "ساعت و مصرف روغن مکانیزم ها .xlsx": {
+        "size": 684866,
+        "mtime_ns": 1794811501743455200
+      },
+      "سرریز روزانه.xlsx": {
+        "size": 1092460,
+        "mtime_ns": 1794802199612536500
+      },
+      "شیفت شب مهر.xlsx": {
+        "size": 10657,
+        "mtime_ns": 1792580191094549000
+      },
+      "عملکرد ماشین آلات.xlsx": {
+        "size": 115291,
+        "mtime_ns": 1794810229261245800
+      },
+      "فرم گزارش کارواش.xlsx": {
+        "size": 10228,
+        "mtime_ns": 1793621597019266700
+      },
+      "قطعات مصرفی 1405.xlsx": {
+        "size": 277527,
+        "mtime_ns": 1794751814553200400
+      },
+      "لیست روزانه هواکش .xlsx": {
+        "size": 1323578,
+        "mtime_ns": 1794812380505610500
+      },
+      "لیست روزانه گریسکاری.xlsx": {
+        "size": 1063187,
+        "mtime_ns": 1794812383599362300
+      },
+      "لیست ضدیخ.xlsx": {
+        "size": 15882,
+        "mtime_ns": 1794372382250026600
+      },
+      "لیست ماشین آلات.xlsx": {
+        "size": 16850,
+        "mtime_ns": 1788188509158689500
+      },
+      "مرخصی پرسنل سرویسکاری - Copy.xlsx": {
+        "size": 42625,
+        "mtime_ns": 1790076075468578800
+      },
+      "مصرف روغن.xlsx": {
+        "size": 1067931,
+        "mtime_ns": 1791172677282829900
+      },
+      "موازنه روغن مصرفی.xlsx": {
+        "size": 16395,
+        "mtime_ns": 1794805432023892800
+      },
+      "هواکش.xlsx": {
+        "size": 117364,
+        "mtime_ns": 1794811660313836700
+      },
+      "وزن فیلترهای هواکش.xlsx": {
+        "size": 11283,
+        "mtime_ns": 1794480208527977000
+      },
+      "گزارش روزانه خرابی.xlsx": {
+        "size": 24326,
+        "mtime_ns": 1794809826593802400
+      },
+      "گزارش روزانه رانندگان(آهنگری).xlsx": {
+        "size": 127646,
+        "mtime_ns": 1782023449132061100
+      },
+      "گزارش روزانه رانندگان(تعمیر گاه).xlsx": {
+        "size": 131826,
+        "mtime_ns": 1782024559238450000
+      },
+      "گزارش روزانه رانندگان.xlsx": {
+        "size": 792522,
+        "mtime_ns": 1761368389606206400
+      },
+      "گزارش روزانه رانندگان2.xlsx": {
+        "size": 781604,
+        "mtime_ns": 1794817522481563200
+      },
+      "New folder\\برنامه ریزی سرویس.xlsx": {
+        "size": 11461,
+        "mtime_ns": 1793691202495031400
+      },
+      "New folder\\دستور کار PM-1250.xlsx": {
+        "size": 43373,
+        "mtime_ns": 1788335807729289300
+      },
+      "New folder\\دستور کار PM-785-7..xlsx": {
+        "size": 45108,
+        "mtime_ns": 1792499763858691800
+      },
+      "New folder\\دستور کار PM-800-7.xlsx": {
+        "size": 43671,
+        "mtime_ns": 1788954713586061000
+      },
+      "New folder\\دستور کار PM-850-8.xlsx": {
+        "size": 43415,
+        "mtime_ns": 1788954957569952400
+      },
+      "New folder\\دستور کار PM.xlsx": {
+        "size": 43373,
+        "mtime_ns": 1789388926371725600
+      },
+      "New folder\\دستورکار PM-155-2.xlsx": {
+        "size": 42225,
+        "mtime_ns": 1789129963330119800
+      },
+      "New folder\\دستورکار PM-155-6.xlsx": {
+        "size": 43269,
+        "mtime_ns": 1789142860605997800
+      },
+      "New folder\\دستورکار PM-320-9.xlsx": {
+        "size": 40918,
+        "mtime_ns": 1789128100021729700
+      },
+      "New folder\\دستورکار PM-330-9.xlsx": {
+        "size": 40693,
+        "mtime_ns": 1789127265417398100
+      },
+      "New folder\\دستورکار PM-465-7r.xlsx": {
+        "size": 43673,
+        "mtime_ns": 1788935823012223400
+      },
+      "New folder\\دستورکار PM-470-3.xlsx": {
+        "size": 42078,
+        "mtime_ns": 1789024893967331500
+      },
+      "New folder\\دستورکار PM-520-9.xlsx": {
+        "size": 41051,
+        "mtime_ns": 1789126102580393300
+      },
+      "New folder\\دستورکار PM-600-6.xlsx": {
+        "size": 42669,
+        "mtime_ns": 1789023921889620500
+      },
+      "New folder\\دستورکار PM-600-8.xlsx": {
+        "size": 41778,
+        "mtime_ns": 1789126939437031700
+      },
+      "New folder\\دستورکار PM-785-5.xlsx": {
+        "size": 44187,
+        "mtime_ns": 1788932956780868500
+      }
+    },
+    "after_workbook_sha256": "b03b57902434e817c90caee6797ee25154cec617ccdb8524642d695f1193f2ed",
+    "operational_workbook_bytes_unchanged": true,
+    "operational_inventory_unchanged": true
+  },
+  "service_identity": {
+    "test_account": "desktop-0l5mjvm\\win-10",
+    "gateway_process_owner_readonly": "DESKTOP-0L5MJVM\\win-10",
+    "same_account": true,
+    "source": "elevated whoami and Win32_Process.GetOwner; no credential changes"
+  },
+  "bale": {
+    "owner": "455740857",
+    "owner_currently_authorized": true,
+    "active_alert_recipients": [
+      "455740857"
+    ],
+    "connection_check": {
+      "check": "existing_BaleSender_getMe_only",
+      "outbound_messages": 0,
+      "connected": true
+    },
+    "actual_alert_message_tested": false,
+    "real_messages_sent": 0,
+    "sender": "existing tools.scheduler.tasks.BaleSender",
+    "receipts": "existing delivery_alert schema/claim/dispatch",
+    "idempotency": "one case per daily slot; stable message-id receipt",
+    "definite_pre_send_failure": "persistent retry",
+    "uncertain": "held; no blind resend",
+    "journal_corruption": "isolated durable fallback using existing notifier schema; retried after journal recovers"
+  },
+  "readonly_live": {
+    "live_function_sha256": "0d5400bd5d272a4facfbbc9d584d459532a78c376fa65b2583789015f8dc5ae2",
+    "frozen_function_sha256": "0d5400bd5d272a4facfbbc9d584d459532a78c376fa65b2583789015f8dc5ae2",
+    "live_function_matches_frozen": true,
+    "current_alert_recipients": [
+      "455740857"
+    ],
+    "owner_currently_authorized": true,
+    "journal_quick_check": [
+      "ok"
+    ],
+    "journal_status_counts": {
+      "succeeded": 18
+    },
+    "installed_mirror_sha256": "60fd7d2bd377a17b52a21dc046d12dbcd2de79a763caac0d4f10adaaa1658953",
+    "repository_mirror_sha256": "4f53477125413cc621e83d8ebfd2867100dd2bd6ffc0cffe18d93804ef5f82df",
+    "cron": [
+      {
+        "id": "3ccb658aed3c",
+        "name": "mine-file-sync",
+        "script": "mine_file_sync.py",
+        "schedule": {
+          "kind": "cron",
+          "expr": "*/2 * * * *",
+          "display": "*/2 * * * *"
+        },
+        "no_agent": true,
+        "enabled": true
+      }
+    ]
+  },
+  "safety": {
+    "outbound_enabled": false,
+    "allowed_transport": "isolated local candidate only",
+    "real_gate": "PUBLICATION_SMB_EXCLUSION_UNVERIFIED before Intent/Stage/Replace",
+    "operational_workbook_writes": 0,
+    "operational_function_writes": 0,
+    "operational_journal_writes": 0,
+    "historical_migration_applied_to_production": false,
+    "installed_mirror_changed": false,
+    "new_cron_jobs": 0,
+    "scheduler_configuration_changed": false,
+    "gateway_restarts": 0,
+    "forced_Excel_closes": 0,
+    "ACL_changes": 0,
+    "UNC_writes": "only owner-authorized UUID-scoped synthetic folder; both attempts cleaned",
+    "production_owner_final_approval": "REQUIRED_AFTER_ACCEPTANCE_NOT_REQUESTED_WHILE_BLOCKED"
+  },
+  "limitations": [
+    "Successful new publication tests use explicitly mocked fixture exclusion; no claimed SMB fix",
+    "Real SMB competition and real Excel save did not execute because synthetic file write failed",
+    "Package and reader checks do not replace interactive native Excel UAT",
+    "41-file comparison covers names/size/mtime; content hash comparison covers maintenance workbook only",
+    "Outside the window, independent mine changes may merge locally while pending operations stay protected until outbound receipt",
+    "Bale getMe verifies bot connectivity; actual owner message delivery was not tested"
+  ],
+  "report": "reports/sync/AI-EXCEL-1230-PUBLICATION-REPORT.md",
+  "report_sha256": "dc71edc767696d5fc87b1a6b253181484f0ce4ccef8b2fd30572b20a82c1c058"
+}

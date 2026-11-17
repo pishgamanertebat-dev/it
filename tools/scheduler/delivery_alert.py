@@ -785,5 +785,5 @@ def scan_delivery_exceptions(conn, jobs, now, authorization=None, *, sender_fact
                 _process_run(conn, job, run, store, _operators(store, job) if job['task']=='machinery_performance_daily_report' else operators, now, factory)
         except Exception as exc:
             logger.error('Delivery exception scan failed schedule=%s error=%s', job.get('id'), type(exc).__name__)
-    from .daily_summary import scan_daily_summary
-    scan_daily_summary(conn, selected, now, store, sender_factory=factory)
+    from .daily_issues import scan_daily_issues
+    scan_daily_issues(conn, selected, now, store, sender_factory=factory)
