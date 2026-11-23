@@ -6,8 +6,9 @@ from pathlib import Path
 import re
 
 from .maintenance_report_parse import declared_report, work_items
-from .maintenance_report_policy import permission, CONFIG
+from .maintenance_report_policy import partial_enabled, permission
 from .maintenance_report_store import RUNTIME, operation_id, remember
+from .maintenance_report_ui import PartialReportUI, status_command
 
 log = logging.getLogger(__name__)
 
@@ -28,6 +29,7 @@ class MaintenanceReportHandler:
     def __init__(self, *, run=run_worker, authorize=permission, runtime=RUNTIME, followup=continue_coded):
         self.run, self.authorize, self.runtime, self.followup = run, authorize, runtime, followup
         self.tasks, self.busy = set(), set()
+        self.partial = PartialReportUI(run, runtime, self.tasks)
 
     def handle(self,event,gateway,*,send):
         source = event.source
@@ -35,13 +37,19 @@ class MaintenanceReportHandler:
         if str(getattr(source.platform,'value',source.platform)).lower()!='bale' or source.chat_type!='dm' or actor!=chat:
             return None
         raw = getattr(event,'raw_message',None) or {}
-        if isinstance(raw,dict) and raw.get('bale_inline_callback') is True:
+        callback = isinstance(raw,dict) and raw.get('bale_inline_callback') is True
+        if callback and not str(raw.get('data','')).startswith('ik:mreport:'):
             return None
-        if not declared_report(event.text):
+        is_report = declared_report(event.text)
+        if not (callback or is_report or status_command(event.text) or getattr(event,'reply_to_message_id',None)):
             return None
         try:
             settings = self.authorize(actor,chat)
         except (PermissionError,OSError,ValueError):
+            return None
+        if partial_enabled(settings):
+            return self.partial.handle(event,gateway,send,actor,chat,callback)
+        if callback or not is_report:
             return None
         if settings['scope']=='miscellaneous':
             try:

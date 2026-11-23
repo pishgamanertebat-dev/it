@@ -1,5 +1,4 @@
 """Append repair events to existing machine worksheets, preserving their history."""
-from copy import copy
 import json
 import math
 from pathlib import Path
@@ -49,10 +48,17 @@ def layout(sheet):
     raise EntryError(f'ستون‌های شیت «{sheet.title}» شناخته نشدند؛ فایل باید بررسی شود.')
 
 
-def machines(book):
+def machines(book, *, independent=False):
     result = []
     for sheet in book:
-        header, _ = layout(sheet)
+        try:
+            header, _ = layout(sheet)
+        except EntryError:
+            if not independent:
+                raise
+            # Keep its exact sheet code in the inventory. Validation of this
+            # target will still reject its layout when an item selects it.
+            header = 1
         name = next((str(c.value).strip() for row in sheet.iter_rows(max_row=header-1)
                      for c in row if c.value is not None), sheet.title)
         short = key(sheet.title).rstrip('.')
@@ -63,13 +69,13 @@ def machines(book):
     return result
 
 
-def machine(book, entered):
+def machine(book, entered, *, independent=False):
     from tools.fleet.equipment_codes import canonical_input
     entered = canonical_input(entered)
     entered = key(entered)
     if not entered or len(entered) > 60:
         raise EntryError('کد دستگاه معتبر نیست.')
-    choices = [m for m in machines(book) if entered in
+    choices = [m for m in machines(book, independent=independent) if entered in
                {key(m['name']), m['canonical'], m['code'], key(m['sheet'])}]
     if len(choices) == 1:
         return choices[0]
@@ -94,11 +100,7 @@ def validate_text(value, limit=1800):
     return value.strip()
 
 
-def append_record(book, request, *, recorder=None):
-    selected = machine(book, request['canonical'])
-    if selected['sheet'] != request['sheet'] or selected['code'] != request['code']:
-        raise EntryError('شیت دستگاه تغییر کرده است؛ «تعمیرات» را دوباره باز کنید.')
-    sheet = book[selected['sheet']]
+def record_columns(sheet):
     header, columns = layout(sheet)
     recorded = [c.column for c in sheet[header] if key(c.value) == key('ثبت کننده')]
     if not recorded:
@@ -108,44 +110,59 @@ def append_record(book, request, *, recorder=None):
             recorded = [inspected['recorder_column']]
     if len(recorded) > 1:
         raise EntryError('ستون ثبت‌کننده تکراری است؛ قالب شیت باید بررسی شود.')
-    if not recorded and any(key(c.value) == key('ثبت کننده') for other in book if other is not sheet
+    if not recorded and any(key(c.value) == key('ثبت کننده') for other in sheet.parent if other is not sheet
                             for cells in other.iter_rows(max_row=min(10, other.max_row)) for c in cells):
         raise EntryError(f'عنوان ستون ثبت‌کننده در شیت «{sheet.title}» خالی است؛ ابتدا سربرگ فایل اصلاح شود.')
     if recorded:
-        validate_text(recorder, 200)
         columns = dict(columns, recorder=recorded[0])
+    return header, columns
+
+
+def append_record(book, request, *, recorder=None, independent=False):
+    selected = machine(book, request['canonical'], independent=independent)
+    if selected['sheet'] != request['sheet'] or selected['code'] != request['code']:
+        raise EntryError('شیت دستگاه تغییر کرده است؛ «تعمیرات» را دوباره باز کنید.')
+    sheet = book[selected['sheet']]
+    header, columns = record_columns(sheet)
+    if 'recorder' in columns:
+        validate_text(recorder, 200)
     occupied = [r for r in range(header + 1, sheet.max_row + 1)
                 if any(c.value is not None for c in sheet[r])]
     row = max(occupied, default=header) + 1
     if any(rng.min_row <= row <= rng.max_row for rng in sheet.merged_cells.ranges):
         raise EntryError('ردیف بعدی سلول ادغام‌شده دارد؛ قالب شیت باید بررسی شود.')
+    if row > 1048576:
+        raise EntryError('شیت دستگاه جای خالی برای ثبت ندارد.')
     template = max(occupied, default=header + 1)
     height = 24
+    values = {}
     for field, col in columns.items():
-        cell = sheet.cell(row, col)
-        copy_style(sheet.cell(template, col), cell)
         value = (recorder if field == 'recorder' else request.get('department', request[field])
                  if field == 'code' and key(sheet.title) == key('متفرقه') else request[field])
-        cell.value = None if value == '' else value
-        cell.data_type = 'n' if value == '' else 's'
-        cell.alignment = copy(cell.alignment)
-        cell.alignment = openpyxl.styles.Alignment(horizontal=cell.alignment.horizontal or 'right',
-                            vertical='center', wrap_text=True, readingOrder=2)
+        values[col] = value
+        sample = sheet.cell(template, col)
         # Excel has no stored automatic row-height calculation. Estimate using
         # this column's width and font size, including explicit newlines.
         # Indexing DimensionHolder creates a new column definition and can
         # override an existing grouped width. Measuring must not mutate it.
-        dimension = sheet.column_dimensions.get(cell.column_letter)
+        dimension = sheet.column_dimensions.get(sample.column_letter)
         if dimension is None:
             dimension = next((value for value in sheet.column_dimensions.values()
                               if (value.min or 0) <= col <= (value.max or 0)), None)
         width = (dimension.width if dimension is not None else sheet.sheet_format.defaultColWidth) or 13
-        size = cell.font.sz or 11
+        size = sample.font.sz or 11
         capacity = max(1, int((width - 2) * 11 / size))
         lines = sum(max(1, math.ceil(len(line) / capacity)) for line in str(value).split('\n'))
         height = max(height, lines * size * 1.5 + 8)
     if height > 409:
         raise EntryError('متن در یک ردیف اکسل جا نمی‌شود؛ آن را کوتاه‌تر یا در چند ثبت جدا وارد کنید.')
+    for col, value in values.items():
+        cell = sheet.cell(row, col)
+        copy_style(sheet.cell(template, col), cell)
+        cell.value = None if value == '' else value
+        cell.data_type = 'n' if value == '' else 's'
+        cell.alignment = openpyxl.styles.Alignment(horizontal=cell.alignment.horizontal or 'right',
+                            vertical='center', wrap_text=True, readingOrder=2)
     sheet.row_dimensions[row].height = height
     sheet.row_dimensions[row].hidden = False
     if sheet.print_area:
@@ -153,7 +170,7 @@ def append_record(book, request, *, recorder=None):
         sheet.print_area = re.sub(r'(\$[A-Z]+\$)(\d+)(?=,|$)',
                                  lambda m: m[1] + str(max(int(m[2]), row)), str(sheet.print_area))
     result = {**selected, 'date': request['date'], 'row': row}
-    if recorded:
+    if 'recorder' in columns:
         result['recorder'] = recorder
     return result
 
@@ -174,7 +191,7 @@ def commit(actor, request, *, config=CONFIG, runtime=RUNTIME, day=None):
             checked = identity.load(Path(settings['source']).read_bytes(), preserve=bool(codec))
             checked.close()
         saved = append_record(book, request, recorder=settings.get('recorder'))
-        if identity.active(book):
+        if identity.active(book) and not identity.historical(book):
             identity.attach(book, saved, request['operation'], 0)
         return saved
     return commit_workbook(actor, request, settings, mutate,

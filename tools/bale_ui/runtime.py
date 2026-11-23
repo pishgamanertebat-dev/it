@@ -119,6 +119,16 @@ def dispatch(event, gateway, *, send, bale_approved=False):
     if result is not None:
         return result
     raw = getattr(event, 'raw_message', None)
+    from tools.fleet.repairs.maintenance_report_policy import enabled as maintenance_reports_enabled
+    if (isinstance(raw,dict) and raw.get('bale_inline_callback') is True
+            and str(raw.get('data','')).startswith('ik:mreport:')):
+        if bale_approved and maintenance_reports_enabled():
+            from tools.fleet.repairs.maintenance_report_bale import _handler as automatic_maintenance
+            result = automatic_maintenance.handle(event,gateway,send=send)
+            if result is not None:
+                return result
+        send(gateway,str(event.source.chat_id),'این دکمه برای حساب شما در دسترس نیست.')
+        return {'action':'skip','reason':'maintenance-report-callback-denied'}
     if not (isinstance(raw, dict) and raw.get('bale_inline_callback') is True):
         from tools.fleet.repairs.entry_bale import normalized
         clean = normalized(event.text)
@@ -127,7 +137,6 @@ def dispatch(event, gateway, *, send, bale_approved=False):
         import time
         current_order = work_order.pending.get(('bale', actor, chat))
         order_open = bool(current_order and current_order.expires > time.time() and current_order.stage != 'RESULT')
-        from tools.fleet.repairs.maintenance_report_policy import enabled as maintenance_reports_enabled
         if bale_approved and not order_open and maintenance_reports_enabled():
             from tools.fleet.repairs.maintenance_report_bale import _handler as automatic_maintenance
             result = automatic_maintenance.handle(event,gateway,send=send)

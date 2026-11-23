@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import logging
 import os
 import secrets
 import sqlite3
@@ -10,6 +11,8 @@ from pathlib import Path
 
 
 DB_PATH = Path(r"E:\KomatsoAI\reports\telegram_usage\telegram_users.db")
+
+_HISTORICAL_OWNER_TASKS = set()
 
 REQUEST_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
 
@@ -1591,6 +1594,54 @@ def _apply_developer_conversation_policy(event):
         )
 
 
+def _handle_historical_owner_approval(event, gateway):
+    prefix = 'ثبت نهایی گزارش‌های کرمعلی '
+    if not (event.text or '').startswith(prefix):
+        return None
+    handled = {'action': 'skip', 'reason': 'maintenance-historical-owner-approval'}
+    logger = logging.getLogger(__name__)
+    source = event.source
+
+    def allowed():
+        if not source.user_id or str(source.user_id) not in _admin_ids():
+            return False
+        try:
+            _transport_pairing_store(gateway, source)
+        except PermissionError:
+            return False
+        return True
+
+    if not allowed():
+        return handled
+    try:
+        import tools as tools_package
+        project_tools = r"E:\KomatsoAI\tools"
+        if project_tools not in tools_package.__path__:
+            tools_package.__path__.append(project_tools)
+        from tools.fleet.repairs.maintenance_history_bridge import approval_for_event, run_worker
+        approval = approval_for_event(event, allowed)
+    except PermissionError:
+        return handled
+    except Exception:
+        logger.exception('Historical maintenance owner route unavailable')
+        return handled
+
+    async def commit():
+        try:
+            receipts = await run_worker(approval, owner_allowed=allowed)
+            logger.info('Verified historical maintenance Writer receipts: %s', receipts)
+        except Exception:
+            logger.exception('Historical maintenance owner write requires journal review')
+
+    task = asyncio.get_running_loop().create_task(commit())
+    _HISTORICAL_OWNER_TASKS.add(task)
+    task.add_done_callback(_HISTORICAL_OWNER_TASKS.discard)
+    track = getattr(gateway, "_track_deferred_agent_worker", None)
+    if callable(track):
+        track(task, None)
+    return handled
+
+
 def _handle_bale(event, gateway, **kwargs):
     _apply_developer_conversation_policy(event)
     source = event.source
@@ -1613,6 +1664,10 @@ def _handle_bale(event, gateway, **kwargs):
 
     if not user_id or not chat_id:
         return None
+
+    historical = _handle_historical_owner_approval(event, gateway)
+    if historical is not None:
+        return historical
 
     text = (event.text or "").strip()
 

@@ -1,13 +1,15 @@
 """One-workbook coordinated publication candidate for the existing Sync job.
 
-Only local isolated fixtures are allowed in this revision. There is deliberately
-no production/UNC transport: a hash check plus ReplaceFileW is not SMB CAS.
+Production paths remain denied. Owner-contract UAT additionally permits one
+private test Share; a hash check plus ReplaceFileW is not SMB CAS.
 """
 from contextlib import closing
 from datetime import datetime, timezone
 import json
 import os
 import sqlite3
+import subprocess
+import sys
 from pathlib import Path
 import uuid
 from zoneinfo import ZoneInfo
@@ -22,6 +24,16 @@ from .maintenance_sync import retain_snapshot
 
 CANDIDATE_ROOT = ROOT / 'runtime/maintenance-coordinated-candidate'
 WORKBOOK = 'تعمیرات 1405.xlsx'
+OWNER_LUNCH_CONTRACT = 'owner_lunch_1200_1300_v1'
+SMB_UAT_ROOT = Path(r'\\192.168.20.251\share\_smb_test_20261116_155948')
+
+
+def contract_test_upstream(path, value):
+    import re
+    return (value.get('operating_contract') == OWNER_LUNCH_CONTRACT
+            and value.get('policy') == 'daily_1230'
+            and path.name == WORKBOOK and path.parent.parent == SMB_UAT_ROOT
+            and re.fullmatch(r'komatso_contract_[0-9a-f]{32}', path.parent.name) is not None)
 
 
 def options(settings):
@@ -29,10 +41,13 @@ def options(settings):
     if value.get('enabled', False) is False:
         return None
     if (value.get('enabled') is not True or value.get('mode') != 'isolated_candidate'
-            or set(value) - {'enabled', 'mode', 'isolation_root', 'publication_window', 'policy', 'alert_owner'}
+            or set(value) - {'enabled', 'mode', 'isolation_root', 'publication_window', 'policy', 'alert_owner', 'operating_contract'}
             or not {'enabled', 'mode', 'isolation_root', 'publication_window'} <= set(value)):
         raise EntryError('PUBLICATION_CONFIG_INVALID')
     if value.get('policy') not in (None, 'daily_1230'):
+        raise EntryError('PUBLICATION_CONFIG_INVALID')
+    if ('operating_contract' in value
+            and (value['operating_contract'] != OWNER_LUNCH_CONTRACT or value.get('policy') != 'daily_1230')):
         raise EntryError('PUBLICATION_CONFIG_INVALID')
     if value.get('policy') == 'daily_1230' and value['publication_window'] != {'start':'12:30', 'end':'12:55'}:
         raise EntryError('PUBLICATION_WINDOW_INVALID')
@@ -46,7 +61,8 @@ def isolated_paths(settings, upstream, runtime, staged, config):
         raise EntryError('PUBLICATION_ISOLATION_REQUIRED')
     paths = [Path(p) for p in (settings['source'], upstream, runtime, staged, config)]
     for path in paths:
-        if not path.resolve(strict=True).is_relative_to(root):
+        if (not path.resolve(strict=True).is_relative_to(root)
+                and not (path == Path(upstream) and contract_test_upstream(path, value))):
             raise EntryError('PUBLICATION_PRODUCTION_PATH_DENIED')
         if any(p.is_symlink() or (hasattr(p, 'is_junction') and p.is_junction())
                for p in (path, *path.parents) if p != root.parent):
@@ -78,6 +94,9 @@ def writer_codec(config, runtime):
     """The same append-only Writer, with a codec only in the isolated daily mode."""
     settings = json.loads(Path(config).read_text('utf8'))
     value = options(settings)
+    if value is None and settings.get('sync_policy') == 'upstream_copy':
+        from .maintenance_history_sync import writer_codec as inbound_writer_codec
+        return inbound_writer_codec(settings['source'], runtime)
     if value is None or value.get('policy') != 'daily_1230':
         return {}
     root = Path(value['isolation_root']).resolve(strict=True)
@@ -90,7 +109,24 @@ def writer_codec(config, runtime):
         if any(p.is_symlink() or (hasattr(p,'is_junction') and p.is_junction()) for p in (path,*path.parents)):
             raise EntryError('PUBLICATION_REPARSE_DENIED')
     from .maintenance_ooxml import read, dump
-    return dict(workbook_reader=read, workbook_dumper=dump)
+
+    def read_for_writer(data):
+        book = read(data)
+        if not book._maintenance_excel_notes:
+            return book
+        try:
+            # The Writer holds the same lock as Sync. Accept native identities
+            # only on the exact local version already proven by the Journal.
+            with closing(open_audit(runtime)) as db:
+                if journal_branch(db, paths[-1].resolve(), data, runtime,
+                                  upstream_copy=True, coordinated=True) is None:
+                    raise EntryError('PUBLICATION_APPROVED_BASELINE_REQUIRED')
+            return book
+        except BaseException:
+            book.close()
+            raise
+
+    return dict(workbook_reader=read_for_writer, workbook_dumper=dump)
 
 
 def schema(db):
@@ -172,7 +208,45 @@ def proof_workbook(data, *, preserve=False):
         return book
 
 
+# Exact private-share method accepted in chunked-20261117. This only writes a
+# new Stage. It grants no UNC path, exclusion, publication or retry authority.
+SMB_STAGE_TIMEOUT = 120
+SMB_STAGE_WORKER = r"""
+import hashlib, os, pathlib, sys
+payload = sys.stdin.buffer.read()
+if hashlib.sha256(payload).hexdigest() != sys.argv[2]:
+    raise SystemExit(2)
+path = pathlib.Path(sys.argv[1])
+with path.open('xb', buffering=0) as stream:
+    for offset in range(0, len(payload), 1024):
+        chunk = payload[offset:offset + 1024]
+        if stream.write(chunk) != len(chunk):
+            raise SystemExit(3)
+        stream.flush()
+        os.fsync(stream.fileno())
+if hashlib.sha256(path.read_bytes()).hexdigest() != sys.argv[2]:
+    raise SystemExit(4)
+"""
+
+
 def stage_bytes(path, data):
+    if str(path).startswith('\\\\'):
+        import re
+        if not re.fullmatch(r'\.maintenance-publish-[0-9a-f]{32}\.partial', path.name):
+            raise EntryError('PUBLICATION_STAGE_NAME_DENIED')
+        # The child bounds Create/Write/Flush/Close AND full readback. A killed
+        # child leaves an untrusted private Stage; Replace is never reached.
+        try:
+            result = subprocess.run([sys.executable, '-B', '-c', SMB_STAGE_WORKER,
+                                     str(path), digest(data)], input=data,
+                                    capture_output=True, timeout=SMB_STAGE_TIMEOUT)
+        except subprocess.TimeoutExpired as exc:
+            raise EntryError('PUBLICATION_STAGE_TIMEOUT') from exc
+        if result.returncode:
+            code = ('PUBLICATION_STAGE_READBACK_FAILED' if result.returncode == 4
+                    else 'PUBLICATION_STAGE_WRITE_FAILED')
+            raise EntryError(code)
+        return
     with path.open('xb') as stream:
         stream.write(data)
         stream.flush()
@@ -212,14 +286,19 @@ def observe_pending(db, operations, reason='', *, critical=False):
 
 
 @contextmanager
-def publication_exclusion(upstream):
-    """No reliable server-side exclusion adapter has been accepted yet.
+def publication_exclusion(upstream, *, value=None):
+    """Owner accepted no human writers, closed Excel, noon to 13:00.
 
-    A lunch window, owner file, hash, or local deny-delete handle cannot
-    authorize Replace. Never provide a configuration flag that bypasses this.
-    An implementation requires exact-share/service-identity SMB UAT first.
+    This explicit operating contract is not a server-side exclusion claim.
+    Existing Writer lock, owner-file, destination hash, window and readback
+    checks still apply. Without the contract, retain the original guard.
+    Production remains denied separately by isolated_paths().
     """
-    raise EntryError('PUBLICATION_SMB_EXCLUSION_UNVERIFIED')
+    if (not value or value.get('operating_contract') != OWNER_LUNCH_CONTRACT
+            or value.get('policy') != 'daily_1230'):
+        raise EntryError('PUBLICATION_SMB_EXCLUSION_UNVERIFIED')
+    if not window_open(value):
+        raise EntryError('PUBLICATION_DEFERRED_WINDOW_CLOSED')
     yield
 
 
@@ -334,9 +413,8 @@ def cycle_locked(db, source, upstream, incoming, runtime, value):
                                       dict(_kind=KIND, operation=uuid.uuid4().hex), result, runtime=runtime)
             return result
         if remote_change:
-            # Fail before intent/Stage/Replace without proven exclusion. The
-            # same lease must cover final snapshot through readback and ack.
-            with publication_exclusion(upstream):
+            # Explicit owner contract or the original fail-closed exclusion gate.
+            with publication_exclusion(upstream, value=value):
                 return publish_locked(db, source, upstream, original, incoming, candidate, runtime,
                                       value, specs, final_ids, pending, state, remote_change)
     return publish_locked(db, source, upstream, original, incoming, candidate, runtime,
@@ -418,7 +496,11 @@ def publish_locked(db, source, upstream, original, incoming, candidate, runtime,
         transition(db, publication, 'uncertain' if replace_attempted and not definite_lock_failure else 'deferred', str(exc))
         raise
     finally:
-        temporary.unlink(missing_ok=True)
+        # UNC failures retain only the UUID Stage for explicit recovery. Do not
+        # perform an unbounded SMB unlink after a timeout/unknown network result.
+        # Successful Replace consumes Stage. Existing local cleanup is unchanged.
+        if not str(temporary).startswith('\\\\'):
+            temporary.unlink(missing_ok=True)
 
 
 def poll_existing_tick(sync_status, *, config=None, runtime=None):

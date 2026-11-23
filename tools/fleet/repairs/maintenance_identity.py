@@ -21,7 +21,9 @@ from .maintenance_baseline import digest, encoded, states, xml
 
 MARKER = '_KOMATSO_MAINTENANCE_RECORDS_V1'
 VERSION = '"row-notes-v1"'
+HISTORICAL_VERSION = '"historical-owner-row-notes-v1"'
 AUTHOR = 'KOMATSO-MAINTENANCE-V1'
+EXCEL_AUTHOR = 'Author'
 PREFIX = 'KOMATSO-MAINTENANCE-V1\n'
 NAMESPACE = uuid.UUID('da670f71-ecaf-4f70-87a0-d3c0de57f7ce')
 
@@ -30,14 +32,19 @@ def active(book):
     name = book.defined_names.get(MARKER)
     if name is None:
         return False
-    if name.attr_text != VERSION or name.hidden is not True:
+    if name.attr_text not in (VERSION, HISTORICAL_VERSION) or name.hidden is not True:
         raise EntryError('IDENTITY_SCHEMA_INVALID')
     return True
 
 
-def enable(book):
+def historical(book):
+    return active(book) and book.defined_names[MARKER].attr_text == HISTORICAL_VERSION
+
+
+def enable(book, *, historical_scope=False):
     if not active(book):
-        book.defined_names.add(DefinedName(MARKER, attr_text=VERSION, hidden=True))
+        version = HISTORICAL_VERSION if historical_scope else VERSION
+        book.defined_names.add(DefinedName(MARKER, attr_text=version, hidden=True))
 
 
 def row_hash(sheet, row):
@@ -65,6 +72,8 @@ def attach(book, saved, operation, group):
 
 def inventory(book, *, preserve_notes=False):
     found = {}
+    scoped = historical(book)
+    excel_notes = getattr(book, '_maintenance_excel_notes', {}) if preserve_notes else {}
     for sheet in book:
         if active(book) and sheet.page_setup.cellComments not in (None, 'none'):
             raise EntryError('IDENTITY_NOTES_PRINTING_UNSUPPORTED')
@@ -74,7 +83,8 @@ def inventory(book, *, preserve_notes=False):
             note = cell.comment
             if not note:
                 continue
-            if note.author != AUTHOR or not note.text.startswith(PREFIX):
+            excel_note = note.author == EXCEL_AUTHOR and excel_notes.get((sheet.title, cell.coordinate)) == note.text
+            if (note.author != AUTHOR and not excel_note) or not note.text.startswith(PREFIX):
                 if preserve_notes and note.author != AUTHOR and not note.text.startswith(PREFIX):
                     continue
                 raise EntryError('UNSUPPORTED_EXISTING_NOTE')
@@ -86,6 +96,7 @@ def inventory(book, *, preserve_notes=False):
                          and type(item['group']) is int and item['group'] >= 0
                          and item['id'] == expected and item['sheet'] == sheet.title
                          and cell.column == columns['date'] and cell.row > header
+                         and (not (excel_note or scoped) or note.text == PREFIX + encoded(item))
                          and item['row_sha256'] == row_hash(sheet, cell.row))
             except (KeyError, ValueError, TypeError):
                 valid = False

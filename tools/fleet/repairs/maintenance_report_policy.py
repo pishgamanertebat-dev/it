@@ -24,8 +24,12 @@ def permission(actor, chat, *, config=CONFIG, entry_config=None):
     return dict(policy, source=target['source'], recorder=name)
 
 
-def enabled():
+def enabled(config=CONFIG):
     try:
-        return json.loads(CONFIG.read_text('utf8')).get('enabled') is True
+        return json.loads(Path(config).read_text('utf8')).get('enabled') is True
     except (OSError, ValueError):
         return False
+
+
+def partial_enabled(settings):
+    return settings['scope'] == 'all' and settings.get('partial_confirmation') is True

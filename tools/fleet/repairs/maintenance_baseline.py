@@ -381,6 +381,14 @@ def sync_from_baseline(db, source, original, incoming, runtime, *, reviewed_chan
         return None
     state, mine_hash, protected, report_batches = branch
     current_hash, incoming_hash = digest(original), digest(incoming)
+    owner_notes = {}
+    if upstream_copy:
+        from .maintenance_history_sync import receipts, inventory
+        owner_notes = receipts(db, source)
+        if owner_notes:
+            from .maintenance_identity import load
+            with closing(load(original, preserve=True)) as book:
+                inventory(book, owner_notes)
     if incoming_hash == mine_hash:
         return dict(status='unchanged', hash=current_hash, mine_hash=mine_hash,
                     protected_operations=protected, baseline=state['event_id'])
@@ -404,7 +412,12 @@ def sync_from_baseline(db, source, original, incoming, runtime, *, reviewed_chan
                     protected_operations=protected, baseline=state['event_id'],
                     upstream_identity_unacknowledged=True)
     base_data = snapshot(runtime, mine_hash)
-    if current_hash == mine_hash and upstream_copy and reviewed_change is None:
+    if owner_notes:
+        from .maintenance_history_sync import reconcile
+        if reviewed_change is not None or len(report_batches) != len(protected):
+            raise EntryError('HISTORICAL_SYNC_REVIEW_REQUIRED')
+        candidate, changed, positions = reconcile(base_data, original, incoming, report_batches, owner_notes)
+    elif current_hash == mine_hash and upstream_copy and reviewed_change is None:
         # A pure copy must not depend on the report parser's header/layout
         # contract. Validate the package, then preserve all upstream bytes.
         with zipfile.ZipFile(io.BytesIO(incoming)) as archive:

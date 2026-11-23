@@ -11,6 +11,9 @@ import sqlite3
 import zipfile
 import unittest
 from unittest.mock import Mock, patch
+import uuid
+from xml.etree import ElementTree as ET
+from xml.sax.saxutils import escape
 from zoneinfo import ZoneInfo
 
 from . import maintenance_publication as pub, maintenance_publication_alerts as notices
@@ -272,6 +275,87 @@ class DailyTests(unittest.TestCase):
         after=ooxml.package(output)
         self.assertEqual(after['xl/unknown-setting.xml'],parts['xl/unknown-setting.xml'])
         self.assertIn(b'<r><rPr><b/></rPr><t>KEEP-ME</t></r>',after[name])
+
+    def test_native_note_requires_exact_wrapper_anchor_and_journal(self):
+        f = self.fixture()
+        cfg = json.loads(f.config.read_text('utf8'))
+        cfg['outbound_publication']['operating_contract'] = pub.OWNER_LUNCH_CONTRACT
+        f.config.write_text(json.dumps(cfg), 'utf8')
+        f.ai()
+        self.assertEqual(self.tick(f, '12:30:00')['status'], 'merged')
+        parts = ooxml.package(f.mine.read_bytes())
+        original = 'xl/comments/comment1.xml'
+        native = 'xl/comments1.xml'
+        rels = 'xl/worksheets/_rels/sheet1.xml.rels'
+        parts[rels] = parts[rels].replace(b'/xl/comments/comment1.xml', b'../comments1.xml')
+        types = '[Content_Types].xml'
+        parts[types] = parts[types].replace(b'/xl/comments/comment1.xml', b'/xl/comments1.xml')
+        worksheet = 'xl/worksheets/sheet1.xml'
+        unknown = b'xmlns:uat="urn:komatso:uat" uat:setting="preserve"'
+        parts[worksheet] = parts[worksheet].replace(b'<dimension ', b'<dimension ' + unknown + b' ')
+        comments = ET.fromstring(parts.pop(original))
+        q = '{' + ooxml.MAIN + '}'
+        note = comments.find(f'{q}commentList/{q}comment')
+        payload = note.findtext(f'{q}text/{q}t')
+        parts[native] = (
+            f'<comments xmlns="{ooxml.MAIN}" xmlns:xr="http://schemas.microsoft.com/office/spreadsheetml/2014/revision">'
+            '<authors><author>Author</author></authors><commentList>'
+            f'<comment ref="{note.attrib["ref"]}" authorId="0" shapeId="0" '
+            'xr:uid="{00000000-0006-0000-0400-000001000000}">'
+            '<text><r><rPr><sz val="11"/><color theme="1"/><rFont val="Calibri"/>'
+            f'<family val="2"/><scheme val="minor"/></rPr><t>{escape(payload)}</t></r></text>'
+            '</comment></commentList></comments>').encode()
+
+        def workbook(replacements):
+            output = io.BytesIO()
+            with zipfile.ZipFile(output, 'w') as archive:
+                for name, content in (parts | replacements).items():
+                    archive.writestr(name, content)
+            return output.getvalue()
+
+        native_data = workbook({})
+        changed_identity = json.loads(payload[len(identity.PREFIX):])
+        changed_identity['operation'] = 'f'*32
+        changed_identity['id'] = uuid.uuid5(identity.NAMESPACE, 'f'*32 + ':0:710').hex
+        drawing = 'xl/drawings/commentsDrawing1.vml'
+        comment_xml = parts[native]
+        before = f.local.read_bytes()
+        for replacements, error in (
+            ({native:comment_xml.replace(b'Calibri', b'Arial')}, 'UNSUPPORTED_EXISTING_NOTE'),
+            ({drawing:parts[drawing].replace(b'visibility:hidden', b'visibility:visible')}, 'UNSUPPORTED_EXISTING_NOTE'),
+            ({drawing:parts[drawing].replace(b':Row>3<', b':Row>4<')}, 'UNSUPPORTED_EXISTING_NOTE'),
+            ({native:comment_xml.replace(payload.encode(), (identity.PREFIX + base.encoded(changed_identity)).encode())},
+             'IDENTITY_UNKNOWN_OR_CHANGED'),
+            ({native:comment_xml.replace(b'<commentList>', b'<commentList>' + ooxml.elements(comment_xml, 'comment')[0].group())},
+             'IDENTITY_DUPLICATE'),
+            ({native:comment_xml.replace(payload.encode(), b'Human note')}, 'IDENTITY_PUBLISHED_RECORD_MISSING'),
+            ({native:comment_xml.replace(b'"row_sha256":"', b'"row_sha256":"0')}, 'IDENTITY_ROW_CHANGED_OR_MOVED'),
+            ({native:comment_xml.replace(b'{"group":', b'{ "group":')}, 'IDENTITY_ROW_CHANGED_OR_MOVED'),
+        ):
+            with self.subTest(error=error):
+                fake = workbook(replacements)
+                self.assertNotEqual(fake, native_data)
+                f.mine.write_bytes(fake)
+                with self.assertRaisesRegex(Exception, error):
+                    self.tick(f, '12:30:00')
+                self.assertEqual(f.local.read_bytes(), before)
+                self.assertEqual(f.mine.read_bytes(), fake)
+
+        f.local.write_bytes(native_data)
+        with self.assertRaisesRegex(Exception, 'UNJOURNALED_LOCAL_CHANGE'):
+            f.ai('UNVERIFIED-LOCAL', 'test:unverified-local')
+        self.assertEqual(f.local.read_bytes(), native_data)
+        f.local.write_bytes(before)
+        f.mine.write_bytes(native_data)
+        self.assertEqual(self.tick(f, '12:30:00')['status'], 'imported')
+        f.ai('AFTER-SAVE-AS', 'test:after-save-as')
+        self.assertEqual(self.tick(f, '12:30:00')['status'], 'merged')
+        saved = f.mine.read_bytes()
+        self.assertEqual(self.tick(f, '12:32:00')['status'], 'unchanged')
+        self.assertEqual(f.mine.read_bytes(), saved)
+        after = ooxml.package(saved)
+        self.assertIn(ooxml.elements(comment_xml, 'comment')[0].group(), after[native])
+        self.assertIn(unknown, after[worksheet])
 
     def test_native_63_sheets_append_25_migrate_and_all_parts_retained(self):
         evidence=json.loads((previous.ROOT/'reports/sync/AI-EXCEL-SYNC-TESTS.json').read_text('utf8'))

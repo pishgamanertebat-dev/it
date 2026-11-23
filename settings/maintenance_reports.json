@@ -4,7 +4,18 @@
     "1732374823": {
       "department": "تعمیرگاه",
       "mechanic": "اکیپ مکانیکی",
-      "scope": "all"
+      "scope": "all",
+      "partial_confirmation": true,
+      "historical_recovery": {
+        "bale:7949": {
+          "date": "1405/08/27",
+          "raw_sha256": "d3c0a644384fb3ef6ed702788d3ac184a4bf3a7bc2a69868f46534e0d9177e6e"
+        },
+        "bale:8009": {
+          "date": "1405/08/28",
+          "raw_sha256": "f67ada7734a6352e1e4d347fc6e6dd84fd13d13d8499f6a90a37accdaeea5343"
+        }
+      }
     },
     "654806764": {
       "department": "تعمیرگاه",

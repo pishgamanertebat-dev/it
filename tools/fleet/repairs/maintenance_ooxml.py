@@ -20,6 +20,10 @@ from .maintenance_baseline import states, xml
 
 MAIN = 'http://schemas.openxmlformats.org/spreadsheetml/2006/main'
 REL = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/'
+Q = '{' + MAIN + '}'
+REVISION_UID = '{http://schemas.microsoft.com/office/spreadsheetml/2014/revision}uid'
+VML = '{urn:schemas-microsoft-com:vml}'
+EXCEL = '{urn:schemas-microsoft-com:office:excel}'
 
 
 def package(data):
@@ -45,6 +49,91 @@ def resolve(part, target):
     return target.lstrip('/') if target.startswith('/') else posixpath.normpath(posixpath.join(posixpath.dirname(part), target))
 
 
+def sheet_relationship_path(sheet_path):
+    return posixpath.join(posixpath.dirname(sheet_path), '_rels', posixpath.basename(sheet_path)+'.rels')
+
+
+def excel_note_text(node):
+    """Recognize the Excel Save As wrapper around the original identity text."""
+    if (set(node.attrib) != {'ref', 'authorId', 'shapeId', REVISION_UID}
+            or node.get('shapeId') != '0'
+            or not re.fullmatch(r'\{[0-9A-Fa-f]{8}(?:-[0-9A-Fa-f]{4}){3}-[0-9A-Fa-f]{12}\}', node.get(REVISION_UID, ''))
+            or [child.tag for child in node] != [Q + 'text']):
+        return None
+    text = node[0]
+    if text.attrib or [child.tag for child in text] != [Q + 'r']:
+        return None
+    run = text[0]
+    if run.attrib or [child.tag for child in run] != [Q + 'rPr', Q + 't']:
+        return None
+    properties, payload = run
+    if (properties.attrib or payload.attrib or len(payload) or any(len(prop) for prop in properties)
+            or [(p.tag, p.attrib) for p in properties] != [
+                (Q + 'sz', {'val': '11'}), (Q + 'color', {'theme': '1'}),
+                (Q + 'rFont', {'val': 'Calibri'}), (Q + 'family', {'val': '2'}),
+                (Q + 'scheme', {'val': 'minor'})]
+            or any((e.text or '').strip() for e in (node, text, run, properties, *properties))
+            or any((e.tail or '').strip() for e in node.iter() if e is not node)):
+        return None
+    return payload.text
+
+
+def excel_note_anchors(parts, sheet_path, rels):
+    legacy = ET.fromstring(parts[sheet_path]).find(Q + 'legacyDrawing')
+    drawings = [r for r in rels if r.get('Type') == REL + 'vmlDrawing']
+    if (len(drawings) != 1 or legacy is None or drawings[0].get('TargetMode') == 'External'
+            or legacy.get('{' + REL[:-1] + '}id') != drawings[0].get('Id')):
+        raise EntryError('UNSUPPORTED_EXISTING_NOTE')
+    anchors = {}
+    for shape in ET.fromstring(parts[resolve(sheet_path, drawings[0].attrib['Target'])]).iter(VML + 'shape'):
+        for client in shape.findall(EXCEL + 'ClientData'):
+            if client.get('ObjectType') != 'Note':
+                continue
+            anchor = (client.findtext(EXCEL + 'Column'), client.findtext(EXCEL + 'Row'))
+            flags = dict(re.findall(r'([\w-]+)\s*:\s*([^;]+)', shape.get('style', '')))
+            anchors[anchor] = (anchor not in anchors and flags.get('visibility', '').strip() == 'hidden'
+                               and client.find(EXCEL + 'Visible') is None
+                               and client.find(EXCEL + 'MoveWithCells') is not None
+                               and client.find(EXCEL + 'SizeWithCells') is not None)
+    return anchors
+
+
+def excel_notes(book, parts):
+    from . import maintenance_identity as identity
+    found = {}
+    for title, path in sheet_paths(parts).items():
+        sheet = book[title]
+        candidates = {c.coordinate: c.comment.text for c in sheet._cells.values()
+                      if c.comment and c.comment.author == identity.EXCEL_AUTHOR
+                      and c.comment.text.startswith(identity.PREFIX)}
+        if not candidates:
+            continue
+        rels = ET.fromstring(parts[sheet_relationship_path(path)])
+        comments = [r for r in rels if r.get('Type') == REL + 'comments']
+        if len(comments) != 1 or comments[0].get('TargetMode') == 'External':
+            raise EntryError('UNSUPPORTED_EXISTING_NOTE')
+        raw = ET.fromstring(parts[resolve(path, comments[0].attrib['Target'])])
+        authors = raw.find(Q + 'authors')
+        nodes = {}
+        for node in raw.findall(f'{Q}commentList/{Q}comment'):
+            coordinate = node.get('ref')
+            if coordinate in candidates:
+                if coordinate in nodes:
+                    raise EntryError('IDENTITY_DUPLICATE')
+                nodes[coordinate] = node
+        anchors = excel_note_anchors(parts, path, rels)
+        for coordinate, payload in candidates.items():
+            node = nodes.get(coordinate)
+            cell = sheet[coordinate]
+            author = node.get('authorId', '') if node is not None else ''
+            if (not re.fullmatch(r'[0-9]+', author) or int(author) >= len(authors)
+                    or authors[int(author)].text != identity.EXCEL_AUTHOR or excel_note_text(node) != payload
+                    or not anchors.get((str(cell.column-1), str(cell.row-1)))):
+                raise EntryError('UNSUPPORTED_EXISTING_NOTE')
+            found[(title, coordinate)] = payload
+    return found
+
+
 def read(data):
     from . import maintenance_identity as identity
     parts = package(data)
@@ -53,7 +142,18 @@ def read(data):
         warnings.simplefilter('error')
         book = openpyxl.load_workbook(io.BytesIO(data))
     try:
+        # Decode cell-local evidence only. Sync matches it against the verified
+        # Journal branch before accepting the workbook as input.
+        book._maintenance_excel_notes = excel_notes(book, parts)
         identity.inventory(book, preserve_notes=True)
+        if identity.historical(book):
+            for title, path in sheet_paths(parts).items():
+                cells = [c for c in book[title]._cells.values()
+                         if c.comment and c.comment.text.startswith(identity.PREFIX)]
+                if cells:
+                    anchors = excel_note_anchors(parts, path, ET.fromstring(parts[sheet_relationship_path(path)]))
+                    if any(not anchors.get((str(c.column-1), str(c.row-1))) for c in cells):
+                        raise EntryError('HISTORICAL_NOTE_ANCHOR_INVALID')
         book._maintenance_package = data
         book._maintenance_before = states(book)
         book._maintenance_controls = (deepcopy(dict(book.defined_names)), xml(book.security), xml(book.calculation), xml(book.properties))
@@ -82,6 +182,29 @@ def close_insert(raw, tag, addition):
 
 def elements(raw, tag):
     return list(re.finditer(rb'<'+tag.encode()+rb'\b[^>]*?(?:/>|>.*?</'+tag.encode()+rb'>)', raw, re.S))
+
+
+def sheet_rows(raw):
+    # Parse the whole part so Excel prefixes on row/cell attributes stay in scope.
+    nodes = ET.fromstring(raw).findall(f'{Q}sheetData/{Q}row')
+    spans = elements(raw, 'row')
+    if len(nodes) != len(spans):
+        raise EntryError('OOXML_ROW_SPAN_INVALID')
+    by_number = {}
+    number = 0
+    for node, span in zip(nodes, spans):
+        number = int(node.get('r', number+1))
+        by_number[number] = node, span.group()
+    if len(by_number) != len(spans):
+        raise EntryError('OOXML_ROW_SPAN_INVALID')
+    return by_number
+
+
+def cell_coordinate(raw):
+    match = re.search(rb'\sr=([\'\"])([A-Z]+[0-9]+)\1', raw.split(b'>', 1)[0])
+    if not match:
+        raise EntryError('OOXML_CELL_SPAN_INVALID')
+    return match[2].decode()
 
 
 def attr(raw, name, value):
@@ -115,10 +238,10 @@ def append_styles(original, generated):
     return raw
 
 
-def notes(parts, updates, sheet_path, additions):
+def notes(parts, updates, sheet_path, additions, *, row_bound=False):
     """Append new plain identity notes; keep existing rich Note and VML bytes."""
     from . import maintenance_identity as identity
-    relpath = posixpath.join(posixpath.dirname(sheet_path), '_rels', posixpath.basename(sheet_path)+'.rels')
+    relpath = sheet_relationship_path(sheet_path)
     relraw = parts.get(relpath, b'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"></Relationships>')
     reltree = ET.fromstring(relraw)
     comments = [r for r in reltree if r.attrib.get('Type') == REL+'comments']
@@ -132,6 +255,13 @@ def notes(parts, updates, sheet_path, additions):
     generated = package(stream.getvalue())
     template_comments = generated['xl/comments/comment1.xml']
     template_vml = generated['xl/drawings/commentsDrawing1.vml']
+    if row_bound:
+        drawing = ET.fromstring(template_vml)
+        for client in drawing.iter(EXCEL + 'ClientData'):
+            for index, tag in enumerate(('MoveWithCells', 'SizeWithCells')):
+                if client.find(EXCEL + tag) is None:
+                    client.insert(index, ET.Element(EXCEL + tag))
+        template_vml = ET.tostring(drawing)
     if comments:
         cp, vp = resolve(sheet_path, comments[0].attrib['Target']), resolve(sheet_path, vml[0].attrib['Target'])
         cr, vr = parts[cp], parts[vp]
@@ -144,13 +274,14 @@ def notes(parts, updates, sheet_path, additions):
         added_comments = b''.join(re.sub(rb'authorId="0"', b'authorId="'+str(index).encode()+b'"', m.group())
                                   for m in elements(template_comments, 'comment'))
         cr = close_insert(cr, 'commentList', added_comments)
-        shapes = re.findall(rb'<[^:>]+:shape\b.*?</[^:>]+:shape>', template_vml, re.S)
+        shapes = ET.fromstring(template_vml).findall(VML + 'shape')
         if not shapes:
             raise EntryError('OOXML_NOTE_VML_UNSUPPORTED')
-        # Generated shapes bring their namespace declarations; preserve originals.
+        # Serialize only new shapes with their own namespace declarations.
         maximum = max([1024]+[int(n) for n in re.findall(rb'_x0000_s(\d+)', vr)])
-        additions_vml = b''.join(re.sub(rb'_x0000_s\d+', ('_x0000_s'+str(maximum+i+1)).encode(), s)
-                                 for i, s in enumerate(shapes))
+        for index, shape in enumerate(shapes, start=maximum+1):
+            shape.set('id', f'_x0000_s{index}')
+        additions_vml = b''.join(ET.tostring(shape) for shape in shapes)
         vr = once(vr, b'</xml>', additions_vml+b'</xml>')
         updates[cp], updates[vp] = cr, vr
     else:
@@ -230,33 +361,35 @@ def dump(book):
                 note_additions.append((coordinate, cell.comment))
         rows = {sheet[c].row for c in changed if sheet[c].row > last}
         path = paths[title]; raw = parts[path]
+        if rows:
+            original_rows = sheet_rows(raw)
+            new_rows = sheet_rows(generated[genpaths[title]])
         for row in sorted(rows):
-            found = [m for m in elements(raw, 'row') if ET.fromstring(m.group()).attrib.get('r') == str(row)]
-            fresh = [m.group() for m in elements(generated[genpaths[title]], 'row')
-                     if ET.fromstring(m.group()).attrib.get('r') == str(row)]
-            if len(fresh) != 1 or len(found) > 1: raise EntryError('OOXML_ROW_SPAN_INVALID')
-            if found:
-                old = found[0].group(); tree = ET.fromstring(old)
-                if any(e.tag.rsplit('}', 1)[-1] not in {'row','c','v','is','t'} for e in tree.iter()):
+            if row not in new_rows:
+                raise EntryError('OOXML_ROW_SPAN_INVALID')
+            fresh_tree, fresh = new_rows[row]
+            if row in original_rows:
+                tree, old = original_rows[row]
+                if any(e.tag not in {Q+t for t in ('row', 'c', 'v', 'is', 't')} for e in tree.iter()):
                     raise EntryError('OOXML_UNKNOWN_CONTENT_IN_APPEND_ROW')
                 # Keep row attributes, including revision identifiers and spans.
                 opening = old.split(b'>',1)[0].rstrip(b'/')+b'>'
-                for key, val in ET.fromstring(fresh[0]).attrib.items():
+                for key, val in fresh_tree.attrib.items():
                     if key in {'ht','customHeight','hidden'}: opening = attr(opening, key, val)
                 # Keep existing blank cells and unknown attributes byte-for-byte;
                 # replace only cells receiving new operational content/style.
                 content = old.split(b'>',1)[1].rsplit(b'</row>',1)[0] if not old.rstrip().endswith(b'/>') else b''
-                for cellmatch in elements(fresh[0], 'c'):
+                for cellmatch in elements(fresh, 'c'):
                     newcell = cellmatch.group()
-                    coordinate = ET.fromstring(newcell).attrib['r']
+                    coordinate = cell_coordinate(newcell)
                     if coordinate not in changed: continue
-                    oldcells = [m.group() for m in elements(content, 'c') if ET.fromstring(m.group()).attrib['r'] == coordinate]
+                    oldcells = [m.group() for m in elements(content, 'c') if cell_coordinate(m.group()) == coordinate]
                     if oldcells:
                         oldcell = oldcells[0]
                         head = oldcell.split(b'>',1)[0].rstrip(b'/')+b'>'
-                        fresh_tree = ET.fromstring(newcell)
+                        new_tree = ET.fromstring(newcell)
                         for key in ('s', 't'):
-                            if key in fresh_tree.attrib: head = attr(head,key,fresh_tree.attrib[key])
+                            if key in new_tree.attrib: head = attr(head,key,new_tree.attrib[key])
                             else: head = re.sub(rb'\s'+key.encode()+rb'="[^"]*"', b'', head)
                         body = b'' if newcell.rstrip().endswith(b'/>') else newcell.split(b'>',1)[1].rsplit(b'</c>',1)[0]
                         content = once(content,oldcell,head+body+b'</c>')
@@ -265,20 +398,32 @@ def dump(book):
                         column = openpyxl.utils.cell.coordinate_from_string(coordinate)[0]
                         column_index = openpyxl.utils.cell.column_index_from_string(column)
                         later = next((m.group() for m in elements(content,'c') if openpyxl.utils.cell.column_index_from_string(
-                            openpyxl.utils.cell.coordinate_from_string(ET.fromstring(m.group()).attrib['r'])[0]) > column_index), None)
+                            openpyxl.utils.cell.coordinate_from_string(cell_coordinate(m.group()))[0]) > column_index), None)
                         content = once(content,later,newcell+later) if later else content+newcell
                 raw = once(raw, old, opening+content+b'</row>')
             else:
-                raw = close_insert(raw, 'sheetData', fresh[0])
+                next_row = min((r for r in original_rows if r > row), default=None)
+                if next_row is None:
+                    raw = close_insert(raw, 'sheetData', fresh)
+                else:
+                    later = original_rows[next_row][1]
+                    raw = once(raw, later, fresh+later)
         if rows:
             # Dimension is an advisory range; extend using the reader's full range.
             match = re.search(rb'<dimension\b[^>]*/>', raw)
-            if match: raw = once(raw, match.group(), b'<dimension ref="'+sheet.calculate_dimension().encode()+b'"/>')
+            if match:
+                old = match.group()
+                dimension = sheet.calculate_dimension().encode()
+                updated = re.sub(rb'(\sref=)([\'\"])[^\'\"]*\2',
+                                 lambda m: m[1]+m[2]+dimension+m[2], old)
+                raw = once(raw, old, updated)
         if raw != parts[path]: updates[path] = raw
-        if note_additions: notes(parts, updates, path, note_additions)
+        if note_additions:
+            notes(parts, updates, path, note_additions, row_bound=identity.historical(book))
     wb = parts['xl/workbook.xml']
     if identity.active(book) and identity.MARKER.encode() not in wb:
-        marker = f'<definedName name="{identity.MARKER}" hidden="1">{escape(identity.VERSION)}</definedName>'.encode()
+        version = book.defined_names[identity.MARKER].attr_text
+        marker = f'<definedName name="{identity.MARKER}" hidden="1">{escape(version)}</definedName>'.encode()
         if b'<definedNames' in wb: wb = close_insert(wb, 'definedNames', marker)
         else: wb = once(wb, b'</sheets>', b'</sheets><definedNames>'+marker+b'</definedNames>')
     for index, title in enumerate(book.sheetnames):

@@ -531,7 +531,8 @@ def recover_prepared(db, source, digest):
     db.commit()
 
 
-def publish_candidate(source, original, candidate, db, actor, request, result, *, runtime, authorization_check=None):
+def publish_candidate(source, original, candidate, db, actor, request, result, *, runtime, authorization_check=None,
+                      verify_replacement=False):
     """The shared backup/journal/atomic-replacement writer; caller holds writer lock and source_reader."""
     operation = request['operation']
     digest = hashlib.sha256(original).hexdigest()
@@ -576,6 +577,8 @@ def publish_candidate(source, original, candidate, db, actor, request, result, *
         if authorization_check:
             authorization_check()
         replace_source(temporary, source)
+        if verify_replacement and hashlib.sha256(source.read_bytes()).hexdigest() != after:
+            raise EntryError('صحت فایل پس از جایگزینی تأیید نشد؛ نتیجهٔ ثبت باید بررسی شود.')
     except EntryAuthorizationDenied:
         raise
     except OSError as exc:
@@ -589,7 +592,8 @@ def publish_candidate(source, original, candidate, db, actor, request, result, *
 
 
 def commit_workbook(actor, request, settings, mutate, *, runtime, day=None, command='شرح خرابی', authorization_check=None,
-                    replay_check=None, date_check=None, daily_section=None, workbook_reader=None, workbook_dumper=None):
+                    replay_check=None, date_check=None, daily_section=None, workbook_reader=None, workbook_dumper=None,
+                    verify_candidate=None):
     """Journal and atomically replace an existing workbook for a confirmed operation."""
     operation = str(request.get('operation', ''))
     if not re.fullmatch(r'[a-f0-9]{32}', operation):
@@ -633,13 +637,16 @@ def commit_workbook(actor, request, settings, mutate, *, runtime, day=None, comm
                         candidate = output.getvalue()
                 finally:
                     book.close()
+                if verify_candidate:
+                    verify_candidate(candidate, result)
                 def before_replace():
                     if authorization_check:
                         authorization_check()
                     if date_check:
                         date_check()
                 return publish_candidate(source, original, candidate, db, actor, request, result,
-                                         runtime=runtime, authorization_check=before_replace)
+                                         runtime=runtime, authorization_check=before_replace,
+                                         verify_replacement=verify_candidate is not None)
         finally:
             db.close()
 

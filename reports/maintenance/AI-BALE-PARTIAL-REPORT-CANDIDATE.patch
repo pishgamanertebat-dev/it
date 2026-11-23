@@ -1,0 +1,1410 @@
+diff --git a/tools/bale_ui/runtime.py b/tools/bale_ui/runtime.py
+--- a/tools/bale_ui/runtime.py
++++ b/tools/bale_ui/runtime.py
+@@ -119,6 +119,16 @@
+     if result is not None:
+         return result
+     raw = getattr(event, 'raw_message', None)
++    from tools.fleet.repairs.maintenance_report_policy import enabled as maintenance_reports_enabled
++    if (isinstance(raw,dict) and raw.get('bale_inline_callback') is True
++            and str(raw.get('data','')).startswith('ik:mreport:')):
++        if bale_approved and maintenance_reports_enabled():
++            from tools.fleet.repairs.maintenance_report_bale import _handler as automatic_maintenance
++            result = automatic_maintenance.handle(event,gateway,send=send)
++            if result is not None:
++                return result
++        send(gateway,str(event.source.chat_id),'این دکمه برای حساب شما در دسترس نیست.')
++        return {'action':'skip','reason':'maintenance-report-callback-denied'}
+     if not (isinstance(raw, dict) and raw.get('bale_inline_callback') is True):
+         from tools.fleet.repairs.entry_bale import normalized
+         clean = normalized(event.text)
+@@ -127,7 +137,6 @@
+         import time
+         current_order = work_order.pending.get(('bale', actor, chat))
+         order_open = bool(current_order and current_order.expires > time.time() and current_order.stage != 'RESULT')
+-        from tools.fleet.repairs.maintenance_report_policy import enabled as maintenance_reports_enabled
+         if bale_approved and not order_open and maintenance_reports_enabled():
+             from tools.fleet.repairs.maintenance_report_bale import _handler as automatic_maintenance
+             result = automatic_maintenance.handle(event,gateway,send=send)
+diff --git a/tools/fleet/repairs/entry_service.py b/tools/fleet/repairs/entry_service.py
+--- a/tools/fleet/repairs/entry_service.py
++++ b/tools/fleet/repairs/entry_service.py
+@@ -531,7 +531,8 @@
+     db.commit()
+ 
+ 
+-def publish_candidate(source, original, candidate, db, actor, request, result, *, runtime, authorization_check=None):
++def publish_candidate(source, original, candidate, db, actor, request, result, *, runtime, authorization_check=None,
++                      verify_replacement=False):
+     """The shared backup/journal/atomic-replacement writer; caller holds writer lock and source_reader."""
+     operation = request['operation']
+     digest = hashlib.sha256(original).hexdigest()
+@@ -576,6 +577,8 @@
+         if authorization_check:
+             authorization_check()
+         replace_source(temporary, source)
++        if verify_replacement and hashlib.sha256(source.read_bytes()).hexdigest() != after:
++            raise EntryError('صحت فایل پس از جایگزینی تأیید نشد؛ نتیجهٔ ثبت باید بررسی شود.')
+     except EntryAuthorizationDenied:
+         raise
+     except OSError as exc:
+@@ -589,7 +592,8 @@
+ 
+ 
+ def commit_workbook(actor, request, settings, mutate, *, runtime, day=None, command='شرح خرابی', authorization_check=None,
+-                    replay_check=None, date_check=None, daily_section=None, workbook_reader=None, workbook_dumper=None):
++                    replay_check=None, date_check=None, daily_section=None, workbook_reader=None, workbook_dumper=None,
++                    verify_candidate=None):
+     """Journal and atomically replace an existing workbook for a confirmed operation."""
+     operation = str(request.get('operation', ''))
+     if not re.fullmatch(r'[a-f0-9]{32}', operation):
+@@ -633,13 +637,16 @@
+                         candidate = output.getvalue()
+                 finally:
+                     book.close()
++                if verify_candidate:
++                    verify_candidate(candidate, result)
+                 def before_replace():
+                     if authorization_check:
+                         authorization_check()
+                     if date_check:
+                         date_check()
+                 return publish_candidate(source, original, candidate, db, actor, request, result,
+-                                         runtime=runtime, authorization_check=before_replace)
++                                         runtime=runtime, authorization_check=before_replace,
++                                         verify_replacement=verify_candidate is not None)
+         finally:
+             db.close()
+ 
+diff --git a/tools/fleet/repairs/maintenance_report.py b/tools/fleet/repairs/maintenance_report.py
+--- a/tools/fleet/repairs/maintenance_report.py
++++ b/tools/fleet/repairs/maintenance_report.py
+@@ -4,15 +4,16 @@
+ from pathlib import Path
+ import re
+ import sqlite3
++import uuid
+ 
+ from tools.fleet.equipment_codes import ALIAS_VERSION
+ from . import entry_dates, maintenance_service as service
+ from .entry_service import EntryError, EntryAuthorizationDenied, commit_workbook
+-from .maintenance_report_policy import CONFIG, permission
++from .maintenance_report_policy import CONFIG, partial_enabled, permission
+ 
+ KIND = 'maintenance_report_batch_v1'
+ from .maintenance_report_parse import parse
+-from .maintenance_report_store import operation_id, remember, record_outcome
++from .maintenance_report_store import operation_id, remember, record_outcome, partial_receipt
+ 
+ 
+ def delivery_review(date, ledger):
+@@ -47,11 +48,15 @@
+     """Append journal-identified records; used by the same Writer and guarded Sync."""
+     saved = [dict(service.append_record(book, record, recorder=record['recorder']),
+                   record=record) for record in records]
++    attach_records(book,saved,operation)
++    return saved
++
++
++def attach_records(book, saved, operation):
+     from . import maintenance_identity as identity
+     if identity.active(book):
+         for group, item in enumerate(saved):
+             identity.attach(book, item, operation, group)
+-    return saved
+ 
+ 
+ def verify_operation(request, result):
+@@ -65,11 +70,34 @@
+                 or record.get('recorder') != request.get('recorder')
+                 or not all(field in record for field in ('canonical','code','description','mechanic','parts'))):
+             raise EntryError('MAINTENANCE_SYNC_INVALID_REPORT_RECORD')
++    if 'approved_items' in request:
++        expected = request['approved_items']
++        approvals = request['approvals']
++        root = uuid.UUID(request['report_id'])
++        rejected = result.get('rejected_items',{})
++        if (not isinstance(expected,list) or not expected or
++                set(approvals) != {'report_message','text_message'} or
++                not all(re.fullmatch(r'[1-9][0-9]*',value) for value in approvals.values()) or
++                approvals['report_message'] == approvals['text_message'] or
++                not all(type(item['number']) is int and 1 <= item['number'] <= 40 and
++                        item['id'] == uuid.uuid5(root,str(item['number'])).hex for item in expected) or
++                len({item['id'] for item in expected}) != len(expected) or
++                result.get('operation') != request['operation'] or
++                not isinstance(rejected,dict) or
++                set(rejected) - {item['id'] for item in expected} or
++                not all(isinstance(reason,str) and reason for reason in rejected.values())):
++            raise EntryError('MAINTENANCE_SYNC_INVALID_REPORT_ITEMS')
++        committed = [item for item in expected if item['id'] not in rejected]
++        if ([item['record'] for item in committed] != [row['record'] for row in result['records']] or
++                [item['id'] for item in committed] != result.get('item_ids')):
++            raise EntryError('MAINTENANCE_SYNC_INVALID_REPORT_ITEMS')
+ 
+ 
+ def receive(actor, chat, source_id, raw, *, config=CONFIG, entry_config=service.CONFIG,
+             runtime=service.RUNTIME, day=None, ledger=None):
+     settings = permission(actor, chat, config=config, entry_config=entry_config)
++    if partial_enabled(settings):
++        raise EntryAuthorizationDenied('ثبت این گزارش به تأیید گزارش و تأیید متن نیاز دارد.')
+     from .maintenance_publication import writer_codec
+     codec = writer_codec(entry_config, runtime)
+     if not isinstance(source_id,str) or not re.fullmatch(r'[A-Za-z0-9:/_.-]{1,240}',source_id):
+@@ -78,6 +106,8 @@
+         raise EntryError('طول گزارش معتبر نیست.')
+     operation = operation_id(actor,chat,source_id)
+     digest = remember(runtime,operation,actor,chat,source_id,raw)
++    if partial_receipt(runtime,operation,digest):
++        raise EntryAuthorizationDenied('این پیام در مسیر تأیید گزارش محفوظ است.')
+     try:
+         parsed = parse(raw,day)
+         items = parsed['items']
+@@ -139,10 +169,20 @@
+     import sys
+     payload = json.load(sys.stdin)
+     try:
+-        if set(payload) != {'actor','chat','source_id','raw'}:
++        if 'action' in payload:
++            from .maintenance_report_flow import process
++            if set(payload) - {'action','actor','chat','source_id','raw','report_id','token','origin','number','reply_id'}:
++                raise EntryError('ساختار درخواست معتبر نیست.')
++            result = process(**payload)
++        elif set(payload) == {'actor','chat','source_id','raw'}:
++            result = receive(**payload)
++        else:
+             raise EntryError('ساختار درخواست معتبر نیست.')
+-        result = receive(**payload)
+         print(json.dumps(dict(ok=True,result=result)))
++    except PermissionError as exc:
++        print(json.dumps(dict(ok=False,message=str(exc))))
++    except (OSError, sqlite3.Error):
++        print(json.dumps(dict(ok=False,message='دسترسی به اکسل یا دفتر ثبت ممکن نیست؛ وضعیت گزارش را بررسی کنید.')))
+     except Exception as exc:
+         print(json.dumps(dict(ok=False,message=str(exc))))
+ 
+diff --git a/tools/fleet/repairs/maintenance_report_bale.py b/tools/fleet/repairs/maintenance_report_bale.py
+--- a/tools/fleet/repairs/maintenance_report_bale.py
++++ b/tools/fleet/repairs/maintenance_report_bale.py
+@@ -6,8 +6,9 @@
+ import re
+ 
+ from .maintenance_report_parse import declared_report, work_items
+-from .maintenance_report_policy import permission, CONFIG
++from .maintenance_report_policy import partial_enabled, permission
+ from .maintenance_report_store import RUNTIME, operation_id, remember
++from .maintenance_report_ui import PartialReportUI, status_command
+ 
+ log = logging.getLogger(__name__)
+ 
+@@ -28,6 +29,7 @@
+     def __init__(self, *, run=run_worker, authorize=permission, runtime=RUNTIME, followup=continue_coded):
+         self.run, self.authorize, self.runtime, self.followup = run, authorize, runtime, followup
+         self.tasks, self.busy = set(), set()
++        self.partial = PartialReportUI(run, runtime, self.tasks)
+ 
+     def handle(self,event,gateway,*,send):
+         source = event.source
+@@ -35,13 +37,19 @@
+         if str(getattr(source.platform,'value',source.platform)).lower()!='bale' or source.chat_type!='dm' or actor!=chat:
+             return None
+         raw = getattr(event,'raw_message',None) or {}
+-        if isinstance(raw,dict) and raw.get('bale_inline_callback') is True:
++        callback = isinstance(raw,dict) and raw.get('bale_inline_callback') is True
++        if callback and not str(raw.get('data','')).startswith('ik:mreport:'):
+             return None
+-        if not declared_report(event.text):
++        is_report = declared_report(event.text)
++        if not (callback or is_report or status_command(event.text) or getattr(event,'reply_to_message_id',None)):
+             return None
+         try:
+             settings = self.authorize(actor,chat)
+         except (PermissionError,OSError,ValueError):
++            return None
++        if partial_enabled(settings):
++            return self.partial.handle(event,gateway,send,actor,chat,callback)
++        if callback or not is_report:
+             return None
+         if settings['scope']=='miscellaneous':
+             try:
+diff --git a/tools/fleet/repairs/maintenance_report_flow.py b/tools/fleet/repairs/maintenance_report_flow.py
+new file mode 100644
+--- /dev/null
++++ b/tools/fleet/repairs/maintenance_report_flow.py
+@@ -0,0 +1,434 @@
++"""Durable two-step approval for a group of independently checked report items."""
++from contextlib import closing, contextmanager
++from copy import deepcopy
++import hashlib
++import io
++import json
++from pathlib import Path
++import re
++import secrets
++import time
++import uuid
++
++import openpyxl
++
++from . import entry_dates, maintenance_identity as identity, maintenance_service as service
++from .entry_service import (EntryError, EntryAuthorizationDenied, commit_workbook, open_audit, recover_prepared,
++                            source_reader, writer_lock)
++from .maintenance_report import KIND, attach_records, delivery_review, verify_operation
++from .maintenance_report_parse import ALIAS_VERSION, DEVICE_CODE, DIGITS, PREFIX_CODE, TOKEN, parse, work_items
++from .maintenance_report_policy import CONFIG, enabled, partial_enabled, permission
++from .maintenance_report_store import (correction_prompt,load_workflow,open_workflows,operation_id,remember,save_workflow)
++from tools.fleet.maintenance_daily.prepared import source_proof
++from tools.scheduler.report_errors import ReportFailure
++
++TTL = 900
++EXPIRED = 'این دکمه منقضی شده است؛ «وضعیت گزارش» را بفرستید.'
++SOURCE_ID = re.compile(r'bale:[1-9][0-9]*\Z')
++MESSAGE_ID = re.compile(r'[1-9][0-9]*\Z')
++ITEM_ID = re.compile(r'[0-9a-f]{32}\Z')
++RETRYABLE = ('VALID', 'FAILED')
++
++
++class AllItemsRejected(EntryError):
++    def __init__(self, rejected):
++        super().__init__('موارد این تأیید به اصلاح نیاز دارند.')
++        self.rejected = rejected
++
++
++def _prove_source(digest, runtime, source):
++    try:
++        source_proof(digest,runtime=runtime,source=source)
++    except ReportFailure as exc:
++        raise EntryError('نسخهٔ اکسل با دفتر ثبت قابل تأیید نیست؛ بررسی فایل لازم است.') from exc
++
++
++def _target(book, parsed):
++    target = service.machine(book, parsed['code'] or 'متفرقه', independent=True)
++    prefix = re.match(r'[A-Z]+',target['canonical'])
++    for label in parsed['device_labels']:
++        expected = ('HD' if label.startswith(('تراک','دام')) else 'EX' if label == 'بیل'
++                    else 'WA' if label == 'لودر' else 'D' if label.startswith('بول') else None)
++        if expected and prefix and prefix[0] != expected:
++            raise EntryError('نوع دستگاه با کد واردشده تطابق ندارد؛ کد دقیق را وارد کنید.')
++    return target
++
++
++def _check_item(book, parsed, date, settings):
++    if parsed['issue']:
++        raise EntryError(parsed['issue'])
++    target = _target(book,parsed)
++    sheet = book[target['sheet']]
++    header, columns = service.record_columns(sheet)
++    if 'recorder' not in columns:
++        raise EntryError('ستون ثبت‌کننده در شیت دستگاه موجود نیست؛ قالب فایل باید بررسی شود.')
++    record = dict(target,date=date,description=parsed['description'],parts='',
++                  **{key:settings[key] for key in ('recorder','department','mechanic')})
++    service.validate_text(record['description'])
++    entered = service.key(record['description'])
++    for row in range(header+1,sheet.max_row+1):
++        values = {field:sheet.cell(row,col).value for field,col in columns.items()}
++        try:
++            saved_date = entry_dates.formatted(entry_dates.jalali_date(values['date']))
++        except (ValueError, TypeError):
++            continue
++        if saved_date != date or service.key(values['recorder']) != service.key(record['recorder']):
++            continue
++        if target['sheet'] == 'متفرقه' and service.key(values['code']) != service.key(record['department']):
++            continue
++        if entered in map(service.key,str(values['description'] or '').splitlines()):
++            raise EntryError('این بند برای همین تاریخ و دستگاه تکراری است؛ شرح مورد را بررسی کنید.')
++    return record
++
++
++def _classify(book, report, settings, items):
++    for item in items:
++        item.pop('record',None)
++        try:
++            record = _check_item(book,item['parsed'],report['date'],settings)
++            service.append_record(book,record,recorder=settings['recorder'],independent=True)
++        except EntryError as exc:
++            item.update(status='PENDING_CORRECTION',reason=str(exc))
++        else:
++            item.update(status='VALID',record=record,reason='')
++
++
++def _candidate_cells(data, result, *, require_identity):
++    with closing(openpyxl.load_workbook(io.BytesIO(data))) as book:
++        for saved in result['records']:
++            record, row = saved['record'], saved['row']
++            sheet = book[record['sheet']]
++            header, columns = service.record_columns(sheet)
++            expected = {field:record[field] or None for field in columns}
++            if record['sheet'] == 'متفرقه':
++                expected['code'] = record['department']
++            if row <= header or 'recorder' not in columns or any(
++                    sheet.cell(row,col).value != expected[field] for field,col in columns.items()):
++                raise EntryError('صحت ردیف در نسخهٔ ذخیره‌شده تأیید نشد؛ ثبت متوقف شد.')
++        if require_identity:
++            # The OOXML writer already validates preservation of native Notes.
++            # Also require each newly assigned Writer UUID on the serialized rows.
++            if not identity.active(book):
++                raise EntryError('IDENTITY_SCHEMA_MISSING')
++            for group, saved in enumerate(result['records']):
++                sheet = book[saved['sheet']]
++                anchor = sheet.cell(saved['row'],service.layout(sheet)[1]['date'])
++                note = anchor.comment
++                expected = uuid.uuid5(identity.NAMESPACE,f"{result['operation']}:{group}:{sheet.title}").hex
++                if (not note or not note.text.startswith(identity.PREFIX) or
++                        json.loads(note.text[len(identity.PREFIX):]).get('id') != expected):
++                    raise EntryError('IDENTITY_ROW_CHANGED_OR_MOVED')
++
++
++@contextmanager
++def _snapshot(settings, runtime, codec):
++    source = Path(settings['source']).resolve(strict=True)
++    with writer_lock(runtime), closing(open_audit(runtime)) as db, source_reader(source) as stream:
++        original = stream.read()
++        digest = hashlib.sha256(original).hexdigest()
++        recover_prepared(db,source,digest)
++        _prove_source(digest,runtime,source)
++        read = codec.get('workbook_reader')
++        with closing(read(original) if read else openpyxl.load_workbook(io.BytesIO(original))) as book:
++            if identity.active(book) and not read:
++                with closing(identity.load(original)):
++                    pass
++            yield book
++
++
++def _make_view(report, phase, now, **fields):
++    report['view'] = dict(phase=phase,token=secrets.token_hex(8),origin=None,expires=now()+TTL,**fields)
++
++
++def _response(report, *, committed=None, delivery=None):
++    items = []
++    for item in report['items']:
++        items.append({key:item[key] for key in ('number','status','reason')} |
++                     dict(raw=item['parsed']['raw'],record=item.get('record'),corrected=bool(item['correction'])))
++    return dict(id=report['id'],source_id=report['source_id'],date=report['date'],
++                items=items,view=report.get('view'),committed=committed,delivery=delivery)
++
++
++def _bound(report, token, origin, now, phase):
++    view = report.get('view') or {}
++    if (not isinstance(token,str) or not origin or view.get('origin') != origin or
++            view.get('token') != token or view.get('phase') != phase or view['expires'] <= now()):
++        raise EntryError(EXPIRED)
++    return view
++
++
++def _corrected(item, raw):
++    if not isinstance(raw,str) or not 1 <= len(raw) <= 1800 or len(raw.splitlines()) != 1:
++        raise EntryError('اصلاح را در یک خط، با کد دستگاه و شرح همان مورد بفرستید.')
++    clean = raw.strip().translate(DIGITS)
++    if re.fullmatch(TOKEN,clean):
++        previous = item['parsed']['raw']
++        plain = previous.translate(DIGITS).replace('\u200c',' ').replace('ي','ی').replace('ك','ک')
++        match = DEVICE_CODE.search(plain) or PREFIX_CODE.search(plain)
++        if not match or item['parsed']['issue']:
++            raise EntryError('کد و شرح کامل همین مورد را در یک خط بفرستید.')
++        start, end = match.span(1)
++        raw = previous[:start] + raw.strip() + previous[end:]
++    parsed, = work_items('گزارش\n'+raw,independent=True)
++    if item['parsed']['code'] is not None or item['parsed']['device_labels'] or item['parsed']['issue']:
++        if not parsed['code']:
++            raise EntryError('کد دقیق دستگاه را همراه شرح وارد کنید.')
++    # Original spans always refer to the incoming Bale report.
++    parsed['span'] = item['parsed']['span']
++    return parsed
++
++
++def _commit(actor, report, request, settings, *, runtime, codec, authorized, day, ledger):
++    correction = request['correction']
++    require_identity = False
++    def date_check():
++        if correction:
++            if (len(request['approved_items']) != 1 or request['date'] != report['date'] or
++                    report['items'][request['approved_items'][0]['number']-1]['correction'] is None):
++                raise EntryError('تأیید اصلاح به بند و تاریخ گزارش اصلی وابسته است.')
++        else:
++            entry_dates.validate_selected(request['date'],day)
++
++    def mutate(book):
++        nonlocal require_identity
++        source = Path(settings['source']).resolve()
++        original = source.read_bytes()
++        require_identity = identity.active(book)
++        if require_identity and not codec:
++            with closing(identity.load(original)):
++                pass
++        _prove_source(hashlib.sha256(original).hexdigest(),runtime,source)
++        records, accepted, rejected = [], [], {}
++        # The approval authorizes each frozen row. A later item-level
++        # conflict can only remove that row. Global errors abort publication.
++        for item in request['approved_items']:
++            try:
++                current = _check_item(book,report['items'][item['number']-1]['parsed'],report['date'],settings)
++                if current != item['record']:
++                    raise EntryError('مقصد ثبت تغییر کرده است؛ کد دقیق دستگاه را دوباره وارد کنید.')
++                row = service.append_record(book,current,recorder=settings['recorder'],independent=True)
++            except EntryError as exc:
++                rejected[item['id']] = str(exc)
++            else:
++                records.append(dict(row,record=current))
++                accepted.append(item['id'])
++        if not records:
++            raise AllItemsRejected(rejected)
++        attach_records(book,records,request['operation'])
++        result = dict(operation=request['operation'],date=request['date'],recorder=settings['recorder'],
++                      records=records,item_ids=accepted,rejected_items=rejected,
++                      delivery=delivery_review(request['date'],ledger))
++        verify_operation(request,result)
++        return result
++
++    return commit_workbook(actor,request,settings,mutate,runtime=runtime,command='گزارش تعمیرات',
++                           authorization_check=authorized,replay_check=service.verify_replay,date_check=date_check,
++                           verify_candidate=lambda data,result:_candidate_cells(data,result,require_identity=require_identity),
++                           **codec)
++
++
++def _complete(report, result):
++    for item in report['items']:
++        if item['id'] in result['item_ids']:
++            item.update(status='COMMITTED',reason='',operation=result['operation'])
++        elif item['id'] in result['rejected_items']:
++            item.pop('record',None)
++            item.update(status='PENDING_CORRECTION',reason=result['rejected_items'][item['id']])
++    report['attempt'] = None
++    report['view'] = None
++
++
++def _recover(report, actor, settings, runtime):
++    request = report.get('attempt')
++    if not request:
++        return None
++    source = Path(settings['source']).resolve(strict=True)
++    fingerprint = hashlib.sha256(json.dumps([actor,str(source),request],sort_keys=True,ensure_ascii=False).encode()).hexdigest()
++    with writer_lock(runtime), closing(open_audit(runtime)) as db, source_reader(source) as stream:
++        digest = hashlib.sha256(stream.read()).hexdigest()
++        recover_prepared(db,source,digest)
++        _prove_source(digest,runtime,source)
++        row = db.execute('SELECT * FROM edits WHERE operation=?',(request['operation'],)).fetchone()
++        if row and (row['fingerprint'] != fingerprint or row['status'] not in ('succeeded','not_applied')):
++            raise EntryError('نتیجهٔ ثبت قبلی قطعی نیست؛ بررسی دفتر ثبت لازم است.')
++        if row and row['status'] == 'succeeded':
++            service.verify_replay(db,source,digest,row)
++            result = json.loads(row['result'])
++            verify_operation(request,result)
++            _complete(report,result)
++            return result
++    report['attempt'] = None
++    return None
++
++
++def process(action, actor, chat, *, source_id=None, raw=None, report_id=None, token=None, origin=None,
++            number=None, reply_id=None, config=CONFIG, entry_config=service.CONFIG, runtime=service.RUNTIME,
++            day=None, ledger=None, now=time.time):
++    actor, chat, runtime = str(actor), str(chat), Path(runtime)
++    settings = permission(actor,chat,config=config,entry_config=entry_config)
++    if actor != chat or not partial_enabled(settings) or not enabled(config):
++        raise PermissionError('مجوز این مسیر ثبت گزارش وجود ندارد.')
++    for field in ('recorder','mechanic','department'):
++        service.validate_text(settings[field],200)
++    if source_id is not None:
++        if not SOURCE_ID.fullmatch(source_id):
++            raise EntryError('شناسهٔ پیام گزارش معتبر نیست.')
++        report_id = operation_id(actor,chat,source_id)
++    if report_id is not None and not ITEM_ID.fullmatch(report_id):
++        raise EntryError(EXPIRED)
++    if not (runtime/'audit.sqlite3').is_file():
++        raise EntryError('دفتر ثبت تعمیرات در دسترس نیست.')
++    from .maintenance_publication import writer_codec
++    codec = writer_codec(entry_config,runtime)
++    ledger = ledger or service.ROOT/'runtime/scheduler/runs.sqlite3'
++
++    def authorized():
++        try:
++            current = permission(actor,chat,config=config,entry_config=entry_config)
++        except PermissionError as exc:
++            raise EntryAuthorizationDenied(str(exc)) from exc
++        if not enabled(config) or current != settings:
++            raise EntryAuthorizationDenied('مجوز یا مقصد ثبت گزارش تغییر کرده است.')
++
++    with writer_lock(runtime/'maintenance-report-flow'), closing(open_workflows(runtime)) as db:
++        report = load_workflow(db,actor,chat,report_id)
++        if action == 'reply':
++            if not origin or not MESSAGE_ID.fullmatch(str(reply_id or '')):
++                raise EntryError(EXPIRED)
++            row = correction_prompt(db,actor,chat,origin)
++            report = load_workflow(db,actor,chat,row['operation']) if row else None
++        if action == 'status' and not report:
++            row = db.execute("""SELECT * FROM maintenance_report_messages WHERE actor=? AND chat=?
++                AND status='partial_received' AND (? IS NULL OR operation=?) ORDER BY rowid DESC LIMIT 1""",
++                (actor,chat,report_id,report_id)).fetchone()
++            if row:
++                action, source_id, report_id, raw = 'prepare', row['source_id'], row['operation'], row['raw_text']
++        if action == 'prepare':
++            if not source_id or not isinstance(raw,str) or not 1 <= len(raw) <= 16000:
++                raise EntryError('متن یا شناسهٔ گزارش معتبر نیست.')
++            digest = remember(runtime,report_id,actor,chat,source_id,raw,status='partial_received')
++            receipt = db.execute('SELECT rowid,status FROM maintenance_report_messages WHERE operation=? AND raw_hash=?',
++                                 (report_id,digest)).fetchone()
++            if receipt['status'] != 'partial_received':
++                return dict(legacy=receipt['status'])
++            other = db.execute("""SELECT source_id FROM maintenance_report_messages
++                WHERE actor=? AND chat=? AND raw_hash=? AND rowid<? AND status<>'conflict'
++                ORDER BY rowid LIMIT 1""",(actor,chat,digest,receipt['rowid'])).fetchone()
++            if other and not report:
++                return dict(duplicate=other['source_id'])
++            if not report:
++                parsed = parse(raw,day,independent=True)
++                report = dict(id=report_id,source_id=source_id,date=parsed['date'],raw=raw,settings=settings,
++                              attempt=None,view=None,items=[
++                                  dict(id=uuid.uuid5(uuid.UUID(report_id),str(n)).hex,number=n,parsed=item,
++                                       status='VALID',reason='',correction=None)
++                                  for n,item in enumerate(parsed['items'],1)])
++                with _snapshot(settings,runtime,codec) as book:
++                    _classify(book,report,settings,report['items'])
++                save_workflow(db,actor,chat,report)
++            else:
++                return dict(duplicate=report['source_id'])
++        if not report:
++            if action == 'status':
++                return dict(missing=True)
++            raise EntryError(EXPIRED)
++        if report['settings'] != settings:
++            raise PermissionError('هویت ثبت‌کننده یا مقصد گزارش تغییر کرده است؛ بررسی لازم است.')
++
++        if report.get('attempt'):
++            if action != 'status':
++                raise EntryError('ابتدا «وضعیت گزارش» را برای بررسی ثبت قبلی بفرستید.')
++            recovered = _recover(report,actor,settings,runtime)
++            save_workflow(db,actor,chat,report)
++            if recovered:
++                _make_view(report,'offer',now,open_date=report['date'] in entry_dates.choices(day))
++                save_workflow(db,actor,chat,report)
++                return _response(report,committed=len(recovered['item_ids']),delivery=recovered['delivery'])
++            action = 'status'
++
++        if action in ('prepare','status'):
++            retry = [item for item in report['items'] if item['status'] in RETRYABLE]
++            date_open = report['date'] in entry_dates.choices(day)
++            if retry and (action == 'status' or not date_open):
++                retryable = [item for item in retry if date_open or item['correction']]
++                if retryable:
++                    with _snapshot(settings,runtime,codec) as book:
++                        _classify(book,report,settings,retryable)
++            _make_view(report,'offer',now,open_date=date_open)
++        elif action == 'bind':
++            view = report.get('view') or {}
++            if (not token or view.get('token') != token or view.get('origin') is not None
++                    or not isinstance(origin,str) or not MESSAGE_ID.fullmatch(origin) or view['expires'] <= now()):
++                raise EntryError(EXPIRED)
++            view['origin'] = origin
++        elif action == 'approve':
++            _bound(report,token,origin,now,'offer')
++            valid = [item for item in report['items'] if item['status']=='VALID']
++            if number is None:
++                entry_dates.validate_selected(report['date'],day)
++                valid = [item for item in valid if not item['correction']]
++            else:
++                valid = [item for item in valid if item['number']==number and item['correction']]
++            if not valid:
++                raise EntryError('مورد آمادهٔ تأیید وجود ندارد.')
++            _make_view(report,'text',now,numbers=[item['number'] for item in valid],
++                       correction=number is not None,offer_message=origin)
++        elif action == 'correct':
++            _bound(report,token,origin,now,'offer')
++            if not any(item['number']==number and item['status']=='PENDING_CORRECTION' for item in report['items']):
++                raise EntryError('این بند در انتظار اصلاح نیست.')
++            _make_view(report,'reply',now,number=number)
++        elif action == 'reply':
++            view = report['view']
++            _bound(report,view['token'],origin,now,'reply')
++            if any(entry['message_id']==reply_id for item in report['items']
++                   for entry in item.get('revisions',[])):
++                raise EntryError('این پیام اصلاح قبلاً دریافت شده است.')
++            item = report['items'][view['number']-1]
++            edits = item.setdefault('revisions',[])
++            edits.append(dict(message_id=reply_id,raw=raw))
++            try:
++                item['parsed'] = _corrected(item,raw)
++            except (EntryError,ValueError) as exc:
++                item['reason'] = str(exc)
++            else:
++                item['correction'] = reply_id
++                item.update(status='FAILED',reason='بررسی اصلاح در اکسل باید تکمیل شود.')
++                report['view'] = None
++                save_workflow(db,actor,chat,report)
++                with _snapshot(settings,runtime,codec) as book:
++                    _classify(book,report,settings,[item])
++            _make_view(report,'offer',now,open_date=report['date'] in entry_dates.choices(day))
++        elif action == 'confirm':
++            view = _bound(report,token,origin,now,'text')
++            selected = [report['items'][n-1] for n in view['numbers']]
++            if any(item['status']!='VALID' for item in selected):
++                raise EntryError(EXPIRED)
++            request = dict(_kind=KIND,operation=uuid.uuid4().hex,report_id=report['id'],source_id=report['source_id'],
++                           date=report['date'],raw_text=report['raw'],recorder=settings['recorder'],
++                           correction=view['correction'],alias_version=ALIAS_VERSION,
++                           approvals=dict(report_message=view['offer_message'],text_message=origin),
++                           approved_items=[dict(id=item['id'],number=item['number'],record=deepcopy(item['record']),
++                                                correction=item['correction']) for item in selected])
++            for item in selected:
++                item.update(status='FAILED',reason='نتیجهٔ تلاش ثبت باید بررسی شود.')
++            report['attempt'], report['view'] = request, None
++            save_workflow(db,actor,chat,report)
++            # An interrupted write leaves the same operation available to
++            # reconcile against the Journal and exact source bytes.
++            try:
++                result = _commit(actor,report,request,settings,runtime=runtime,codec=codec,
++                                 authorized=authorized,day=day,ledger=ledger)
++            except AllItemsRejected as exc:
++                _complete(report,dict(item_ids=[],rejected_items=exc.rejected))
++                _make_view(report,'offer',now,open_date=report['date'] in entry_dates.choices(day))
++                save_workflow(db,actor,chat,report)
++                return _response(report)
++            _complete(report,result)
++            _make_view(report,'offer',now,open_date=report['date'] in entry_dates.choices(day))
++            save_workflow(db,actor,chat,report)
++            return _response(report,committed=len(result['item_ids']),delivery=result['delivery'])
++        else:
++            raise EntryError('درخواست گزارش معتبر نیست.')
++        save_workflow(db,actor,chat,report)
++        return _response(report)
+diff --git a/tools/fleet/repairs/maintenance_report_parse.py b/tools/fleet/repairs/maintenance_report_parse.py
+--- a/tools/fleet/repairs/maintenance_report_parse.py
++++ b/tools/fleet/repairs/maintenance_report_parse.py
+@@ -19,7 +19,7 @@
+                 and len(raw.strip().splitlines()) > 1)
+ 
+ 
+-def work_items(raw):
++def work_items(raw, *, independent=False):
+     items = []
+     offset = 0
+     first_line = True
+@@ -34,8 +34,11 @@
+         bare = BARE_CODE.search(clean)
+         if bare:matches.append(bare)
+         codes = {canonical_input(m[1].replace(' ', '')).upper() for m in matches}
++        error = None
++        if len(codes) > 1 and not independent:
++            raise ValueError(f'بند {len(items)+1} بیش از یک کد دستگاه دارد؛ هیچ ردیفی ثبت نشد.')
+         if len(codes) > 1:
+-            raise ValueError(f'بند {len(items)+1} بیش از یک کد دستگاه دارد؛ هیچ ردیفی ثبت نشد.')
++            error = 'بند بیش از یک کد دستگاه دارد؛ کد و شرح همین مورد را مشخص کنید.'
+         description = line
+         replacements = []
+         for match in matches:
+@@ -46,17 +49,31 @@
+                 replacements.append((match.start(1), match.end(1), replacement))
+         for start, end, replacement in sorted(set(replacements), reverse=True):
+             description = description[:start] + replacement + description[end:]
+-        if not description.strip() or len(description)>1800 or re.search(r'[\x00-\x08\x0b\x0c\x0e-\x1f]',description):
+-            raise ValueError('شرح بند معتبر نیست؛ متن اصلی محفوظ است.')
+-        items.append(dict(code=next(iter(codes),None),description=description,raw=line,
+-                          span=dict(start=offset,end=offset+len(line))))
++        missing_description = independent and not re.search(r'[\w]', _without_device(clean, matches))
++        if missing_description or not description.strip() or len(description)>1800 or re.search(r'[\x00-\x08\x0b\x0c\x0e-\x1f]',description):
++            error = 'شرح بند خالی یا نامعتبر است؛ شرح همین مورد را وارد کنید.'
++            if not independent:
++                raise ValueError(error)
++        item = dict(code=next(iter(codes)) if len(codes) == 1 else None,description=description,raw=line,
++                    span=dict(start=offset,end=offset+len(line)))
++        if independent:
++            item['issue'] = error
++            item['device_labels'] = [m[0][:m.start(1)-m.start()].strip(' :：') for m in DEVICE_CODE.finditer(clean)]
++            if not codes and re.match(r'^\s*[-_,•*\s]*'+DEVICE+r'(?!\w)',clean):
++                item['issue'] = 'کد دستگاه مشخص نیست؛ کد و شرح همین مورد را وارد کنید.'
++        items.append(item)
+         offset += len(original)
+     if not 1 <= len(items) <= 40:
+         raise ValueError('گزارش باید بین یک تا چهل بند داشته باشد.')
+     return items
+ 
+ 
+-def parse(raw, current=None):
++def _without_device(line, matches):
++    hidden = {i for match in matches for i in range(match.start(), match.end())}
++    return ''.join(char for i, char in enumerate(line) if i not in hidden).strip(' -_,•*\t:：.،')
++
++
++def parse(raw, current=None, *, independent=False):
+     from . import entry_dates
+     if not isinstance(raw,str) or not 1 <= len(raw) <= 16000 or not declared_report(raw):
+         raise ValueError('متن کامل گزارش با عنوان و تاریخ روشن لازم است؛ متن اصلی نگه‌داری شد.')
+@@ -70,4 +87,4 @@
+     if len(dates)!=1:
+         raise ValueError('تاریخ گزارش یکتا و روشن نیست؛ هیچ ردیفی ثبت نشد.')
+     date = entry_dates.validate_selected(dates[0],current)
+-    return dict(date=date,items=work_items(raw),raw_text=raw,alias_version=ALIAS_VERSION)
++    return dict(date=date,items=work_items(raw,independent=independent),raw_text=raw,alias_version=ALIAS_VERSION)
+diff --git a/tools/fleet/repairs/maintenance_report_policy.py b/tools/fleet/repairs/maintenance_report_policy.py
+--- a/tools/fleet/repairs/maintenance_report_policy.py
++++ b/tools/fleet/repairs/maintenance_report_policy.py
+@@ -24,8 +24,12 @@
+     return dict(policy, source=target['source'], recorder=name)
+ 
+ 
+-def enabled():
++def enabled(config=CONFIG):
+     try:
+-        return json.loads(CONFIG.read_text('utf8')).get('enabled') is True
++        return json.loads(Path(config).read_text('utf8')).get('enabled') is True
+     except (OSError, ValueError):
+         return False
++
++
++def partial_enabled(settings):
++    return settings['scope'] == 'all' and settings.get('partial_confirmation') is True
+diff --git a/tools/fleet/repairs/maintenance_report_store.py b/tools/fleet/repairs/maintenance_report_store.py
+--- a/tools/fleet/repairs/maintenance_report_store.py
++++ b/tools/fleet/repairs/maintenance_report_store.py
+@@ -24,13 +24,14 @@
+     return db
+ 
+ 
+-def remember(runtime, operation, actor, chat, source_id, raw):
++def remember(runtime, operation, actor, chat, source_id, raw, *, status='received'):
+     digest = hashlib.sha256(raw.encode('utf8')).hexdigest()
+     with closing(connect(runtime)) as db,db:
++        db.execute('BEGIN IMMEDIATE')
+         previous = db.execute('SELECT raw_hash FROM maintenance_report_messages WHERE operation=?',(operation,)).fetchall()
+         conflict = any(row[0]!=digest for row in previous)
+         db.execute('INSERT OR IGNORE INTO maintenance_report_messages VALUES (?,?,?,?,?,?,?,?)',
+-                   (operation,digest,str(actor),str(chat),str(source_id),raw,'conflict' if conflict else 'received','{}'))
++                   (operation,digest,str(actor),str(chat),str(source_id),raw,'conflict' if conflict else status,'{}'))
+     if conflict:
+         raise ValueError('متن همین شناسهٔ پیام تغییر کرده است؛ نسخه‌ها محفوظ‌اند و ثبت تازه انجام نشد.')
+     return digest
+@@ -40,3 +41,50 @@
+     with closing(connect(runtime)) as db,db:
+         db.execute('UPDATE maintenance_report_messages SET status=?,result=? WHERE operation=? AND raw_hash=?',
+                    (status,json.dumps(result,ensure_ascii=False),operation,digest))
++
++
++def partial_receipt(runtime, operation, digest):
++    with closing(connect(runtime)) as db:
++        return db.execute("""SELECT 1 FROM maintenance_report_messages
++            WHERE operation=? AND raw_hash=? AND status='partial_received'""",(operation,digest)).fetchone() is not None
++
++
++def open_workflows(runtime):
++    db = connect(runtime)
++    db.row_factory = sqlite3.Row
++    db.execute('''CREATE TABLE IF NOT EXISTS maintenance_report_workflows (
++        operation TEXT PRIMARY KEY, actor TEXT NOT NULL, chat TEXT NOT NULL,
++        source_id TEXT NOT NULL, payload TEXT NOT NULL)''')
++    return db
++
++
++def load_workflow(db, actor, chat, operation=None):
++    query = 'SELECT payload FROM maintenance_report_workflows WHERE actor=? AND chat=?'
++    args = (actor,chat)
++    if operation is not None:
++        query += ' AND operation=?'
++        args += (operation,)
++    row = db.execute(query+' ORDER BY rowid DESC LIMIT 1',args).fetchone()
++    return json.loads(row['payload']) if row else None
++
++
++def save_workflow(db, actor, chat, report):
++    with db:
++        db.execute('''INSERT INTO maintenance_report_workflows VALUES (?,?,?,?,?)
++                      ON CONFLICT(operation) DO UPDATE SET payload=excluded.payload''',
++                   (report['id'],actor,chat,report['source_id'],json.dumps(report,ensure_ascii=False)))
++
++
++def correction_prompt(db, actor, chat, origin):
++    return db.execute("""SELECT operation FROM maintenance_report_workflows WHERE actor=? AND chat=?
++        AND json_extract(payload,'$.view.phase')='reply' AND json_extract(payload,'$.view.origin')=?""",
++        (actor,chat,origin)).fetchone()
++
++
++def has_correction_prompt(runtime, actor, chat, origin):
++    path = (Path(runtime)/'audit.sqlite3').resolve()
++    if not path.is_file():
++        return False
++    with closing(sqlite3.connect(path.as_uri()+'?mode=ro',uri=True)) as db:
++        exists = db.execute("SELECT 1 FROM sqlite_master WHERE name='maintenance_report_workflows'").fetchone()
++        return bool(exists and correction_prompt(db,actor,chat,origin))
+diff --git a/tools/fleet/repairs/maintenance_report_ui.py b/tools/fleet/repairs/maintenance_report_ui.py
+new file mode 100644
+--- /dev/null
++++ b/tools/fleet/repairs/maintenance_report_ui.py
+@@ -0,0 +1,179 @@
++"""Bale presentation for the maintenance report's durable approval stages."""
++import asyncio
++import logging
++from pathlib import Path
++import re
++import sqlite3
++
++from tools.bale_ui import KeyboardLifecycle
++from .entry_dates import readable
++from .maintenance_report_parse import DIGITS, declared_report
++from .maintenance_report_store import has_correction_prompt, operation_id, remember
++
++LOG = logging.getLogger(__name__)
++STATUS = re.compile(r'وضعیت گزارش(?: ([1-9][0-9]*))?\Z')
++CALLBACK = re.compile(r'ik:mreport:([0-9a-f]{32})([0-9a-f]{16}):(a|b|s|[ac](?:[1-9]|[1-3][0-9]|40))\Z')
++MESSAGE_ID = re.compile(r'[1-9][0-9]*\Z')
++HANDLED = dict(action='skip',reason='maintenance-report-partial')
++
++
++def status_command(text):
++    return STATUS.fullmatch(' '.join(str(text or '').translate(DIGITS).split()))
++
++
++def card(result):
++    view = result['view']
++    items = result['items']
++    pending = [item for item in items if item['status']=='PENDING_CORRECTION']
++    valid = [item for item in items if item['status']=='VALID']
++    remaining = [item for item in items if item['status']!='COMMITTED']
++    lines = [f"گزارش {readable(result['date'])} | پیام {readable(result['source_id'].split(':')[1])}"]
++    rows = []
++
++    def button(label, action):
++        rows.append([dict(text=label,callback_data=f"ik:mreport:{result['id']}{view['token']}:{action}")])
++
++    if view['phase'] == 'reply':
++        item = items[view['number']-1]
++        return (f"مورد {readable(str(item['number']))}\n{item['raw']}\n{item['reason']}\n"
++                "در پاسخ به همین پیام، کد دقیق یا کد و شرح کامل همین مورد را در یک خط بفرستید."), [], True
++    if result.get('committed'):
++        lines.append(f"✅ {readable(str(result['committed']))} مورد در Excel ثبت شد.")
++        lines.append(f"⚠️ {readable(str(len(remaining)))} مورد باقی مانده است." if remaining else
++                     'همهٔ موارد این گزارش ثبت شده‌اند.')
++        if (result.get('delivery') or {}).get('status') == 'correction_required':
++            lines.append('PDF این تاریخ قبلاً ارسال شده است؛ اصلاحیه باید جداگانه بررسی شود.')
++    elif not remaining:
++        lines.append(f"✅ {readable(str(len(items)))} مورد در Excel ثبت شده است.")
++
++    if view['phase'] == 'text':
++        lines.append('متن و شیت مقصد را بررسی کنید. با «تأیید متن» همین موارد در Excel ثبت می‌شوند.')
++        valid = [items[n-1] for n in view['numbers']]
++        button('✅ تأیید متن و ثبت', 'b')
++    else:
++        initial = [item for item in valid if not item['corrected']]
++        if initial and view['open_date']:
++            button(f"✅ تأیید گزارش ({readable(str(len(initial)))} مورد)", 'a')
++        if initial and not view['open_date']:
++            lines.append('مهلت ثبت اولیهٔ موارد آماده پایان یافته است.')
++        for item in valid:
++            if item['corrected']:
++                n = item['number']
++                button(f"✅ تأیید گزارش (مورد {readable(str(n))})", f'a{n}')
++        if valid:
++            lines.append(f"✅ {readable(str(len(valid)))} مورد صحیح")
++        if pending:
++            lines.append(f"⚠️ {readable(str(len(pending)))} مورد نیازمند اصلاح")
++        for item in pending:
++            n = item['number']
++            lines.append(f"مورد {readable(str(n))} | {item['raw']}\n{item['reason']}")
++            button(f"✏️ اصلاح مورد {readable(str(n))}",f'c{n}')
++        for item in remaining:
++            if item['status']=='FAILED':
++                lines.append(f"مورد {readable(str(item['number']))} | {item['reason']}")
++    for item in valid:
++        record = item['record']
++        lines.append(f"مورد {readable(str(item['number']))} | شیت {record['sheet']}\n{record['description']}")
++    button('📋 وضعیت گزارش','s')
++    return '\n\n'.join(lines), rows, False
++
++
++async def emit(gateway, send, chat, text, rows, reply):
++    bot = KeyboardLifecycle.bot(gateway)
++    if bot is None:
++        send(gateway,chat,text)
++        return None
++    from telegram import ForceReply, InlineKeyboardMarkup
++    markup = (ForceReply() if reply else
++              InlineKeyboardMarkup.de_json(dict(inline_keyboard=rows),bot) if rows else None)
++    for index in range(0,len(text),3500):
++        message = await bot.send_message(chat_id=chat,text=text[index:index+3500],parse_mode=None,
++                                         reply_markup=markup if index+3500>=len(text) else None)
++    return str(message.message_id)
++
++
++class PartialReportUI:
++    def __init__(self, run, runtime, tasks, *, present=emit):
++        self.run, self.runtime, self.tasks, self.present = run, Path(runtime), tasks, present
++
++    def handle(self,event,gateway,send,actor,chat,callback):
++        payload = dict(actor=actor,chat=chat)
++        if callback:
++            match = CALLBACK.fullmatch(str(event.raw_message.get('data','')))
++            if not match:
++                send(gateway,chat,'این دکمه در دسترس نیست؛ «وضعیت گزارش» را بفرستید.')
++                return HANDLED
++            report, token, command = match.groups()
++            action = {'a':'approve','b':'confirm','s':'status','c':'correct'}[command[0]]
++            payload.update(action=action,report_id=report)
++            if action != 'status':
++                payload.update(token=token,origin=str(event.raw_message.get('origin_message_id') or ''))
++            if len(command)>1:
++                payload['number'] = int(command[1:])
++        elif match := status_command(event.text):
++            payload['action'] = 'status'
++            if match[1]:
++                payload['source_id'] = 'bale:'+match[1]
++        elif declared_report(event.text):
++            message = str(getattr(event,'message_id','') or '')
++            if not MESSAGE_ID.fullmatch(message) or len(event.text)>16000:
++                send(gateway,chat,'شناسه یا طول پیام گزارش معتبر نیست.')
++                return HANDLED
++            source = 'bale:'+message
++            try:
++                if not (self.runtime/'audit.sqlite3').is_file():
++                    raise OSError
++                remember(self.runtime,operation_id(actor,chat,source),actor,chat,source,event.text,status='partial_received')
++            except ValueError as exc:
++                send(gateway,chat,str(exc))
++                return HANDLED
++            except (OSError,sqlite3.Error):
++                send(gateway,chat,'دفتر ثبت در دسترس نیست؛ دریافت گزارش تأیید نشد.')
++                return HANDLED
++            payload.update(action='prepare',source_id=source,raw=event.text)
++        else:
++            origin = str(getattr(event,'reply_to_message_id','') or '')
++            try:
++                if not origin or not has_correction_prompt(self.runtime,actor,chat,origin):
++                    return None
++            except (OSError,sqlite3.Error):
++                send(gateway,chat,'دفتر ثبت در دسترس نیست؛ وضعیت گزارش را دوباره بررسی کنید.')
++                return HANDLED
++            payload.update(action='reply',origin=origin,raw=event.text,
++                           reply_id=str(getattr(event,'message_id','') or ''))
++        task = asyncio.get_running_loop().create_task(self.execute(payload,gateway,send))
++        self.tasks.add(task)
++        task.add_done_callback(self.tasks.discard)
++        return HANDLED
++
++    async def execute(self,payload,gateway,send):
++        actor, chat = payload['actor'], payload['chat']
++        try:
++            response = await self.run(payload)
++            if not response['ok']:
++                send(gateway,chat,response['message'])
++                return
++            result = response['result']
++            if result.get('legacy'):
++                message = ('برای این پیام سابقهٔ ثبت وجود دارد.' if result['legacy']=='succeeded'
++                           else 'این پیام در سوابق قبلی است؛ بررسی آن به تأیید مالک نیاز دارد.')
++                send(gateway,chat,message)
++                return
++            if result.get('duplicate'):
++                source = result['duplicate']
++                mid = ' '+readable(source[5:]) if source.startswith('bale:') else ''
++                send(gateway,chat,f'این متن قبلاً دریافت شده است. برای پیگیری بفرستید «وضعیت گزارش{mid}».')
++                return
++            if result.get('missing'):
++                send(gateway,chat,'گزارشی برای این حساب و شناسه پیدا نشد.')
++                return
++            text, rows, reply = card(result)
++            origin = await self.present(gateway,send,chat,text,rows,reply)
++            if origin:
++                bound = await self.run(dict(action='bind',actor=actor,chat=chat,report_id=result['id'],
++                                            token=result['view']['token'],origin=origin))
++                if not bound['ok']:
++                    send(gateway,chat,bound['message'])
++        except Exception:
++            LOG.exception('Maintenance report approval interrupted')
++            send(gateway,chat,'نتیجه نیازمند بررسی است؛ «وضعیت گزارش» را بفرستید.')
+diff --git a/tools/fleet/repairs/maintenance_service.py b/tools/fleet/repairs/maintenance_service.py
+--- a/tools/fleet/repairs/maintenance_service.py
++++ b/tools/fleet/repairs/maintenance_service.py
+@@ -1,5 +1,4 @@
+ """Append repair events to existing machine worksheets, preserving their history."""
+-from copy import copy
+ import json
+ import math
+ from pathlib import Path
+@@ -49,10 +48,17 @@
+     raise EntryError(f'ستون‌های شیت «{sheet.title}» شناخته نشدند؛ فایل باید بررسی شود.')
+ 
+ 
+-def machines(book):
++def machines(book, *, independent=False):
+     result = []
+     for sheet in book:
+-        header, _ = layout(sheet)
++        try:
++            header, _ = layout(sheet)
++        except EntryError:
++            if not independent:
++                raise
++            # Keep its exact sheet code in the inventory. Validation of this
++            # target will still reject its layout when an item selects it.
++            header = 1
+         name = next((str(c.value).strip() for row in sheet.iter_rows(max_row=header-1)
+                      for c in row if c.value is not None), sheet.title)
+         short = key(sheet.title).rstrip('.')
+@@ -63,13 +69,13 @@
+     return result
+ 
+ 
+-def machine(book, entered):
++def machine(book, entered, *, independent=False):
+     from tools.fleet.equipment_codes import canonical_input
+     entered = canonical_input(entered)
+     entered = key(entered)
+     if not entered or len(entered) > 60:
+         raise EntryError('کد دستگاه معتبر نیست.')
+-    choices = [m for m in machines(book) if entered in
++    choices = [m for m in machines(book, independent=independent) if entered in
+                {key(m['name']), m['canonical'], m['code'], key(m['sheet'])}]
+     if len(choices) == 1:
+         return choices[0]
+@@ -94,11 +100,7 @@
+     return value.strip()
+ 
+ 
+-def append_record(book, request, *, recorder=None):
+-    selected = machine(book, request['canonical'])
+-    if selected['sheet'] != request['sheet'] or selected['code'] != request['code']:
+-        raise EntryError('شیت دستگاه تغییر کرده است؛ «تعمیرات» را دوباره باز کنید.')
+-    sheet = book[selected['sheet']]
++def record_columns(sheet):
+     header, columns = layout(sheet)
+     recorded = [c.column for c in sheet[header] if key(c.value) == key('ثبت کننده')]
+     if not recorded:
+@@ -108,44 +110,59 @@
+             recorded = [inspected['recorder_column']]
+     if len(recorded) > 1:
+         raise EntryError('ستون ثبت‌کننده تکراری است؛ قالب شیت باید بررسی شود.')
+-    if not recorded and any(key(c.value) == key('ثبت کننده') for other in book if other is not sheet
++    if not recorded and any(key(c.value) == key('ثبت کننده') for other in sheet.parent if other is not sheet
+                             for cells in other.iter_rows(max_row=min(10, other.max_row)) for c in cells):
+         raise EntryError(f'عنوان ستون ثبت‌کننده در شیت «{sheet.title}» خالی است؛ ابتدا سربرگ فایل اصلاح شود.')
+     if recorded:
++        columns = dict(columns, recorder=recorded[0])
++    return header, columns
++
++
++def append_record(book, request, *, recorder=None, independent=False):
++    selected = machine(book, request['canonical'], independent=independent)
++    if selected['sheet'] != request['sheet'] or selected['code'] != request['code']:
++        raise EntryError('شیت دستگاه تغییر کرده است؛ «تعمیرات» را دوباره باز کنید.')
++    sheet = book[selected['sheet']]
++    header, columns = record_columns(sheet)
++    if 'recorder' in columns:
+         validate_text(recorder, 200)
+-        columns = dict(columns, recorder=recorded[0])
+     occupied = [r for r in range(header + 1, sheet.max_row + 1)
+                 if any(c.value is not None for c in sheet[r])]
+     row = max(occupied, default=header) + 1
+     if any(rng.min_row <= row <= rng.max_row for rng in sheet.merged_cells.ranges):
+         raise EntryError('ردیف بعدی سلول ادغام‌شده دارد؛ قالب شیت باید بررسی شود.')
++    if row > 1048576:
++        raise EntryError('شیت دستگاه جای خالی برای ثبت ندارد.')
+     template = max(occupied, default=header + 1)
+     height = 24
++    values = {}
+     for field, col in columns.items():
+-        cell = sheet.cell(row, col)
+-        copy_style(sheet.cell(template, col), cell)
+         value = (recorder if field == 'recorder' else request.get('department', request[field])
+                  if field == 'code' and key(sheet.title) == key('متفرقه') else request[field])
+-        cell.value = None if value == '' else value
+-        cell.data_type = 'n' if value == '' else 's'
+-        cell.alignment = copy(cell.alignment)
+-        cell.alignment = openpyxl.styles.Alignment(horizontal=cell.alignment.horizontal or 'right',
+-                            vertical='center', wrap_text=True, readingOrder=2)
++        values[col] = value
++        sample = sheet.cell(template, col)
+         # Excel has no stored automatic row-height calculation. Estimate using
+         # this column's width and font size, including explicit newlines.
+         # Indexing DimensionHolder creates a new column definition and can
+         # override an existing grouped width. Measuring must not mutate it.
+-        dimension = sheet.column_dimensions.get(cell.column_letter)
++        dimension = sheet.column_dimensions.get(sample.column_letter)
+         if dimension is None:
+             dimension = next((value for value in sheet.column_dimensions.values()
+                               if (value.min or 0) <= col <= (value.max or 0)), None)
+         width = (dimension.width if dimension is not None else sheet.sheet_format.defaultColWidth) or 13
+-        size = cell.font.sz or 11
++        size = sample.font.sz or 11
+         capacity = max(1, int((width - 2) * 11 / size))
+         lines = sum(max(1, math.ceil(len(line) / capacity)) for line in str(value).split('\n'))
+         height = max(height, lines * size * 1.5 + 8)
+     if height > 409:
+         raise EntryError('متن در یک ردیف اکسل جا نمی‌شود؛ آن را کوتاه‌تر یا در چند ثبت جدا وارد کنید.')
++    for col, value in values.items():
++        cell = sheet.cell(row, col)
++        copy_style(sheet.cell(template, col), cell)
++        cell.value = None if value == '' else value
++        cell.data_type = 'n' if value == '' else 's'
++        cell.alignment = openpyxl.styles.Alignment(horizontal=cell.alignment.horizontal or 'right',
++                            vertical='center', wrap_text=True, readingOrder=2)
+     sheet.row_dimensions[row].height = height
+     sheet.row_dimensions[row].hidden = False
+     if sheet.print_area:
+@@ -153,7 +170,7 @@
+         sheet.print_area = re.sub(r'(\$[A-Z]+\$)(\d+)(?=,|$)',
+                                  lambda m: m[1] + str(max(int(m[2]), row)), str(sheet.print_area))
+     result = {**selected, 'date': request['date'], 'row': row}
+-    if recorded:
++    if 'recorder' in columns:
+         result['recorder'] = recorder
+     return result
+ 
+diff --git a/tools/fleet/repairs/test_maintenance_report_flow.py b/tools/fleet/repairs/test_maintenance_report_flow.py
+new file mode 100644
+--- /dev/null
++++ b/tools/fleet/repairs/test_maintenance_report_flow.py
+@@ -0,0 +1,259 @@
++from contextlib import closing
++from concurrent.futures import ThreadPoolExecutor
++import json
++from pathlib import Path
++import shutil
++import sqlite3
++import tempfile
++import unittest
++from unittest.mock import patch
++
++import openpyxl
++
++from . import entry_service, maintenance_identity as identity, maintenance_report as legacy
++from . import maintenance_report_flow as flow, maintenance_report_store as store
++from .maintenance_baseline import digest, initialize, journal_branch
++from .maintenance_report_ui import card
++
++ACTOR = '1732374823'
++DAY = '1405/08/27'
++ROOT = Path(__file__).resolve().parents[3]/'runtime'
++
++
++class PartialReportTests(unittest.TestCase):
++    def setUp(self):
++        temp = tempfile.TemporaryDirectory(dir=ROOT)
++        self.addCleanup(temp.cleanup)
++        root = Path(temp.name)
++        runtime = root/'journal'
++        runtime.mkdir()
++        self.source = root/'local.xlsx'
++        self.upstream = root/'upstream.xlsx'
++        book = openpyxl.Workbook()
++        book.remove(book.active)
++        for title, name in [('710','دامپتراک 710'),('801','بیل 801'),('603','لودر 603'),('متفرقه','متفرقه')]:
++            sheet = book.create_sheet(title)
++            sheet['A1'] = name
++            code_label = 'قسمت' if title == 'متفرقه' else 'کد مکانیزم'
++            sheet.append(['تاریخ','ثبت کننده','نام مکانیک',code_label,'نوع خرابی','قطعات مصرفی'])
++            sheet.column_dimensions['E'].width = 70
++        identity.enable(book)
++        book.save(self.source)
++        book.close()
++        shutil.copyfile(self.source,self.upstream)
++        config, policy = root/'entry.json', root/'reports.json'
++        config.write_text(json.dumps(dict(source=str(self.source),allowed_users=[ACTOR])),'utf8')
++        policy.write_text(json.dumps(dict(enabled=True,reporters={ACTOR:dict(scope='all',
++            mechanic='اکیپ مکانیکی',department='تعمیرگاه',partial_confirmation=True)})),'utf8')
++        self.kwargs = dict(runtime=runtime,entry_config=config,config=policy,day=DAY,ledger=root/'absent.db',
++                           now=lambda:self.clock)
++        self.clock, self.origin = 100, 200
++        self.initial = self.source.read_bytes()
++        with closing(entry_service.open_audit(runtime)):
++            pass
++        initialize(self.upstream,expected_hash=digest(self.initial),decision='private fixture',
++                   approved_by='project-owner',config=config,runtime=runtime)
++        auth = patch('tools.fleet.repairs.maintenance_permission.approved_identity',return_value='محسن کرمعلی')
++        self.auth = auth.start()
++        self.addCleanup(auth.stop)
++
++    def process(self, action, *, actor=ACTOR, **fields):
++        return flow.process(action,actor,actor,**fields,**self.kwargs)
++
++    def prepare(self, lines, source_id='bale:1'):
++        raw = 'گزارش مکانیکی '+DAY+'\n'+'\n'.join(lines)
++        return self.process('prepare',source_id=source_id,raw=raw),raw
++
++    def bind(self, result):
++        self.origin += 1
++        fields = dict(report_id=result['id'],token=result['view']['token'],origin=str(self.origin))
++        self.process('bind',**fields)
++        return fields
++
++    def confirm(self, result, number=None):
++        review = self.process('approve',**self.bind(result),number=number)
++        self.assertEqual(review['view']['phase'],'text')
++        return self.process('confirm',**self.bind(review))
++
++    def audit(self):
++        return closing(entry_service.open_audit(self.kwargs['runtime']))
++
++    def test_nine_of_ten_and_restart_late_correction(self):
++        lines = [f'-دامپتراک 710: تعمیر قطعه {index}' for index in range(1,11)]
++        lines[3] = '-لودر 600: تعویض تسمه'
++        offered, raw = self.prepare(lines)
++        self.assertEqual([i['status'] for i in offered['items']],['VALID']*3+['PENDING_CORRECTION']+['VALID']*6)
++        self.assertIn('۹ مورد',card(offered)[0])
++        self.assertEqual(self.source.read_bytes(),self.initial)
++        offer = self.bind(offered)
++        with self.assertRaisesRegex(ValueError,'منقضی'):
++            self.process('confirm',**offer)
++        review = self.process('approve',**offer)
++        self.assertEqual(self.source.read_bytes(),self.initial)
++        text = self.bind(review)
++        with self.assertRaisesRegex(ValueError,'منقضی'):
++            self.process('confirm',**(text|dict(origin='999')))
++        saved = self.process('confirm',**text)
++        self.assertEqual(saved['committed'],9)
++        self.assertIn('۱ مورد باقی مانده',card(saved)[0])
++        partial = self.source.read_bytes()
++        with self.assertRaisesRegex(ValueError,'منقضی'):
++            self.process('confirm',**text)
++        self.assertEqual(self.process('prepare',source_id='bale:1',raw=raw),dict(duplicate='bale:1'))
++        self.assertEqual(self.process('prepare',source_id='bale:2',raw=raw),dict(duplicate='bale:1'))
++        with self.assertRaisesRegex(ValueError,'نسخه‌ها'):
++            self.process('prepare',source_id='bale:1',raw=raw+' تغییر')
++        self.assertEqual(self.source.read_bytes(),partial)
++
++        self.clock += flow.TTL+1
++        self.kwargs['day'] = '1405/09/20'
++        current = self.process('status',source_id='bale:1')
++        self.assertEqual(current['items'][3]['status'],'PENDING_CORRECTION')
++        prompt = self.process('correct',**self.bind(current),number=4)
++        prompt_id = self.bind(prompt)['origin']
++        new = self.process('reply',origin=prompt_id,reply_id='199',raw='603')
++        self.assertEqual(new['items'][3]['record']['date'],DAY)
++        final = self.confirm(new,number=4)
++        self.assertEqual(final['committed'],1)
++        self.assertTrue(all(i['status']=='COMMITTED' for i in final['items']))
++        with self.assertRaisesRegex(ValueError,'منقضی'):
++            self.process('reply',origin=prompt_id,reply_id='199',raw='603')
++        with self.audit() as db:
++            proof = journal_branch(db,self.source,self.source.read_bytes(),self.kwargs['runtime'])
++            writes = [json.loads(row[0]) for row in db.execute("SELECT result FROM edits WHERE status='succeeded'")]
++        self.assertEqual([len(r['records']) for r in writes],[9,1])
++        self.assertEqual(len(proof[3]),2)
++        self.assertFalse(set(writes[0]['item_ids']) & set(writes[1]['item_ids']))
++        with closing(openpyxl.load_workbook(self.source)) as book:
++            self.assertEqual(len(identity.inventory(book)),10)
++            self.assertEqual(book['603']['E3'].value,'-لودر 603: تعویض تسمه')
++            self.assertEqual(book['710'].max_row,11)
++
++    def test_independent_validation_and_duplicate_item(self):
++        offer,_ = self.prepare(['-بیل 801: تعمیر', '-بیل 801: تعمیر', '-بیل 801 و لودر 603: تعویض',
++                                '-بیل 801:', '-لودر بدون کد تعویض تسمه',
++                                '-لودر 801: تعویض', '-دامپتراک 710: '+('ک'*1750), '-تعمیر ابزار کارگاه'])
++        self.assertEqual([i['status'] for i in offer['items']],
++                         ['VALID']+['PENDING_CORRECTION']*6+['VALID'])
++        self.assertEqual(self.confirm(offer)['committed'],2)
++        with closing(openpyxl.load_workbook(self.source)) as book:
++            self.assertEqual(book['801'].max_row,3)
++            self.assertEqual(book['710'].max_row,2)
++            self.assertEqual(book['متفرقه']['D3'].value,'تعمیرگاه')
++
++    def test_expired_button_is_read_only_and_new_status_recovers(self):
++        offer,_ = self.prepare(['-بیل 801: تعمیر'])
++        bound = self.bind(offer)
++        self.clock += flow.TTL+1
++        with self.assertRaisesRegex(ValueError,'منقضی'):
++            self.process('approve',**bound)
++        self.assertEqual(self.source.read_bytes(),self.initial)
++        self.assertEqual(self.confirm(self.process('status',source_id='bale:1'))['committed'],1)
++
++    def test_second_callback_concurrent_delivery_writes_once(self):
++        offer,_ = self.prepare(['-بیل 801: تعمیر'])
++        review = self.process('approve',**self.bind(offer))
++        fields = self.bind(review)
++
++        def confirm():
++            try:
++                return self.process('confirm',**fields)['committed']
++            except ValueError as exc:
++                self.assertIn('منقضی',str(exc))
++                return 0
++
++        with ThreadPoolExecutor(2) as pool:
++            self.assertEqual(sorted(pool.map(lambda _:confirm(),range(2))),[0,1])
++        with self.audit() as db:
++            self.assertEqual(db.execute('SELECT count(*) FROM edits').fetchone()[0],1)
++
++    def test_late_item_conflict_keeps_other_approved_row(self):
++        offer,_ = self.prepare(['-بیل 801: تعمیر','-دامپتراک 710: تعمیر'])
++        review = self.process('approve',**self.bind(offer))
++        fields = self.bind(review)
++        check = flow._check_item
++        def changed(book,parsed,*args):
++            if parsed['code']=='801':
++                raise entry_service.EntryError('این بند برای همین تاریخ و دستگاه تکراری است.')
++            return check(book,parsed,*args)
++
++        with patch.object(flow,'_check_item',side_effect=changed):
++            saved = self.process('confirm',**fields)
++        self.assertEqual(saved['committed'],1)
++        self.assertEqual([item['status'] for item in saved['items']],['PENDING_CORRECTION','COMMITTED'])
++        with self.audit() as db:
++            row = db.execute('SELECT request,result FROM edits').fetchone()
++            request,result = map(json.loads,row)
++            legacy.verify_operation(request,result)
++            self.assertEqual(len(result['rejected_items']),1)
++
++    def test_item_layout_failure_does_not_block_other_sheet(self):
++        with closing(openpyxl.load_workbook(self.source)) as book:
++            book['801']['E2'] = 'ستون ناشناخته'
++            parsed = flow.parse('گزارش مکانیکی '+DAY+'\n-بیل 801: تعمیر\n-دامپتراک 710: تعمیر',
++                                DAY,independent=True)
++            items = [dict(parsed=item) for item in parsed['items']]
++            flow._classify(book,parsed,dict(recorder='محسن کرمعلی',mechanic='اکیپ مکانیکی',department='تعمیرگاه'),items)
++        self.assertEqual([item['status'] for item in items],['PENDING_CORRECTION','VALID'])
++
++    def test_permission_revocation_inside_writer_and_legacy_bypass(self):
++        offer,raw = self.prepare(['-بیل 801: تعمیر'])
++        options = {key:value for key,value in self.kwargs.items() if key!='now'}
++        with self.assertRaises(PermissionError):
++            legacy.receive(ACTOR,ACTOR,'bale:2',raw,**options)
++        review = self.process('approve',**self.bind(offer))
++        fields = self.bind(review)
++        self.auth.side_effect = ['محسن کرمعلی']*4+[PermissionError('revoked')]
++        with self.assertRaisesRegex(PermissionError,'revoked'):
++            self.process('confirm',**fields)
++        self.assertEqual(self.source.read_bytes(),self.initial)
++        self.auth.side_effect = None
++        self.assertEqual(self.confirm(self.process('status'))['committed'],1)
++
++    def test_writer_atomic_failure_and_fresh_approval(self):
++        offer,_ = self.prepare(['-بیل 801: تعمیر','-دامپتراک 710: تعمیر'])
++        with patch.object(entry_service,'replace_source',side_effect=OSError('write failed')):
++            with self.assertRaises(ValueError):
++                self.confirm(offer)
++        self.assertEqual(self.source.read_bytes(),self.initial)
++        with self.audit() as db:
++            self.assertEqual(db.execute('SELECT status FROM edits').fetchone()[0],'prepared')
++        fresh = self.process('status')
++        self.assertEqual(self.source.read_bytes(),self.initial)
++        self.assertEqual(self.confirm(fresh)['committed'],2)
++        with self.audit() as db:
++            self.assertEqual([row[0] for row in db.execute('SELECT status FROM edits')],['not_applied','succeeded'])
++
++    def test_prepared_recovery_after_replace_does_not_reapply(self):
++        offer,_ = self.prepare(['-بیل 801: تعمیر'])
++        replace = entry_service.replace_source
++        def interrupted(*args):
++            replace(*args)
++            raise RuntimeError('process stopped after replace')
++        with patch.object(entry_service,'replace_source',side_effect=interrupted):
++            with self.assertRaises(RuntimeError):
++                self.confirm(offer)
++        written = self.source.read_bytes()
++        self.assertNotEqual(written,self.initial)
++        self.assertEqual(self.process('status')['committed'],1)
++        self.assertIsNone(self.process('status')['committed'])
++        self.assertEqual(self.source.read_bytes(),written)
++        with self.audit() as db:
++            self.assertEqual(db.execute("SELECT count(*) FROM edits WHERE status='succeeded'").fetchone()[0],1)
++
++    def test_invalid_candidate_cannot_publish(self):
++        offer,_ = self.prepare(['-بیل 801: تعمیر'])
++        with patch.object(flow,'_candidate_cells',side_effect=entry_service.EntryError('readback mismatch')):
++            with self.assertRaisesRegex(ValueError,'readback mismatch'):
++                self.confirm(offer)
++        self.assertEqual(self.source.read_bytes(),self.initial)
++        with self.audit() as db:
++            self.assertEqual(db.execute('SELECT count(*) FROM edits').fetchone()[0],0)
++
++    def test_unreadable_or_unproven_workbook_is_global(self):
++        self.source.write_bytes(b'invalid')
++        with self.assertRaisesRegex(ValueError,'دفتر ثبت'):
++            self.prepare(['-بیل 801: تعمیر','-لودر 600: تعمیر'])
++        with closing(sqlite3.connect(self.kwargs['runtime']/'audit.sqlite3')) as db:
++            self.assertEqual(db.execute('SELECT count(*) FROM maintenance_report_workflows').fetchone()[0],0)
++            self.assertEqual(db.execute('SELECT count(*) FROM maintenance_report_messages').fetchone()[0],1)

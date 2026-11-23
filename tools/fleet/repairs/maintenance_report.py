@@ -4,15 +4,16 @@ import json
 from pathlib import Path
 import re
 import sqlite3
+import uuid
 
 from tools.fleet.equipment_codes import ALIAS_VERSION
 from . import entry_dates, maintenance_service as service
 from .entry_service import EntryError, EntryAuthorizationDenied, commit_workbook
-from .maintenance_report_policy import CONFIG, permission
+from .maintenance_report_policy import CONFIG, partial_enabled, permission
 
 KIND = 'maintenance_report_batch_v1'
 from .maintenance_report_parse import parse
-from .maintenance_report_store import operation_id, remember, record_outcome
+from .maintenance_report_store import operation_id, remember, record_outcome, partial_receipt
 
 
 def delivery_review(date, ledger):
@@ -47,11 +48,15 @@ def apply_records(book, records, *, operation=None):
     """Append journal-identified records; used by the same Writer and guarded Sync."""
     saved = [dict(service.append_record(book, record, recorder=record['recorder']),
                   record=record) for record in records]
+    attach_records(book,saved,operation)
+    return saved
+
+
+def attach_records(book, saved, operation):
     from . import maintenance_identity as identity
-    if identity.active(book):
+    if identity.active(book) and not identity.historical(book):
         for group, item in enumerate(saved):
             identity.attach(book, item, operation, group)
-    return saved
 
 
 def verify_operation(request, result):
@@ -65,11 +70,37 @@ def verify_operation(request, result):
                 or record.get('recorder') != request.get('recorder')
                 or not all(field in record for field in ('canonical','code','description','mechanic','parts'))):
             raise EntryError('MAINTENANCE_SYNC_INVALID_REPORT_RECORD')
+    if 'owner_approval' in request:
+        from .maintenance_history_scope import verify_receipt
+        verify_receipt(request, result)
+    elif 'approved_items' in request:
+        expected = request['approved_items']
+        approvals = request['approvals']
+        root = uuid.UUID(request['report_id'])
+        rejected = result.get('rejected_items',{})
+        if (not isinstance(expected,list) or not expected or
+                set(approvals) != {'report_message','text_message'} or
+                not all(re.fullmatch(r'[1-9][0-9]*',value) for value in approvals.values()) or
+                approvals['report_message'] == approvals['text_message'] or
+                not all(type(item['number']) is int and 1 <= item['number'] <= 40 and
+                        item['id'] == uuid.uuid5(root,str(item['number'])).hex for item in expected) or
+                len({item['id'] for item in expected}) != len(expected) or
+                result.get('operation') != request['operation'] or
+                not isinstance(rejected,dict) or
+                set(rejected) - {item['id'] for item in expected} or
+                not all(isinstance(reason,str) and reason for reason in rejected.values())):
+            raise EntryError('MAINTENANCE_SYNC_INVALID_REPORT_ITEMS')
+        committed = [item for item in expected if item['id'] not in rejected]
+        if ([item['record'] for item in committed] != [row['record'] for row in result['records']] or
+                [item['id'] for item in committed] != result.get('item_ids')):
+            raise EntryError('MAINTENANCE_SYNC_INVALID_REPORT_ITEMS')
 
 
 def receive(actor, chat, source_id, raw, *, config=CONFIG, entry_config=service.CONFIG,
             runtime=service.RUNTIME, day=None, ledger=None):
     settings = permission(actor, chat, config=config, entry_config=entry_config)
+    if partial_enabled(settings):
+        raise EntryAuthorizationDenied('ثبت این گزارش به تأیید گزارش و تأیید متن نیاز دارد.')
     from .maintenance_publication import writer_codec
     codec = writer_codec(entry_config, runtime)
     if not isinstance(source_id,str) or not re.fullmatch(r'[A-Za-z0-9:/_.-]{1,240}',source_id):
@@ -78,6 +109,8 @@ def receive(actor, chat, source_id, raw, *, config=CONFIG, entry_config=service.
         raise EntryError('طول گزارش معتبر نیست.')
     operation = operation_id(actor,chat,source_id)
     digest = remember(runtime,operation,actor,chat,source_id,raw)
+    if partial_receipt(runtime,operation,digest):
+        raise EntryAuthorizationDenied('این پیام در مسیر تأیید گزارش محفوظ است.')
     try:
         parsed = parse(raw,day)
         items = parsed['items']
@@ -139,10 +172,20 @@ def main():
     import sys
     payload = json.load(sys.stdin)
     try:
-        if set(payload) != {'actor','chat','source_id','raw'}:
+        if 'action' in payload:
+            from .maintenance_report_flow import process
+            if set(payload) - {'action','actor','chat','source_id','raw','report_id','token','origin','number','reply_id'}:
+                raise EntryError('ساختار درخواست معتبر نیست.')
+            result = process(**payload)
+        elif set(payload) == {'actor','chat','source_id','raw'}:
+            result = receive(**payload)
+        else:
             raise EntryError('ساختار درخواست معتبر نیست.')
-        result = receive(**payload)
         print(json.dumps(dict(ok=True,result=result)))
+    except PermissionError as exc:
+        print(json.dumps(dict(ok=False,message=str(exc))))
+    except (OSError, sqlite3.Error):
+        print(json.dumps(dict(ok=False,message='دسترسی به اکسل یا دفتر ثبت ممکن نیست؛ وضعیت گزارش را بررسی کنید.')))
     except Exception as exc:
         print(json.dumps(dict(ok=False,message=str(exc))))
 
