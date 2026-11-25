@@ -25,6 +25,11 @@ class AirFilterPrintTests(unittest.TestCase):
                         self.assertIn(record['work_order_no'],ws.oddHeader.center.text)
                         self.assertIn('تاریخ صدور: 1405/07/25',ws.oddHeader.center.text)
                         self.assertEqual(ws.page_setup.fitToHeight,0)
+                        self.assertIsNone(ws.page_setup.scale)
+                        self.assertTrue(ws.print_options.horizontalCentered)
+                        self.assertGreaterEqual(ws.page_margins.left,0.4)
+                        self.assertGreaterEqual(ws.page_margins.right,0.4)
+                        self.assertGreaterEqual(ws.page_margins.header,0.25)
                         self.assertEqual(ws.print_title_rows,'$1:$2')
                         self.assertIn(f'E{count+3}:F{count+3}',{str(m) for m in ws.merged_cells.ranges})
                         for row,item in enumerate(items,3):
@@ -32,7 +37,7 @@ class AirFilterPrintTests(unittest.TestCase):
                             self.assertEqual(ws.cell(row,4).value,item['action_text'])
                             self.assertTrue(ws.cell(row,2).alignment.wrap_text)
                             self.assertTrue(ws.cell(row,4).alignment.wrap_text)
-                            self.assertGreaterEqual(ws.cell(row,2).font.sz,14)
+                            self.assertGreaterEqual(ws.cell(row,2).font.sz,11)
                             for col in (5,6):
                                 self.assertFalse(any(ws.cell(row,col).coordinate in m for m in ws.merged_cells.ranges))
                     finally:wb.close()

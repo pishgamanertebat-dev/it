@@ -39,6 +39,14 @@ class OilPrintedIdentityTests(unittest.TestCase):
             try:
                 self.assertEqual(book.active['E2'].value,'1405/07/25')  # UTC date is the 16th; Tehran is the 17th.
                 self.assertEqual(book.active['J2'].value,'شماره حکم:\n'+record['work_order_no'])
+                self.assertEqual(str(book.active.page_setup.paperSize),book.active.PAPERSIZE_A4)
+                self.assertEqual(book.active.page_setup.orientation,'portrait')
+                self.assertEqual(book.active.page_setup.fitToWidth,1)
+                self.assertEqual(book.active.page_setup.fitToHeight,1)
+                self.assertTrue(book.active.print_options.horizontalCentered)
+                self.assertRegex(str(book.active.print_area),r"!\$A\$1:\$J\$\d+")
+                self.assertAlmostEqual(book.active.page_margins.left,0.3937,places=3)
+                self.assertAlmostEqual(book.active.page_margins.right,0.3937,places=3)
                 if record['revision_of']:
                     self.assertIn('نسخه اصلاحی حکم: '+original['work_order_no'],book.active['A1'].value)
             finally:

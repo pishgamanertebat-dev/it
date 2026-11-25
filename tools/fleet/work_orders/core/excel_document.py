@@ -206,31 +206,44 @@ def build_document(
                     issued = issued.replace(tzinfo=timezone.utc)
                 issued_date = jdatetime.date.fromgregorian(date=issued.astimezone(ZoneInfo('Asia/Tehran')).date())
                 ws.oddHeader.center.text += '\nتاریخ صدور: ' + issued_date.strftime('%Y/%m/%d')
-            ws.oddHeader.center.size = 11
+            ws.oddHeader.center.size = 10
             ws.oddHeader.center.font = 'Arial'
         if readable_names:
-            for col,width in {'A':6,'B':36,'C':14,'D':22,'E':16,'F':16}.items():
+            for col,width in {'A':6,'B':27,'C':12,'D':29,'E':12,'F':12}.items():
                 ws.column_dimensions[col].width = width
             for row in (1,2,DATA_START_ROW+count):
-                ws.row_dimensions[row].height = 40 if row != 2 else 32
+                ws.row_dimensions[row].height = 30 if row == 1 else (26 if row == 2 else 32)
                 for cell in ws[row][:6]:
                     font=copy(cell.font)
-                    font.sz = 20 if row==1 else 14
+                    font.sz = 15 if row==1 else 11.5
+                    font.bold = True
                     cell.font=font
-            date_font=copy(ws['F1'].font)
-            date_font.sz=12
-            ws['F1'].font=date_font
+            for addr in ('E1', 'F1'):
+                date_font=copy(ws[addr].font)
+                date_font.sz=11
+                date_font.bold=True
+                ws[addr].font=date_font
             if work_order and work_order.get('revision_of'):
                 alignment=copy(ws['A1'].alignment)
                 alignment.wrap_text=True
                 ws['A1'].alignment=alignment
-                ws.row_dimensions[1].height=60
-            ws.page_margins = PageMargins(left=.25,right=.25,top=.55 if work_order else .25,bottom=.25,header=.15,footer=0)
+                ws.row_dimensions[1].height=48
+            ws.page_margins = PageMargins(
+                left=0.45,
+                right=0.45,
+                top=0.75 if work_order else 0.45,
+                bottom=0.45,
+                header=0.28 if work_order else 0,
+                footer=0.15,
+            )
             ws.sheet_properties.pageSetUpPr.fitToPage = True
             ws.page_setup.paperSize = ws.PAPERSIZE_A4
             ws.page_setup.orientation = 'portrait'
+            ws.page_setup.scale = None
             ws.page_setup.fitToWidth = 1
             ws.page_setup.fitToHeight = 0
+            ws.print_options.horizontalCentered = True
+            ws.print_options.verticalCentered = False
             ws.print_title_rows = '1:2'
 
         for index, item in enumerate(
@@ -282,20 +295,20 @@ def build_document(
             if readable_names:
                 for col in range(1,7):
                     font=copy(ws.cell(row,col).font)
-                    font.sz=14
+                    font.sz=11.5
                     ws.cell(row,col).font=font
                     alignment = copy(ws.cell(row,col).alignment)
                     alignment.wrap_text = True
                     alignment.vertical = 'center'
                     ws.cell(row,col).alignment = alignment
-                # Allow whole names to wrap, keeping the template's readable font.
+                # Allow whole names to wrap cleanly while keeping compact A4 print density.
                 name = str(item['machine_name'])
                 width = sum(1.2 if unicodedata.bidirectional(c) in {'R','AL'} else 1 for c in name)
                 action = str(item['action_text'])
                 action_width = sum(1.2 if unicodedata.bidirectional(c) in {'R','AL'} else 1 for c in action)
-                lines = max(1,math.ceil(width/28),name.count('\n')+1,
-                            math.ceil(action_width/17),action.count('\n')+1)
-                ws.row_dimensions[row].height = max(32,lines*20+10)
+                lines = max(1,math.ceil(width/25),name.count('\n')+1,
+                            math.ceil(action_width/31),action.count('\n')+1)
+                ws.row_dimensions[row].height = max(23,lines*16+7)
 
         signature_row = (
             DATA_START_ROW

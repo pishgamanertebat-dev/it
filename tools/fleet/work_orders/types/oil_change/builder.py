@@ -199,6 +199,10 @@ def build_document(*, output_path, jalali_date, items, work_order, shift='روز
         # Future templates with scoped names need an explicit mapping, not a guess.
         if root.find(f'{{{NS}}}definedNames') is not None:
             raise ValueError('نام‌گذاری محدوده‌های الگو تغییر کرده است؛ الگو بررسی شود.')
+        last_row = _content_last_row(sheet)
+        print_area = (f'<definedNames><definedName name="_xlnm.Print_Area" localSheetId="0">'
+                      f"'{interval}'!$A$1:$J${last_row}</definedName></definedNames>")
+        workbook = workbook.replace('</sheets>', '</sheets>' + print_area, 1)
         output_path.parent.mkdir(parents=True, exist_ok=True)
         with ZipFile(output_path, 'x') as output:
             for entry in source.infolist():
@@ -265,15 +269,49 @@ def _order_metadata(sheet, strings, order):
     return sheet
 
 
+def _content_last_row(sheet):
+    """Find the last row with real content in columns A..J (excludes empty K..M)."""
+    root = ET.fromstring(sheet)
+    last_row = 1
+    for cell in root.findall(f'.//{{{NS}}}c'):
+        ref = cell.get('r') or ''
+        match = re.fullmatch(r'([A-J])(\d+)', ref)
+        if not match or len(cell) == 0:
+            continue
+        last_row = max(last_row, int(match.group(2)))
+    return last_row
+
+
 def _single_page_a4(sheet):
     """Change print settings only; preserve the template's header/drawing XML."""
     def setup(match):
-        tag = re.sub(r'\s+(?:paperSize|scale|fitToWidth|fitToHeight|orientation|usePrinterDefaults)="[^"]*"', '', match[0])
+        tag = re.sub(
+            r'\s+(?:paperSize|scale|fitToWidth|fitToHeight|orientation|usePrinterDefaults|horizontalDpi|verticalDpi|r:id)="[^"]*"',
+            '',
+            match[0],
+        )
         return tag[:-2] + ' paperSize="9" orientation="portrait" fitToWidth="1" fitToHeight="1" usePrinterDefaults="0"/>'
 
     sheet, count = re.subn(r'<pageSetup\b[^>]*/>', setup, sheet)
     if count != 1:
         raise ValueError('Expected one pageSetup in the work-order template.')
+    margins = '<pageMargins left="0.3937" right="0.3937" top="0.3937" bottom="0.3937" header="0" footer="0"/>'
+    sheet, margin_count = re.subn(r'<pageMargins\b[^>]*/>', margins, sheet)
+    if margin_count != 1:
+        raise ValueError('Expected one pageMargins in the work-order template.')
+    if re.search(r'<printOptions\b[^>]*/>', sheet):
+        sheet = re.sub(
+            r'<printOptions\b[^>]*/>',
+            lambda m: (
+                m[0]
+                if 'horizontalCentered="1"' in m[0]
+                else re.sub(r'\s+horizontalCentered="[^"]*"', '', m[0])[:-2] + ' horizontalCentered="1"/>'
+            ),
+            sheet,
+            count=1,
+        )
+    else:
+        sheet = sheet.replace('<pageMargins ', '<printOptions horizontalCentered="1"/><pageMargins ', 1)
     fit = '<pageSetUpPr fitToPage="1"/>'
     if re.search(r'<pageSetUpPr\b', sheet):
         sheet = re.sub(r'<pageSetUpPr\b[^>]*/>', lambda m: re.sub(
