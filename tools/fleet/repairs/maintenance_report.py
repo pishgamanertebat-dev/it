@@ -46,7 +46,7 @@ def delivery_review(date, ledger):
 
 def apply_records(book, records, *, operation=None):
     """Append journal-identified records; used by the same Writer and guarded Sync."""
-    saved = [dict(service.append_record(book, record, recorder=record['recorder']),
+    saved = [dict(service.append_record(book, record, recorder=record['recorder'], independent=True),
                   record=record) for record in records]
     attach_records(book,saved,operation)
     return saved
@@ -75,13 +75,29 @@ def verify_operation(request, result):
         verify_receipt(request, result)
     elif 'approved_items' in request:
         expected = request['approved_items']
-        approvals = request['approvals']
+        if request.get('confirmation_mode') == 'auto_validated':
+            from .maintenance_report_store import operation_id
+            actor = request.get('origin_actor')
+            if (actor != '1732374823' or not re.fullmatch(r'bale:[1-9][0-9]*',request['source_id'])
+                    or request['report_id'] != operation_id(actor,actor,request['source_id'])
+                    or 'approvals' in request or len(result.get('row_receipts', [])) != len(result['records'])):
+                raise EntryError('MAINTENANCE_SYNC_INVALID_AUTO_RECEIPT')
+            from . import maintenance_identity as identity
+            for group,(saved,note) in enumerate(zip(result['records'],result['row_receipts'],strict=True)):
+                sheet = saved['sheet']
+                if (note['group'] != group or note['operation'] != request['operation'] or note['sheet'] != sheet
+                        or note['id'] != uuid.uuid5(identity.NAMESPACE,f"{request['operation']}:{group}:{sheet}").hex
+                        or not re.fullmatch('[0-9a-f]{64}',note['row_sha256'])):
+                    raise EntryError('MAINTENANCE_SYNC_INVALID_AUTO_RECEIPT')
+        else:
+            approvals = request['approvals']
+            if (set(approvals) != {'report_message','text_message'}
+                    or not all(re.fullmatch(r'[1-9][0-9]*',v) for v in approvals.values())
+                    or approvals['report_message'] == approvals['text_message']):
+                raise EntryError('MAINTENANCE_SYNC_INVALID_REPORT_ITEMS')
         root = uuid.UUID(request['report_id'])
         rejected = result.get('rejected_items',{})
         if (not isinstance(expected,list) or not expected or
-                set(approvals) != {'report_message','text_message'} or
-                not all(re.fullmatch(r'[1-9][0-9]*',value) for value in approvals.values()) or
-                approvals['report_message'] == approvals['text_message'] or
                 not all(type(item['number']) is int and 1 <= item['number'] <= 40 and
                         item['id'] == uuid.uuid5(root,str(item['number'])).hex for item in expected) or
                 len({item['id'] for item in expected}) != len(expected) or
@@ -174,7 +190,7 @@ def main():
     try:
         if 'action' in payload:
             from .maintenance_report_flow import process
-            if set(payload) - {'action','actor','chat','source_id','raw','report_id','token','origin','number','reply_id'}:
+            if set(payload) - {'action','actor','chat','source_id','raw','report_id','token','origin','number','reply_id','analysis'}:
                 raise EntryError('ساختار درخواست معتبر نیست.')
             result = process(**payload)
         elif set(payload) == {'actor','chat','source_id','raw'}:

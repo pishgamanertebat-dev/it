@@ -17,7 +17,7 @@ from .entry_service import (EntryError, EntryAuthorizationDenied, commit_workboo
                             source_reader, writer_lock)
 from .maintenance_report import KIND, attach_records, delivery_review, verify_operation
 from .maintenance_report_parse import ALIAS_VERSION, DEVICE_CODE, DIGITS, PREFIX_CODE, TOKEN, parse, work_items
-from .maintenance_report_policy import CONFIG, enabled, partial_enabled, permission
+from .maintenance_report_policy import CONFIG, enabled, partial_enabled, permission, auto_enabled
 from .maintenance_report_store import (correction_prompt,load_workflow,open_workflows,operation_id,remember,save_workflow)
 from tools.fleet.maintenance_daily.prepared import source_proof
 from tools.scheduler.report_errors import ReportFailure
@@ -55,6 +55,8 @@ def _target(book, parsed):
 
 
 def _check_item(book, parsed, date, settings):
+    if parsed.get('auto_code_unresolved'):
+        raise EntryError('لطفاً کد دقیق دستگاه را ارسال کنید.')
     if parsed['issue']:
         raise EntryError(parsed['issue'])
     target = _target(book,parsed)
@@ -181,6 +183,7 @@ def _corrected(item, raw):
 
 def _commit(actor, report, request, settings, *, runtime, codec, authorized, day, ledger):
     correction = request['correction']
+    automatic = request.get('confirmation_mode') == 'auto_validated'
     require_identity = False
     def date_check():
         if correction:
@@ -194,7 +197,7 @@ def _commit(actor, report, request, settings, *, runtime, codec, authorized, day
         nonlocal require_identity
         source = Path(settings['source']).resolve()
         original = source.read_bytes()
-        require_identity = identity.active(book) and not identity.historical(book)
+        require_identity = automatic or (identity.active(book) and not identity.historical(book))
         if identity.active(book) and not codec:
             with closing(identity.load(original)):
                 pass
@@ -207,6 +210,9 @@ def _commit(actor, report, request, settings, *, runtime, codec, authorized, day
                 current = _check_item(book,report['items'][item['number']-1]['parsed'],report['date'],settings)
                 if current != item['record']:
                     raise EntryError('مقصد ثبت تغییر کرده است؛ کد دقیق دستگاه را دوباره وارد کنید.')
+                if automatic:
+                    from .maintenance_history_sync import check_duplicate
+                    check_duplicate(book, current)
                 row = service.append_record(book,current,recorder=settings['recorder'],independent=True)
             except EntryError as exc:
                 rejected[item['id']] = str(exc)
@@ -215,10 +221,16 @@ def _commit(actor, report, request, settings, *, runtime, codec, authorized, day
                 accepted.append(item['id'])
         if not records:
             raise AllItemsRejected(rejected)
-        attach_records(book,records,request['operation'])
+        if automatic:
+            identity.enable(book, historical_scope=True)
+            notes = [identity.attach(book, saved, request['operation'], group) for group,saved in enumerate(records)]
+        else:
+            attach_records(book,records,request['operation'])
         result = dict(operation=request['operation'],date=request['date'],recorder=settings['recorder'],
                       records=records,item_ids=accepted,rejected_items=rejected,
                       delivery=delivery_review(request['date'],ledger))
+        if automatic:
+            result['row_receipts'] = notes
         verify_operation(request,result)
         return result
 
@@ -287,12 +299,17 @@ def _approved_history(db, settings, actor, chat, source_id, operation):
 
 
 def process(action, actor, chat, *, source_id=None, raw=None, report_id=None, token=None, origin=None,
-            number=None, reply_id=None, config=CONFIG, entry_config=service.CONFIG, runtime=service.RUNTIME,
+            number=None, reply_id=None, analysis=None, config=CONFIG, entry_config=service.CONFIG, runtime=service.RUNTIME,
             day=None, ledger=None, now=time.time):
     actor, chat, runtime = str(actor), str(chat), Path(runtime)
     settings = permission(actor,chat,config=config,entry_config=entry_config)
     if actor != chat or not partial_enabled(settings) or not enabled(config):
         raise PermissionError('مجوز این مسیر ثبت گزارش وجود ندارد.')
+    auto = auto_enabled(actor,settings)
+    if action.startswith('auto_') and not auto:
+        raise PermissionError('مجوز ثبت خودکار وجود ندارد.')
+    if auto and action in ('confirm','approve','correct','bind','reply','prepare'):
+        raise PermissionError('مرحلهٔ قبلی ثبت گزارش بسته شده است.')
     for field in ('recorder','mechanic','department'):
         service.validate_text(settings[field],200)
     if source_id is not None:
@@ -319,11 +336,34 @@ def process(action, actor, chat, *, source_id=None, raw=None, report_id=None, to
         report = load_workflow(db,actor,chat,report_id)
         historical_approval = None
         historical_receipt = None
+        if action == 'auto_bind':
+            if (not report or not MESSAGE_ID.fullmatch(str(origin or '')) or
+                    not any(i['number']==number and i['status']=='PENDING_CORRECTION' for i in report['items'])):
+                raise EntryError(EXPIRED)
+            with db:
+                db.execute('CREATE TABLE IF NOT EXISTS maintenance_auto_prompts '
+                           '(actor TEXT,chat TEXT,origin TEXT,operation TEXT,number INTEGER,PRIMARY KEY(actor,chat,origin))')
+                db.execute('INSERT INTO maintenance_auto_prompts VALUES (?,?,?,?,?)',(actor,chat,origin,report_id,number))
+            return {}
+        if action == 'auto_reply':
+            row = db.execute('SELECT operation,number FROM maintenance_auto_prompts WHERE actor=? AND chat=? AND origin=?',
+                             (actor,chat,origin)).fetchone()
+            if not row or not MESSAGE_ID.fullmatch(str(reply_id or '')):
+                raise EntryError(EXPIRED)
+            report = load_workflow(db,actor,chat,row['operation'])
+            number = row['number']
         if action == 'reply':
             if not origin or not MESSAGE_ID.fullmatch(str(reply_id or '')):
                 raise EntryError(EXPIRED)
             row = correction_prompt(db,actor,chat,origin)
             report = load_workflow(db,actor,chat,row['operation']) if row else None
+        if auto and action == 'status' and (not report or not report.get('attempt',{})):
+            row = db.execute("SELECT source_id,raw_text FROM maintenance_report_messages WHERE actor=? AND chat=? "
+                             "AND status='auto_received' AND (? IS NULL OR operation=?) ORDER BY rowid DESC LIMIT 1",
+                             (actor,chat,report_id,report_id)).fetchone()
+            if row and (not report or (report['source_id']==row['source_id']
+                                       and any(i['status']=='FAILED' for i in report['items']))):
+                return dict(resume=row['source_id'],raw=row['raw_text'])
         if action == 'status' and not report:
             row = db.execute("""SELECT * FROM maintenance_report_messages WHERE actor=? AND chat=?
                 AND status='partial_received' AND (? IS NULL OR operation=?) ORDER BY rowid DESC LIMIT 1""",
@@ -334,15 +374,15 @@ def process(action, actor, chat, *, source_id=None, raw=None, report_id=None, to
                 row = historical_receipt
             if row:
                 action, source_id, report_id, raw = 'prepare', row['source_id'], row['operation'], row['raw_text']
-        if action == 'prepare':
+        if action in ('prepare','auto_prepare'):
             if not source_id or not isinstance(raw,str) or not 1 <= len(raw) <= 16000:
                 raise EntryError('متن یا شناسهٔ گزارش معتبر نیست.')
             receipt = historical_receipt
             if receipt is None:
-                digest = remember(runtime,report_id,actor,chat,source_id,raw,status='partial_received')
+                digest = remember(runtime,report_id,actor,chat,source_id,raw,status='auto_received' if action=='auto_prepare' else 'partial_received')
                 receipt = db.execute('''SELECT rowid,raw_hash,status FROM maintenance_report_messages
                     WHERE operation=? AND raw_hash=?''',(report_id,digest)).fetchone()
-            if receipt['status'] != 'partial_received' and historical_approval is None:
+            if receipt['status'] != ('auto_received' if action=='auto_prepare' else 'partial_received') and historical_approval is None:
                 return dict(legacy=receipt['status'])
             other = db.execute("""SELECT source_id FROM maintenance_report_messages
                 WHERE actor=? AND chat=? AND raw_hash=? AND rowid<? AND status<>'conflict'
@@ -350,7 +390,25 @@ def process(action, actor, chat, *, source_id=None, raw=None, report_id=None, to
             if other and not report:
                 return dict(duplicate=other['source_id'])
             if not report:
-                parsed = parse(raw,day,independent=True)
+                try:
+                    parsed = parse(raw,day,independent=True,karamali=auto)
+                except ValueError:
+                    if action == 'auto_prepare':
+                        try:
+                            unplaced = work_items(raw,independent=True,karamali=True)
+                        except ValueError:
+                            unplaced = []
+                        report = dict(id=report_id,source_id=source_id,date=None,raw=raw,settings=settings,
+                                      attempt=None,view=None,items=[
+                                dict(id=uuid.uuid5(uuid.UUID(report_id),str(n)).hex,number=n,parsed=item,
+                                     status='PENDING_CORRECTION',reason='تاریخ یا ساختار گزارش معتبر نیست.',correction=None)
+                                for n,item in enumerate(unplaced,1)])
+                        save_workflow(db,actor,chat,report)
+                        return dict(invalid=True)
+                    raise
+                if action == 'auto_prepare':
+                    from .maintenance_report_auto import validate_analysis
+                    validate_analysis(raw,parsed,analysis)
                 if historical_approval and parsed['date'] != historical_approval['date']:
                     raise EntryError('تاریخ گزارش با مجوز بررسی قبلی تطبیق ندارد.')
                 report = dict(id=report_id,source_id=source_id,date=parsed['date'],raw=raw,settings=settings,
@@ -363,28 +421,61 @@ def process(action, actor, chat, *, source_id=None, raw=None, report_id=None, to
                 with _snapshot(settings,runtime,codec) as book:
                     _classify(book,report,settings,report['items'])
                 save_workflow(db,actor,chat,report)
-            else:
+            elif action != 'auto_prepare':
                 return dict(duplicate=report['source_id'])
         if not report:
             if action == 'status':
                 return dict(missing=True)
             raise EntryError(EXPIRED)
-        if report['settings'] != settings:
+        if auto and not report.get('date'):
+            return dict(invalid=True)
+        prior = dict(report['settings'])
+        if auto:
+            prior.setdefault('confirmation_mode','auto_validated')
+        if prior != settings:
             raise PermissionError('هویت ثبت‌کننده یا مقصد گزارش تغییر کرده است؛ بررسی لازم است.')
 
         if report.get('attempt'):
             if report['attempt'].get('owner_approval'):
                 raise EntryError('نتیجهٔ ثبت مدیریتی این گزارش در دفتر ثبت در حال بررسی است.')
-            if action != 'status':
+            if action not in ('status','auto_prepare','auto_reply'):
                 raise EntryError('ابتدا «وضعیت گزارش» را برای بررسی ثبت قبلی بفرستید.')
             recovered = _recover(report,actor,settings,runtime)
             save_workflow(db,actor,chat,report)
+            if recovered and auto:
+                return _response(report,committed=len(recovered['item_ids']))
             if recovered:
                 _make_view(report,'offer',now,open_date=report['date'] in entry_dates.choices(day))
                 save_workflow(db,actor,chat,report)
                 return _response(report,committed=len(recovered['item_ids']),delivery=recovered['delivery'])
-            action = 'status'
+            if auto and action == 'status':
+                return dict(resume=report['source_id'],raw=report['raw'])
+            if not auto:
+                action = 'status'
 
+        if auto and action == 'status':
+            return _response(report)
+        if action == 'auto_reply':
+            item = report['items'][number-1]
+            if item['status'] == 'COMMITTED':
+                return _response(report)
+            code = str(raw or '').strip().translate(DIGITS)
+            if (not re.fullmatch(TOKEN,code) or item['parsed']['issue']
+                    or not item['parsed']['code'] or item['status'] not in ('PENDING_CORRECTION','FAILED','VALID')):
+                return dict(correction_needed=True)
+            if item.get('correction') != reply_id:
+                parsed_item = _corrected(item,raw)
+                item.setdefault('revisions',[]).append(dict(message_id=reply_id,raw=raw))
+                item.update(parsed=parsed_item,correction=reply_id)
+            with _snapshot(settings,runtime,codec) as book:
+                _classify(book,report,settings,[item])
+            save_workflow(db,actor,chat,report)
+        if action in ('auto_prepare','auto_reply'):
+            chosen = ([report['items'][number-1]] if action=='auto_reply' else
+                      [i for i in report['items'] if i['correction'] is None])
+            selected = [i for i in chosen if i['status'] in ('VALID','FAILED') and i.get('record')]
+            if not selected:
+                return _response(report)
         if action in ('prepare','status'):
             retry = [item for item in report['items'] if item['status'] in RETRYABLE]
             date_open = report['date'] in entry_dates.choices(day)
@@ -438,17 +529,23 @@ def process(action, actor, chat, *, source_id=None, raw=None, report_id=None, to
                 with _snapshot(settings,runtime,codec) as book:
                     _classify(book,report,settings,[item])
             _make_view(report,'offer',now,open_date=report['date'] in entry_dates.choices(day))
-        elif action == 'confirm':
-            view = _bound(report,token,origin,now,'text')
-            selected = [report['items'][n-1] for n in view['numbers']]
-            if any(item['status']!='VALID' for item in selected):
-                raise EntryError(EXPIRED)
+        elif action in ('confirm','auto_prepare','auto_reply'):
+            if not auto:
+                view = _bound(report,token,origin,now,'text')
+                selected = [report['items'][n-1] for n in view['numbers']]
+                if any(item['status']!='VALID' for item in selected):
+                    raise EntryError(EXPIRED)
             request = dict(_kind=KIND,operation=uuid.uuid4().hex,report_id=report['id'],source_id=report['source_id'],
                            date=report['date'],raw_text=report['raw'],recorder=settings['recorder'],
-                           correction=view['correction'],alias_version=ALIAS_VERSION,
-                           approvals=dict(report_message=view['offer_message'],text_message=origin),
+                           correction=(action=='auto_reply' if auto else view['correction']),alias_version=ALIAS_VERSION,
                            approved_items=[dict(id=item['id'],number=item['number'],record=deepcopy(item['record']),
                                                 correction=item['correction']) for item in selected])
+            if auto:
+                selection = [(i['id'],i['correction']) for i in selected]
+                request.update(confirmation_mode='auto_validated',origin_actor=actor,
+                               operation=uuid.uuid5(uuid.UUID(report['id']),json.dumps(selection)).hex)
+            else:
+                request['approvals'] = dict(report_message=view['offer_message'],text_message=origin)
             if report.get('historical_recovery'):
                 request['historical_recovery'] = report['historical_recovery']
             for item in selected:
@@ -462,11 +559,13 @@ def process(action, actor, chat, *, source_id=None, raw=None, report_id=None, to
                                  authorized=authorized,day=day,ledger=ledger)
             except AllItemsRejected as exc:
                 _complete(report,dict(item_ids=[],rejected_items=exc.rejected))
-                _make_view(report,'offer',now,open_date=report['date'] in entry_dates.choices(day))
+                if not auto:
+                    _make_view(report,'offer',now,open_date=report['date'] in entry_dates.choices(day))
                 save_workflow(db,actor,chat,report)
                 return _response(report)
             _complete(report,result)
-            _make_view(report,'offer',now,open_date=report['date'] in entry_dates.choices(day))
+            if not auto:
+                _make_view(report,'offer',now,open_date=report['date'] in entry_dates.choices(day))
             save_workflow(db,actor,chat,report)
             return _response(report,committed=len(result['item_ids']),delivery=result['delivery'])
         else:

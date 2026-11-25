@@ -1,0 +1,4 @@
+name: komatso-fleet-downtime
+version: 1.0.0
+author: KomatsoAI
+description: Read-only Fleet Performance & Downtime Analytics tools available to all approved KomatsoAI users across every profile.

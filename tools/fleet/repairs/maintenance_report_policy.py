@@ -33,3 +33,8 @@ def enabled(config=CONFIG):
 
 def partial_enabled(settings):
     return settings['scope'] == 'all' and settings.get('partial_confirmation') is True
+
+
+def auto_enabled(actor, settings):
+    return (str(actor) == '1732374823' and partial_enabled(settings)
+            and settings.get('confirmation_mode') == 'auto_validated')

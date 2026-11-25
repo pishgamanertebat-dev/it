@@ -10,19 +10,22 @@ import openpyxl
 from . import entry_dates, maintenance_identity as identity, maintenance_service as service
 from .entry_service import EntryError
 from .maintenance_baseline import sheet_state, states
-from .maintenance_history_scope import OPERATIONS, OWNER
+from .maintenance_history_scope import OPERATIONS, NEW_OPERATIONS, OWNER, REPORTER
 from .maintenance_report import apply_records, verify_operation
 
 
 def receipts(db, source):
     notes = {}
-    for operation in OPERATIONS:
+    auto = db.execute("SELECT operation FROM edits WHERE source=? COLLATE NOCASE AND actor=? AND status='succeeded' "
+                      "AND json_extract(request,'$.confirmation_mode')='auto_validated'",(str(source),REPORTER))
+    auto_ops = {row[0] for row in auto}
+    for operation in (*OPERATIONS, *NEW_OPERATIONS, *auto_ops):
         row = db.execute("SELECT actor,source,request,result FROM edits WHERE operation=? AND status='succeeded'",
                          (operation,)).fetchone()
         if row is None or Path(row[1]) != source:
             continue
         request, result = json.loads(row[2]), json.loads(row[3])
-        if row[0] != OWNER or not request.get('owner_approval'):
+        if operation not in auto_ops and (row[0] != OWNER or not request.get('owner_approval')):
             raise EntryError('HISTORICAL_WRITER_RECEIPT_AUTHORITY_CHANGED')
         verify_operation(request, result)
         notes[operation] = result['row_receipts']

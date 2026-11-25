@@ -3,8 +3,9 @@
   "source": "E:\\Function\\تعمیرات 1405.xlsx",
   "sync_policy": "upstream_copy",
   "outbound_publication": {
-    "enabled": false,
-    "mode": "isolated_candidate",
+    "enabled": true,
+    "mode": "production",
+    "operating_contract": "owner_lunch_1200_1300_v1",
     "isolation_root": null,
     "publication_window": {"start": "12:30", "end": "12:55"},
     "policy": "daily_1230",

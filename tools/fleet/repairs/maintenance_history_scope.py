@@ -15,8 +15,13 @@ OPERATIONS = ('733af30ccdc358f3b3b5a7d1a10f69db', 'f722406dd4905048825b099c45995
 COMMAND_PREFIX = 'ثبت نهایی گزارش‌های کرمعلی '
 
 
-def command():
-    return COMMAND_PREFIX + SCOPE_SHA256
+LIVE_SCOPE = '832f1520a3fb5d0e4e3d2011f885052d81a97d422b854ed411e667f90cd69db9'
+NEW_OPERATIONS = ('1234a637b82e5b74bc569c54f8d6eac4', '42038983bebd5883aab42acebf6df05c',
+                  'f9f47e7ffa815735b571f1321cc73a47')
+
+
+def command(pin=None):
+    return COMMAND_PREFIX + (pin or SCOPE_SHA256)
 
 
 def digest(data):
@@ -27,9 +32,18 @@ def encoded(value):
     return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(',', ':'))
 
 
-def load():
+def load(pin=None):
     from .entry_service import EntryError
 
+    if pin == LIVE_SCOPE:
+        document = json.loads((ROOT/'settings/karamali_history_20261124.json').read_text('utf8'))
+        frozen = document['scope']
+        if (document['scope_sha256'] != pin or digest(encoded(frozen).encode()) != pin
+                or document['approval'] is not None):
+            raise EntryError('HISTORICAL_SCOPE_INVALID')
+        return frozen
+    if pin not in (None, SCOPE_SHA256):
+        raise EntryError('HISTORICAL_SCOPE_INVALID')
     document = json.loads(SCOPE_FILE.read_text('utf8'))
     scope = document['scope']
     if (document['scope_sha256'] != SCOPE_SHA256 or digest(encoded(scope).encode()) != SCOPE_SHA256
@@ -50,7 +64,7 @@ def verify_approval(approval):
     if (not isinstance(approval, dict) or set(approval) != {
             'platform', 'owner', 'chat', 'message_id', 'received_at', 'scope_sha256', 'text'}
             or approval['platform'] != 'bale' or approval['owner'] != OWNER or approval['chat'] != OWNER
-            or approval['scope_sha256'] != SCOPE_SHA256 or approval['text'] != command()
+            or approval['scope_sha256'] not in (SCOPE_SHA256, LIVE_SCOPE) or approval['text'] != command(approval['scope_sha256'])
             or not isinstance(approval['message_id'], str)
             or not re.fullmatch(r'[1-9][0-9]*', approval['message_id'])):
         raise EntryError('HISTORICAL_OWNER_APPROVAL_INVALID')
@@ -69,7 +83,7 @@ def verify_receipt(request, result):
 
     approval = request.get('owner_approval')
     verify_approval(approval)
-    specs = {spec['writer_operation']: spec for spec in load()['reports']}
+    specs = {spec['writer_operation']: spec for spec in load(approval['scope_sha256'])['reports']}
     spec = specs.get(request.get('operation'))
     if (not spec or request.get('source_id') != spec['source_id'] or request.get('report_id') != spec['report_id']
             or request.get('origin_actor') != REPORTER or request.get('date') != spec['date']

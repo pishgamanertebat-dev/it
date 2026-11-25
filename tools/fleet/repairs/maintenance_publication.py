@@ -1,12 +1,9 @@
-"""One-workbook coordinated publication candidate for the existing Sync job.
-
-Production paths remain denied. Owner-contract UAT additionally permits one
-private test Share; a hash check plus ReplaceFileW is not SMB CAS.
-"""
+"""Coordinated publication for the bound maintenance workbook in the existing Sync job."""
 from contextlib import closing
 from datetime import datetime, timezone
 import json
 import os
+import re
 import sqlite3
 import subprocess
 import sys
@@ -36,11 +33,21 @@ def contract_test_upstream(path, value):
             and re.fullmatch(r'komatso_contract_[0-9a-f]{32}', path.parent.name) is not None)
 
 
+def production_local(settings, config, runtime):
+    from .maintenance_service import CONFIG, RUNTIME
+    source = Path(settings['source'])
+    for actual, expected in ((source, Path('E:/Function') / WORKBOOK),
+                             (Path(config), CONFIG), (Path(runtime), RUNTIME)):
+        if actual != expected or actual.resolve(strict=True) != expected:
+            raise EntryError('PUBLICATION_PRODUCTION_PATH_DENIED')
+    return source
+
+
 def options(settings):
     value = settings.get('outbound_publication', {})
     if value.get('enabled', False) is False:
         return None
-    if (value.get('enabled') is not True or value.get('mode') != 'isolated_candidate'
+    if (value.get('enabled') is not True or value.get('mode') not in ('isolated_candidate', 'production')
             or set(value) - {'enabled', 'mode', 'isolation_root', 'publication_window', 'policy', 'alert_owner', 'operating_contract'}
             or not {'enabled', 'mode', 'isolation_root', 'publication_window'} <= set(value)):
         raise EntryError('PUBLICATION_CONFIG_INVALID')
@@ -51,11 +58,22 @@ def options(settings):
         raise EntryError('PUBLICATION_CONFIG_INVALID')
     if value.get('policy') == 'daily_1230' and value['publication_window'] != {'start':'12:30', 'end':'12:55'}:
         raise EntryError('PUBLICATION_WINDOW_INVALID')
+    if value['mode'] == 'production' and (value.get('operating_contract') != OWNER_LUNCH_CONTRACT
+            or value.get('isolation_root') is not None or value.get('alert_owner') != '455740857'):
+        raise EntryError('PUBLICATION_CONFIG_INVALID')
     return value
 
 
 def isolated_paths(settings, upstream, runtime, staged, config):
     value = options(settings)
+    if value['mode'] == 'production':
+        source = production_local(settings, config, runtime)
+        upstream, staged = Path(upstream), Path(staged)
+        if (upstream != SMB_UAT_ROOT.parent / WORKBOOK or upstream.resolve(strict=True) != upstream
+                or staged.parent != source.parent or staged.resolve(strict=True) != staged
+                or not re.fullmatch(r'\.mine-sync-[0-9a-f]{32}\.partial', staged.name)):
+            raise EntryError('PUBLICATION_PRODUCTION_PATH_DENIED')
+        return source, upstream, value
     root = Path(value['isolation_root']).resolve(strict=True)
     if not root.is_relative_to(CANDIDATE_ROOT.resolve()) or root == CANDIDATE_ROOT.resolve():
         raise EntryError('PUBLICATION_ISOLATION_REQUIRED')
@@ -91,7 +109,7 @@ def window_open(value):
 
 
 def writer_codec(config, runtime):
-    """The same append-only Writer, with a codec only in the isolated daily mode."""
+    """Select the preserving codec for the configured daily or inbound-only Writer."""
     settings = json.loads(Path(config).read_text('utf8'))
     value = options(settings)
     if value is None and settings.get('sync_policy') == 'upstream_copy':
@@ -99,15 +117,18 @@ def writer_codec(config, runtime):
         return inbound_writer_codec(settings['source'], runtime)
     if value is None or value.get('policy') != 'daily_1230':
         return {}
-    root = Path(value['isolation_root']).resolve(strict=True)
     paths = (Path(config), Path(runtime), Path(settings['source']))
-    if root == CANDIDATE_ROOT.resolve() or not root.is_relative_to(CANDIDATE_ROOT.resolve()):
-        raise EntryError('PUBLICATION_ISOLATION_REQUIRED')
-    for path in paths:
-        if not path.resolve(strict=True).is_relative_to(root):
-            raise EntryError('PUBLICATION_PRODUCTION_PATH_DENIED')
-        if any(p.is_symlink() or (hasattr(p,'is_junction') and p.is_junction()) for p in (path,*path.parents)):
-            raise EntryError('PUBLICATION_REPARSE_DENIED')
+    if value['mode'] == 'production':
+        production_local(settings, config, runtime)
+    else:
+        root = Path(value['isolation_root']).resolve(strict=True)
+        if root == CANDIDATE_ROOT.resolve() or not root.is_relative_to(CANDIDATE_ROOT.resolve()):
+            raise EntryError('PUBLICATION_ISOLATION_REQUIRED')
+        for path in paths:
+            if not path.resolve(strict=True).is_relative_to(root):
+                raise EntryError('PUBLICATION_PRODUCTION_PATH_DENIED')
+            if any(p.is_symlink() or (hasattr(p,'is_junction') and p.is_junction()) for p in (path,*path.parents)):
+                raise EntryError('PUBLICATION_REPARSE_DENIED')
     from .maintenance_ooxml import read, dump
 
     def read_for_writer(data):
@@ -167,20 +188,28 @@ def replay_branch(db, source, original, runtime, *, preserve=False):
         from .maintenance_report import apply_records
         # A local-only inbound merge can migrate the pending rows' identities
         # before the daily outbound window. Reproduce that same exact branch.
-        if preserve and identity.active(local) and not identity.active(base):
+        scoped = identity.historical(local)
+        if scoped:
+            from .maintenance_history_sync import receipts, inventory, append_batches
+            expected = receipts(db, source)
+            inventory(local, expected)
+            positions = append_batches(base, batches, expected)
+        if preserve and not scoped and identity.active(local) and not identity.active(base):
             identity.enable(base)
         # Reproduce the full local branch before assigning any legacy identity.
         for operation, saved in batches:
-            results = apply_records(base, [s['record'] for s in saved], operation=operation)
+            results = positions[operation] if scoped else apply_records(base, [s['record'] for s in saved], operation=operation)
             specs.extend((operation, group, s['record'], position)
                          for group, (s, position) in enumerate(zip(saved, results)))
         if states(base) != states(local) or dict(base.defined_names) != dict(local.defined_names):
             raise EntryError('PUBLICATION_REPLAY_NOT_EXACT')
+        if scoped:
+            inventory(base, expected)
         legacy = not identity.active(base)
         if legacy:
             identity.enable(base)
         for operation, group, record, position in specs:
-            if legacy:
+            if legacy or (scoped and operation not in expected):
                 identity.attach(base, position, operation, group)
         known = identity.inventory(base, preserve_notes=preserve)
         return state, mine_hash, known, specs, identity.active(local)
@@ -292,7 +321,7 @@ def publication_exclusion(upstream, *, value=None):
     This explicit operating contract is not a server-side exclusion claim.
     Existing Writer lock, owner-file, destination hash, window and readback
     checks still apply. Without the contract, retain the original guard.
-    Production remains denied separately by isolated_paths().
+    The configured mode also binds the permitted source, Share, staging path and Journal.
     """
     if (not value or value.get('operating_contract') != OWNER_LUNCH_CONTRACT
             or value.get('policy') != 'daily_1230'):
@@ -336,6 +365,20 @@ def cycle_locked(db, source, upstream, incoming, runtime, value):
         original = reader.read()
     retain_snapshot(runtime, original)
     retain_snapshot(runtime, incoming)
+    # Until the first eligible lunch tick, keep the existing inbound path. It
+    # can accept a fresh mine Save while preserving the proven local branch.
+    # Reconcile a changed input first; the next tick uses its verified hash.
+    if value.get('mode') == 'production':
+        branch = journal_branch(db, source, original, runtime, upstream_copy=True, coordinated=True)
+        if branch:
+            with closing(proof_workbook(snapshot(runtime,branch[1]),preserve=True)) as base:
+                untagged = not identity.active(base)
+            uncertain = db.execute("SELECT 1 FROM maintenance_publications_v1 WHERE status IN ('uncertain','prepared') LIMIT 1").fetchone()
+            if untagged and not uncertain and (not window_open(value) or digest(incoming) != branch[1]):
+                from .maintenance_baseline import sync_from_baseline
+                result = sync_from_baseline(db,source,original,incoming,runtime,upstream_copy=True)
+                observe_pending(db,set(result.get('protected_operations',[])))
+                return result
     state, mine_hash, known, specs, local_active = replay_branch(db, source, original, runtime, preserve=daily)
     base = proof_workbook(snapshot(runtime, mine_hash), preserve=daily)
     acknowledged = identity.inventory(base, preserve_notes=daily)
@@ -358,9 +401,14 @@ def cycle_locked(db, source, upstream, incoming, runtime, value):
         if not base_active:
             # Initial untagged migration is hash bound. Arbitrarily saved/edited
             # copies of a previously exported untagged branch need owner review.
-            if digest(incoming) not in {mine_hash, digest(original)}:
+            recorded = db.execute("SELECT identities FROM maintenance_publications_v1 WHERE before_hash=? "
+                                  "AND candidate_hash=? AND status IN ('uncertain','prepared')",
+                                  (mine_hash,digest(incoming))).fetchall()
+            exact_recovery = (len(recorded)==1 and json.loads(recorded[0][0]) == known
+                              and identity.inventory(mine,preserve_notes=daily)==known)
+            if digest(incoming) not in {mine_hash, digest(original)} and not exact_recovery:
                 raise EntryError('LEGACY_MIGRATION_MINE_VERSION_AMBIGUOUS')
-            if digest(incoming) == digest(original):
+            if digest(incoming) == digest(original) and not identity.active(mine):
                 for operation, group, record, position in specs:
                     identity.attach(mine, position, operation, group)
             identity.enable(mine)
@@ -378,7 +426,7 @@ def cycle_locked(db, source, upstream, incoming, runtime, value):
         for operation, group, record, position in specs:
             key = uuid.uuid5(identity.NAMESPACE, f"{operation}:{group}:{record['sheet']}").hex
             if key not in present:
-                saved = append_record(mine, record, recorder=record['recorder'])
+                saved = append_record(mine, record, recorder=record['recorder'], independent=True)
                 item = identity.attach(mine, saved, operation, group)
                 if known.get(key) != item:
                     raise EntryError('IDENTITY_APPEND_NOT_EXACT')
@@ -433,6 +481,12 @@ def publish_locked(db, source, upstream, original, incoming, candidate, runtime,
         with source_reader(source) as local, source_reader(upstream) as remote:
             if digest(local.read()) != digest(original) or digest(remote.read()) != digest(incoming):
                 raise EntryError('PUBLICATION_NOOP_INPUT_CHANGED')
+        if pending and specs:
+            recovered = dict(status='merged', hash=digest(original), mine_hash=digest(incoming),
+                             records=len(final_ids), coordinated_publication=True, protected_operations=[],
+                             publication=pending[-1]['publication'], baseline=state['event_id'])
+            publish_candidate(source,original,original,db,'mine-file-sync',
+                              dict(_kind=KIND,operation=uuid.uuid4().hex),recovered,runtime=runtime)
         for attempt in pending:
             transition(db, attempt['publication'], 'acked', 'identity readback recovery')
         return dict(status='unchanged', hash=digest(original), mine_hash=digest(incoming),
@@ -516,13 +570,16 @@ def poll_existing_tick(sync_status, *, config=None, runtime=None):
     value = options(settings)
     if value is None or value.get('policy') != 'daily_1230':
         return dict(status='disabled')
-    root = Path(value['isolation_root']).resolve(strict=True)
-    if not root.is_relative_to(CANDIDATE_ROOT.resolve()) or root == CANDIDATE_ROOT.resolve():
-        raise EntryError('PUBLICATION_ISOLATION_REQUIRED')
-    source = Path(settings['source']).resolve(strict=True)
-    for path in (source, runtime.resolve(strict=True), config.resolve(strict=True)):
-        if not path.is_relative_to(root) or any(p.is_symlink() or (hasattr(p,'is_junction') and p.is_junction()) for p in (path,*path.parents)):
-            raise EntryError('PUBLICATION_PRODUCTION_PATH_DENIED')
+    if value['mode'] == 'production':
+        source = production_local(settings, config, runtime)
+    else:
+        root = Path(value['isolation_root']).resolve(strict=True)
+        if not root.is_relative_to(CANDIDATE_ROOT.resolve()) or root == CANDIDATE_ROOT.resolve():
+            raise EntryError('PUBLICATION_ISOLATION_REQUIRED')
+        source = Path(settings['source']).resolve(strict=True)
+        for path in (source, runtime.resolve(strict=True), config.resolve(strict=True)):
+            if not path.is_relative_to(root) or any(p.is_symlink() or (hasattr(p,'is_junction') and p.is_junction()) for p in (path,*path.parents)):
+                raise EntryError('PUBLICATION_PRODUCTION_PATH_DENIED')
     try:
         with writer_lock(runtime), closing(open_audit(runtime)) as db:
             schema(db)

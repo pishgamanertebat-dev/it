@@ -4,6 +4,7 @@ from copy import copy
 import logging
 from pathlib import Path
 import re
+from .maintenance_report_policy import auto_enabled
 
 from .maintenance_report_parse import declared_report, work_items
 from .maintenance_report_policy import partial_enabled, permission
@@ -41,12 +42,20 @@ class MaintenanceReportHandler:
         if callback and not str(raw.get('data','')).startswith('ik:mreport:'):
             return None
         is_report = declared_report(event.text)
-        if not (callback or is_report or status_command(event.text) or getattr(event,'reply_to_message_id',None)):
-            return None
+        candidate = callback or is_report or status_command(event.text) or getattr(event,'reply_to_message_id',None)
+        if not candidate:
+            if actor != '1732374823':
+                return None
+            from .entry_extract import intent_decision
+            if intent_decision(event.text)[0] == 'none':
+                return None
         try:
             settings = self.authorize(actor,chat)
         except (PermissionError,OSError,ValueError):
             return None
+        if auto_enabled(actor,settings):
+            from .maintenance_report_auto import handle
+            return handle(self.partial,event,gateway,send,actor,chat,callback)
         if partial_enabled(settings):
             return self.partial.handle(event,gateway,send,actor,chat,callback)
         if callback or not is_report:

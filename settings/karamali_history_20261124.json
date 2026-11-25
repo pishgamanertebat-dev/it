@@ -1,0 +1,327 @@
+{
+  "scope": {
+    "kind": "maintenance_historical_owner_recovery",
+    "version": 1,
+    "owner_bale_id": "455740857",
+    "original_bale_actor": "1732374823",
+    "destination": "E:\\Function\\تعمیرات 1405.xlsx",
+    "authorized_data_destinations": [
+      "E:\\Function\\تعمیرات 1405.xlsx",
+      "E:\\KomatsoAI\\runtime\\maintenance-entry\\audit.sqlite3",
+      "E:\\KomatsoAI\\runtime\\maintenance-entry\\backups"
+    ],
+    "publication_1230": false,
+    "maximum_rows": 12,
+    "reports": [
+      {
+        "source_id": "bale:8143",
+        "date": "1405/08/30",
+        "raw_sha256": "fabf327cbe40c058771701a681bbee172c8f7871fd0811b7b5796a51b1cf21c9",
+        "report_id": "e72a138133c55d6b980ba09633e344aa",
+        "writer_operation": "1234a637b82e5b74bc569c54f8d6eac4",
+        "approved_items": [
+          {
+            "number": 1,
+            "id": "0b9e81c9078258ef9fdf6be316c5a66e",
+            "raw": "-دامپتراک ۷۰۷: تعویض شلنگ باد. سرلک. ",
+            "span": {
+              "start": 28,
+              "end": 65
+            },
+            "record": {
+              "sheet": "707",
+              "code": "707",
+              "canonical": "HD707",
+              "name": "دامپتراک کوماتسو707",
+              "date": "1405/08/30",
+              "description": "-دامپتراک ۷۰۷: تعویض شلنگ باد. سرلک. ",
+              "parts": "",
+              "recorder": "محسن کرمعلی",
+              "department": "تعمیرگاه",
+              "mechanic": "اکیپ مکانیکی"
+            },
+            "row_uuid": "778e225890175beb9b580aef4f774804"
+          },
+          {
+            "number": 3,
+            "id": "47e5a5b8cf56555f9576f3481ff2e927",
+            "raw": "-بیل ۸۵۳. تعویض شلنگ گازویل از باک به موتور .حسین بهرامی.",
+            "span": {
+              "start": 111,
+              "end": 168
+            },
+            "record": {
+              "sheet": "853",
+              "code": "853",
+              "canonical": "EX853",
+              "name": "بیل853",
+              "date": "1405/08/30",
+              "description": "-بیل ۸۵۳. تعویض شلنگ گازویل از باک به موتور .حسین بهرامی.",
+              "parts": "",
+              "recorder": "محسن کرمعلی",
+              "department": "تعمیرگاه",
+              "mechanic": "اکیپ مکانیکی"
+            },
+            "row_uuid": "df527c0f63d35dba94448cea63c4b94c"
+          }
+        ],
+        "excluded_items": [
+          {
+            "number": 2,
+            "id": "aec1eba445545df79ec01a4205a4d5cc",
+            "raw": "-لودر ۶۰۰: تعویض ۲عدد باطری . رحمان وجباری. ",
+            "span": {
+              "start": 66,
+              "end": 110
+            },
+            "status": "PENDING_CORRECTION",
+            "code": "600",
+            "reason": "شیتی برای این دستگاه وجود ندارد؛ کد دقیق دستگاه را وارد کنید."
+          }
+        ]
+      },
+      {
+        "source_id": "bale:8149",
+        "date": "1405/09/01",
+        "raw_sha256": "f3d0e9d3083a41555cf91c3985f03ac3ff5521d5930f1965b27d8e4492566ba2",
+        "report_id": "2aef64d3c57656c489a6909419a88995",
+        "writer_operation": "42038983bebd5883aab42acebf6df05c",
+        "approved_items": [
+          {
+            "number": 1,
+            "id": "ded522bb18085d66afcf886077b087f1",
+            "raw": "-دامپتراک 716: تعویض 2عدد لاستیک کوپلینک لوله زیر مخصن هیدرولیک. سرلک.",
+            "span": {
+              "start": 24,
+              "end": 94
+            },
+            "record": {
+              "sheet": "716",
+              "code": "716",
+              "canonical": "HD716",
+              "name": "دامپ 716",
+              "date": "1405/09/01",
+              "description": "-دامپتراک 716: تعویض 2عدد لاستیک کوپلینک لوله زیر مخصن هیدرولیک. سرلک.",
+              "parts": "",
+              "recorder": "محسن کرمعلی",
+              "department": "تعمیرگاه",
+              "mechanic": "اکیپ مکانیکی"
+            },
+            "row_uuid": "edd047d0725852e4bddbef21620749d4"
+          },
+          {
+            "number": 2,
+            "id": "13e9675aac2c5e188f6f5a8984c9e569",
+            "raw": "-دامپتراک 464:باز کردن منیفولداگزور و سوپر موتور.سرلک وگل دسته.",
+            "span": {
+              "start": 95,
+              "end": 158
+            },
+            "record": {
+              "sheet": "464",
+              "code": "464",
+              "canonical": "HD464",
+              "name": "تراک 464",
+              "date": "1405/09/01",
+              "description": "-دامپتراک 464:باز کردن منیفولداگزور و سوپر موتور.سرلک وگل دسته.",
+              "parts": "",
+              "recorder": "محسن کرمعلی",
+              "department": "تعمیرگاه",
+              "mechanic": "اکیپ مکانیکی"
+            },
+            "row_uuid": "d08280e99a1a527fbc63ed800d59d289"
+          },
+          {
+            "number": 3,
+            "id": "176a3708270b5901a4cb73ccb7060b50",
+            "raw": "-بولدورز 152:باز کردن دینام و باطری ها زیر شارژ. رحمان.",
+            "span": {
+              "start": 159,
+              "end": 214
+            },
+            "record": {
+              "sheet": "152",
+              "code": "152",
+              "canonical": "D152",
+              "name": "بلدوزر 152",
+              "date": "1405/09/01",
+              "description": "-بولدورز 152:باز کردن دینام و باطری ها زیر شارژ. رحمان.",
+              "parts": "",
+              "recorder": "محسن کرمعلی",
+              "department": "تعمیرگاه",
+              "mechanic": "اکیپ مکانیکی"
+            },
+            "row_uuid": "2c6418ea70705c79bcc49c1861efbc01"
+          },
+          {
+            "number": 4,
+            "id": "ce7b5c9766e2575bad303c726d5d172b",
+            "raw": "-بیل 802:تعویض 2عدداورینگ روی پمپ مادر.حسین بهرامی.",
+            "span": {
+              "start": 215,
+              "end": 266
+            },
+            "record": {
+              "sheet": "802",
+              "code": "802",
+              "canonical": "EX802",
+              "name": "بیل 802",
+              "date": "1405/09/01",
+              "description": "-بیل 802:تعویض 2عدداورینگ روی پمپ مادر.حسین بهرامی.",
+              "parts": "",
+              "recorder": "محسن کرمعلی",
+              "department": "تعمیرگاه",
+              "mechanic": "اکیپ مکانیکی"
+            },
+            "row_uuid": "1c7d5dbb2c4b5175a332225bcbee1a1d"
+          }
+        ],
+        "excluded_items": []
+      },
+      {
+        "source_id": "bale:8152",
+        "date": "1405/09/02",
+        "raw_sha256": "c8488dec4f0820e9b15f39f7e4dc991f4b7d69fbe45f100ca6ff4f8c2caa6324",
+        "report_id": "0372139d58205aca9e0e65f7b983d333",
+        "writer_operation": "f9f47e7ffa815735b571f1321cc73a47",
+        "approved_items": [
+          {
+            "number": 1,
+            "id": "4e8d7654dab3507191eb16d01193c345",
+            "raw": "-دامپتراک 706: تعویض 2 عدد پنماتیک باد . رحمان سرلک .",
+            "span": {
+              "start": 24,
+              "end": 77
+            },
+            "record": {
+              "sheet": "706",
+              "code": "706",
+              "canonical": "HD706",
+              "name": "تراک 706",
+              "date": "1405/09/02",
+              "description": "-دامپتراک 706: تعویض 2 عدد پنماتیک باد . رحمان سرلک .",
+              "parts": "",
+              "recorder": "محسن کرمعلی",
+              "department": "تعمیرگاه",
+              "mechanic": "اکیپ مکانیکی"
+            },
+            "row_uuid": "2d61ef8baf4f5aa5940f9c2d02394545"
+          },
+          {
+            "number": 2,
+            "id": "d152d0c92af557daa647d94925e369d7",
+            "raw": "-دامپتراک 466:گرفتن نشتی روغن از فیلتر ترومز .سرلک گل دسته و مرادی. ",
+            "span": {
+              "start": 78,
+              "end": 146
+            },
+            "record": {
+              "sheet": "466",
+              "code": "466",
+              "canonical": "HD466",
+              "name": "تراک 466",
+              "date": "1405/09/02",
+              "description": "-دامپتراک 466:گرفتن نشتی روغن از فیلتر ترومز .سرلک گل دسته و مرادی. ",
+              "parts": "",
+              "recorder": "محسن کرمعلی",
+              "department": "تعمیرگاه",
+              "mechanic": "اکیپ مکانیکی"
+            },
+            "row_uuid": "27a2801af90253f3b2061a177fe3ad88"
+          },
+          {
+            "number": 3,
+            "id": "c12d7173725e58128896a38942d59e0b",
+            "raw": "-بیل 1254: تعویض 2عدد باطری.رحمان ",
+            "span": {
+              "start": 147,
+              "end": 181
+            },
+            "record": {
+              "sheet": "1254",
+              "code": "1254",
+              "canonical": "EX1254",
+              "name": "بیل 1254",
+              "date": "1405/09/02",
+              "description": "-بیل 1254: تعویض 2عدد باطری.رحمان ",
+              "parts": "",
+              "recorder": "محسن کرمعلی",
+              "department": "تعمیرگاه",
+              "mechanic": "اکیپ مکانیکی"
+            },
+            "row_uuid": "4cfc5bc926465ec692b66dd891f4124b"
+          },
+          {
+            "number": 4,
+            "id": "c7cd21ec0df256f888de5c5423c5bdbe",
+            "raw": "-بولدزور152:بستن دینام بس باطری ها که زیز شارژ بوده.رحمان ",
+            "span": {
+              "start": 182,
+              "end": 240
+            },
+            "record": {
+              "sheet": "152",
+              "code": "152",
+              "canonical": "D152",
+              "name": "بلدوزر 152",
+              "date": "1405/09/02",
+              "description": "-بولدزور152:بستن دینام بس باطری ها که زیز شارژ بوده.رحمان ",
+              "parts": "",
+              "recorder": "محسن کرمعلی",
+              "department": "تعمیرگاه",
+              "mechanic": "اکیپ مکانیکی"
+            },
+            "row_uuid": "41c3b69df6425a86bf07cbfda1188fc8"
+          },
+          {
+            "number": 5,
+            "id": "d2189834950256f7b09285eef14c9163",
+            "raw": "-دامپتراک 704:گرفتن نشتی گازویل .سرلک گل دسته.",
+            "span": {
+              "start": 241,
+              "end": 287
+            },
+            "record": {
+              "sheet": "704",
+              "code": "704",
+              "canonical": "HD704",
+              "name": "تراک704",
+              "date": "1405/09/02",
+              "description": "-دامپتراک 704:گرفتن نشتی گازویل .سرلک گل دسته.",
+              "parts": "",
+              "recorder": "محسن کرمعلی",
+              "department": "تعمیرگاه",
+              "mechanic": "اکیپ مکانیکی"
+            },
+            "row_uuid": "f732a3bec11b58d7994e4a7459a37159"
+          },
+          {
+            "number": 6,
+            "id": "5663ee07b3be53bbbe22a29f912220f7",
+            "raw": "-لودر 473:بستن موتور .حمید شایسته و حسین بهرامی و مورادی.",
+            "span": {
+              "start": 288,
+              "end": 345
+            },
+            "record": {
+              "sheet": "473",
+              "code": "473",
+              "canonical": "WA473",
+              "name": "لودر 473",
+              "date": "1405/09/02",
+              "description": "-لودر 473:بستن موتور .حمید شایسته و حسین بهرامی و مورادی.",
+              "parts": "",
+              "recorder": "محسن کرمعلی",
+              "department": "تعمیرگاه",
+              "mechanic": "اکیپ مکانیکی"
+            },
+            "row_uuid": "c5dcb60e28535d219eef1f37f423783a"
+          }
+        ],
+        "excluded_items": []
+      }
+    ]
+  },
+  "approval": null,
+  "scope_sha256": "832f1520a3fb5d0e4e3d2011f885052d81a97d422b854ed411e667f90cd69db9"
+}

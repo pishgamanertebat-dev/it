@@ -32,7 +32,7 @@ def bound_settings(frozen, config, entry_config, runtime):
             or (runtime/'audit.sqlite3').resolve() != runtime/'audit.sqlite3'
             or (runtime/'backups').resolve() != runtime/'backups'
             or entry.get('sync_policy') != 'upstream_copy'
-            or entry['outbound_publication']['enabled'] is not False
+            or (entry['outbound_publication']['enabled'] is not False and frozen['maximum_rows'] != 12)
             or not enabled(config) or not (runtime/'audit.sqlite3').is_file()):
         raise EntryAuthorizationDenied('HISTORICAL_DESTINATION_OR_POLICY_CHANGED')
     settings = permission(scope.REPORTER, scope.REPORTER, config=config, entry_config=entry_config)
@@ -41,7 +41,7 @@ def bound_settings(frozen, config, entry_config, runtime):
     return target, settings
 
 
-def backup(source, runtime):
+def backup(source, runtime, pin=None):
     """Called under the standard Writer lock before writing the owner intent."""
     parent = runtime/'backups'
     parent.mkdir(exist_ok=True)
@@ -59,7 +59,7 @@ def backup(source, runtime):
         excel_hash = scope.digest(data)
         if scope.digest((path/'Function.xlsx').read_bytes()) != excel_hash:
             raise EntryError('HISTORICAL_BACKUP_EXCEL_CHANGED')
-        details = dict(created=datetime.now(timezone.utc).isoformat(), scope_sha256=scope.SCOPE_SHA256,
+        details = dict(created=datetime.now(timezone.utc).isoformat(), scope_sha256=pin or scope.SCOPE_SHA256,
                        source=str(source), workbook_sha256=excel_hash,
                        journal_sha256=scope.digest((path/'audit.sqlite3').read_bytes()))
         (path/'hashes.json').write_text(scope.encoded(details), encoding='utf8')
@@ -70,15 +70,17 @@ def original(db, spec, settings, approval):
     row = db.execute('''SELECT * FROM maintenance_report_messages
                         WHERE operation=? AND source_id=? AND actor=? AND chat=?''',
                      (spec['report_id'], spec['source_id'], scope.REPORTER, scope.REPORTER)).fetchall()
-    if len(row) != 1 or row[0]['status'] != 'needs_review':
+    current = approval['scope_sha256'] == scope.LIVE_SCOPE
+    receipt_status = 'partial_received' if current else 'needs_review'
+    if len(row) != 1 or row[0]['status'] != receipt_status:
         raise EntryError('HISTORICAL_ORIGINAL_RECEIPT_CHANGED')
     receipt = row[0]
     raw = receipt['raw_text']
     if (receipt['raw_hash'] != spec['raw_sha256'] or scope.digest(raw.encode()) != spec['raw_sha256']
-            or settings['historical_recovery'].get(spec['source_id']) !=
-            {'date': spec['date'], 'raw_sha256': spec['raw_sha256']}):
+            or (not current and settings['historical_recovery'].get(spec['source_id']) !=
+            {'date': spec['date'], 'raw_sha256': spec['raw_sha256']})):
         raise EntryError('HISTORICAL_ORIGINAL_HASH_CHANGED')
-    parsed = parse(raw, current=spec['date'], independent=True)
+    parsed = parse(raw, current=spec['date'], independent=True, karamali=current)
     if parsed['date'] != spec['date']:
         raise EntryError('HISTORICAL_ORIGINAL_DATE_CHANGED')
     indexed = {item['number']: item for item in spec['approved_items'] + spec['excluded_items']}
@@ -99,7 +101,7 @@ def original(db, spec, settings, approval):
                    alias_version=parsed['alias_version'], owner_approval=approval, approved_items=scope.items(spec))
     return dict(id=spec['report_id'], source_id=spec['source_id'], date=spec['date'], raw=raw, settings=settings,
                 items=items, view=None, attempt=request,
-                historical_recovery=settings['historical_recovery'][spec['source_id']]), request
+                historical_recovery=dict(date=spec['date'],raw_sha256=spec['raw_sha256'])), request
 
 
 def no_other_commit(db, request):
@@ -115,9 +117,9 @@ def retain_approval(db, approval):
         db.execute('''CREATE TABLE IF NOT EXISTS maintenance_historical_owner_approval
                       (scope_sha256 TEXT PRIMARY KEY, approval TEXT NOT NULL)''')
         db.execute('INSERT OR IGNORE INTO maintenance_historical_owner_approval VALUES (?,?)',
-                   (scope.SCOPE_SHA256, scope.encoded(approval)))
+                   (approval['scope_sha256'], scope.encoded(approval)))
     result = json.loads(db.execute('SELECT approval FROM maintenance_historical_owner_approval WHERE scope_sha256=?',
-                                  (scope.SCOPE_SHA256,)).fetchone()[0])
+                                  (approval['scope_sha256'],)).fetchone()[0])
     scope.verify_approval(result)
     return result
 
@@ -134,6 +136,17 @@ def verify_candidate(data, result):
             raise EntryError('HISTORICAL_WRITER_ROW_NOTE_READBACK_FAILED')
 
 
+def verify_inventory(db, source, runtime, book, data):
+    if identity.active(book) and not identity.historical(book):
+        from .maintenance_publication import replay_branch
+        db.row_factory = sqlite3.Row
+        known = replay_branch(db, source, data, runtime, preserve=True)[2]
+        if identity.inventory(book, preserve_notes=True) != known:
+            raise EntryError('HISTORICAL_WRITER_ROW_NOTE_READBACK_FAILED')
+    else:
+        inbound.inventory(book, inbound.receipts(db, source))
+
+
 def verify_current(source, runtime, request, result):
     with writer_lock(runtime), source_reader(source) as file, closing(inbound.open_readonly(runtime)) as db:
         db.row_factory = sqlite3.Row
@@ -147,7 +160,7 @@ def verify_current(source, runtime, request, result):
         verify_operation(request, result)
         verify_candidate(snapshot(runtime, row['after_hash']), result)
         with closing(identity.load(data, preserve=True)) as book:
-            inbound.inventory(book, inbound.receipts(db, source))
+            verify_inventory(db, source, runtime, book, data)
 
 
 def commit_one(source, runtime, source_settings, proposed, request, authorized, ledger):
@@ -159,11 +172,11 @@ def commit_one(source, runtime, source_settings, proposed, request, authorized, 
         if not backed_up:
             with closing(inbound.open_readonly(runtime)) as db:
                 other = db.execute("""SELECT operation FROM edits WHERE source=? COLLATE NOCASE
-                                      AND status='prepared' AND operation NOT IN (?,?) LIMIT 1""",
-                                   (str(source), *scope.OPERATIONS)).fetchone()
+                                      AND status='prepared' AND operation<>? LIMIT 1""",
+                                   (str(source), request['operation'])).fetchone()
             if other is not None:
                 raise EntryError('HISTORICAL_FOREIGN_PREPARED_OPERATION')
-            backup(source, runtime)
+            backup(source, runtime, request['owner_approval']['scope_sha256'])
             backed_up = True
 
     def read(data):
@@ -172,7 +185,7 @@ def commit_one(source, runtime, source_settings, proposed, request, authorized, 
         try:
             with closing(inbound.open_readonly(runtime)) as db:
                 no_other_commit(db, request)
-                inbound.inventory(book, inbound.receipts(db, source))
+                verify_inventory(db, source, runtime, book, data)
             return book
         except BaseException:
             book.close()
@@ -221,13 +234,14 @@ def execute(event, *, owner_allowed, config=CONFIG, entry_config=service.CONFIG,
 def execute_approved(approval, *, owner_allowed, config=CONFIG, entry_config=service.CONFIG, runtime=service.RUNTIME,
                      ledger=None):
     scope.verify_approval(approval)
-    frozen = scope.load()
+    pin = approval['scope_sha256']
+    frozen = scope.load(pin)
     runtime = Path(runtime).resolve()
     source, settings = bound_settings(frozen, config, entry_config, runtime)
     ledger = ledger or service.ROOT/'runtime/scheduler/runs.sqlite3'
 
     def authorized():
-        if (not owner_allowed() or scope.load() != frozen
+        if (not owner_allowed() or scope.load(pin) != frozen
                 or bound_settings(frozen, config, entry_config, runtime) != (source, settings)):
             raise EntryAuthorizationDenied('HISTORICAL_OWNER_OR_SCOPE_REVOKED')
         approved_identity(scope.OWNER)
@@ -245,7 +259,7 @@ def execute_approved(approval, *, owner_allowed, config=CONFIG, entry_config=ser
             all_done = all(confirmed(existing, request) is not None for _, request in prepared)
         if not all_done:
             with writer_lock(runtime):
-                backup(source, runtime)
+                backup(source, runtime, pin)
         with closing(open_workflows(runtime)) as db:
             approval = retain_approval(db, approval)
             for spec in frozen['reports']:
@@ -253,7 +267,11 @@ def execute_approved(approval, *, owner_allowed, config=CONFIG, entry_config=ser
                 proposed, request = original(db, spec, settings, approval)
                 old = load_workflow(db, scope.REPORTER, scope.REPORTER, spec['report_id'])
                 succeeded = confirmed(db, request)
-                if old is not None and old.get('attempt') != request and succeeded is None:
+                untouched_offer = (old and pin == scope.LIVE_SCOPE and old.get('attempt') is None
+                                   and old['raw'] == proposed['raw'] and old['date'] == proposed['date']
+                                   and all(i['status'] in ('VALID','PENDING_CORRECTION') and not i.get('revisions')
+                                           for i in old['items']))
+                if old is not None and not untouched_offer and old.get('attempt') != request and succeeded is None:
                     raise EntryError('HISTORICAL_OTHER_WORKFLOW_EXISTS')
                 if succeeded is None:
                     save_workflow(db, scope.REPORTER, scope.REPORTER, proposed)
@@ -261,7 +279,7 @@ def execute_approved(approval, *, owner_allowed, config=CONFIG, entry_config=ser
                 else:
                     result = json.loads(succeeded['result'])
                 verify_current(source, runtime, request, result)
-                if old is None or old.get('attempt') == request:
+                if old is None or old.get('attempt') == request or (untouched_offer and succeeded is None):
                     _complete(proposed, result)
                     save_workflow(db, scope.REPORTER, scope.REPORTER, proposed)
                 results[spec['source_id']] = result

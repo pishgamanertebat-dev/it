@@ -55,11 +55,13 @@ def _normalized(text):
     return text.translate(DIGITS).replace('ي','ی').replace('ك','ک').replace('\u200c',' ')
 
 
-def work_items(raw, *, independent=False):
+def work_items(raw, *, independent=False, karamali=False):
     items = []
     for start, end in _source_spans(raw, allow_wrapping=independent):
         line = raw[start:end]
         clean = _normalized(line)
+        if karamali:
+            clean = clean.replace('بولدورز', 'بولدوزر')
         matches = list(DEVICE_CODE.finditer(clean)) + list(PREFIX_CODE.finditer(clean))
         bare = BARE_CODE.search(clean)
         if bare:matches.append(bare)
@@ -105,18 +107,23 @@ def _without_device(line, matches):
     return ''.join(char for i, char in enumerate(line) if i not in hidden).strip(' -_,•*\t:：.،')
 
 
-def parse(raw, current=None, *, independent=False):
+def parse(raw, current=None, *, independent=False, karamali=False):
     from . import entry_dates
     if not isinstance(raw,str) or not 1 <= len(raw) <= 16000 or not declared_report(raw):
         raise ValueError('متن کامل گزارش با عنوان و تاریخ روشن لازم است؛ متن اصلی نگه‌داری شد.')
     current = current or entry_dates.today()
     date_text = raw.strip().splitlines()[0].translate(DIGITS).replace('آ','ا')
     dates = re.findall(r'1[34]\d{2}[/.-]\d{1,2}[/.-]\d{1,2}',date_text)
-    if not dates:
+    if not dates or karamali:
         for month,name in enumerate(MONTHS,1):
             for found in re.finditer(r'(?<!\d)(\d{1,2})\s*'+name.replace('آ','ا')+r'(?:\s*(1[34]\d{2}))?',date_text):
-                dates.append(f'{found[2] or current[:4]}/{month}/{found[1]}')
+                year = found[2] or current[:4]
+                if karamali and not found[2]:
+                    short = re.match(r'\s+(\d{2})(?!\d)', date_text[found.end():])
+                    if short:
+                        year = current[:2] + short[1]
+                dates.append(f'{year}/{month}/{found[1]}')
     if len(dates)!=1:
         raise ValueError('تاریخ گزارش یکتا و روشن نیست؛ هیچ ردیفی ثبت نشد.')
     date = entry_dates.validate_selected(dates[0],current)
-    return dict(date=date,items=work_items(raw,independent=independent),raw_text=raw,alias_version=ALIAS_VERSION)
+    return dict(date=date,items=work_items(raw,independent=independent,karamali=karamali),raw_text=raw,alias_version=ALIAS_VERSION)

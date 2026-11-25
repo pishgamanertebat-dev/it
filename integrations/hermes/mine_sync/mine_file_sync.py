@@ -824,7 +824,8 @@ def run(args):
                 result = dict(empty_result(), status='source_unavailable', exception=str(exc), failure_classification='source_outage')
             else:
                 result = supervise(args)
-    result.update(started_at=now_text, finished_at=utcnow(), duration_seconds=round(time.monotonic() - started, 3),
+    result.update(sync_release='maintenance-publication-20261124', script_path=str(Path(__file__).resolve()),
+                  started_at=now_text, finished_at=utcnow(), duration_seconds=round(time.monotonic() - started, 3),
                   dry_run=args.dry_run, source=str(args.source), destination=str(args.dest), attempted=attempted)
     bindings = result.pop('flatten_bindings', None)
     outputs = result.pop('flatten_outputs', None)

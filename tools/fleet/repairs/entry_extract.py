@@ -77,7 +77,7 @@ def exact_keys(value, keys):
         raise ValueError('ساختار خروجی مدل معتبر نیست؛ پیش‌نویس ساخته نشد.')
 
 
-def validate(value, raw):
+def validate(value, raw, *, maintenance_blocks=False):
     exact_keys(value, ('raw_text', 'report_date', 'items', 'unresolved'))
     if not isinstance(raw, str) or not 1 <= len(raw) <= 16000 or value['raw_text'] != raw:
         raise ValueError('متن اصلی در استخراج حفظ نشده است.')
@@ -119,7 +119,7 @@ def validate(value, raw):
     unresolved = list(value['unresolved'])
     if date is None and not any(i['item'] is None and i['field']=='date' for i in unresolved) and re.search(r'(?:تاریخ|مورخ)\s*[۰-۹٠-٩0-9]|1[34][0-9]{2}[/.-]|(?:\d|[۰-۹٠-٩])\s*(?:آبان|ابان|مهر|آذر|اذر|دی|بهمن|اسفند|فروردین|اردیبهشت|خرداد|تیر|مرداد|شهریور)', raw):
         unresolved.append(dict(item=None,field='date',question='عبارت تاریخ در متن وجود دارد ولی استخراج نشده؛ تاریخ را صریحاً انتخاب کنید.'))
-    if intent_decision(raw) == ('possible', 'declared_report'):
+    if not maintenance_blocks and intent_decision(raw) == ('possible', 'declared_report'):
         bullets = list(re.finditer(r'(?m)^[ \t]*[-_•][ \t]*\S[^\r\n]*', raw))
         for bullet in bullets:
             matches = [item for item in result if item['source_span']['start'] == bullet.start()
@@ -130,7 +130,7 @@ def validate(value, raw):
     return dict(value, items=result, unresolved=unresolved)
 
 
-async def extract(raw, actor, *, route_info=None):
+async def extract(raw, actor, *, route_info=None, maintenance_blocks=False):
     # No Agent and no tools. Resolve the existing actor profile on the server.
     from tools.authorization import AuthorizationStore
     profile = AuthorizationStore().resolve_profile(str(actor), str(actor))
@@ -148,7 +148,7 @@ async def extract(raw, actor, *, route_info=None):
         response = await async_call_llm(provider=runtime['provider'], model=model,
             base_url=runtime.get('base_url'), api_key=runtime.get('api_key'),
             main_runtime=dict(runtime, model=model),
-            messages=[{'role': 'system', 'content': PROMPT}, {'role': 'user', 'content': raw}],
+            messages=[{'role': 'system', 'content': PROMPT + (' Keep wrapped continuation lines in the same complete source block.' if maintenance_blocks else '')}, {'role': 'user', 'content': raw}],
             tools=None, max_tokens=12000, timeout=90, route_info=route_info)
     content = response.choices[0].message.content
-    return validate(json.loads(content), raw)
+    return validate(json.loads(content), raw, maintenance_blocks=maintenance_blocks)

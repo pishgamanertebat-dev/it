@@ -20,12 +20,13 @@ def approval_for_event(event, owner_allowed):
     ignored = ('forward_date', 'forward_origin', 'forward_from', 'edit_date', 'bale_inline_callback')
     modified = any(raw.get(key) if isinstance(raw, dict) else getattr(raw, key, None) for key in ignored)
     message = str(event.message_id or '')
+    pin = scope.LIVE_SCOPE if event.text == scope.command(scope.LIVE_SCOPE) else scope.SCOPE_SHA256
     if (platform != 'bale' or peer.chat_type != 'dm' or str(peer.user_id) != scope.OWNER
-            or str(peer.chat_id) != scope.OWNER or event.text != scope.command() or modified
+            or str(peer.chat_id) != scope.OWNER or event.text != scope.command(pin) or modified
             or not re.fullmatch(r'[1-9][0-9]*', message) or not owner_allowed()):
         raise PermissionError('HISTORICAL_OWNER_APPROVAL_REQUIRED')
     return dict(platform='bale', owner=scope.OWNER, chat=scope.OWNER, message_id=message,
-                received_at=datetime.now(timezone.utc).isoformat(), scope_sha256=scope.SCOPE_SHA256, text=event.text)
+                received_at=datetime.now(timezone.utc).isoformat(), scope_sha256=pin, text=event.text)
 
 
 async def run_worker(approval, *, owner_allowed):
@@ -57,7 +58,7 @@ async def run_worker(approval, *, owner_allowed):
         raise RuntimeError('Historical maintenance worker failed: ' + (await errors).decode('utf8', 'replace')[-1500:])
 
     try:
-        return await asyncio.wait_for(exchange(), timeout=120)
+        return await asyncio.wait_for(exchange(), timeout=360 if approval['scope_sha256'] == scope.LIVE_SCOPE else 120)
     finally:
         process.stdin.close()
         if process.returncode is None:

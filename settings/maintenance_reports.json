@@ -6,6 +6,7 @@
       "mechanic": "اکیپ مکانیکی",
       "scope": "all",
       "partial_confirmation": true,
+      "confirmation_mode": "auto_validated",
       "historical_recovery": {
         "bale:7949": {
           "date": "1405/08/27",
